@@ -10,9 +10,17 @@ public class TerrainGenerator : MonoBehaviour
 
     public static Dictionary<ChunkPos, TerrainChunk> chunks = new Dictionary<ChunkPos, TerrainChunk>();
 
+    [Header("Noise Settings")]
+    public int chunkDist = 1;
+    public float landNoiseScale = 0.8f;
+    public float caveNoiseScale = 5.0f;
+    public float stoneNoiseScale = 1.0f;
+    public float treeNoiseScale = 0.8f;
+    public float noiseIntensity = 10.0f;
+    
     FastNoise noise = new FastNoise();
 
-    int chunkDist = 1;
+    
 
     List<TerrainChunk> pooledChunks = new List<TerrainChunk>();
 
@@ -27,7 +35,7 @@ public class TerrainGenerator : MonoBehaviour
 
     private void Update()
     {
-        LoadChunks();
+        //LoadChunks();
     }
 
 
@@ -35,7 +43,7 @@ public class TerrainGenerator : MonoBehaviour
     void BuildChunk(int xPos, int zPos)
     {
         TerrainChunk chunk;
-        if(pooledChunks.Count > 0)//look in the poo first
+        if (pooledChunks.Count > 0)
         {
             chunk = pooledChunks[0];
             chunk.gameObject.SetActive(true);
@@ -47,27 +55,21 @@ public class TerrainGenerator : MonoBehaviour
             GameObject chunkGO = Instantiate(terrainChunk, new Vector3(xPos, 0, zPos), Quaternion.identity);
             chunk = chunkGO.GetComponent<TerrainChunk>();
         }
-        
 
-        for(int x = 0; x < TerrainChunk.chunkWidth+2; x++)
-            for(int z = 0; z < TerrainChunk.chunkWidth+2; z++)
-                for(int y = 0; y < TerrainChunk.chunkHeight; y++)
-                {
-                    //if(Mathf.PerlinNoise((xPos + x-1) * .1f, (zPos + z-1) * .1f) * 10 + y < TerrainChunk.chunkHeight * .5f)
-                    chunk.blocks[x, y, z] = GetBlockType(xPos+x-1, y, zPos+z-1);
-                }
-
+        for (int x = 0; x < TerrainChunk.chunkWidth + 2; x++)
+        for (int z = 0; z < TerrainChunk.chunkWidth + 2; z++)
+        for (int y = 0; y < TerrainChunk.chunkHeight; y++)
+        {
+            chunk.blocks[x, y, z] = GetBlockType(xPos + x - 1, y, zPos + z - 1);
+        }
 
         GenerateTrees(chunk.blocks, xPos, zPos);
 
         chunk.BuildMesh();
 
-
-        WaterChunk wat = chunk.transform.GetComponentInChildren<WaterChunk>();
-        wat.SetLocs(chunk.blocks);
-        wat.BuildMesh();
-        
-
+        WaterChunk waterChunk = chunk.GetComponentInChildren<WaterChunk>();
+        waterChunk.SetLocs(chunk.blocks);
+        waterChunk.BuildMesh();
 
         chunks.Add(new ChunkPos(xPos, zPos), chunk);
     }
@@ -76,67 +78,37 @@ public class TerrainGenerator : MonoBehaviour
     //get the block type at a specific coordinate
     BlockType GetBlockType(int x, int y, int z)
     {
-        /*if(y < 33)
-            return BlockType.Dirt;
-        else
-            return BlockType.Air;*/
-
-        
-
-
-        //print(noise.GetSimplex(x, z));
-        float simplex1 = noise.GetSimplex(x*.8f, z*.8f)*10;
-        float simplex2 = noise.GetSimplex(x * 3f, z * 3f) * 10*(noise.GetSimplex(x*.3f, z*.3f)+.5f);
-
+        // Noise calculations for land height
+        float simplex1 = noise.GetSimplex(x * landNoiseScale, z * landNoiseScale) * noiseIntensity;
+        float simplex2 = noise.GetSimplex(x * 3f, z * 3f) * noiseIntensity * (noise.GetSimplex(x * 0.3f, z * 0.3f) + 0.5f);
         float heightMap = simplex1 + simplex2;
 
-        //add the 2d noise to the middle of the terrain chunk
-        float baseLandHeight = TerrainChunk.chunkHeight * .5f + heightMap;
+        float baseLandHeight = TerrainChunk.chunkHeight * 0.5f + heightMap;
 
-        //3d noise for caves and overhangs and such
-        float caveNoise1 = noise.GetPerlinFractal(x*5f, y*10f, z*5f);
-        float caveMask = noise.GetSimplex(x * .3f, z * .3f)+.3f;
+        // Noise for caves
+        float caveNoise1 = noise.GetPerlinFractal(x * caveNoiseScale, y * caveNoiseScale * 2, z * caveNoiseScale);
+        float caveMask = noise.GetSimplex(x * 0.3f, z * 0.3f) + 0.3f;
 
-        //stone layer heightmap
-        float simplexStone1 = noise.GetSimplex(x * 1f, z * 1f) * 10;
-        float simplexStone2 = (noise.GetSimplex(x * 5f, z * 5f)+.5f) * 20 * (noise.GetSimplex(x * .3f, z * .3f) + .5f);
-
-        float stoneHeightMap = simplexStone1 + simplexStone2;
-        float baseStoneHeight = TerrainChunk.chunkHeight * .25f + stoneHeightMap;
-
-
-        //float cliffThing = noise.GetSimplex(x * 1f, z * 1f, y) * 10;
-        //float cliffThingMask = noise.GetSimplex(x * .4f, z * .4f) + .3f;
-
-
+        // Noise for stone layers
+        float stoneNoise1 = noise.GetSimplex(x * stoneNoiseScale, z * stoneNoiseScale) * noiseIntensity;
+        float stoneNoise2 = (noise.GetSimplex(x * 5f, z * 5f) + 0.5f) * 20 * (noise.GetSimplex(x * 0.3f, z * 0.3f) + 0.5f);
+        float stoneHeightMap = stoneNoise1 + stoneNoise2;
+        float baseStoneHeight = TerrainChunk.chunkHeight * 0.25f + stoneHeightMap;
 
         BlockType blockType = BlockType.Air;
 
-        //under the surface, dirt block
-        if(y <= baseLandHeight)
+        if (y <= baseLandHeight)
         {
             blockType = BlockType.Dirt;
-
-            //just on the surface, use a grass type
-            if(y > baseLandHeight - 1 && y > WaterChunk.waterHeight-2)
+            if (y > baseLandHeight - 1 && y > WaterChunk.waterHeight - 2)
                 blockType = BlockType.Grass;
 
-            if(y <= baseStoneHeight)
+            if (y <= baseStoneHeight)
                 blockType = BlockType.Stone;
         }
 
-
-        if(caveNoise1 > Mathf.Max(caveMask, .2f))
+        if (caveNoise1 > Mathf.Max(caveMask, 0.2f))
             blockType = BlockType.Air;
-
-        /*if(blockType != BlockType.Air)
-            blockType = BlockType.Stone;*/
-
-        //if(blockType == BlockType.Air && noise.GetSimplex(x * 4f, y * 4f, z*4f) < 0)
-          //  blockType = BlockType.Dirt;
-
-        //if(Mathf.PerlinNoise(x * .1f, z * .1f) * 10 + y < TerrainChunk.chunkHeight * .5f)
-        //    return BlockType.Grass;
 
         return blockType;
     }
@@ -213,51 +185,30 @@ public class TerrainGenerator : MonoBehaviour
     {
         System.Random rand = new System.Random(x * 10000 + z);
 
-        float simplex = noise.GetSimplex(x * .8f, z * .8f);
-
-        if(simplex > 0)
+        float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
+        if (treeNoise > 0)
         {
-            simplex *= 2f;
-            int treeCount = Mathf.FloorToInt((float)rand.NextDouble() * 5 * simplex);
+            int treeCount = Mathf.FloorToInt(rand.Next(1, 5) * treeNoise);
 
-            for(int i = 0; i < treeCount; i++)
+            for (int i = 0; i < treeCount; i++)
             {
-                int xPos = (int)(rand.NextDouble() * 14) + 1;
-                int zPos = (int)(rand.NextDouble() * 14) + 1;
+                int xPos = rand.Next(1, 15);
+                int zPos = rand.Next(1, 15);
 
                 int y = TerrainChunk.chunkHeight - 1;
-                //find the ground
-                while(y > 0 && blocks[xPos, y, zPos] == BlockType.Air)
-                {
+                while (y > 0 && blocks[xPos, y, zPos] == BlockType.Air)
                     y--;
-                }
+
                 y++;
 
-                int treeHeight = 4 + (int)(rand.NextDouble() * 4);
+                int treeHeight = 4 + rand.Next(4);
+                for (int j = 0; j < treeHeight; j++)
+                    blocks[xPos, y + j, zPos] = BlockType.Trunk;
 
-                for(int j = 0; j < treeHeight; j++)
-                {
-                    if(y+j < 64)
-                        blocks[xPos, y+j, zPos] = BlockType.Trunk;
-                }
-
-                int leavesWidth = 1 + (int)(rand.NextDouble() * 6);
-                int leavesHeight = (int)(rand.NextDouble() * 3);
-
-                int iter = 0;
-                for(int m = y + treeHeight - 1; m <= y + treeHeight - 1 + treeHeight; m++)
-                {
-                    for(int k = xPos - (int)(leavesWidth * .5)+iter/2; k <= xPos + (int)(leavesWidth * .5)-iter/2; k++)
-                        for(int l = zPos - (int)(leavesWidth * .5)+iter/2; l <= zPos + (int)(leavesWidth * .5)-iter/2; l++)
-                        {
-                            if(k >= 0 && k < 16 && l >= 0 && l < 16 && m >= 0 && m < 64 && rand.NextDouble() < .8f)
-                                blocks[k, m, l] = BlockType.Leaves;
-                        }
-
-                    iter++;
-                }
-
-
+                int leavesWidth = 3;
+                for (int lx = -leavesWidth; lx <= leavesWidth; lx++)
+                for (int lz = -leavesWidth; lz <= leavesWidth; lz++)
+                    blocks[xPos + lx, y + treeHeight, zPos + lz] = BlockType.Leaves;
             }
         }
     }

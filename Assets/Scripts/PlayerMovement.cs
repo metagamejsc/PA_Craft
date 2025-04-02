@@ -13,9 +13,11 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundCheck;
     public float groundDistance = .4f;
     public LayerMask groundMask;
+    public Vector2 direction;
 
     private Vector3 velocity;
     private CharacterController controller;
+    public Rigidbody rigidbody;
     private bool isGrounded;
 
     // Start is called before the first frame update
@@ -29,18 +31,19 @@ public class PlayerMovement : MonoBehaviour
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
-        if(isGrounded && velocity.y < 0)
+        /*if(isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
-        }
-
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
+        }*/
+    
+        float horizontal = JoystickController.ins.Horizontal();
+        float vertical = JoystickController.ins.Vertical();
+        /*float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");*/
         Vector3 moveDirection = transform.right * horizontal + transform.forward * vertical;
 
         controller.Move(moveDirection * speed * Time.deltaTime);
-
+        //rigidbody.AddForce(moveDirection * speed * Time.deltaTime);
         if(Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2 * gravity);

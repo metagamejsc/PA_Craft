@@ -8,7 +8,8 @@ public class TerrainModifier : MonoBehaviour
 
     public Inventory inv;
 
-    float maxDist = 4;
+    float maxDist = 5;
+    float minDist = 2;
 
     // Start is called before the first frame update
     void Start()
@@ -19,7 +20,7 @@ public class TerrainModifier : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        bool leftClick = Input.GetMouseButtonDown(0);
+        /*bool leftClick = Input.GetMouseButtonDown(0);
         bool rightClick = Input.GetMouseButtonDown(1);
         if(leftClick || rightClick)
         {
@@ -66,6 +67,45 @@ public class TerrainModifier : MonoBehaviour
                     
                 }
             }
+        }*/
+    }
+
+    public void PlaceBlock()
+    {
+        MouseLook.ins.onClick?.Invoke();
+        RaycastHit hitInfo;
+        if(Physics.Raycast(transform.position, transform.forward, out hitInfo, maxDist, groundLayer))
+        {
+            Vector3 pointInTargetBlock;
+            
+            pointInTargetBlock = hitInfo.point - transform.forward * .01f;
+            Debug.Log(Vector3.Distance(transform.position,pointInTargetBlock));
+            if (Vector3.Distance(transform.position,pointInTargetBlock)<=minDist)
+            {
+                return;
+            }
+            //get the terrain chunk (can't just use collider)
+            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
+            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+
+            ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
+
+            TerrainChunk tc = TerrainGenerator.chunks[cp];
+
+            //index of the target block
+            int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
+            int biy = Mathf.FloorToInt(pointInTargetBlock.y);
+            int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
+            
+                if(inv.CanPlaceCur())
+                {
+                    AudioManager.ins.PlaySoundBuild();
+                    LunaManager.ins.CheckClickShowEndCard();
+                    tc.blocks[bix, biy, biz] = inv.GetCurBlock();
+                    tc.BuildMesh();
+                    inv.ReduceCur();
+                }
+
         }
     }
 }

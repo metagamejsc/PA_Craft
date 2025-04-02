@@ -10,6 +10,7 @@ public class Inventory : MonoBehaviour
     public BlockType[] matTypes;
     public Image[] invImgs;
     public Image[] matImgs;
+    public Transform posBlock;
 
     int curMat;
 
@@ -20,6 +21,9 @@ public class Inventory : MonoBehaviour
         {
             img.gameObject.SetActive(false);
         }
+
+        AddToInventory2(0, 32);
+        matImgs[0].gameObject.SetActive(true);
     }
 
     // Update is called once per frame
@@ -72,6 +76,21 @@ public class Inventory : MonoBehaviour
             i = 3;
 
         matCounts[i]++;
+        if(matCounts[i] == 1)
+            matImgs[i].gameObject.SetActive(true);
+
+    }
+    public void AddToInventory2(BlockType block,int quanlity)
+    {
+        int i = 0;
+        if(block == BlockType.Stone)
+            i = 1;
+        else if(block == BlockType.Trunk)
+            i = 2;
+        else if(block == BlockType.Leaves)
+            i = 3;
+
+        matCounts[i] += quanlity;
         if(matCounts[i] == 1)
             matImgs[i].gameObject.SetActive(true);
 
