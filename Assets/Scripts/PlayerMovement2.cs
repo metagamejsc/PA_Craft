@@ -51,7 +51,7 @@ public class PlayerMovement2 : MonoBehaviour
         if (Physics.Raycast(lowerStart, transform.forward, out hitLower, 0.5f) &&
             !Physics.Raycast(upperStart, transform.forward, out hitUpper, 0.5f))
         {
-            rb.position += new Vector3(0f, stepSmooth, 0f);
+            rb.position += new Vector3(0f, stepSmooth, 0f)+ transform.forward * 0.3f;
         }
     }
     void Update()
@@ -87,8 +87,14 @@ public class PlayerMovement2 : MonoBehaviour
     void FixedUpdate()
     {
         // Lấy input từ bàn phím (WASD)
-        float moveX = JoystickController.ins.Horizontal();
-        float moveZ = JoystickController.ins.Vertical();
+        float moveX = 0;
+        float moveZ = 0;
+#if UNITY_EDITOR
+         moveX = Input.GetAxis("Horizontal");
+         moveZ = Input.GetAxis("Vertical");
+#endif
+         moveX = JoystickController.ins.Horizontal();
+         moveZ = JoystickController.ins.Vertical();
 
         // Chuyển đổi hướng di chuyển theo góc nhìn
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
@@ -98,8 +104,6 @@ public class PlayerMovement2 : MonoBehaviour
         velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
         rb.velocity = velocity;
         
-      
-
         if (IsOnSlope())
         {
             rb.AddForce(Vector3.down * slopeForce, ForceMode.Acceleration);
