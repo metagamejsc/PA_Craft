@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TutorialBuildBlock : MonoBehaviour
 {
     public GameObject step;
+    public Button btnHideTutorial;
 
     public IEnumerator IeSpawnStep()
     {
@@ -19,6 +21,10 @@ public class TutorialBuildBlock : MonoBehaviour
         {
             step.SetActive(false);
         };
+        btnHideTutorial.onClick.AddListener(() =>
+        {
+            step.SetActive(false);
+        });
         StartCoroutine(IeSpawnStep());
     }
 }
