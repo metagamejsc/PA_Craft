@@ -179,6 +179,7 @@ public class BaseCharacter : MonoBehaviour
         health -= dmg;
         if (health <= 0)
         {
+            animator.SetTrigger("Dead");
             isDead = true;
             Die();
         }

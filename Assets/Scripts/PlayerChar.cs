@@ -19,4 +19,28 @@ public class PlayerChar : BaseCharacter
         base.Start();
         IsFindingEnemy = true;
     }
+
+    public override void TakeDamage(float dmg)
+    {
+        if (isDead)
+        {
+            return;
+        }
+        health -= dmg;
+        if (health <= 0)
+        {
+            LunaManager.ins.ShowEndCard();
+            isDead = true;
+            Die();
+        }
+    }
+
+    protected override void Die()
+    {
+        animator.SetTrigger("Dead");
+        rigidbody.isKinematic = true;
+        capsuleCollider.enabled = false;
+        animator.transform.parent = null;
+        //Destroy(gameObject);
+    }
 }

@@ -13,6 +13,8 @@ public class GameController : MonoBehaviour
     public bool isEndGame = false;
     public int ironCount;
     public UIManager uiManager;
+    public GameObject startGame;
+    public float timeActive;
 
     private void Awake()
     {
@@ -28,13 +30,39 @@ public class GameController : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isStartGame = true;
+            
+            //isStartGame = true;
         }
     }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            timeActive+= Time.deltaTime;
+            startGame.transform.localScale = new Vector3((1 - timeActive), (1 - timeActive), (1 - timeActive));
+            if (timeActive>=1f)
+            {
+                isStartGame = true;
+                startGame.SetActive(false);
+            }
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+        startGame.transform.localScale=Vector3.one;
+        timeActive = 0;
+        }
+    }
+
     [ContextMenu("Camera")]
     public void CheckCamera()
     {
         AudioManager.ins.PlaySoundVictory();
+        LunaManager.ins.ShowEndCard();
         if (Camera.main != null)
         {
             Camera.main.transform.DOMove(posEndCamera.position, 1f);
