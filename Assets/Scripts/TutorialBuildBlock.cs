@@ -15,10 +15,10 @@ public class TutorialBuildBlock : MonoBehaviour
 
     private void Start()
     {
-        MouseLook.ins.onClick += () =>
+        /*MouseLook.ins.onClick += () =>
         {
             step.SetActive(false);
-        };
-        StartCoroutine(IeSpawnStep());
+        };*/
+        //StartCoroutine(IeSpawnStep());
     }
 }

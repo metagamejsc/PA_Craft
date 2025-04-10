@@ -15,6 +15,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip loseSound;
     public AudioClip bgSound;
     public AudioClip buildSound;
+    public AudioClip victorySound;
+    public AudioClip fireWorkExploreSound;
 
     private void Awake()
     {
@@ -46,6 +48,15 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundBuild()
     {
         sound.PlayOneShot(buildSound,1);
+    }
+    public void PlaySoundVictory()
+    {
+        sound.PlayOneShot(victorySound,1);
+        Invoke(nameof(PlaySoundFireworkExplore),0.5f);
+    }
+    public void PlaySoundFireworkExplore()
+    {
+        sound.PlayOneShot(fireWorkExploreSound,1);
     }
     public void PlayMusicLose()
     {

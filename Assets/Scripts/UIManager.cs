@@ -12,6 +12,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public Button btnStartCard;
     [SerializeField] public float timeCurrent=59;
     [SerializeField] public TextMeshProUGUI txtTime;
+    [SerializeField] public TextMeshProUGUI txtIronCount;
     private void Awake()
     {
         ins = this;
@@ -29,7 +30,10 @@ public class UIManager : MonoBehaviour
             txtTime.text = "00:00";
         }*/
     }
-
+    public void updateironCount(int count)
+    {
+        txtIronCount.text = "x"+count.ToString();
+    }
     private void Start()
     {
         //btnRetry.onClick.AddListener(ReStart);
@@ -39,6 +43,6 @@ public class UIManager : MonoBehaviour
         {
             btnStartCard.gameObject.SetActive(false);
         });
+        updateironCount(GameController.ins.ironCount);
     }
-    
 }

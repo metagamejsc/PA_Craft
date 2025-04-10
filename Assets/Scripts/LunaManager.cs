@@ -8,11 +8,20 @@ using Random = UnityEngine.Random;
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    public int countDrop=0;
-    [LunaPlaygroundField("CountDrop")] public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
-    [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
+
+    [Header("[Player Stats]")]
+    [LunaPlaygroundField("playerHealh")] public float playerHealh=100;
+    [LunaPlaygroundField("playerDamage")] public float playerDamage=1;
+    [Header("[Zombie Stats]")]
+    [LunaPlaygroundField("zombieHealh")] public float zombieHealt=100;
+    [LunaPlaygroundField("zombieDamage")] public float zombieDamage=1;
+    [Header("[Golem Stats]")]
+    [LunaPlaygroundField("golemHealh")] public float golemHealh=100;
+    [LunaPlaygroundField("golemDamage")] public float golemDamage=1;
+    [Header("[Man Stats]")]
+    [LunaPlaygroundField("manHealh")] public float manHealh=100;
+    [LunaPlaygroundField("manDamage")] public float manDamage=1;
     public bool isCretivePause;
     private void Awake()
     {
@@ -40,12 +49,6 @@ public class LunaManager : MonoBehaviour
 
     public void CheckClickShowEndCard()
     {
-        countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
-        {
-            isCretivePause = true;
-            ShowEndCard();
-        }
     }
     // Update is called once per frame
     public void PauseGameplay()
@@ -62,6 +65,7 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
+        isCretivePause = true;
         AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");

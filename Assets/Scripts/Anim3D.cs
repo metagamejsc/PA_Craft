@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,15 +6,47 @@ using UnityEngine;
 public class Anim3D : MonoBehaviour
 {
     public BaseCharacter baseCharacter;
+    public SoundChar soundChar;
+
+    private void Start()
+    {
+        baseCharacter=gameObject.transform.parent.GetComponent<BaseCharacter>();
+        soundChar=GetComponent<SoundChar>();
+    }
+
     public void OnAnimationEvent(AnimationEvent evt)
     {
-        if (evt.stringParameter=="atk")
+        /*if (baseCharacter.target!=null && baseCharacter.target.TryGetComponent<BaseCharacter>(out var player) && !player.isDead) // Kiểm tra có component Player và chưa chết
         {
+            Debug.Log("Attack baseCharacter.target!=null");
+            baseCharacter.target.GetComponent<BaseCharacter>().TakeDamage(baseCharacter.damage);
+        }*/
+    }
+
+    public void EventAtk()
+    {
+        if (baseCharacter!=null)
+        {
+            soundChar.PlayAttackSound();
             if (baseCharacter.target!=null && baseCharacter.target.TryGetComponent<BaseCharacter>(out var player) && !player.isDead) // Kiểm tra có component Player và chưa chết
             {
+                baseCharacter.animator.GetComponent<SoundChar>().PlayTakeDameSound();
                 baseCharacter.target.GetComponent<BaseCharacter>().TakeDamage(baseCharacter.damage);
             }
-
         }
+        
+    }
+    public void EventIdle()
+    {
+        soundChar.PlayIdleSound();
+    }
+
+    public void EventDead()
+    {
+        soundChar.PlayDeadSound();
+    }
+    public void EventMove()
+    {
+        soundChar.PlayMoveSound();
     }
 }

@@ -24,7 +24,7 @@ public class WeaponSpawner : MonoBehaviour
         for (int i = 0; i < maxSwords; i++)
         {
             Vector3 spawnPosition = spawnArea.position + new Vector3(((int)i / 3) * spacing, 0, ((int)i % 3)*spacing);
-            GameObject newSwordObject = Instantiate(swordPrefabs, spawnPosition, Quaternion.identity,spawnArea.transform);
+            GameObject newSwordObject = Instantiate(swordPrefabs, spawnPosition, Quaternion.AngleAxis(-45,Vector3.up),spawnArea.transform);
             Sword newSword = new Sword(newSwordObject,spawnPosition,false);
             listSpawnedSwords.Add(newSword);
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,7 @@ public class MoveByLine : MonoBehaviour
 {
     public BaseCharacter baseCharacter;
     [SerializeField] private List<Transform> waypoints;
-    [SerializeField] private bool isFinishMove;
+    [SerializeField] public bool isFinishMove;
 
     public int currentWaypointIndex = 0;
 public void SetWaypoints(List<Transform> newWaypoints)
@@ -14,7 +15,13 @@ public void SetWaypoints(List<Transform> newWaypoints)
         waypoints = newWaypoints;
         currentWaypointIndex = 0; 
     }
-    void Update()
+
+private void Start()
+{
+    baseCharacter = GetComponent<BaseCharacter>();
+}
+
+void Update()
     {
         if (isFinishMove)
         {
@@ -31,7 +38,6 @@ public void SetWaypoints(List<Transform> newWaypoints)
         if (Vector3.Distance(transform.position, targetWaypoint.position) < 0.1f)
         {
             currentWaypointIndex++;
-
             // Nếu đã đến điểm cuối cùng
             if (currentWaypointIndex >= waypoints.Count)
             {

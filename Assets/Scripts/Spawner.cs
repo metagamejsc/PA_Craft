@@ -8,14 +8,32 @@ public class Spawner : MonoBehaviour
     public bool isActive = false;
     public int maxCap = 1;
     public GameObject spawnPrefab;
-    public float spawnTime = 0f;
+    public float spawnTime = 1f;
     public float spawnInterval = 1f;
     public List<GameObject> lstCurrentPrefab = new List<GameObject>();
     public Transform posSpawn;
     public List<Transform> listWaypoint;
+    public GameObject camp, buy;
+    public int ironToActive = 10;
     private void OnTriggerEnter(Collider other)
     {
-        isActive = true;
+        if (other.CompareTag("Player") && isActive==false)
+        {
+            if (GameController.ins.ironCount < ironToActive)
+            {
+                return;
+            }
+            GameController.ins.UpdateIronCount(-ironToActive);
+            isActive = true;
+            camp.SetActive(true);
+            buy.SetActive(false);
+        }
+    }
+
+    private void Start()
+    {
+        camp.SetActive(false);
+        buy.SetActive(true);
     }
 
     void Update()
@@ -36,7 +54,6 @@ public class Spawner : MonoBehaviour
             }
         }
     }
-
     private void SpawnEnemy()
     {
         GameObject newEnemy = Instantiate(spawnPrefab, posSpawn.position, Quaternion.identity);

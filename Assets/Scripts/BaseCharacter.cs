@@ -13,14 +13,22 @@ public class BaseCharacter : MonoBehaviour
     public float detectionRadiusMax = 5f;
     public float detectionRadiusMin = 1.5f;
     public bool isDead=false;
-    public bool isFindingEnemy = false;
     public GameObject WeaponObject;
+    private bool isFindingEnemy = false;
 
     public Animator animator;
     public AnimationClip atkAnimationClip;
     protected float attackCooldown = 0f;
     public Transform target;
-    
+    protected Rigidbody rigidbody;
+    protected CapsuleCollider capsuleCollider;
+    private static readonly int IsMoving = Animator.StringToHash("isMoving");
+
+    public bool IsFindingEnemy
+    {
+        get => isFindingEnemy;
+        set => isFindingEnemy = value;
+    }
     private void OnTriggerEnter(Collider other)
     {
         /*if (other.CompareTag("Weapon"))
@@ -34,19 +42,33 @@ public class BaseCharacter : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (LunaManager.ins.isCretivePause)
+        {
+            return;
+        }
         SearchForEnemy();
         HandleMovement();
         HandleAttack();
-        HandleDeath();
+        //HandleDeath();
     }
 
-    public void StartFinding()
+    protected virtual void Start()
     {
-        isFindingEnemy = true;
+        rigidbody= GetComponent<Rigidbody>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
     }
+    
     protected virtual void SearchForEnemy()
     {
+        if (target)
+        {
+            return;
+        }
         if (isDead)
+        {
+            return;
+        }
+        if (GameController.ins.isStartGame==false)
         {
             return;
         }
@@ -67,10 +89,21 @@ public class BaseCharacter : MonoBehaviour
 
     protected virtual void HandleMovement()
     {
+        if (target==null)
+        {
+            return;
+        }
+        
         if (isDead)
         {
             return;
         }
+
+        if (isFindingEnemy==false)
+        {
+            return;
+        }
+
         Vector3 move = Vector3.zero;
 
         if (target != null&& Vector3.Distance(transform.position, target.position) >= detectionRadiusMin)
@@ -78,16 +111,15 @@ public class BaseCharacter : MonoBehaviour
             move = (target.position - transform.position).normalized;
             transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
         }
-
         if (move != Vector3.zero)
         {
             Vector3 direction = new Vector3(move.x, 0, move.z);
             transform.rotation = Quaternion.LookRotation(direction);
-            animator.SetBool("isMoving", true);
+            animator.SetBool(IsMoving, true);
         }
         else
         {
-            animator.SetBool("isMoving", false);
+            animator.SetBool(IsMoving, false);
         }
     }
     public virtual void HandleMovementByPoint(Transform point, Action callback = null)
@@ -96,7 +128,6 @@ public class BaseCharacter : MonoBehaviour
         {
             return;
         }
-        
         Vector3 move = Vector3.zero;
         move = (point.position - transform.position).normalized;
         
@@ -113,8 +144,17 @@ public class BaseCharacter : MonoBehaviour
             animator.SetBool("isMoving", false);
         }
     }
+
+    public void SetIdle()
+    {
+        animator.SetBool("isMoving", false);
+    }
     protected virtual void HandleAttack()
     {
+        if (target==null)
+        {
+            return;
+        }
         if (isDead)
         {
             return;
@@ -146,8 +186,13 @@ public class BaseCharacter : MonoBehaviour
 
     protected virtual void HandleDeath()
     {
+        if (isDead)
+        {
+            return;
+        }
         if (health <= 0)    
         {
+            
             animator.SetTrigger("Dead");
             enabled = false;
         }
@@ -156,7 +201,10 @@ public class BaseCharacter : MonoBehaviour
     protected virtual void Die()
     {
         animator.SetTrigger("Dead");
-        Destroy(gameObject, 2f);
+        rigidbody.isKinematic = true;
+        capsuleCollider.enabled = false;
+        animator.transform.parent = null;
+        Destroy(gameObject);
     }
 }
 
