@@ -92,9 +92,10 @@ public class PlayerMovement2 : MonoBehaviour
 #if UNITY_EDITOR
          moveX = Input.GetAxis("Horizontal");
          moveZ = Input.GetAxis("Vertical");
-#endif
+#else 
          moveX = JoystickController.ins.Horizontal();
          moveZ = JoystickController.ins.Vertical();
+#endif
 
         // Chuyển đổi hướng di chuyển theo góc nhìn
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;

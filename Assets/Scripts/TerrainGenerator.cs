@@ -13,7 +13,7 @@ public class TerrainGenerator : MonoBehaviour
     public float wallHeight = 100f;       // Chiều cao của tường bao
     public float wallThickness = 2f;      // Độ dày của tường
 
-    private BoxCollider wallCollider;
+    public BoxCollider wallCollider;
     [Header("Noise Settings")]
     public int chunkDist = 1;
     public float landNoiseScale = 0.8f;
@@ -24,7 +24,7 @@ public class TerrainGenerator : MonoBehaviour
     
     FastNoise noise = new FastNoise();
 
-    
+
 
     List<TerrainChunk> pooledChunks = new List<TerrainChunk>();
 
@@ -36,7 +36,7 @@ public class TerrainGenerator : MonoBehaviour
         landNoiseScale = LunaManager.ins.landNoiseScale;
         noiseIntensity = LunaManager.ins.noiseIntensity;
         LoadChunks(true);
-        wallCollider = GetComponent<BoxCollider>();
+        //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
     }
 
@@ -227,32 +227,85 @@ public class TerrainGenerator : MonoBehaviour
         System.Random rand = new System.Random(x * 10000 + z);
 
         float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
-        if (treeNoise > 0)
+        if (treeNoise <= 0) return;
+
+        //int treeCount = Mathf.FloorToInt(rand.Next(1, 5) * treeNoise);
+        int treeCount = 20;
+
+        HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
+
+        
+        for (int i = 0; i < treeCount; i++)
         {
-            int treeCount = Mathf.FloorToInt(rand.Next(1, 5) * treeNoise);
+            int xPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
+            int zPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
 
-            for (int i = 0; i < treeCount; i++)
+            Vector2Int pos = new Vector2Int(xPos, zPos);
+            bool tooClose = false;
+
+            foreach (var used in usedPositions)
             {
-                int xPos = rand.Next(1, 15);
-                int zPos = rand.Next(1, 15);
-
-                int y = TerrainChunk.chunkHeight - 1;
-                while (y > 0 && blocks[xPos, y, zPos] == BlockType.Air)
-                    y--;
-
-                y++;
-
-                int treeHeight = 4 + rand.Next(4);
-                for (int j = 0; j < treeHeight; j++)
-                    blocks[xPos, y + j, zPos] = BlockType.Trunk;
-
-                int leavesWidth = 3;
-                for (int lx = -leavesWidth; lx <= leavesWidth; lx++)
-                for (int lz = -leavesWidth; lz <= leavesWidth; lz++)
-                    blocks[xPos + lx, y + treeHeight, zPos + lz] = BlockType.Leaves;
+                if (Vector2Int.Distance(used, pos) <4f)
+                {
+                    tooClose = true;
+                    break;
+                }
             }
+
+            if (tooClose) continue;
+            usedPositions.Add(pos);
+            
+            /*int xPos = rand.Next(1, TerrainChunk.chunkWidth - 1);
+            int zPos = rand.Next(1, TerrainChunk.chunkWidth - 1);*/
+
+            // Tìm mặt đất
+            int y = TerrainChunk.chunkHeight - 2;
+            while (y > 0 && blocks[xPos, y, zPos] == BlockType.Air)
+                y--;
+
+            y++; // bắt đầu từ block trống trên mặt đất
+
+            // Trồng thân cây
+            int treeHeight = 4 + rand.Next(6); // 4–6 block cao
+            for (int j = 0; j < treeHeight; j++)
+            {
+                if (InBounds(xPos, y + j, zPos))
+                    blocks[xPos, y + j, zPos] = BlockType.Trunk;
+            }
+
+            // Trồng lá – theo tầng
+            int leavesStart = y + treeHeight - 2;
+            for (int layer = 0; layer < 3; layer++)
+            {
+                int radius = 2 - layer;
+                int layerY = leavesStart + layer;
+
+                for (int lx = -radius; lx <= radius; lx++)
+                for (int lz = -radius; lz <= radius; lz++)
+                {
+                    int leafX = xPos + lx;
+                    int leafZ = zPos + lz;
+
+                    if ((Mathf.Abs(lx) + Mathf.Abs(lz)) <= radius + 1) // làm tròn tán
+                    {
+                        if (InBounds(leafX, layerY, leafZ) && blocks[leafX, layerY, leafZ] == BlockType.Air)
+                            blocks[leafX, layerY, leafZ] = BlockType.Leaves;
+                    }
+                }
+            }
+
+            // Lá đỉnh
+            if (InBounds(xPos, y + treeHeight, zPos))
+                blocks[xPos, y + treeHeight, zPos] = BlockType.Leaves;
         }
     }
+
+bool InBounds(int x, int y, int z)
+{
+    return x >= 0 && x < TerrainChunk.chunkWidth &&
+           y >= 0 && y < TerrainChunk.chunkHeight &&
+           z >= 0 && z < TerrainChunk.chunkWidth;
+}
 
 
     IEnumerator DelayBuildChunks()

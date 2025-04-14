@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,7 @@ public class Inventory : MonoBehaviour
     public BlockType[] matTypes;
     public Image[] invImgs;
     public Image[] matImgs;
+    public TextMeshProUGUI[] textCount;
     public Transform posBlock;
 
     int curMat;
@@ -22,8 +24,8 @@ public class Inventory : MonoBehaviour
             img.gameObject.SetActive(false);
         }
 
-        AddToInventory2(0, 32);
-        matImgs[0].gameObject.SetActive(true);
+        //AddToInventory2(0, 32);
+        //matImgs[0].gameObject.SetActive(true);
     }
 
     // Update is called once per frame
@@ -78,6 +80,7 @@ public class Inventory : MonoBehaviour
         matCounts[i]++;
         if(matCounts[i] == 1)
             matImgs[i].gameObject.SetActive(true);
+        UpdateTextCount();
 
     }
     public void AddToInventory2(BlockType block,int quanlity)
@@ -93,6 +96,14 @@ public class Inventory : MonoBehaviour
         matCounts[i] += quanlity;
         if(matCounts[i] == 1)
             matImgs[i].gameObject.SetActive(true);
+        UpdateTextCount();
+    }
 
+    public void UpdateTextCount()
+    {
+        for (int i = 0; i < textCount.Length; i++)
+        {
+            textCount[i].text= matCounts[i].ToString();
+        }
     }
 }

@@ -7,7 +7,14 @@ using UnityEngine.EventSystems;
 public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
 {
     public static MouseLook ins;
+    public LayerMask groundLayer;
+    public GameObject blockPrefab;
+    public GameObject blockPrefab2;
+    public float timeHold = 0;
+    public bool isHold = false;
+    public Transform posCam;
 
+    public Inventory inv;
     private void Awake()
     {
         ins= this;
@@ -58,11 +65,115 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        
+        StopAllCoroutines();
+        blockPrefab2.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        StartCoroutine(DestroyBlock());
+        //DesTroyBlock();
+    }
+
+    private void Update()
+    {
+        /*if (isHold)
+        {
+            timeHold+=Time.deltaTime;
+            if (timeHold>0.1f)
+            {
+                DesTroyBlock();
+            }
+        }*/
         
+    }
+
+    public void DesTroyBlock()
+    {
+            Debug.Log("DesTroyBlock");
+                    RaycastHit hitInfo;
+                    if(Physics.Raycast(posCam.transform.position, transform.forward, out hitInfo, 5, groundLayer))
+                    {
+                        Debug.Log("DesTroyBlock");
+                        Vector3 pointInTargetBlock;
+        
+                        //destroy
+                        /*if(leftClick)
+                            pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
+                        else
+                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
+                        pointInTargetBlock = hitInfo.point + transform.forward * .01f;
+        
+                        //get the terrain chunk (can't just use collider)
+                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
+                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+        
+                        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
+        
+                        TerrainChunk tc = TerrainGenerator.chunks[cp];
+        
+                        //index of the target block
+                        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
+                        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
+                        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
+
+                        if (blockPrefab2==null)
+                        {
+                            blockPrefab2= Instantiate(blockPrefab, new Vector3(bix+ chunkPosX-1, biy, biz+ chunkPosZ-1), Quaternion.identity);
+                        }
+                        blockPrefab2.SetActive(true);
+                        blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
+                        if (timeHold>=1)
+                        {
+                            inv.AddToInventory(tc.blocks[bix, biy, biz]);
+                            tc.blocks[bix, biy, biz] = BlockType.Air;
+                            tc.BuildMesh();
+                            blockPrefab2.SetActive(false);
+                            isHold = false;
+                            timeHold = 0;
+                        }
+                    }
+    }
+
+    public IEnumerator DestroyBlock()
+    {
+                 Debug.Log("DestroyBlock");
+        RaycastHit hitInfo;
+                    if(Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
+                    {
+                        Debug.Log("DesTroyBlock2");
+                        Vector3 pointInTargetBlock;
+        
+                        //destroy
+                        /*if(leftClick)
+                            pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
+                        else
+                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
+                        pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
+        
+                        //get the terrain chunk (can't just use collider)
+                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
+                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+        
+                        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
+        
+                        TerrainChunk tc = TerrainGenerator.chunks[cp];
+        
+                        //index of the target block
+                        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
+                        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
+                        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
+
+                       
+                        blockPrefab2.SetActive(true);
+                        blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
+                        yield return new WaitForSeconds(1f);
+                        
+                        inv.AddToInventory(tc.blocks[bix, biy, biz]);
+                        tc.blocks[bix, biy, biz] = BlockType.Air;
+                        tc.BuildMesh();
+                        blockPrefab2.SetActive(false);
+
+                    }
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 public class TerrainModifier : MonoBehaviour
 {
     public LayerMask groundLayer;
+    public GameObject blockPrefab;
 
     public Inventory inv;
 
@@ -21,8 +22,8 @@ public class TerrainModifier : MonoBehaviour
     void Update()
     {
         /*bool leftClick = Input.GetMouseButtonDown(0);
-        bool rightClick = Input.GetMouseButtonDown(1);
-        if(leftClick || rightClick)
+       
+        if(leftClick )
         {
             RaycastHit hitInfo;
             if(Physics.Raycast(transform.position, transform.forward, out hitInfo, maxDist, groundLayer))
@@ -30,7 +31,7 @@ public class TerrainModifier : MonoBehaviour
                 Vector3 pointInTargetBlock;
 
                 //destroy
-                if(rightClick)
+                if(leftClick)
                     pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
                 else
                     pointInTargetBlock = hitInfo.point - transform.forward * .01f;
@@ -48,13 +49,14 @@ public class TerrainModifier : MonoBehaviour
                 int biy = Mathf.FloorToInt(pointInTargetBlock.y);
                 int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
 
-                if(rightClick)//replace block with air
+                if(leftClick)//replace block with air
                 {
                     inv.AddToInventory(tc.blocks[bix, biy, biz]);
-                    tc.blocks[bix, biy, biz] = BlockType.Air;
-                    tc.BuildMesh();
+                    //tc.blocks[bix, biy, biz] = BlockType.Air;
+                    Instantiate(blockPrefab, new Vector3(bix+ chunkPosX-1, biy, biz+ chunkPosZ-1), Quaternion.identity);
+                    //tc.BuildMesh();
                 }
-                else if(leftClick)
+                /*else if(leftClick)
                 {
                     if(inv.CanPlaceCur())
                     {
@@ -65,7 +67,7 @@ public class TerrainModifier : MonoBehaviour
                         inv.ReduceCur();
                     }
                     
-                }
+                }#1#
             }
         }*/
     }
