@@ -71,6 +71,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        LunaManager.ins.CheckClickShowEndCard();
         StartCoroutine(DestroyBlock());
         //DesTroyBlock();
     }

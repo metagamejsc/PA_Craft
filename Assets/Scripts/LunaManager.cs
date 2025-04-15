@@ -13,6 +13,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
     [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
+    [LunaPlaygroundField("Tree Count")] public int treeCount=20;
     public bool isCretivePause;
     private void Awake()
     {

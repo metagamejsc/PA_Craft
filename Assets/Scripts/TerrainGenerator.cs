@@ -230,7 +230,7 @@ public class TerrainGenerator : MonoBehaviour
         if (treeNoise <= 0) return;
 
         //int treeCount = Mathf.FloorToInt(rand.Next(1, 5) * treeNoise);
-        int treeCount = 20;
+        int treeCount = LunaManager.ins.treeCount;
 
         HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
 

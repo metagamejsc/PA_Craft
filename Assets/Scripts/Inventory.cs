@@ -9,6 +9,7 @@ public class Inventory : MonoBehaviour
     int[] matCounts = new int[] { 0, 0, 0, 0 };
 
     public BlockType[] matTypes;
+    public Button[] btnItems;
     public Image[] invImgs;
     public Image[] matImgs;
     public TextMeshProUGUI[] textCount;
@@ -24,6 +25,14 @@ public class Inventory : MonoBehaviour
             img.gameObject.SetActive(false);
         }
 
+        for (int i = 0; i < btnItems.Length; i++)
+        {
+            var i1 = i;
+            btnItems[i].onClick.AddListener(() =>
+            {
+                SetCur(i1);
+            });
+        }
         //AddToInventory2(0, 32);
         //matImgs[0].gameObject.SetActive(true);
     }
@@ -31,14 +40,14 @@ public class Inventory : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Alpha1))
+        /*if(Input.GetKeyDown(KeyCode.Alpha1))
             SetCur(0);
         else if(Input.GetKeyDown(KeyCode.Alpha2))
             SetCur(1);
         else if(Input.GetKeyDown(KeyCode.Alpha3))
             SetCur(2);
         else if(Input.GetKeyDown(KeyCode.Alpha4))
-            SetCur(3);
+            SetCur(3);*/
     }
 
     void SetCur(int i)
