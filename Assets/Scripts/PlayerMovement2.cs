@@ -19,6 +19,7 @@ public class PlayerMovement2 : MonoBehaviour
     public float stepSmooth = 0.1f;
     public Transform groundCheck;
     public float groundDistance = .4f;
+    public float timeMove;
     public LayerMask groundMask;
  
     private Rigidbody rb;
@@ -99,7 +100,16 @@ public class PlayerMovement2 : MonoBehaviour
 
         // Chuyển đổi hướng di chuyển theo góc nhìn
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
-
+        Debug.Log(moveDirection);
+        if (moveDirection!=Vector3.zero)
+        {
+            timeMove += Time.fixedDeltaTime;
+            if (timeMove>0.5f)
+            {
+                timeMove = 0;
+                AudioManager.ins.PlaySoundMove();
+            }
+        }
         // Áp dụng lực di chuyển
         Vector3 velocity = moveDirection * moveSpeed;
         velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi

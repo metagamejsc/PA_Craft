@@ -168,8 +168,16 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                        
                         blockPrefab2.SetActive(true);
                         blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
-                        yield return new WaitForSeconds(1f);
-                        
+                        AudioManager.ins.PlayMiningSound();
+                        yield return new WaitForSeconds(0.2f);
+                        AudioManager.ins.PlayMiningSound();
+                        yield return new WaitForSeconds(0.2f);
+                        AudioManager.ins.PlayMiningSound();
+                        yield return new WaitForSeconds(0.2f);
+                        AudioManager.ins.PlayMiningSound();
+                        yield return new WaitForSeconds(0.2f);
+                        AudioManager.ins.PlayMiningSound();
+                        yield return new WaitForSeconds(0.2f);
                         inv.AddToInventory(tc.blocks[bix, biy, biz]);
                         tc.blocks[bix, biy, biz] = BlockType.Air;
                         tc.BuildMesh();

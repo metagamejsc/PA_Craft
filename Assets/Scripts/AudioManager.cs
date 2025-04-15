@@ -15,6 +15,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip loseSound;
     public AudioClip bgSound;
     public AudioClip buildSound;
+    public AudioClip miningSound;
+    public List<AudioClip> lstMoveSound;
 
     private void Awake()
     {
@@ -35,6 +37,10 @@ public class AudioManager : MonoBehaviour
     {
         sound.PlayOneShot(lstMergeSound[Random.Range(0,lstMergeSound.Count)],1);
     }
+    public void PlaySoundMove()
+    {
+        sound.PlayOneShot(lstMoveSound[Random.Range(0,lstMoveSound.Count)],1);
+    }
     public void PlaySoundReward()
     {
         sound.PlayOneShot(rewardSound,1);
@@ -46,6 +52,10 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundBuild()
     {
         sound.PlayOneShot(buildSound,1);
+    }
+    public void PlayMiningSound()
+    {
+        sound.PlayOneShot(miningSound,1);
     }
     public void PlayMusicLose()
     {
