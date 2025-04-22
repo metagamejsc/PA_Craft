@@ -33,8 +33,8 @@ public class Inventory : MonoBehaviour
                 SetCur(i1);
             });
         }
-        //AddToInventory2(0, 32);
-        //matImgs[0].gameObject.SetActive(true);
+        AddToInventory2(0, 15);
+        matImgs[0].gameObject.SetActive(true);
     }
 
     // Update is called once per frame
@@ -71,9 +71,10 @@ public class Inventory : MonoBehaviour
     public void ReduceCur()
     {
         matCounts[curMat]--;
-
+        UpdateTextCount();
         if(matCounts[curMat] == 0)
             matImgs[curMat].gameObject.SetActive(false);
+        
     }
 
     public void AddToInventory(BlockType block)
