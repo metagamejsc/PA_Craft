@@ -6,25 +6,59 @@ using UnityEngine.UI;
 
 public class TutorialBuildBlock : MonoBehaviour
 {
-    public GameObject step;
-    public Button btnHideTutorial;
+    public static TutorialBuildBlock ins;
+    public int stepIndex;
+    public List<GameObject> lstStep;
+    public List<Button> lstButtonHideStep;
+    //public Button btnHideTutorial;
+
+    private void Awake()
+    {
+        ins = this;
+    }
 
     public IEnumerator IeSpawnStep()
     {
         yield return new WaitForSeconds(1f);
-        step.gameObject.SetActive(true);
+        
     }
 
     private void Start()
     {
-        MouseLook.ins.onClick += () =>
+        foreach (var VARIABLE in lstStep)
         {
-            step.SetActive(false);
-        };
-        btnHideTutorial.onClick.AddListener(() =>
+            VARIABLE.SetActive(false);
+        }
+        foreach (var VARIABLE in lstButtonHideStep)
         {
-            step.SetActive(false);
-        });
-        StartCoroutine(IeSpawnStep());
+            VARIABLE.onClick.AddListener(() =>
+            {
+                HideStep();
+            });
+        }
+        ShowStep();
+        //StartCoroutine(IeSpawnStep());
+    }
+
+    public void ShowStep()
+    {
+        if (stepIndex==1)
+        {
+            GameController.ins.isPauseGame = true;
+        }
+        lstStep[stepIndex].SetActive(true);
+        
+    }
+    public void HideStep()
+    {
+        GameController.ins.isPauseGame = false;
+        lstStep[stepIndex].SetActive(false);
+        stepIndex++;
+        if (stepIndex==lstStep.Count-1)
+        {
+            GameController.ins.playerChar.SwordObject.SetActive(true);
+           ShowStep();
+        }
+        
     }
 }

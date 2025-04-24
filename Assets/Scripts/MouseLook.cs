@@ -137,11 +137,11 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public IEnumerator DestroyBlock()
     {
-                 Debug.Log("DestroyBlock");
-        RaycastHit hitInfo;
+                
+                     RaycastHit hitInfo;
                     if(Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
                     {
-                        Debug.Log("DesTroyBlock2");
+                     
                         Vector3 pointInTargetBlock;
         
                         //destroy

@@ -7,6 +7,7 @@ public class TerrainGenerator : MonoBehaviour
     public GameObject terrainChunk;
 
     public Transform player;
+    public GameObject objectToSpawn;
 
     public static Dictionary<ChunkPos, TerrainChunk> chunks = new Dictionary<ChunkPos, TerrainChunk>();
     [Header("Wall Collider Settings")]
@@ -40,7 +41,38 @@ public class TerrainGenerator : MonoBehaviour
         Invoke(nameof(UpdateWallCollider),1f);
     }
 
+    public void SpawnObjectNearPlayerAvoidTrees()
+    {
+        for (int attempt = 0; attempt < 20; attempt++) // thử tối đa 20 lần
+        {
+            Vector3 playerPos = player.position;
 
+            int x = Mathf.RoundToInt(playerPos.x + Random.Range(-8, 8));
+            int z = Mathf.RoundToInt(playerPos.z + Random.Range(-8, 8));
+
+            int y = TerrainChunk.chunkHeight - 2;
+            while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
+                y--;
+
+            y++; // mặt đất
+
+            BlockType groundBlock = GetBlockType(x, y - 1, z);
+            if (groundBlock == BlockType.Trunk || groundBlock == BlockType.Leaves)
+            {
+                continue; // bỏ qua nếu trên cây
+            }
+
+            Vector3 spawnPos = new Vector3(x, y+1, z);
+            /*var a=Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
+            a.transform.position = spawnPos;*/
+            objectToSpawn.transform.position = spawnPos;
+            Camera.main.transform.localRotation=Quaternion.LookRotation(objectToSpawn.transform.position-Camera.main.transform.position,Vector3.up);
+            Debug.Log($"Spawned object at: {objectToSpawn.transform.position}");
+            return; // spawn thành công, thoát
+        }
+
+        Debug.LogWarning("Không tìm được vị trí spawn phù hợp (tránh cây).");
+    }
     private void LateUpdate()
     {
         //LoadChunks();
@@ -105,13 +137,12 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         GenerateTrees(chunk.blocks, xPos, zPos);
-
+        
         chunk.BuildMesh();
 
         WaterChunk waterChunk = chunk.GetComponentInChildren<WaterChunk>();
         waterChunk.SetLocs(chunk.blocks);
         waterChunk.BuildMesh();
-
         chunks.Add(new ChunkPos(xPos, zPos), chunk);
     }
 
@@ -217,8 +248,8 @@ public class TerrainGenerator : MonoBehaviour
         }
 
 
-
-
+        Invoke(nameof(SpawnObjectNearPlayerAvoidTrees),2f);
+        //SpawnObjectNearPlayerAvoidTrees();
     }
 
 
