@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: efcb2620e077d4b4f87fabd6b4befb5c, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 0fd3666f6360245cf8b0fff236b865da, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1784,11 +1784,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   countDrop: 0
-  countDropFinal: 15
+  countDropFinal: 5
+  count: 0
   timeEndCreative: 30
   noiseIntensity: 1
   landNoiseScale: 0.8
-  treeCount: 20
+  treeCount: 10
   isCretivePause: 0
   lstBtnInstall:
   - {fileID: 628789657}
@@ -1806,7 +1807,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   btnStartCard: {fileID: 1553080125}
-  startCard: {fileID: 0}
+  startCard: {fileID: 222106065}
   timeCurrent: 59
   txtTime: {fileID: 0}
 --- !u!1 &208142646
@@ -4022,7 +4023,7 @@ GameObject:
   - component: {fileID: 586005295}
   - component: {fileID: 586005294}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: GameController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4050,6 +4051,7 @@ MonoBehaviour:
   startGame: {fileID: 0}
   playerChar: {fileID: 803546897}
   timeActive: 0
+  enemy: {fileID: 1504478437}
 --- !u!4 &586005295
 Transform:
   m_ObjectHideFlags: 0
@@ -5101,7 +5103,7 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
+  m_Color: {r: 0.11320752, g: 0.11320752, b: 0.11320752, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -5147,7 +5149,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 2.1258881e+20, y: 6e-44, z: 4.8e-44, w: 4.067e-42}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: -8.820427e-38}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -6018,6 +6020,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7782798551340856817, guid: ea0239cecd1b75e40aeef3ac5ca74fef,
+        type: 3}
+      propertyPath: damage
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7782798551340856817, guid: ea0239cecd1b75e40aeef3ac5ca74fef,
         type: 3}
@@ -10590,6 +10597,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 4660674584976519176, guid: 4c3ee659094beb44396a02b94c34a086,
+        type: 3}
+      propertyPath: m_CollisionDetection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5859325285684910965, guid: 4c3ee659094beb44396a02b94c34a086,
+        type: 3}
+      propertyPath: damage
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5859325285684910965, guid: 4c3ee659094beb44396a02b94c34a086,
         type: 3}
       propertyPath: health
@@ -10618,7 +10635,7 @@ PrefabInstance:
     - target: {fileID: 7955754600748609242, guid: 4c3ee659094beb44396a02b94c34a086,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 50.2
+      value: -453.8
       objectReference: {fileID: 0}
     - target: {fileID: 7955754600748609242, guid: 4c3ee659094beb44396a02b94c34a086,
         type: 3}
@@ -10660,6 +10677,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4c3ee659094beb44396a02b94c34a086, type: 3}
+--- !u!1 &1504478437 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1703777549848339777, guid: 4c3ee659094beb44396a02b94c34a086,
+    type: 3}
+  m_PrefabInstance: {fileID: 1504478436}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1553080123
 GameObject:
   m_ObjectHideFlags: 0

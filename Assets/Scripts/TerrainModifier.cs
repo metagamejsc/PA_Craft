@@ -101,7 +101,7 @@ public class TerrainModifier : MonoBehaviour
             
                 if(inv.CanPlaceCur())
                 {
-                    LunaManager.ins.CheckClickShowEndCard();
+                    //LunaManager.ins.CheckClickShowEndCard();
                     AudioManager.ins.PlaySoundBuild();
                     tc.blocks[bix, biy, biz] = inv.GetCurBlock();
                     tc.BuildMesh();

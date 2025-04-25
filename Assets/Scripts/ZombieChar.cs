@@ -9,7 +9,7 @@ public class ZombieChar : BaseCharacter
     {
         base.Start();
         IsFindingEnemy = true;
-        
+        health = LunaManager.ins.countDropFinal;
     }
 
     protected override void Update()

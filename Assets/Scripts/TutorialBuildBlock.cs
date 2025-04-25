@@ -55,8 +55,9 @@ public class TutorialBuildBlock : MonoBehaviour
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
         if (stepIndex==lstStep.Count-1)
-        {
+        { 
             GameController.ins.playerChar.SwordObject.SetActive(true);
+            GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
            ShowStep();
         }
         

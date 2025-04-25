@@ -17,6 +17,7 @@ public class GameController : MonoBehaviour
     public GameObject startGame;
     public PlayerChar playerChar;
     public float timeActive;
+    public GameObject enemy;
 
     private void Awake()
     {
@@ -30,8 +31,9 @@ public class GameController : MonoBehaviour
         
        
     }
-    private void Update()
+
+    public void SpawnEnemy(Vector3 posSpawn)
     {
-        
+        enemy.transform.position = posSpawn;
     }
 }
