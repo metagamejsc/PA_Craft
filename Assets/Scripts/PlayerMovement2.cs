@@ -100,7 +100,6 @@ public class PlayerMovement2 : MonoBehaviour
 
         // Chuyển đổi hướng di chuyển theo góc nhìn
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
-        Debug.Log(moveDirection);
         if (moveDirection!=Vector3.zero)
         {
             timeMove += Time.fixedDeltaTime;
