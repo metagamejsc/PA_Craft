@@ -31,7 +31,7 @@ public class ModView : MonoBehaviour
     {
         icon.sprite = data.icon;
         txtType.text= data.type;
-        txtName.text = data.name;
+        txtName.text = data.nameMod;
         txtDes.text = data.des;
         txtPercent.text = data.percent;
         txtDownload.text = data.download;

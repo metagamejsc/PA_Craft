@@ -8,21 +8,22 @@ public class DescriptionPanel : MonoBehaviour
 {
     public Image gallary;
     public TextMeshProUGUI type;
-    public TextMeshProUGUI name;
+    public TextMeshProUGUI name2;
     public TextMeshProUGUI des;
     public Button btnDownload;
+    public ModData data=>GameManager.ins.modData[GameManager.ins.modDataSelection];
     
     public void SetValue(ModData data)
     {
         gallary.sprite = data.gallary;
         type.text= data.type;
-        name.text = data.name;
+        name2.text = data.nameMod;
         des.text = data.des;
     }
 
     private void Start()
     {
-        SetValue(GameManager.ins.modData[GameManager.ins.modDataSelection]);
+        SetValue(data);
         btnDownload.onClick.AddListener(() =>
         {
             Tutorial.ins.NextStep();

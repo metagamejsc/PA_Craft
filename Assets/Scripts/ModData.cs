@@ -6,7 +6,7 @@ public class ModData : ScriptableObject
 {
     public int ID;
     public string type;
-    public string name;
+    public string nameMod;
     public string des;
     public string percent;
     public string download;
