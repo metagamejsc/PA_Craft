@@ -15,9 +15,16 @@ MonoBehaviour:
   ID: 2
   type: Texture
   nameMod: Moonlight
-  des: Formerly Selene Library, Moonlight Lib is a set of specialized utilities and
-    shared code that I use for my mods. These include some highly specialized features
-    such as dynamic asset generation
+  des: 'These sets of utilities try to be as simple as possible, usually just relying
+    on static helper functions instead of annotations or other OOP practices, and
+    mainly emulate Forge behavior by simply wrapping it with helper functions. For
+    fabric the equivalent behavior is called or implemented if its not available.
+    Some highlight of this are Deferred registration, Common Setup and more.  Mod
+    focus is on simplicity so most important calls are split among just 4 main API
+    classes.  These are: PlatHelper, ClientHelper, RegHelper and ForgeHelper.   For
+    configs and networking the main classes are ConfigBuilder and ChannelHandler 
+    Configs in particular have extra features like being able to use Codecs, be loaded
+    early or be automatically synced to clientss'
   percent: 3.2%
   download: 5.1K
   view: 12.1K
