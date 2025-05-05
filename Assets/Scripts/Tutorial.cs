@@ -28,4 +28,9 @@ public class Tutorial : MonoBehaviour
             tutorialPanels[i].SetActive(i==step);
         }
     }
+
+    public void SetOrientation()
+    {
+        
+    }
 }
