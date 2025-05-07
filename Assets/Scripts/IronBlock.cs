@@ -9,7 +9,12 @@ public class IronBlock : MonoBehaviour
     {
         if (other.CompareTag("Player")&& other.GetComponent<PlayerMovement2>()!=null)
         {
-            TutorialBuildBlock.ins.ShowStep();
+            AudioManager.ins.PlaySoundGetItem();
+            if (TutorialBuildBlock.ins.ironCount<3)
+            {
+                TutorialBuildBlock.ins.AddIron();
+            }
+            
             Destroy(gameObject);
         }
     }

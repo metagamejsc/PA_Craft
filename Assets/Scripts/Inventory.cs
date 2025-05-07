@@ -33,8 +33,8 @@ public class Inventory : MonoBehaviour
                 SetCur(i1);
             });
         }
-        AddToInventory2(0, 15);
-        matImgs[0].gameObject.SetActive(true);
+        //AddToInventory2(0, 15);
+        //matImgs[0].gameObject.SetActive(true);
     }
 
     // Update is called once per frame

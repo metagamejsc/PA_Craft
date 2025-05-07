@@ -9,7 +9,7 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Attake to Store")] public int countDropFinal;
+    [LunaPlaygroundField("Attack to Store")] public int countDropFinal;
     [LunaPlaygroundField("CountDrop")] public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;

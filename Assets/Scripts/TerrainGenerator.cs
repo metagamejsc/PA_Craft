@@ -20,6 +20,7 @@ public class TerrainGenerator : MonoBehaviour
     public float landNoiseScale = 0.8f;
     public float caveNoiseScale = 5.0f;
     public float stoneNoiseScale = 1.0f;
+    public float ironNoiseScale = 1.0f;
     public float treeNoiseScale = 0.8f;
     public float noiseIntensity = 10;
     
@@ -65,9 +66,9 @@ public class TerrainGenerator : MonoBehaviour
             Vector3 spawnPos = new Vector3(x, y+1, z);
             /*var a=Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
             a.transform.position = spawnPos;*/
-            objectToSpawn.transform.position = spawnPos;
+            /*objectToSpawn.transform.position = spawnPos;
             Camera.main.transform.localRotation=Quaternion.LookRotation(objectToSpawn.transform.position-Camera.main.transform.position,Vector3.up);
-            Debug.Log($"Spawned object at: {objectToSpawn.transform.position}");
+            Debug.Log($"Spawned object at: {objectToSpawn.transform.position}");*/
             return; // spawn thành công, thoát
         }
 
@@ -148,7 +149,7 @@ public class TerrainGenerator : MonoBehaviour
 
 
     //get the block type at a specific coordinate
-    BlockType GetBlockType(int x, int y, int z)
+    /*BlockType GetBlockType(int x, int y, int z)
     {
         // Noise calculations for land height
         float simplex1 = noise.GetSimplex(x * landNoiseScale, z * landNoiseScale) * noiseIntensity;
@@ -183,8 +184,53 @@ public class TerrainGenerator : MonoBehaviour
             blockType = BlockType.Air;
 
         return blockType;
-    }
+    }*/
+    BlockType GetBlockType(int x, int y, int z)
+    {
+        // Noise calculations for land height
+        float simplex1 = noise.GetSimplex(x * landNoiseScale, z * landNoiseScale) * noiseIntensity;
+        float simplex2 = noise.GetSimplex(x * 3f, z * 3f) * noiseIntensity * (noise.GetSimplex(x * 0.3f, z * 0.3f) + 0.5f);
+        float heightMap = simplex1 + simplex2;
 
+        float baseLandHeight = TerrainChunk.chunkHeight * 0.5f + heightMap;
+
+        // Noise for caves
+        float caveNoise1 = noise.GetPerlinFractal(x * caveNoiseScale, y * caveNoiseScale * 2, z * caveNoiseScale);
+        float caveMask = noise.GetSimplex(x * 0.3f, z * 0.3f) + 0.3f;
+
+        // Noise for stone layers
+        float stoneNoise1 = noise.GetSimplex(x * stoneNoiseScale, z * stoneNoiseScale) * noiseIntensity;
+        float stoneNoise2 = (noise.GetSimplex(x * 5f, z * 5f) + 0.5f) * 20 * (noise.GetSimplex(x * 0.3f, z * 0.3f) + 0.5f);
+        float stoneHeightMap = stoneNoise1 + stoneNoise2;
+        float baseStoneHeight = TerrainChunk.chunkHeight * 0.25f + stoneHeightMap;
+
+        BlockType blockType = BlockType.Air;
+
+        if (y <= baseLandHeight)
+        {
+            blockType = BlockType.Dirt;
+            if (y > baseLandHeight - 1 && y > WaterChunk.waterHeight - 2)
+                blockType = BlockType.Grass;
+
+            if (y <= baseStoneHeight)
+                blockType = BlockType.Stone;
+        }
+
+        // Generate surface Iron Ore (replace some Grass or Dirt blocks)
+        if (blockType == BlockType.Grass || blockType == BlockType.Dirt)
+        {
+            float ironSurfaceNoise = noise.GetSimplex(x * ironNoiseScale, y * ironNoiseScale, z * ironNoiseScale);
+            if (ironSurfaceNoise > 0.65f) // Adjust threshold to control rarity
+            {
+                blockType = BlockType.Iron;
+            }
+        }
+
+        if (caveNoise1 > Mathf.Max(caveMask, 0.2f))
+            blockType = BlockType.Air;
+
+        return blockType;
+    }
 
     ChunkPos curChunk = new ChunkPos(-1,-1);
     void LoadChunks(bool instant = false)

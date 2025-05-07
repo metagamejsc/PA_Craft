@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
 {
@@ -13,6 +14,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public float timeHold = 0;
     public bool isHold = false;
     public Transform posCam;
+    public GameObject stickGameObject,ironGameObject;
+    public Coroutine coroutineSpawnObject;
 
     public Inventory inv;
     private void Awake()
@@ -135,10 +138,28 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                     }
     }
 
+    public void StopSpawnItem()
+    {
+        if (coroutineSpawnObject!=null)
+        {
+            StopCoroutine(coroutineSpawnObject);
+        }
+    }
+    
+    public IEnumerator IeSpawnItem(GameObject item, Vector3 pos)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.4f);
+            Vector3 addPos= new Vector3(Random.Range(0,2)==1?-1f:1f,1.5f,Random.Range(0,2)==1?-1f:1f);
+            var a = Instantiate(item,pos+addPos,Quaternion.identity);
+            //Vector3 force = new Vector3(UnityEngine.Random.Range(-2f, 2f)*10, UnityEngine.Random.Range(0.5f, 1f), UnityEngine.Random.Range(-2f, 2f)*10);
+            //a.GetComponent<Rigidbody>().AddForce(force,ForceMode.Impulse);
+        }
+    }
     public IEnumerator DestroyBlock()
     {
-                
-                     RaycastHit hitInfo;
+        RaycastHit hitInfo;
                     if(Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
                     {
                      
@@ -167,6 +188,18 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                        
                         blockPrefab2.SetActive(true);
                         blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
+                        if (tc.blocks[bix, biy, biz]==BlockType.Iron)
+                        {
+                            StopSpawnItem();
+                            coroutineSpawnObject=StartCoroutine(IeSpawnItem(ironGameObject,
+                                new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1)));
+                        }
+                        if (tc.blocks[bix, biy, biz]==BlockType.Trunk)
+                        {
+                            StopSpawnItem();
+                            coroutineSpawnObject=StartCoroutine(IeSpawnItem(stickGameObject,
+                                new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1)));
+                        }
                         AudioManager.ins.PlayMiningSound();
                         yield return new WaitForSeconds(0.2f);
                         AudioManager.ins.PlayMiningSound();
@@ -177,11 +210,15 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         yield return new WaitForSeconds(0.2f);
                         AudioManager.ins.PlayMiningSound();
                         yield return new WaitForSeconds(0.2f);
+                        if (tc.blocks[bix, biy, biz] == BlockType.Trunk || tc.blocks[bix, biy, biz] == BlockType.Iron)
+                        {
+                            blockPrefab2.SetActive(false);
+                            yield break;
+                        }
                         inv.AddToInventory(tc.blocks[bix, biy, biz]);
                         tc.blocks[bix, biy, biz] = BlockType.Air;
                         tc.BuildMesh();
                         blockPrefab2.SetActive(false);
-
                     }
     }
 }

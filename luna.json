@@ -2,7 +2,7 @@
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 28855,
-    "creativeName": "CCE_V05_ThuLH_ToiNV",
+    "creativeName": "CCE_V06_ThuLH_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -139,7 +139,7 @@
         "packages": {
             "default": {
                 "applicationName": "",
-                "orientation": "unspecified",
+                "orientation": "landscape",
                 "languages": [
                     "en"
                 ]
@@ -8163,7 +8163,7 @@
                     },
                     {
                         "name": "isPunctuation",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isNumber",
@@ -18383,7 +18383,7 @@
                     },
                     {
                         "name": "fillAmount#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "preserveAspect#get",
@@ -25921,7 +25921,7 @@
                     },
                     {
                         "name": "GetSimplex$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetSimplex$2",
@@ -25929,7 +25929,7 @@
                     },
                     {
                         "name": "SingleSimplex$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SingleSimplex$2",
@@ -26177,6 +26177,14 @@
                     },
                     {
                         "name": "DestroyBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopSpawnItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IeSpawnItem",
                         "excluded": false
                     }
                 ]
@@ -29984,6 +29992,10 @@
                     {
                         "name": "PlayMiningSound",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundGetItem",
+                        "excluded": false
                     }
                 ]
             },
@@ -30221,6 +30233,18 @@
                     },
                     {
                         "name": "HideStep",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddIron",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddStick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CheckNextStep",
                         "excluded": false
                     }
                 ]
@@ -31685,7 +31709,7 @@
                     },
                     {
                         "name": "MarkForKilling",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "EvaluateTweenLink",
@@ -31697,11 +31721,11 @@
                     },
                     {
                         "name": "ReorganizeActiveTweens",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DespawnActiveTweens",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RemoveActiveTween",
@@ -34884,6 +34908,10 @@
                     {
                         "name": "Update",
                         "excluded": false
+                    },
+                    {
+                        "name": "Die",
+                        "excluded": false
                     }
                 ]
             },
@@ -34992,7 +35020,17 @@
                         "excluded": true
                     },
                     {
-                        "name": "Update",
+                        "name": "SpawnEnemy",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "StickObject",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "OnTriggerEnter",
                         "excluded": false
                     }
                 ]

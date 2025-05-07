@@ -10,6 +10,10 @@ public class TutorialBuildBlock : MonoBehaviour
     public int stepIndex;
     public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
+
+    public int stickCount, ironCount;
+    public Image stickFill, ironFill;
+    
     //public Button btnHideTutorial;
 
     private void Awake()
@@ -23,6 +27,25 @@ public class TutorialBuildBlock : MonoBehaviour
         
     }
 
+    public void AddIron()
+    {
+        ironCount++;
+        CheckNextStep();
+    }
+    public void AddStick()
+    {
+        stickCount++;
+        CheckNextStep();
+    }
+    public void CheckNextStep()
+    {
+        stickFill.fillAmount=stickCount/3f;
+        ironFill.fillAmount=ironCount/3f;
+        if (ironCount>=3 && stickCount>=3)
+        {
+            ShowStep();
+        }
+    }
     private void Start()
     {
         foreach (var VARIABLE in lstStep)
