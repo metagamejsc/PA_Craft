@@ -42,24 +42,19 @@ public class TutorialBuildBlock : MonoBehaviour
 
     public void ShowStep()
     {
-        if (stepIndex==1)
-        {
-            GameController.ins.isPauseGame = true;
-        }
-        lstStep[stepIndex].SetActive(true);
+        GameController.ins.isPauseGame = true;
         
+        lstStep[stepIndex].SetActive(true);
     }
     public void HideStep()
     {
         GameController.ins.isPauseGame = false;
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
-        if (stepIndex==lstStep.Count-1)
-        { 
-            GameController.ins.playerChar.SwordObject.SetActive(true);
-            GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
+        /*if (stepIndex==lstStep.Count-1)
+        {
+           GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
            ShowStep();
-        }
-        
+        }*/
     }
 }

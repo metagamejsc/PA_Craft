@@ -72,11 +72,16 @@ public class PlayerChar : BaseCharacter
         }
     }
 
+    public void CraftWeapon()
+    {
+        SwordObject.SetActive(true);
+    }
     public override void AtkCompleted()
     {
         base.AtkCompleted();
-        SwordObject.transform.position = swordFakePos.position;
-        SwordObject.transform.rotation = swordFakePos.rotation;
+        SwordObject.transform.parent = swordFakePos;
+        SwordObject.transform.localPosition = Vector3.zero;
+        SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
     }
 
     public override void HandleAttack()
@@ -89,10 +94,9 @@ public class PlayerChar : BaseCharacter
         
         if (/*target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && */attackCooldown <= 0)
         {
-            SwordObject.transform.position = swordPos.position;
-            SwordObject.transform.rotation = swordPos.rotation;
-            
-            //swordFake.SetActive(false);
+            SwordObject.transform.parent = swordPos;
+            SwordObject.transform.localPosition = Vector3.zero;
+            SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
             attackCooldown = atkAnimationClip.length/ attackSpeed;
             animator.SetFloat("AttackSpeed", attackCooldown>attackSpeed?1:attackSpeed);  
             animator.SetTrigger("Attack");

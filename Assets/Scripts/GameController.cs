@@ -18,7 +18,9 @@ public class GameController : MonoBehaviour
     public PlayerChar playerChar;
     public float timeActive;
     public GameObject enemy;
-
+    public int idWeapon;
+    public Mesh[] lstMeshWeapons;
+    
     private void Awake()
     {
         ins = this;
@@ -29,11 +31,16 @@ public class GameController : MonoBehaviour
     public void CheckCamera()
     {
         
-       
     }
 
     public void SpawnEnemy(Vector3 posSpawn)
     {
         enemy.transform.position = posSpawn;
+    }
+
+    public void SetIdWeapon(int id)
+    {
+        idWeapon = id;
+        playerChar.CraftWeapon();
     }
 }

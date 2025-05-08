@@ -58,7 +58,7 @@ public class Anim3D : MonoBehaviour
 
     public void EventDead()
     {
-        LunaManager.ins.ShowEndCard();
+        //LunaManager.ins.ShowEndCard();
         soundChar.PlayDeadSound();
     }
     public void EventMove()

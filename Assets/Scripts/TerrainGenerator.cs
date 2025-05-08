@@ -13,8 +13,8 @@ public class TerrainGenerator : MonoBehaviour
     [Header("Wall Collider Settings")]
     public float wallHeight = 100f;       // Chiều cao của tường bao
     public float wallThickness = 2f;      // Độ dày của tường
-
     public BoxCollider wallCollider;
+    
     [Header("Noise Settings")]
     public int chunkDist = 1;
     public float landNoiseScale = 0.8f;
@@ -39,6 +39,7 @@ public class TerrainGenerator : MonoBehaviour
         LoadChunks(true);
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
+        StartCoroutine(IeSpawnZombie());
     }
 
     public void SpawnObjectNearPlayerAvoidTrees()
@@ -65,13 +66,43 @@ public class TerrainGenerator : MonoBehaviour
             Vector3 spawnPos = new Vector3(x, y+1, z);
             /*var a=Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
             a.transform.position = spawnPos;*/
-            objectToSpawn.transform.position = spawnPos;
-            Camera.main.transform.localRotation=Quaternion.LookRotation(objectToSpawn.transform.position-Camera.main.transform.position,Vector3.up);
-            Debug.Log($"Spawned object at: {objectToSpawn.transform.position}");
+            //objectToSpawn.transform.position = spawnPos;
+            //Camera.main.transform.localRotation=Quaternion.LookRotation(objectToSpawn.transform.position-Camera.main.transform.position,Vector3.up);
+            //Debug.Log($"Spawned object at: {objectToSpawn.transform.position}");
             return; // spawn thành công, thoát
         }
 
         Debug.LogWarning("Không tìm được vị trí spawn phù hợp (tránh cây).");
+    }
+
+    public IEnumerator IeSpawnZombie()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.5f);
+            while (!GameController.ins.isPauseGame && !LunaManager.ins.isCretivePause)
+            {
+                yield return new WaitForSeconds(2f);
+                Vector3 playerPos = player.position;
+                int x = Mathf.RoundToInt(playerPos.x + Random.Range(-8, 8));
+                int z = Mathf.RoundToInt(playerPos.z + Random.Range(-8, 8));
+
+                int y = TerrainChunk.chunkHeight - 2;
+                while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
+                    y--;
+
+                y++;
+
+                BlockType groundBlock = GetBlockType(x, y - 1, z);
+                if (groundBlock == BlockType.Trunk || groundBlock == BlockType.Leaves)
+                {
+                    continue; // bỏ qua nếu trên cây
+                }
+
+                Vector3 spawnPos = new Vector3(x, y+1, z);
+                var a=Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
+            }
+        }
     }
     private void LateUpdate()
     {
