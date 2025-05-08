@@ -2650,10 +2650,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEditor.Animations.AnimatorCondition",
-                "excluded": true
-            },
-            {
                 "name": "UnityEditor.Animations.ChildMotion",
                 "excluded": true
             },
@@ -2671,10 +2667,6 @@
             },
             {
                 "name": "UnityEngine.AnimatorClipInfo",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.AnimatorTransitionInfo",
                 "excluded": true
             },
             {
@@ -3118,10 +3110,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.AnimatorTransitionInfo.NoTransitionInfo",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.AssetBundleManifest",
                 "excluded": true
             },
@@ -3514,10 +3502,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.SkinnedMeshRenderer",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.AI.NavMeshAgent",
                 "excluded": true
             },
@@ -3803,7 +3787,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorCondition",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorControllerLayer",
@@ -3811,7 +3795,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorControllerParameter",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorState",
@@ -3823,7 +3807,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorTransitionBase",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.Motion",
@@ -4171,7 +4155,7 @@
             },
             {
                 "name": "UnityEditor.Animations.AnimatorConditionMode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEditor.Animations.AnimatorLayerBlendingMode",
@@ -4295,7 +4279,7 @@
             },
             {
                 "name": "UnityEngine.AnimationEvent",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.AnimationEventSource",
@@ -4331,7 +4315,7 @@
             },
             {
                 "name": "UnityEngine.AnimatorControllerParameterType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.AnimatorCullingMode",
@@ -6747,7 +6731,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorStateTransition",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorTransition",
@@ -7074,10 +7058,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.GridLayoutGroup",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.Outline",
                 "excluded": true
             },
@@ -7127,15 +7107,15 @@
             },
             {
                 "name": "UnityEngine.UI.GridLayoutGroup.Axis",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.GridLayoutGroup.Constraint",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.GridLayoutGroup.Corner",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.ILayoutIgnorer",
@@ -7992,10 +7972,6 @@
             {
                 "name": "TerrainWallCollider",
                 "excluded": true
-            },
-            {
-                "name": "ModData",
-                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -14425,7 +14401,7 @@
                     },
                     {
                         "name": "InternalErrorShaderMaterial#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "BlitMultiTap",
@@ -19653,7 +19629,7 @@
                     },
                     {
                         "name": "Raycast$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RaycastAll",
@@ -25909,7 +25885,7 @@
                     },
                     {
                         "name": "GetSimplex$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetSimplex$2",
@@ -25917,7 +25893,7 @@
                     },
                     {
                         "name": "SingleSimplex$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SingleSimplex$2",
@@ -26166,6 +26142,14 @@
                     {
                         "name": "DestroyBlock",
                         "excluded": false
+                    },
+                    {
+                        "name": "StopSpawnItem",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IeSpawnItem",
+                        "excluded": true
                     }
                 ]
             },
@@ -26251,6 +26235,10 @@
                     },
                     {
                         "name": "InBounds",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnObjectNearPlayerAvoidTrees",
                         "excluded": false
                     }
                 ]
@@ -29968,6 +29956,10 @@
                     {
                         "name": "PlayMiningSound",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundGetItem",
+                        "excluded": true
                     }
                 ]
             },
@@ -30194,6 +30186,30 @@
                     {
                         "name": "Start",
                         "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddIron",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AddStick",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CheckNextStep",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ShowStep",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HideStep",
+                        "excluded": true
                     }
                 ]
             },
@@ -33317,7 +33333,7 @@
                 "instanceMethods": [
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -33347,7 +33363,7 @@
                 "instanceMethods": [
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -33661,11 +33677,11 @@
                 "instanceMethods": [
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CheckTransitionConditions",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CheckTransitionExitTimeCondition",
@@ -33745,7 +33761,7 @@
                     },
                     {
                         "name": "StringToHash",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "HashToString",
@@ -33901,7 +33917,7 @@
                     },
                     {
                         "name": "SetBool$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetBool",
@@ -35312,39 +35328,21 @@
                 ]
             },
             {
-                "className": "DescriptionPanel",
+                "className": "UnityEditor.Animations.AnimatorCondition",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
-                        "name": "SetValue",
+                        "name": "ctor",
                         "excluded": false
                     },
                     {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "data#get",
+                        "name": "TryMatchingParameters",
                         "excluded": false
                     }
                 ]
             },
             {
-                "className": "DownloadPanel",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "SetValue",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "GameManager",
+                "className": "UnityEngine.AnimatorTransitionInfo",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
@@ -35352,35 +35350,213 @@
                         "excluded": false
                     },
                     {
-                        "name": "Awake",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "ModView",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetValue$1",
+                        "name": "FromAlpha#get",
                         "excluded": true
                     },
                     {
-                        "name": "SetValue",
+                        "name": "ToAlpha#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Complete#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Pending#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
                         "excluded": false
                     },
                     {
-                        "name": "OnClickButton",
-                        "excluded": false
+                        "name": "AddTime",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsName",
+                        "excluded": true
                     }
                 ]
             },
             {
-                "className": "TrendingPanel",
+                "className": "UnityEngine.AnimatorTransitionInfo.NoTransitionInfo",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "IsName",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.SkinnedMeshRenderer",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "m_BlendShapeWeights#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "m_BlendShapeWeights#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sharedMesh#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sharedMesh#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "rootBone#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "rootBone#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "bones#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "bones#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "blendShape#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetBlendShapeWeight",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetBlendShapeWeight",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.GridLayoutGroup",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "startCorner#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "startCorner#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "startAxis#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "startAxis#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "cellSize#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "cellSize#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "spacing#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "spacing#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "constraint#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "constraint#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "constraintCount#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "constraintCount#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CalculateLayoutInputHorizontal",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CalculateLayoutInputVertical",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetLayoutHorizontal",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetLayoutVertical",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetCellsAlongAxis",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Anim3D",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnAnimationEvent",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventAtk",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventIdle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EventDead",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventMove",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "BaseCharacter",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
@@ -35388,13 +35564,61 @@
                         "excluded": false
                     },
                     {
+                        "name": "IsFindingEnemy#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsFindingEnemy#set",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
                         "name": "Start",
                         "excluded": false
+                    },
+                    {
+                        "name": "SearchForEnemy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleMovement",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleMovementByPoint",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetIdle",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TakeDamage",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleDeath",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Die",
+                        "excluded": true
                     }
                 ]
             },
             {
-                "className": "Tutorial",
+                "className": "GameController",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
@@ -35406,12 +35630,110 @@
                         "excluded": false
                     },
                     {
-                        "name": "NextStep",
+                        "name": "CheckCamera",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SpawnEnemy",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "IronBlock",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "SoundChar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "PlayIdleSound",
                         "excluded": false
                     },
                     {
-                        "name": "ShowNextStep",
+                        "name": "PlayAttackSound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayTakeDameSound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayDeadSound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayMoveSound",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "StickObject",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "PlayerChar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Update",
                         "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SearchForEnemy",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleAttack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TakeDamage",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Die",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "ZombieChar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SearchForEnemy",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Die",
+                        "excluded": true
                     }
                 ]
             }
