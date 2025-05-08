@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 
 public class PlayerChar : BaseCharacter
 {
     public GameObject swordFake;
+    public Transform swordFakePos;
+    public Transform swordPos;
     protected override void Update()
     {
 
@@ -16,7 +19,7 @@ public class PlayerChar : BaseCharacter
         }
         SearchForEnemy();
         attackCooldown -= Time.deltaTime;
-        if (SwordObject.activeSelf)
+        /*if (SwordObject.activeSelf)
         {
             if (attackCooldown<=0)
             {
@@ -30,7 +33,7 @@ public class PlayerChar : BaseCharacter
         else
         {
             swordFake.SetActive(false);
-        }
+        }*/
     }
 
     protected override void Start()
@@ -69,6 +72,13 @@ public class PlayerChar : BaseCharacter
         }
     }
 
+    public override void AtkCompleted()
+    {
+        base.AtkCompleted();
+        SwordObject.transform.position = swordFakePos.position;
+        SwordObject.transform.rotation = swordFakePos.rotation;
+    }
+
     public override void HandleAttack()
     {
         if (isDead)
@@ -79,7 +89,10 @@ public class PlayerChar : BaseCharacter
         
         if (/*target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && */attackCooldown <= 0)
         {
-            swordFake.SetActive(false);
+            SwordObject.transform.position = swordPos.position;
+            SwordObject.transform.rotation = swordPos.rotation;
+            
+            //swordFake.SetActive(false);
             attackCooldown = atkAnimationClip.length/ attackSpeed;
             animator.SetFloat("AttackSpeed", attackCooldown>attackSpeed?1:attackSpeed);  
             animator.SetTrigger("Attack");

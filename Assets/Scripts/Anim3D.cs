@@ -43,7 +43,13 @@ public class Anim3D : MonoBehaviour
                 }
             }
         }
-        
+    }
+    public void EventAtkComplete()
+    {
+        if (baseCharacter!=null)
+        {
+            baseCharacter.AtkCompleted();
+        }
     }
     public void EventIdle()
     {

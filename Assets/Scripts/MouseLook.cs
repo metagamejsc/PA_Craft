@@ -154,7 +154,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         //get the terrain chunk (can't just use collider)
                         int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
                         int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
-        
+                        
                         ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
         
                         TerrainChunk tc = TerrainGenerator.chunks[cp];

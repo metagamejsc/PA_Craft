@@ -59,7 +59,10 @@ public class BaseCharacter : MonoBehaviour
         rigidbody= GetComponent<Rigidbody>();
         capsuleCollider = GetComponent<CapsuleCollider>();
     }
-    
+    public virtual void AtkCompleted()
+    {
+        
+    }
     protected virtual void SearchForEnemy()
     {
         if (target)
