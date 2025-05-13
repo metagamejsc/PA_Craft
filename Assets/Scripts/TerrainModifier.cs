@@ -110,4 +110,48 @@ public class TerrainModifier : MonoBehaviour
 
         }
     }
+    public void PlaceBlock2()
+    {
+        MouseLook.ins.onClick?.Invoke();
+        RaycastHit hitInfo;
+        if(Physics.Raycast(transform.position, transform.forward, out hitInfo, maxDist, groundLayer))
+        {
+            Vector3 pointInTargetBlock;
+            
+            pointInTargetBlock = hitInfo.point - transform.forward * .01f;
+            Debug.Log(Vector3.Distance(transform.position,pointInTargetBlock));
+            
+            //get the terrain chunk (can't just use collider)
+            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
+            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+
+            ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
+
+            TerrainChunk tc = TerrainGenerator.chunks[cp];
+
+            //index of the target block
+            int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
+            int biy = Mathf.FloorToInt(pointInTargetBlock.y);
+            int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
+            
+            if (tc.blocks[bix, biy, biz] == BlockType.Empty)
+            {
+                AudioManager.ins.PlaySoundBuild();
+                tc.blocks[bix, biy, biz] = inv.GetCurBlock();
+                tc.BuildMesh();
+                inv.ReduceCur();
+                return;
+            }
+            if(inv.CanPlaceCur())
+            {
+                //LunaManager.ins.CheckClickShowEndCard();
+                AudioManager.ins.PlaySoundBuild();
+                tc.blocks[bix, biy, biz] = inv.GetCurBlock();
+                tc.BuildMesh();
+                inv.ReduceCur();
+            }
+
+        }
+    }
+    
 }

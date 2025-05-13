@@ -37,7 +37,11 @@ public class Block
         {BlockType.Trunk, new Block(Tile.TreeCX, Tile.TreeSide, Tile.TreeCX)},
         {BlockType.Leaves, new Block(Tile.Leaves)},
         {BlockType.Iron, new Block(Tile.Iron)},
+        {BlockType.PlankBrich, new Block(Tile.PlankBrich)},
+        {BlockType.Brick, new Block(Tile.Brick)},
+        {BlockType.Glass, new Block(Tile.Glass)},
+        {BlockType.Empty, new Block(Tile.Empty)},
     };
 }
 
-public enum BlockType {Air, Dirt, Grass, Stone, Trunk, Leaves,Iron}
+public enum BlockType {Air, Dirt, Grass, Stone, Trunk, Leaves,Iron,PlankBrich,Brick,Glass,Empty}
