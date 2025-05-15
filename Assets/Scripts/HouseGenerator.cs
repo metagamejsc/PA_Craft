@@ -75,7 +75,7 @@ public static class HouseGenerator
                     if (x == layer || x == houseWidth - layer - 1 ||
                         z == layer || z == houseDepth - layer - 1)
                     {
-                        SetBlock(blocks, startX + x, startY + height + 1 + layer, startZ + z, BlockType.Brick, posChunk);
+                        SetBlock(blocks, startX + x, startY + height + 1 + layer, startZ + z, BlockType.Brick, posChunk,false);
                     }
                 }
             }
@@ -83,19 +83,22 @@ public static class HouseGenerator
     }
 
     // Helper method để đặt block an toàn
-    private static void SetBlock(BlockType[,,] blocks, int x, int y, int z, BlockType type, Vector3 posChunkVector3=default(Vector3))
+    private static void SetBlock(BlockType[,,] blocks, int x, int y, int z, BlockType type, Vector3 posChunkVector3=default(Vector3),bool useRandom=true)
     {
-        var a = Random.Range(0, 100);
-        if (a<=10)
+        if (useRandom)
         {
-            if (InBounds(x, y, z, blocks))
+            var a = Random.Range(0, 100);
+            if (a<=10)
             {
-                posBlank = new Vector3(x, y, z)+posChunkVector3;
-                Debug.Log(posBlank);
-                blocks[x, y, z] = BlockType.Empty;
-                return;
+                if (InBounds(x, y, z, blocks))
+                {
+                    posBlank = new Vector3(x, y, z)+posChunkVector3;
+                    blocks[x, y, z] = BlockType.Empty;
+                    return;
+                }
             }
         }
+        
         if (InBounds(x, y, z, blocks))
         {
             blocks[x, y, z] = type;

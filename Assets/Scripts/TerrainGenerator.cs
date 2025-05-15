@@ -241,7 +241,6 @@ public class TerrainGenerator : MonoBehaviour
                 {
                     if (instant)
                     {
-                        Debug.Log(i+":"+j);
                         BuildChunk(i, j);
                     }
                     else

@@ -1747,7 +1747,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &156037072
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1785,7 +1785,7 @@ MonoBehaviour:
   hasOnPlay: 0
   hasOnUpdate: 0
   hasOnStepComplete: 0
-  hasOnComplete: 0
+  hasOnComplete: 1
   hasOnTweenCreated: 0
   hasOnRewind: 0
   onStart:
@@ -1802,7 +1802,19 @@ MonoBehaviour:
       m_Calls: []
   onComplete:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1251284549}
+        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   onTweenCreated:
     m_PersistentCalls:
       m_Calls: []
@@ -1859,7 +1871,7 @@ MonoBehaviour:
   endValueV3: {x: 0, y: 0, z: 0}
   endValueV2: {x: 0, y: 0}
   endValueColor: {r: 1, g: 1, b: 1, a: 1}
-  endValueString: Place blocks to finish the house
+  endValueString: Place blocks into missing space to finish the house
   endValueRect:
     serializedVersion: 2
     x: 0
@@ -2180,8 +2192,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 195404660}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 25.482552, y: 40.3253, z: 34.648457}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 25.482544, y: 40.325256, z: 34.648457}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2545,7 +2557,7 @@ GameObject:
   - component: {fileID: 204491749}
   - component: {fileID: 204491750}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Canvas-UIManager-LunaManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2650,7 +2662,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   countDrop: 0
   countDropFinal: 5
-  count: 0
   timeEndCreative: 30
   noiseIntensity: 1
   landNoiseScale: 0.8
@@ -2733,6 +2744,10 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1020681193}
+  - {fileID: 705507995}
+  - {fileID: 1504478443}
+  - {fileID: 803546896}
+  - {fileID: 1325995170}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &220957754
@@ -5155,7 +5170,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 586005293}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 377.77805, y: 649.18134, z: -5.1560774}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6395,7 +6410,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 220957753}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &711595655
 GameObject:
@@ -7307,7 +7322,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 220957753}
     m_Modifications:
     - target: {fileID: 1415186485125992654, guid: ea0239cecd1b75e40aeef3ac5ca74fef,
         type: 3}
@@ -7372,17 +7387,17 @@ PrefabInstance:
     - target: {fileID: 7335009840651667075, guid: ea0239cecd1b75e40aeef3ac5ca74fef,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7335009840651667075, guid: ea0239cecd1b75e40aeef3ac5ca74fef,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7335009840651667075, guid: ea0239cecd1b75e40aeef3ac5ca74fef,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7335009840651667075, guid: ea0239cecd1b75e40aeef3ac5ca74fef,
         type: 3}
@@ -9897,7 +9912,7 @@ GameObject:
   - component: {fileID: 1156745257}
   - component: {fileID: 1156745261}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Canvas-Ingame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10434,7 +10449,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1251284547}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
@@ -11198,7 +11213,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 220957753}
     m_Modifications:
     - target: {fileID: 1222628289197523308, guid: 5a7e5811a2d4a874995aac8ca5040319,
         type: 3}
@@ -11253,17 +11268,17 @@ PrefabInstance:
     - target: {fileID: 4660074846221464075, guid: 5a7e5811a2d4a874995aac8ca5040319,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4660074846221464075, guid: 5a7e5811a2d4a874995aac8ca5040319,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4660074846221464075, guid: 5a7e5811a2d4a874995aac8ca5040319,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4660074846221464075, guid: 5a7e5811a2d4a874995aac8ca5040319,
         type: 3}
@@ -11373,6 +11388,12 @@ PrefabInstance:
 --- !u!1 &1325995162 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2120500808982296359, guid: 5a7e5811a2d4a874995aac8ca5040319,
+    type: 3}
+  m_PrefabInstance: {fileID: 1325995161}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1325995170 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4660074846221464075, guid: 5a7e5811a2d4a874995aac8ca5040319,
     type: 3}
   m_PrefabInstance: {fileID: 1325995161}
   m_PrefabAsset: {fileID: 0}
@@ -12728,7 +12749,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 220957753}
     m_Modifications:
     - target: {fileID: 13179248507128949, guid: 4c3ee659094beb44396a02b94c34a086,
         type: 3}
@@ -12824,17 +12845,17 @@ PrefabInstance:
     - target: {fileID: 7955754600748609242, guid: 4c3ee659094beb44396a02b94c34a086,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7955754600748609242, guid: 4c3ee659094beb44396a02b94c34a086,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7955754600748609242, guid: 4c3ee659094beb44396a02b94c34a086,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7955754600748609242, guid: 4c3ee659094beb44396a02b94c34a086,
         type: 3}
@@ -15843,7 +15864,7 @@ MonoBehaviour:
   hasOnPlay: 0
   hasOnUpdate: 0
   hasOnStepComplete: 0
-  hasOnComplete: 0
+  hasOnComplete: 1
   hasOnTweenCreated: 0
   hasOnRewind: 0
   onStart:
@@ -15860,7 +15881,19 @@ MonoBehaviour:
       m_Calls: []
   onComplete:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 156037071}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   onTweenCreated:
     m_PersistentCalls:
       m_Calls: []
@@ -16890,11 +16923,7 @@ SceneRoots:
   - {fileID: 195404662}
   - {fileID: 1156745260}
   - {fileID: 1120727381}
-  - {fileID: 705507995}
+  - {fileID: 586005295}
   - {fileID: 220957753}
-  - {fileID: 1504478436}
-  - {fileID: 803546895}
   - {fileID: 1100592808}
   - {fileID: 204491748}
-  - {fileID: 1325995161}
-  - {fileID: 586005295}

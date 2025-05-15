@@ -117,6 +117,7 @@ public class Inventory : MonoBehaviour
         for (int i = 0; i < textCount.Length; i++)
         {
             textCount[i].text= matCounts[i].ToString();
+            textCount[i].gameObject.SetActive(false);
         }
     }
 }
