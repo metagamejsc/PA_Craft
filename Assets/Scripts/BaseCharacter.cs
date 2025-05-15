@@ -13,7 +13,7 @@ public class BaseCharacter : MonoBehaviour
     public float detectionRadiusMax = 5f;
     public float detectionRadiusMin = 1.5f;
     public bool isDead=false;
-    protected bool isFindingEnemy = false;
+    public bool isFindingEnemy = false;
 
     public Animator animator;
     public GameObject SwordObject;

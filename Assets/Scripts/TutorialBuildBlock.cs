@@ -43,7 +43,6 @@ public class TutorialBuildBlock : MonoBehaviour
     public void ShowStep()
     {
         GameController.ins.isPauseGame = true;
-        
         lstStep[stepIndex].SetActive(true);
     }
     public void HideStep()

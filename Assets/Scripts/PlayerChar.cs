@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using DG.Tweening;
 using UnityEngine;
 
 public class PlayerChar : BaseCharacter
@@ -56,11 +52,10 @@ public class PlayerChar : BaseCharacter
         Camera cam = Camera.main;
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, detectionRadiusMax)) 
+        if (Physics.Raycast(ray, out hit, detectionRadiusMax, LayerMask.GetMask("Enemy"))) 
         {
-            GameObject hitObj = hit.collider.gameObject;
-
+            GameObject hitObj = hit.transform.gameObject;
+            
             if (hitObj.CompareTag("Enemy"))
             {
                 target = hitObj.transform;
@@ -90,8 +85,7 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-        attackCooldown -= Time.deltaTime;
-        
+
         if (/*target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && */attackCooldown <= 0)
         {
             SwordObject.transform.parent = swordPos;

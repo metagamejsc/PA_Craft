@@ -11,7 +11,7 @@ public class ZombieChar : BaseCharacter
     {
         base.Start();
         IsFindingEnemy = true;
-        health = LunaManager.ins.countDropFinal;
+        //health = LunaManager.ins.countDropFinal;
         for (int i = 0; i < lstMaterials.Length; i++)
         {
             lstMaterials[i].material = new Material(material);
@@ -60,6 +60,7 @@ public class ZombieChar : BaseCharacter
         StartCoroutine(IeNhapNhay(2f));
         if (health <= 0)
         {
+            GameController.ins.EnemyDead();
             animator.SetTrigger("Dead");
             isDead = true;
             Die();
