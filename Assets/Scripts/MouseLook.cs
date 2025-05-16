@@ -289,6 +289,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             
             if (tc.blocks[bix, biy, biz] == BlockType.Empty)
             {
+                LunaManager.ins.CheckClickShowEndCard();
                 AudioManager.ins.PlaySoundBuild();
                 tc.blocks[bix, biy, biz] = inv.GetCurBlock();
                 tc.BuildMesh();
@@ -297,7 +298,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             }
             if(inv.CanPlaceCur())
             {
-                LunaManager.ins.CheckClickShowEndCard();
+                
                 AudioManager.ins.PlaySoundBuild();
                 tc.blocks[bix, biy, biz] = inv.GetCurBlock();
                 tc.BuildMesh();
