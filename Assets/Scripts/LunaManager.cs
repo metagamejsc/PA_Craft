@@ -84,10 +84,10 @@ public class LunaManager : MonoBehaviour
     public IEnumerator IESelectBuilding()
     {
         
+        yield return new WaitForSeconds(13f);
         int number = 0;
         while (true)
         {
-            
             yield return new WaitForSeconds(0.92f);
             AudioManager.ins.PlaySoundClick();
             doTweenAnimations[number].color = Color.green;
