@@ -15,6 +15,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip loseSound;
     public AudioClip bgSound;
     public AudioClip buildSound;
+    public AudioClip clickSound;
 
     private void Awake()
     {
@@ -30,7 +31,10 @@ public class AudioManager : MonoBehaviour
     {
         sound.PlayOneShot(audioClip,1);
     }
-
+    public void PlaySoundClick()
+    {
+        sound.PlayOneShot(clickSound,1);
+    }
     public void PlaySoundMerge()
     {
         sound.PlayOneShot(lstMergeSound[Random.Range(0,lstMergeSound.Count)],1);
