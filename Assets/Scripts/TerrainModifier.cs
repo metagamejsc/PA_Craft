@@ -7,6 +7,7 @@ public class TerrainModifier : MonoBehaviour
     public LayerMask groundLayer;
 
     public Inventory inv;
+    public GameObject blockPrefab;
 
     float maxDist = 5;
     float minDist = 2;
@@ -69,8 +70,62 @@ public class TerrainModifier : MonoBehaviour
             }
         }*/
     }
-
     public void PlaceBlock()
+    {
+        MouseLook.ins.onClick?.Invoke();
+        RaycastHit hitInfo;
+
+        if (Physics.Raycast(transform.position, transform.forward, out hitInfo, maxDist, groundLayer))
+        {
+            Vector3 pointInTargetBlock = hitInfo.point - transform.forward * 0.01f;
+            float dist = Vector3.Distance(transform.position, pointInTargetBlock);
+            Debug.Log(dist);
+        
+            // Nếu là TerrainChunk
+            TerrainChunk chunk = hitInfo.collider.GetComponentInParent<TerrainChunk>();
+            if (chunk != null)
+            {
+                int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
+                int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+                ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
+
+                if (!TerrainGenerator.chunks.TryGetValue(cp, out TerrainChunk tc)) return;
+
+                int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX + 1;
+                int biy = Mathf.FloorToInt(pointInTargetBlock.y);
+                int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ + 1;
+
+                if (inv.CanPlaceCur())
+                {
+                    AudioManager.ins.PlaySoundBuild();
+                    LunaManager.ins.CheckClickShowEndCard();
+                    tc.blocks[bix, biy, biz] = inv.GetCurBlock();
+                    tc.BuildMesh();
+                    inv.ReduceCur();
+                }
+            }
+            else
+            {
+                // Không phải TerrainChunk ⇒ đặt block prefab
+                if (inv.CanPlaceCur())
+                {
+                    // Tìm vị trí chính xác: lấy vị trí block bị trúng và cộng thêm hướng normal (mặt bị trúng)
+                    Vector3 spawnPos = hitInfo.point + hitInfo.normal * 0.5f;
+
+                    // Làm tròn về lưới (1x1x1 block)
+                    Vector3Int placePos = Vector3Int.RoundToInt(spawnPos);
+
+                    // Tạo block tại mặt chính xác
+                    Instantiate(blockPrefab, placePos, Quaternion.identity);
+
+                    inv.ReduceCur();
+                    AudioManager.ins.PlaySoundBuild();
+                    LunaManager.ins.CheckClickShowEndCard();
+                }
+            }
+        }
+    }
+    /*public void PlaceBlock()
     {
         MouseLook.ins.onClick?.Invoke();
         RaycastHit hitInfo;
@@ -80,10 +135,10 @@ public class TerrainModifier : MonoBehaviour
             
             pointInTargetBlock = hitInfo.point - transform.forward * .01f;
             Debug.Log(Vector3.Distance(transform.position,pointInTargetBlock));
-            if (Vector3.Distance(transform.position,pointInTargetBlock)<=minDist)
+            /*if (Vector3.Distance(transform.position,pointInTargetBlock)<=minDist)
             {
                 return;
-            }
+            }#1#
             //get the terrain chunk (can't just use collider)
             int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
             int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
@@ -107,5 +162,5 @@ public class TerrainModifier : MonoBehaviour
                 }
 
         }
-    }
+    }*/
 }

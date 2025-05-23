@@ -25,6 +25,7 @@ public class PlayerMovement2 : MonoBehaviour
     private float xRotation = 0f;
     private bool isGrounded;
 
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -73,7 +74,11 @@ public class PlayerMovement2 : MonoBehaviour
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }*/
-        
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            
+            rb.AddForce(Vector3.up * jumpHeight, ForceMode.Impulse);
+        }
         
     }
 
@@ -92,10 +97,10 @@ public class PlayerMovement2 : MonoBehaviour
 #if UNITY_EDITOR
          moveX = Input.GetAxis("Horizontal");
          moveZ = Input.GetAxis("Vertical");
-#endif
+#else
          moveX = JoystickController.ins.Horizontal();
          moveZ = JoystickController.ins.Vertical();
-
+#endif
         // Chuyển đổi hướng di chuyển theo góc nhìn
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
 
@@ -112,21 +117,20 @@ public class PlayerMovement2 : MonoBehaviour
         // Xử lý bước lên dốc (Step Climb)
         StepClimb();
     }
-    
-    private void OnCollisionStay(Collision collision)
+
+    private void OnCollisionEnter(Collision collision)
     {
-        // Kiểm tra nếu nhân vật đứng trên mặt đất
-        /*if (collision.gameObject.CompareTag("Ground"))
+        if (collision.collider.CompareTag("Respawn"))
         {
-            isGrounded = true;
-        }*/
+            LunaManager.ins.ShowEndCard();
+        }
     }
 
-    private void OnCollisionExit(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        /*if (collision.gameObject.CompareTag("Ground"))
+        if (other.CompareTag("Finish"))
         {
-            isGrounded = false;
-        }*/
+            LunaManager.ins.ShowWinCard();
+        }
     }
 }

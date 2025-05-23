@@ -1,51 +1,40 @@
-Shader "Custom/FlowShader"
+Shader "Custom/MinecraftLava"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
-        _FlowSpeed ("Flow Speed", Vector) = (0.1, 0.0, 0, 0)
+        _MainTex ("Lava Texture", 2D) = "white" {}
+        _ScrollSpeed ("Scroll Speed", Vector) = (0.1, 0.1, 0, 0)
+        _EmissionColor ("Emission Color", Color) = (1, 0.5, 0, 1)
+        _EmissionStrength ("Emission Strength", Range(0,10)) = 2
     }
     SubShader
     {
         Tags { "RenderType"="Opaque" }
         LOD 200
-        Pass
+
+        CGPROGRAM
+        #pragma surface surf Standard fullforwardshadows
+
+        sampler2D _MainTex;
+        float4 _ScrollSpeed;
+        float4 _EmissionColor;
+        float _EmissionStrength;
+
+        struct Input
         {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
+            float2 uv_MainTex;
+        };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-            float4 _FlowSpeed;
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-            };
-
-            float _TimeValue;
-
-            v2f vert (appdata v)
-            {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                float2 offset = _FlowSpeed.xy * _Time.y;
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex) + offset;
-                return o;
-            }
-            fixed4 frag (v2f i) : SV_Target
-            {
-                return tex2D(_MainTex, i.uv);
-            }
-            ENDCG
+        void surf (Input IN, inout SurfaceOutputStandard o)
+        {
+            float2 uv = IN.uv_MainTex + _ScrollSpeed.xy * _Time.y;
+            fixed4 c = tex2D(_MainTex, uv);
+            o.Albedo = c.rgb;
+            o.Emission = c.rgb * _EmissionColor.rgb * _EmissionStrength;
+            o.Smoothness = 0.0;
+            o.Metallic = 0.0;
         }
+        ENDCG
     }
+    FallBack "Diffuse"
 }

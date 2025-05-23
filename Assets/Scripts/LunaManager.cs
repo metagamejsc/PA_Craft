@@ -12,19 +12,23 @@ public class LunaManager : MonoBehaviour
     public int countDrop=0;
     /*[LunaPlaygroundField("CountDrop")] */public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    /*[LunaPlaygroundField("NoiseIntensity")] */public float noiseIntensity=10;
-    /*[LunaPlaygroundField("LandNoiseScale")] */public float landNoiseScale=0.8f;
+    /*/*[LunaPlaygroundField("NoiseIntensity")] #1#public float noiseIntensity=10;
+    /*[LunaPlaygroundField("LandNoiseScale")] #1#public float landNoiseScale=0.8f;*/
     public Image[] doTweenAnimations;
     public bool isCretivePause;
     public float timeActive = 0;
     public int numberActive = 0;
+    public GameObject lava;
+    public Tween lavaTween;
     private void Awake()
     {
         ins = this;
 
     }
     public Button[] lstBtnInstall;
+    public GameObject StartCard;
     public GameObject EndCard;
+    public GameObject WinCard;
     
 
 
@@ -37,20 +41,25 @@ public class LunaManager : MonoBehaviour
         {
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
+        StartCard.SetActive(true);
         EndCard.SetActive(false);
+        WinCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
         /*for (int i = 0; i < doTweenAnimations.Length; i++)
         {
             doTweenAnimations[i].enabled = false;
         }*/
-        StartCoroutine(IESelectBuilding());
-        
+        //StartCoroutine(IESelectBuilding());
+        lavaTween=lava.transform.DOMoveY(lava.transform.position.y+4.9f, timeEndCreative).SetEase(Ease.Linear).SetLoops(1).OnComplete(() =>
+        {
+            ShowEndCard();
+        });
     }
 
     public void CheckClickShowEndCard()
     {
-        countDrop++;
+        //countDrop++;
         if (countDrop>=countDropFinal && isCretivePause==false)
         {
             isCretivePause = true;
@@ -122,20 +131,45 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
+        if ( isCretivePause==true)
+        {
+            return;
+        }
+        DOTween.KillAll();
         StopAllCoroutines();
         for (int i = 0; i < doTweenAnimations.Length; i++)
         {
             doTweenAnimations[i].color=Color.cyan;
         }
         AudioManager.ins.PlaySoundReward();
+        isCretivePause = true;
         EndCard.SetActive(true);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
-
+    public void ShowWinCard()
+    {
+        if ( isCretivePause==true)
+        {
+            return;
+        }
+        DOTween.KillAll();
+        StopAllCoroutines();
+        for (int i = 0; i < doTweenAnimations.Length; i++)
+        {
+            doTweenAnimations[i].color=Color.cyan;
+        }
+        AudioManager.ins.PlaySoundReward();
+        isCretivePause = true;
+        WinCard.SetActive(true);
+        Debug.Log("Show WinCard");
+        Luna.Unity.LifeCycle.GameEnded();
+    }
     public void OnClickEndCard()
     {
+        DOTween.KillAll();
         Debug.Log("Click end card");
+        isCretivePause = true;
         StopAllCoroutines();
         for (int i = 0; i < doTweenAnimations.Length; i++)
         {

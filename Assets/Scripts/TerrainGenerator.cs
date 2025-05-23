@@ -33,9 +33,9 @@ public class TerrainGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        landNoiseScale = LunaManager.ins.landNoiseScale;
-        noiseIntensity = LunaManager.ins.noiseIntensity;
-        LoadChunks(true);
+        /*landNoiseScale = LunaManager.ins.landNoiseScale;
+        noiseIntensity = LunaManager.ins.noiseIntensity;*/
+        //LoadChunks(true);
         wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
     }
@@ -97,11 +97,19 @@ public class TerrainGenerator : MonoBehaviour
             chunk = chunkGO.GetComponent<TerrainChunk>();
         }
 
+
         for (int x = 0; x < TerrainChunk.chunkWidth + 2; x++)
         for (int z = 0; z < TerrainChunk.chunkWidth + 2; z++)
         for (int y = 0; y < TerrainChunk.chunkHeight; y++)
         {
-            chunk.blocks[x, y, z] = GetBlockType(xPos + x - 1, y, zPos + z - 1);
+            if (zPos==16)
+            {
+                chunk.blocks[x, y, z] = BlockType.Air;
+            }
+            else
+            {
+                chunk.blocks[x, y, z] = GetBlockType(xPos + x - 1, y, zPos + z - 1);
+            }
         }
 
         GenerateTrees(chunk.blocks, xPos, zPos);
@@ -111,6 +119,7 @@ public class TerrainGenerator : MonoBehaviour
         WaterChunk waterChunk = chunk.GetComponentInChildren<WaterChunk>();
         waterChunk.SetLocs(chunk.blocks);
         waterChunk.BuildMesh();
+
 
         chunks.Add(new ChunkPos(xPos, zPos), chunk);
     }
