@@ -18,6 +18,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip miningSound;
     public AudioClip getItemSound;
     public List<AudioClip> lstMoveSound;
+    public List<AudioClip> soundClick;
 
     private void Awake()
     {
@@ -29,6 +30,10 @@ public class AudioManager : MonoBehaviour
         PlayMusic();
     }
 
+    public void PlaySoundClick()
+    {
+        sound.PlayOneShot(lstMoveSound[Random.Range(0,soundClick.Count)],1);
+    }
     public void PlaySound(AudioClip audioClip)
     {
         sound.PlayOneShot(audioClip,1);

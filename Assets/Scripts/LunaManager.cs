@@ -15,6 +15,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
     public bool isCretivePause;
+    public Image[] doTweenAnimations;
     private void Awake()
     {
         ins = this;
@@ -38,7 +39,32 @@ public class LunaManager : MonoBehaviour
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
-
+    public IEnumerator IESelectBuilding()
+    {
+        
+        int number = 0;
+        while (true)
+        {
+            
+            yield return new WaitForSeconds(0.92f);
+            AudioManager.ins.PlaySoundClick();
+            doTweenAnimations[number].color = Color.green;
+            for (int i = 0; i < doTweenAnimations.Length; i++)
+            {
+                yield return null;
+                if (i!=number)
+                {
+                    doTweenAnimations[i].color=Color.cyan;
+                }
+            }
+            number++;
+            if (number>=doTweenAnimations.Length)
+            {
+                number = 0;
+            }
+        }
+        
+    }
     public void CheckClickShowEndCard()
     {
         countDrop++;
@@ -63,6 +89,12 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
+        /*StopAllCoroutines();
+        for (int i = 0; i < doTweenAnimations.Length; i++)
+        {
+            doTweenAnimations[i].color=Color.cyan;
+        }*/
+        StartCoroutine(IESelectBuilding());
         AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
@@ -71,6 +103,11 @@ public class LunaManager : MonoBehaviour
 
     public void OnClickEndCard()
     {
+        StopAllCoroutines();
+        for (int i = 0; i < doTweenAnimations.Length; i++)
+        {
+            doTweenAnimations[i].color=Color.cyan;
+        }
         Debug.Log("Click end card");
         Luna.Unity.Playable.InstallFullGame();
     }

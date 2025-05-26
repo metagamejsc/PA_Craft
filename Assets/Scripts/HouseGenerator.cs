@@ -12,8 +12,8 @@ public static class HouseGenerator
         // Chiều cao của nhà
         int height =4;
         // Kích thước nhà (chiều dài và rộng)
-        int houseWidth = 5; // lẻ để có tâm
-        int houseDepth = 5;
+        int houseWidth = 7; // lẻ để có tâm
+        int houseDepth = 7;
 
         // Xây nền nhà từ PlankBrich
         for (int x = 0; x < houseWidth; x++)
@@ -47,7 +47,7 @@ public static class HouseGenerator
                         else
                         {
                             // Xây tường bằng Brick
-                            SetBlock(blocks, startX + x, y, startZ + z, BlockType.Brick, posChunk);
+                            SetBlock(blocks, startX + x, y, startZ + z, BlockType.Stone, posChunk);
                         }
                     }
                 }
@@ -88,7 +88,7 @@ public static class HouseGenerator
         if (useRandom)
         {
             var a = Random.Range(0, 100);
-            if (a<=10)
+            if (a<=30)
             {
                 if (InBounds(x, y, z, blocks))
                 {
