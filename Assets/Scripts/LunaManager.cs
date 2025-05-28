@@ -10,7 +10,7 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    /*[LunaPlaygroundField("CountDrop")] */public int countDropFinal;
+    [LunaPlaygroundField("CountDrop")] public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     /*/*[LunaPlaygroundField("NoiseIntensity")] #1#public float noiseIntensity=10;
     /*[LunaPlaygroundField("LandNoiseScale")] #1#public float landNoiseScale=0.8f;*/
@@ -59,10 +59,9 @@ public class LunaManager : MonoBehaviour
 
     public void CheckClickShowEndCard()
     {
-        //countDrop++;
+        countDrop++;
         if (countDrop>=countDropFinal && isCretivePause==false)
         {
-            isCretivePause = true;
             ShowEndCard();
         }
     }
@@ -131,10 +130,7 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
-        if ( isCretivePause==true)
-        {
-            return;
-        }
+        
         DOTween.KillAll();
         StopAllCoroutines();
         for (int i = 0; i < doTweenAnimations.Length; i++)
@@ -142,17 +138,18 @@ public class LunaManager : MonoBehaviour
             doTweenAnimations[i].color=Color.cyan;
         }
         AudioManager.ins.PlaySoundReward();
-        isCretivePause = true;
-        EndCard.SetActive(true);
+        if ( isCretivePause!=true)
+        {
+            isCretivePause = true;
+            EndCard.SetActive(true);
+        }
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
     public void ShowWinCard()
     {
-        if ( isCretivePause==true)
-        {
-            return;
-        }
+        
+        AudioManager.ins.PlaySoundReward();
         DOTween.KillAll();
         StopAllCoroutines();
         for (int i = 0; i < doTweenAnimations.Length; i++)
@@ -160,8 +157,11 @@ public class LunaManager : MonoBehaviour
             doTweenAnimations[i].color=Color.cyan;
         }
         AudioManager.ins.PlaySoundReward();
-        isCretivePause = true;
-        WinCard.SetActive(true);
+        if ( isCretivePause!=true)
+        {
+            isCretivePause = true;
+            WinCard.SetActive(true);
+        }
         Debug.Log("Show WinCard");
         Luna.Unity.LifeCycle.GameEnded();
     }

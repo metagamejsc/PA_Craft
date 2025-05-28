@@ -22,7 +22,7 @@ public class Inventory : MonoBehaviour
             img.gameObject.SetActive(false);
         }
 
-        AddToInventory2(0, 32);
+        AddToInventory2(0, 999);
         matImgs[0].gameObject.SetActive(true);
     }
 

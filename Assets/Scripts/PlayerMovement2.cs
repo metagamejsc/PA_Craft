@@ -91,6 +91,10 @@ public class PlayerMovement2 : MonoBehaviour
     }
     void FixedUpdate()
     {
+        if (LunaManager.ins.isCretivePause)
+        {
+            return;
+        }
         // Lấy input từ bàn phím (WASD)
         float moveX = 0;
         float moveZ = 0;

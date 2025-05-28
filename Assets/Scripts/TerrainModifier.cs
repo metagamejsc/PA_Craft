@@ -109,6 +109,7 @@ public class TerrainModifier : MonoBehaviour
                 // Không phải TerrainChunk ⇒ đặt block prefab
                 if (inv.CanPlaceCur())
                 {
+                    LunaManager.ins.CheckClickShowEndCard();
                     // Tìm vị trí chính xác: lấy vị trí block bị trúng và cộng thêm hướng normal (mặt bị trúng)
                     Vector3 spawnPos = hitInfo.point + hitInfo.normal * 0.5f;
 
@@ -120,7 +121,6 @@ public class TerrainModifier : MonoBehaviour
 
                     inv.ReduceCur();
                     AudioManager.ins.PlaySoundBuild();
-                    LunaManager.ins.CheckClickShowEndCard();
                 }
             }
         }
