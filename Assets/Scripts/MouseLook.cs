@@ -186,7 +186,10 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX + 1;
             int biy = Mathf.FloorToInt(pointInTargetBlock.y);
             int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ + 1;
-
+            if (tc.blocks[bix, biy, biz] == BlockType.Empty)
+            {
+                yield break;
+            }
 
             blockPrefab2.SetActive(true);
             blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
@@ -216,11 +219,11 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             yield return new WaitForSeconds(0.2f);
             AudioManager.ins.PlayMiningSound();
             yield return new WaitForSeconds(0.2f);
-            if (tc.blocks[bix, biy, biz] == BlockType.Trunk || tc.blocks[bix, biy, biz] == BlockType.Iron)
+            /*if (tc.blocks[bix, biy, biz] == BlockType.Trunk || tc.blocks[bix, biy, biz] == BlockType.Iron)
             {
                 blockPrefab2.SetActive(false);
                 yield break;
-            }
+            }*/
 
             inv.AddToInventory(tc.blocks[bix, biy, biz]);
             tc.blocks[bix, biy, biz] = BlockType.Air;
@@ -265,46 +268,67 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         }
     }
     public void PlaceBlock2()
+{
+    MouseLook.ins.onClick?.Invoke();
+
+    RaycastHit hitInfo;
+    if (Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
     {
-        MouseLook.ins.onClick?.Invoke();
-        RaycastHit hitInfo;
-        if (Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
+        Vector3 pointInTargetBlock = hitInfo.point + posCam.transform.forward * 0.01f;
+
+        // Xác định chunk
+        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
+        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+
+        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
+        TerrainChunk tc = TerrainGenerator.chunks[cp];
+
+        // Tính index khối bị bắn trúng
+        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX + 1;
+        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
+        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ + 1;
+
+        // Kiểm tra xem khối này có phải là Empty hay không
+        if (tc.blocks[bix, biy, biz] == BlockType.Empty)
         {
-            Vector3 pointInTargetBlock;
-            
-            pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
+            LunaManager.ins.CheckClickShowEndCard();
+            AudioManager.ins.PlaySoundBuild();
+            tc.blocks[bix, biy, biz] = inv.GetCurBlock();
+            tc.BuildMesh();
+            inv.ReduceCur();
+            return;
+        }
 
-            //get the terrain chunk (can't just use collider)
-            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+        // Nếu không phải empty -> đặt khối bên cạnh theo hướng mặt tiếp xúc
+        if (inv.CanPlaceCur())
+        {
+            // Lấy normal của mặt va chạm
+            Vector3 normal = hitInfo.normal;
 
-            ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
+            // Dịch chuyển theo hướng normal 1 đơn vị để chọn khối kế bên
+            Vector3 adjacentPoint = hitInfo.point + normal*0.5f;
 
-            TerrainChunk tc = TerrainGenerator.chunks[cp];
+            // Tính lại chunk và index khối kế bên
+            int adjChunkPosX = Mathf.FloorToInt(adjacentPoint.x / 16f) * 16;
+            int adjChunkPosZ = Mathf.FloorToInt(adjacentPoint.z / 16f) * 16;
 
-            //index of the target block
-            int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX + 1;
-            int biy = Mathf.FloorToInt(pointInTargetBlock.y);
-            int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ + 1;
-            
-            if (tc.blocks[bix, biy, biz] == BlockType.Empty)
-            {
-                LunaManager.ins.CheckClickShowEndCard();
-                AudioManager.ins.PlaySoundBuild();
-                tc.blocks[bix, biy, biz] = inv.GetCurBlock();
-                tc.BuildMesh();
-                inv.ReduceCur();
+            ChunkPos adjCp = new ChunkPos(adjChunkPosX, adjChunkPosZ);
+
+            // Nếu chunk không tồn tại, thoát (có thể sinh ra chunk ở đây nếu cần)
+            if (!TerrainGenerator.chunks.TryGetValue(adjCp, out TerrainChunk adjTc))
                 return;
-            }
-            if(inv.CanPlaceCur())
-            {
-                
-                AudioManager.ins.PlaySoundBuild();
-                tc.blocks[bix, biy, biz] = inv.GetCurBlock();
-                tc.BuildMesh();
-                inv.ReduceCur();
-            }
 
+            int adjBix = Mathf.FloorToInt(adjacentPoint.x) - adjChunkPosX + 1;
+            int adjBiy = Mathf.FloorToInt(adjacentPoint.y);
+            int adjBiz = Mathf.FloorToInt(adjacentPoint.z) - adjChunkPosZ + 1;
+
+    
+            AudioManager.ins.PlaySoundBuild();
+            LunaManager.ins.CheckClickShowEndCard();
+            adjTc.blocks[adjBix, adjBiy, adjBiz] = inv.GetCurBlock();
+            adjTc.BuildMesh();
+            inv.ReduceCur();
         }
     }
+}
 }
