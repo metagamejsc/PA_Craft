@@ -140,13 +140,14 @@ public class TerrainGenerator : MonoBehaviour
         {
             chunk.blocks[x, y, z] = GetBlockType(xPos + x - 1, y, zPos + z - 1);
         }
-
+        int groundY = FindGroundY(chunk.blocks, 5, 5); // Tìm y lớn nhất mà không phải Air
         if (xPos==16 && zPos==32)
         {
-            int groundY = FindGroundY(chunk.blocks, 5, 5); // Tìm y lớn nhất mà không phải Air
-            HouseGenerator.GenerateHouse(chunk.blocks, 5, groundY, 5,new Vector3(16,0,32));
+            /*HouseGenerator.GenerateHouse(chunk.blocks, 5, groundY, 5,new Vector3(16,0,32));*/
+            //HouseGenerator.GenerateHouse(chunks, 13, 33, 45);
         }
-        
+        //HouseGenerator.GenerateHouse(chunks, 0, groundY, 0);
+        //HouseGenerator.GenerateHouse(chunks, 5, groundY, 5);
         GenerateTrees(chunk.blocks, xPos, zPos);
 
         chunk.BuildMesh();
@@ -282,8 +283,33 @@ public class TerrainGenerator : MonoBehaviour
         //Invoke(nameof(SpawnObjectNearPlayerAvoidTrees), 2f);
         Invoke(nameof(ShowTargerPlaceBlock), 2f);
         //SpawnObjectNearPlayerAvoidTrees();
+        Invoke(nameof(CreateHouse), 2f);
     }
 
+    public void CreateHouse()
+    {
+        HouseGenerator.GenerateHouse(chunks, 13, 33, 45);
+
+        // Sau khi chỉnh sửa blocks, cần gọi BuildMesh cho tất cả các chunk chứa block bị chỉnh sửa
+        // Nhà có kích thước 7x7, có thể nằm trọn trong 1 hoặc "chìa" sang 4 chunk lân cận
+        int houseWidth = 7;
+        int houseDepth = 7;
+
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            for (int dz = -1; dz <= 1; dz++)
+            {
+                int checkX = (13 + dx * TerrainChunk.chunkWidth) / TerrainChunk.chunkWidth * TerrainChunk.chunkWidth;
+                int checkZ = (45 + dz * TerrainChunk.chunkWidth) / TerrainChunk.chunkWidth * TerrainChunk.chunkWidth;
+                ChunkPos pos = new ChunkPos(checkX, checkZ);
+
+                if (chunks.ContainsKey(pos))
+                {
+                    chunks[pos].BuildMesh();
+                }
+            }
+        }
+    }
 
     void GenerateTrees(BlockType[,,] blocks, int x, int z)
     {
