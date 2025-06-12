@@ -37,7 +37,7 @@ public class UIManager : MonoBehaviour
     {
         //btnRetry.onClick.AddListener(ReStart);
         //losePanel.SetActive(false);f
-        startCard.SetActive(true);
+        //startCard.SetActive(true);
         btnStartCard.onClick.AddListener(() =>
         {
             startCard.SetActive(false);

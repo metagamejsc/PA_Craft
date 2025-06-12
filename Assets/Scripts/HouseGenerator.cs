@@ -108,10 +108,9 @@ public class HouseGenerator : MonoBehaviour
         {
             TerrainChunk targetChunk = chunks[targetChunkPos];
 
-            if (useRandom)
-            {
+            
                 var a = Random.Range(0, 100);
-                if (a <= 30)
+                if (a <= 100)
                 {
                     if (InBounds(localX, y, localZ, targetChunk.blocks))
                     {
@@ -120,7 +119,7 @@ public class HouseGenerator : MonoBehaviour
                         return;
                     }
                 }
-            }
+            
 
             if (InBounds(localX, y, localZ, targetChunk.blocks))
             {

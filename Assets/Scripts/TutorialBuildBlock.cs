@@ -62,6 +62,15 @@ public class TutorialBuildBlock : MonoBehaviour
         ShowStep();
         //StartCoroutine(IeSpawnStep());
     }
+[ContextMenu("FindAudioListent")]
+    public void FindAudioListent()
+    {
+        var listeners = FindObjectsOfType<AudioListener>();
+        foreach (var VARIABLE in listeners)
+        {
+            Debug.Log(VARIABLE.gameObject.name);
+        }
+    }
 
     public void ShowStep()
     {
