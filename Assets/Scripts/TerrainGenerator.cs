@@ -5,6 +5,7 @@ using UnityEngine;
 public class TerrainGenerator : MonoBehaviour
 {
     public GameObject terrainChunk;
+    public int witdth = TerrainChunk.chunkWidth;
 
     public Transform player;
     public GameObject objectToSpawn;
@@ -74,8 +75,10 @@ public class TerrainGenerator : MonoBehaviour
 
     public void ShowTargerPlaceBlock()
     {
-        Camera.main.transform.localRotation=Quaternion.LookRotation(HouseGenerator.posBlank-Camera.main.transform.position,Vector3.up);
+        Camera.main.transform.localRotation =
+            Quaternion.LookRotation(HouseGenerator.posBlank - Camera.main.transform.position, Vector3.up);
     }
+
     private void LateUpdate()
     {
         //LoadChunks();
@@ -88,7 +91,14 @@ public class TerrainGenerator : MonoBehaviour
             Mathf.Clamp(player.transform.position.z, MinZ, MaxZ));
     }
 
-
+    [ContextMenu("Build Mesh")]
+    public void BuildMesh()
+    {
+        for (int i = 0; i < pooledChunks.Count; i++)
+        {
+            pooledChunks[i].BuildMesh();
+        }
+    }
     void UpdateWallCollider()
     {
         if (chunks.Count == 0) return;
@@ -108,8 +118,8 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         // Tính toán vị trí và kích thước của bức tường collider
-        float width = maxX - minX + 16;
-        float length = maxZ - minZ + 16;
+        float width = maxX - minX + witdth;
+        float length = maxZ - minZ + witdth;
         float centerX = minX + width / 2;
         float centerZ = minZ + length / 2;
 
@@ -140,12 +150,14 @@ public class TerrainGenerator : MonoBehaviour
         {
             chunk.blocks[x, y, z] = GetBlockType(xPos + x - 1, y, zPos + z - 1);
         }
+
         int groundY = FindGroundY(chunk.blocks, 5, 5); // Tìm y lớn nhất mà không phải Air
-        if (xPos==16 && zPos==32)
+        if (xPos == witdth && zPos == 32)
         {
-            /*HouseGenerator.GenerateHouse(chunk.blocks, 5, groundY, 5,new Vector3(16,0,32));*/
+            /*HouseGenerator.GenerateHouse(chunk.blocks, 5, groundY, 5,new Vector3(witdth,0,32));*/
             //HouseGenerator.GenerateHouse(chunks, 13, 33, 45);
         }
+
         //HouseGenerator.GenerateHouse(chunks, 0, groundY, 0);
         //HouseGenerator.GenerateHouse(chunks, 5, groundY, 5);
         GenerateTrees(chunk.blocks, xPos, zPos);
@@ -156,6 +168,8 @@ public class TerrainGenerator : MonoBehaviour
         waterChunk.SetLocs(chunk.blocks);
         waterChunk.BuildMesh();
         chunks.Add(new ChunkPos(xPos, zPos), chunk);
+        player.transform.position= new Vector3(xPos + TerrainChunk.chunkWidth / 2f,
+            player.transform.position.y, zPos + TerrainChunk.chunkWidth / 2f);
     }
 
     private static int FindGroundY(BlockType[,,] blocks, int x, int z)
@@ -169,7 +183,7 @@ public class TerrainGenerator : MonoBehaviour
         return 0;
     }
 
-    BlockType GetBlockType(int x, int y, int z)
+    public BlockType GetBlockType(int x, int y, int z)
     {
         // Noise calculations for land height
         float simplex1 = noise.GetSimplex(x * landNoiseScale, z * landNoiseScale) * noiseIntensity;
@@ -223,8 +237,8 @@ public class TerrainGenerator : MonoBehaviour
     void LoadChunks(bool instant = false)
     {
         //the current chunk the player is in
-        int curChunkPosX = Mathf.FloorToInt(player.position.x / 16) * 16;
-        int curChunkPosZ = Mathf.FloorToInt(player.position.z / 16) * 16;
+        int curChunkPosX = Mathf.FloorToInt(player.position.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+        int curChunkPosZ = Mathf.FloorToInt(player.position.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
         //entered a new chunk
         if (curChunk.x != curChunkPosX || curChunk.z != curChunkPosZ)
@@ -233,8 +247,8 @@ public class TerrainGenerator : MonoBehaviour
             curChunk.z = curChunkPosZ;
 
 
-            for (int i = curChunkPosX - 16 * chunkDist; i <= curChunkPosX + 16 * chunkDist; i += 16)
-            for (int j = curChunkPosZ - 16 * chunkDist; j <= curChunkPosZ + 16 * chunkDist; j += 16)
+            for (int i = curChunkPosX - TerrainChunk.chunkWidth * chunkDist; i <= curChunkPosX - TerrainChunk.chunkWidth * chunkDist; i += TerrainChunk.chunkWidth)
+            for (int j = curChunkPosZ - TerrainChunk.chunkWidth * chunkDist; j <= curChunkPosZ - TerrainChunk.chunkWidth * chunkDist; j += TerrainChunk.chunkWidth)
             {
                 ChunkPos cp = new ChunkPos(i, j);
 
@@ -255,8 +269,8 @@ public class TerrainGenerator : MonoBehaviour
             foreach (KeyValuePair<ChunkPos, TerrainChunk> c in chunks)
             {
                 ChunkPos cp = c.Key;
-                if (Mathf.Abs(curChunkPosX - cp.x) > 16 * (chunkDist + 3) ||
-                    Mathf.Abs(curChunkPosZ - cp.z) > 16 * (chunkDist + 3))
+                if (Mathf.Abs(curChunkPosX - cp.x) > witdth * (chunkDist + 3) ||
+                    Mathf.Abs(curChunkPosZ - cp.z) > witdth * (chunkDist + 3))
                 {
                     toDestroy.Add(c.Key);
                 }
@@ -265,8 +279,8 @@ public class TerrainGenerator : MonoBehaviour
             //remove any up for generation
             foreach (ChunkPos cp in toGenerate)
             {
-                if (Mathf.Abs(curChunkPosX - cp.x) > 16 * (chunkDist + 1) ||
-                    Mathf.Abs(curChunkPosZ - cp.z) > 16 * (chunkDist + 1))
+                if (Mathf.Abs(curChunkPosX - cp.x) > witdth * (chunkDist + 1) ||
+                    Mathf.Abs(curChunkPosZ - cp.z) > witdth * (chunkDist + 1))
                     toGenerate.Remove(cp);
             }
 
@@ -283,12 +297,14 @@ public class TerrainGenerator : MonoBehaviour
         //Invoke(nameof(SpawnObjectNearPlayerAvoidTrees), 2f);
         Invoke(nameof(ShowTargerPlaceBlock), 2f);
         //SpawnObjectNearPlayerAvoidTrees();
-        Invoke(nameof(CreateHouse), 2f);
+        //Invoke(nameof(CreateHouse), 2f);
     }
 
     public void CreateHouse()
     {
-        HouseGenerator.GenerateHouse(chunks, 13, 33, 45);
+        Vector3 previewPos = new Vector3(13, 33, 29);
+        HousePreviewController.BuildHouseAt(previewPos);
+        //HouseGenerator.GenerateHouse(chunks, 13, 33, 45);
 
         // Sau khi chỉnh sửa blocks, cần gọi BuildMesh cho tất cả các chunk chứa block bị chỉnh sửa
         // Nhà có kích thước 7x7, có thể nằm trọn trong 1 hoặc "chìa" sang 4 chunk lân cận
@@ -315,7 +331,7 @@ public class TerrainGenerator : MonoBehaviour
     {
         System.Random rand = new System.Random(x * 10000 + z);
 
-        float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
+        float treeNoise = noise.GetSimplex(Mathf.Abs(x) * treeNoiseScale, Mathf.Abs(z) * treeNoiseScale);
         if (treeNoise <= 0) return;
 
         //int treeCount = Mathf.FloorToInt(rand.Next(1, 5) * treeNoise);

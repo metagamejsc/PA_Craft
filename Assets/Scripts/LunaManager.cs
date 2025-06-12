@@ -16,6 +16,12 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
     public bool isCretivePause;
     public Image[] doTweenAnimations;
+    
+    [SerializeField] public GameObject UIBuilding,UIIngame;
+    [SerializeField] public Camera camBuilding;
+    [SerializeField] public GameObject startCard;
+    
+    public int houseIndex = 0;
     private void Awake()
     {
         ins = this;
@@ -29,19 +35,47 @@ public class LunaManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        startCard.SetActive(true);
+        camBuilding.gameObject.SetActive(false);
+        UIBuilding.SetActive(false);
+        UIIngame.SetActive(false);
         Luna.Unity.LifeCycle.OnPause += PauseGameplay;
         Luna.Unity.LifeCycle.OnResume += ResumeGameplay;
         foreach (var VARIABLE in lstBtnInstall)
         {
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
+
+        for (int i = 0; i < doTweenAnimations.Length; i++)
+        {
+            int a = i;
+            doTweenAnimations[i].GetComponent<Button>().onClick.AddListener(() =>
+            {
+                houseIndex = a;
+                ShowUIBuilding();
+            });
+        }
         EndCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
+
+    public void ShowUIBuilding()
+    {
+        startCard.SetActive(false);
+        UIBuilding.SetActive(true);
+        camBuilding.gameObject.SetActive(true);
+        HousePreviewController.ins.InitPreviewHouse(index: houseIndex);
+    }
+    public void StartBuilding()
+    {
+        camBuilding.gameObject.SetActive(false);
+        UIBuilding.SetActive(false);
+        UIIngame.SetActive(true);
+        HousePreviewController.BuildHouse();
+    }
     public IEnumerator IESelectBuilding()
     {
-        
         int number = 0;
         while (true)
         {

@@ -108,8 +108,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             pointInTargetBlock = hitInfo.point + transform.forward * .01f;
 
             //get the terrain chunk (can't just use collider)
-            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
             ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
 
@@ -175,8 +175,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
 
             //get the terrain chunk (can't just use collider)
-            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
             ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
 
@@ -247,8 +247,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
 
             //get the terrain chunk (can't just use collider)
-            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
             ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
 
@@ -277,8 +277,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         Vector3 pointInTargetBlock = hitInfo.point + posCam.transform.forward * 0.01f;
 
         // Xác định chunk
-        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
         ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
         TerrainChunk tc = TerrainGenerator.chunks[cp];
@@ -309,8 +309,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             Vector3 adjacentPoint = hitInfo.point + normal*0.5f;
 
             // Tính lại chunk và index khối kế bên
-            int adjChunkPosX = Mathf.FloorToInt(adjacentPoint.x / 16f) * 16;
-            int adjChunkPosZ = Mathf.FloorToInt(adjacentPoint.z / 16f) * 16;
+            int adjChunkPosX = Mathf.FloorToInt(adjacentPoint.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+            int adjChunkPosZ = Mathf.FloorToInt(adjacentPoint.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
             ChunkPos adjCp = new ChunkPos(adjChunkPosX, adjChunkPosZ);
 

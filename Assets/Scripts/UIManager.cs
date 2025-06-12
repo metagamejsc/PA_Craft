@@ -13,6 +13,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject startCard;
     [SerializeField] public float timeCurrent=59;
     [SerializeField] public TextMeshProUGUI txtTime;
+
+    
     private void Awake()
     {
         ins = this;
