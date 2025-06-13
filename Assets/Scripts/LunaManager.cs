@@ -16,6 +16,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
     public bool isCretivePause;
     public Image[] doTweenAnimations;
+    public RawImage[] doTweenAnimationsRawImage;
     
     [SerializeField] public GameObject UIBuilding,UIIngame;
     [SerializeField] public Camera camBuilding;
@@ -60,6 +61,16 @@ public class LunaManager : MonoBehaviour
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
 
+    private void Update()
+    {
+        var min=Mathf.Min(doTweenAnimations[0].GetComponent<RectTransform>().rect.x,
+            doTweenAnimations[0].GetComponent<RectTransform>().rect.y);
+        for (int i = 0; i < doTweenAnimationsRawImage.Length; i++)
+        {
+            doTweenAnimationsRawImage[i].GetComponent<RectTransform>().sizeDelta = new Vector2(Mathf.Abs(min), Mathf.Abs(min));
+        }
+    }
+
     public void ShowUIBuilding()
     {
         startCard.SetActive(false);
@@ -73,6 +84,7 @@ public class LunaManager : MonoBehaviour
         UIBuilding.SetActive(false);
         UIIngame.SetActive(true);
         HousePreviewController.BuildHouse();
+        GameController.ins.playerChar.transform.position = HousePreviewController.previewPos+new Vector3(1,2,1);
     }
     public IEnumerator IESelectBuilding()
     {

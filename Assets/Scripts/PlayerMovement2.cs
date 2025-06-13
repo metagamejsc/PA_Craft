@@ -99,12 +99,16 @@ public class PlayerMovement2 : MonoBehaviour
         // Lấy input từ bàn phím (WASD)
         float moveX = 0;
         float moveZ = 0;
+        
 #if UNITY_EDITOR
          moveX = Input.GetAxis("Horizontal");
          moveZ = Input.GetAxis("Vertical");
 #else     
-         moveX = JoystickController.ins.Horizontal();
-         moveZ = JoystickController.ins.Vertical();
+        if (JoystickController.ins!=null)
+        {
+            moveX = JoystickController.ins.Horizontal();
+            moveZ = JoystickController.ins.Vertical();
+        }
 #endif
         
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;

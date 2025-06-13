@@ -35,6 +35,7 @@ public class CameraMove : MonoBehaviour
 
     IEnumerator MoveCamera()
     {
+        yield return new WaitForSeconds(1f);
         isMoving = true;
 
         Vector3 initialPos = transform.position;

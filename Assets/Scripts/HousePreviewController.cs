@@ -9,7 +9,7 @@ public class HousePreviewController : MonoBehaviour
     private static GameObject currentPreview;
     public Button btnLeft, btnRight, btnUp, btnDown, btnBuild;
 
-    private static Vector3 previewPos; // Tọa độ global
+    public static Vector3 previewPos; // Tọa độ global
     private float gridSize = 1f; // Di chuyển theo block
 
     private void Awake()
@@ -104,11 +104,19 @@ public class HousePreviewController : MonoBehaviour
     {
         currentPreview.SetActive(false);
         int x = Mathf.RoundToInt(pos.x);
-        int y = Mathf.RoundToInt(pos.y);
+        int y = Mathf.RoundToInt(pos.y-1);
         int z = Mathf.RoundToInt(pos.z);
 
         // Gọi HouseGenerator để xây nhà
-        HouseGenerator.GenerateHouse(TerrainGenerator.chunks, x, y, z);
+        //HouseGenerator.GenerateHouse(TerrainGenerator.chunks, x, y, z);
+        if (LunaManager.ins.houseIndex==0)
+        {
+            HouseGenerator.GenerateHouse(TerrainGenerator.chunks, x, y, z);
+        }
+        else
+        {
+            HouseGenerator.GenerateSlopedRoofHouse(TerrainGenerator.chunks, x, y, z);
+        }
 
         // Gọi BuildMesh cho các chunk liên quan
         for (int dx = -1; dx <= 1; dx++)
