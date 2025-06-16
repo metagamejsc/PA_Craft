@@ -309,7 +309,7 @@ public class TerrainGenerator : MonoBehaviour
             {
                 if (Vector2Int.Distance(used, pos) <4f)
                 {
-                    tooClose = true;
+                    tooClose = true; 
                     break;
                 }
             }
