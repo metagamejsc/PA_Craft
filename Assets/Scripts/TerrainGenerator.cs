@@ -39,9 +39,20 @@ public class TerrainGenerator : MonoBehaviour
         LoadChunks(true);
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
-        StartCoroutine(IeSpawnZombie());
+        //StartCoroutine(IeSpawnZombie());
+        Invoke(nameof(GenHouse),0.1f);
     }
 
+    public void GenHouse()
+    {
+        Vector3Int posHouse = new Vector3Int((int)player.position.x,(int)player.position.y,(int)player.position.z)+new Vector3Int(7,0,7);
+        //HouseGenerator.GenerateHouse(chunks,posHouse.x,posHouse.y,posHouse.z);
+        HouseGenerator.GenerateHouse(chunks,20,32,36);
+        foreach (var VARIABLE in chunks)
+        {
+            VARIABLE.Value.BuildMesh();
+        }
+    }
     public void SpawnObjectNearPlayerAvoidTrees()
     {
         for (int attempt = 0; attempt < 20; attempt++) // thử tối đa 20 lần
@@ -167,6 +178,7 @@ public class TerrainGenerator : MonoBehaviour
             chunk.blocks[x, y, z] = GetBlockType(xPos + x - 1, y, zPos + z - 1);
         }
 
+       
         GenerateTrees(chunk.blocks, xPos, zPos);
         
         chunk.BuildMesh();

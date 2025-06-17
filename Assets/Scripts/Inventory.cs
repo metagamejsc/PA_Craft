@@ -33,7 +33,10 @@ public class Inventory : MonoBehaviour
                 SetCur(i1);
             });
         }
-        //AddToInventory2(0, 15);
+        AddToInventory2(BlockType.Brick, 99);
+        AddToInventory2(BlockType.Stone, 99);
+        AddToInventory2(BlockType.Glass, 99);
+        AddToInventory2(BlockType.Trunk, 99);
         //matImgs[0].gameObject.SetActive(true);
     }
 
@@ -80,11 +83,11 @@ public class Inventory : MonoBehaviour
     public void AddToInventory(BlockType block)
     {
         int i = 0;
-        if(block == BlockType.Stone)
+        if(block == BlockType.Brick)
             i = 1;
         else if(block == BlockType.Trunk)
             i = 2;
-        else if(block == BlockType.Leaves)
+        else if(block == BlockType.Glass)
             i = 3;
 
         matCounts[i]++;
@@ -96,15 +99,15 @@ public class Inventory : MonoBehaviour
     public void AddToInventory2(BlockType block,int quanlity)
     {
         int i = 0;
-        if(block == BlockType.Stone)
+        if(block == BlockType.Brick)
             i = 1;
         else if(block == BlockType.Trunk)
             i = 2;
-        else if(block == BlockType.Leaves)
+        else if(block == BlockType.Glass)
             i = 3;
 
         matCounts[i] += quanlity;
-        if(matCounts[i] == 1)
+        if(matCounts[i] >= 1)
             matImgs[i].gameObject.SetActive(true);
         UpdateTextCount();
     }
@@ -114,6 +117,7 @@ public class Inventory : MonoBehaviour
         for (int i = 0; i < textCount.Length; i++)
         {
             textCount[i].text= matCounts[i].ToString();
+            textCount[i].gameObject.SetActive(false);
         }
     }
 }

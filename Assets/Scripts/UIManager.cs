@@ -13,6 +13,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject startCard;
     [SerializeField] public float timeCurrent=59;
     [SerializeField] public TextMeshProUGUI txtTime;
+
+    
     private void Awake()
     {
         ins = this;
@@ -35,7 +37,7 @@ public class UIManager : MonoBehaviour
     {
         //btnRetry.onClick.AddListener(ReStart);
         //losePanel.SetActive(false);f
-        startCard.SetActive(true);
+        //startCard.SetActive(true);
         btnStartCard.onClick.AddListener(() =>
         {
             startCard.SetActive(false);

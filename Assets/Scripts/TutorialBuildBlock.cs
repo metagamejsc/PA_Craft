@@ -36,7 +36,7 @@ public class TutorialBuildBlock : MonoBehaviour
                 HideStep();
             });
         }
-        ShowStep();
+        //ShowStep();
         //StartCoroutine(IeSpawnStep());
     }
 

@@ -1,7 +1,7 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29242,
+    "applicationID": 0,
     "creativeName": "DHC_V07_HuyenNTT_ToiNV",
     "pgServer": "EU",
     "window": {
@@ -6978,10 +6978,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.EventSystems.EventTrigger.Entry",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.ClipperRegistry",
                 "excluded": true
             },
@@ -7030,10 +7026,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.EventSystems.EventTrigger",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.EventSystems.PhysicsRaycaster",
                 "excluded": true
             },
@@ -7071,7 +7063,7 @@
             },
             {
                 "name": "UnityEngine.EventSystems.EventTriggerType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.EventSystems.MoveDirection",
@@ -7219,7 +7211,7 @@
             },
             {
                 "name": "UnityEngine.EventSystems.ICancelHandler",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.EventSystems.IDropHandler",
@@ -7227,7 +7219,7 @@
             },
             {
                 "name": "UnityEngine.EventSystems.EventTrigger.TriggerEvent",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset",
@@ -7991,6 +7983,10 @@
             },
             {
                 "name": "TerrainWallCollider",
+                "excluded": true
+            },
+            {
+                "name": "ItemBlock",
                 "excluded": true
             }
         ],
@@ -15575,7 +15571,7 @@
                     },
                     {
                         "name": "op_Addition",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "op_Subtraction",
@@ -15603,7 +15599,7 @@
                     },
                     {
                         "name": "x#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "x#set",
@@ -15611,7 +15607,7 @@
                     },
                     {
                         "name": "y#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "y#set",
@@ -15619,7 +15615,7 @@
                     },
                     {
                         "name": "z#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "z#set",
@@ -26114,10 +26110,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
                         "name": "OnDrag",
                         "excluded": false
                     },
@@ -26134,16 +26126,40 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "DesTroyBlock",
                         "excluded": true
                     },
                     {
                         "name": "DestroyBlock",
                         "excluded": false
+                    },
+                    {
+                        "name": "ButtonUp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ButtonDown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopSpawnItem",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IeSpawnItem",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DestroyBlock2",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaceBlock",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlaceBlock2",
+                        "excluded": true
                     }
                 ]
             },
@@ -26238,6 +26254,10 @@
                     {
                         "name": "IeSpawnZombie",
                         "excluded": false
+                    },
+                    {
+                        "name": "GenHouse",
+                        "excluded": false
                     }
                 ]
             },
@@ -26260,6 +26280,10 @@
                     {
                         "name": "PlaceBlock",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlaceBlock2",
+                        "excluded": true
                     }
                 ]
             },
@@ -29954,6 +29978,14 @@
                     {
                         "name": "PlayMiningSound",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundClick",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlaySoundGetItem",
+                        "excluded": true
                     }
                 ]
             },
@@ -34882,16 +34914,6 @@
                 ]
             },
             {
-                "className": "IronBlock",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.UI.GridLayoutGroup",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35417,6 +35439,166 @@
                 "instanceMethods": [
                     {
                         "name": "Start",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.EventSystems.EventTrigger.Entry",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.EventSystems.EventTrigger",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "triggers#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "triggers#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerExit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDrag",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDrop",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnPointerDown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerUp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerClick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnSelect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDeselect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnScroll",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnMove",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnUpdateSelected",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnInitializePotentialDrag",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnBeginDrag",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEndDrag",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnSubmit",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnCancel",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Execute",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "HouseGenerator",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GenerateHouse",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GenerateSlopedRoofHouse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GenerateHouseWithNewWindows",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GenerateHouse2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetBlockGlobal",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetBlock",
+                        "excluded": true
+                    },
+                    {
+                        "name": "InBounds",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "ShowHand",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ShowEachHand",
                         "excluded": false
                     }
                 ]
