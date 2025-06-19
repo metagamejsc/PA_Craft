@@ -18,7 +18,29 @@ public class TerrainChunk : MonoBehaviour
 
     }
 
+    public BlockType GetBlockGlobal(int globalX, int globalY, int globalZ)
+    {
+        int chunkX = Mathf.FloorToInt(globalX / (float)chunkWidth) * chunkWidth;
+        int chunkZ = Mathf.FloorToInt(globalZ / (float)chunkWidth) * chunkWidth;
 
+        ChunkPos cp = new ChunkPos(chunkX, chunkZ);
+
+        if (!TerrainGenerator.chunks.TryGetValue(cp, out TerrainChunk chunk))
+        {
+            return BlockType.Air;
+        }
+
+        int localX = globalX - chunkX + 1;
+        int localZ = globalZ - chunkZ + 1;
+
+        if (globalY < 0 || globalY >= chunkHeight)
+            return BlockType.Air;
+
+        if (localX < 0 || localX >= chunkWidth + 2 || localZ < 0 || localZ >= chunkWidth + 2)
+            return BlockType.Air;
+
+        return chunk.blocks[localX, globalY, localZ];
+    }
 
     public void BuildMesh()
     {

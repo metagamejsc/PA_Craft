@@ -47,7 +47,7 @@ public class TerrainGenerator : MonoBehaviour
     {
         Vector3Int posHouse = new Vector3Int((int)player.position.x,(int)player.position.y,(int)player.position.z)+new Vector3Int(7,0,7);
         //HouseGenerator.GenerateHouse(chunks,posHouse.x,posHouse.y,posHouse.z);
-        HouseGenerator.GenerateHouse(chunks,20,32,36);
+        HouseGenerator.GenerateLargeHouse(chunks,17,31,33);
         foreach (var VARIABLE in chunks)
         {
             VARIABLE.Value.BuildMesh();
