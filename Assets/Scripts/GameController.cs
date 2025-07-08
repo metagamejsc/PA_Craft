@@ -19,7 +19,6 @@ public class GameController : MonoBehaviour
     public float timeActive;
     public GameObject enemy;
     public int idWeapon;
-    public Mesh[] lstMeshWeapons;
     public int countEnemyDefeat = 0;
 
     public void EnemyDead()
@@ -50,6 +49,6 @@ public class GameController : MonoBehaviour
     public void SetIdWeapon(int id)
     {
         idWeapon = id;
-        playerChar.CraftWeapon();
+        playerChar.CraftWeapon(id);
     }
 }

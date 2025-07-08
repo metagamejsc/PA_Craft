@@ -55,6 +55,8 @@ public class ZombieChar : BaseCharacter
         {
             return;
         }
+
+        detectionRadiusMax = 999;
         health -= dmg;
         
         StartCoroutine(IeNhapNhay(2f));

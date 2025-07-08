@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerChar : BaseCharacter
@@ -5,6 +6,9 @@ public class PlayerChar : BaseCharacter
     public GameObject swordFake;
     public Transform swordFakePos;
     public Transform swordPos;
+    public Action fire;
+    public Action canleFire;
+    public GameObject[] lstWeapons;
     protected override void Update()
     {
 
@@ -15,27 +19,16 @@ public class PlayerChar : BaseCharacter
         }
         SearchForEnemy();
         attackCooldown -= Time.deltaTime;
-        /*if (SwordObject.activeSelf)
-        {
-            if (attackCooldown<=0)
-            {
-                swordFake.SetActive(true);
-            }
-            else
-            {
-                swordFake.SetActive(false);
-            }
-        }
-        else
-        {
-            swordFake.SetActive(false);
-        }*/
     }
 
     protected override void Start()
     {
         base.Start();
-        SwordObject.SetActive(false);
+        for (int i = 0; i < lstWeapons.Length; i++)
+        {
+            lstWeapons[i].SetActive(false);
+        }
+        //SwordObject.SetActive(false);
         IsFindingEnemy = true;
     }
 
@@ -67,16 +60,17 @@ public class PlayerChar : BaseCharacter
         }
     }
 
-    public void CraftWeapon()
+    public void CraftWeapon(int weaponId = 0)
     {
-        SwordObject.SetActive(true);
+        lstWeapons[weaponId].SetActive(true);
+        //SwordObject.SetActive(true);
     }
     public override void AtkCompleted()
     {
         base.AtkCompleted();
-        SwordObject.transform.parent = swordFakePos;
-        SwordObject.transform.localPosition = Vector3.zero;
-        SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+        //SwordObject.transform.parent = swordFakePos;
+        //SwordObject.transform.localPosition = Vector3.zero;
+        //SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
     }
 
     public override void HandleAttack()
@@ -85,8 +79,8 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-
-        if (/*target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && */attackCooldown <= 0)
+        fire?.Invoke();
+        /*if (/*target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && #1#attackCooldown <= 0)
         {
             SwordObject.transform.parent = swordPos;
             SwordObject.transform.localPosition = Vector3.zero;
@@ -95,9 +89,12 @@ public class PlayerChar : BaseCharacter
             animator.SetFloat("AttackSpeed", attackCooldown>attackSpeed?1:attackSpeed);  
             animator.SetTrigger("Attack");
             // Reset thời gian hồi chiêu
-        }
+        }*/
     }
-
+    public void CancleFire()
+    {
+        canleFire?.Invoke();
+    }
     public override void TakeDamage(float dmg)
     {
         if (isDead)

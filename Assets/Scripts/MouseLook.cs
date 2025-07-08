@@ -66,12 +66,14 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public void OnPointerUp(PointerEventData eventData)
     {
         StopAllCoroutines();
+        playerBody.GetComponent<PlayerChar>().CancleFire();
         blockPrefab2.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        StartCoroutine(DestroyBlock());
+        //StartCoroutine(DestroyBlock());
+        playerBody.GetComponent<PlayerChar>().HandleAttack();
         //DesTroyBlock();
     }
 
