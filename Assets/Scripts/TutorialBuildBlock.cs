@@ -50,10 +50,10 @@ public class TutorialBuildBlock : MonoBehaviour
         GameController.ins.isPauseGame = false;
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
-        /*if (stepIndex==lstStep.Count-1)
+        
+        if (stepIndex<lstStep.Count)
         {
-           GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
-           ShowStep();
-        }*/
+            ShowStep();
+        }
     }
 }

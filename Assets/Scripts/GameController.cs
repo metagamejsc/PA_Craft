@@ -1,8 +1,6 @@
-using System;
-using System.Collections;
+
 using System.Collections.Generic;
-using DG.Tweening;
-using UnityEngine;
+using DG.Tweening;using UnityEngine;
 
 public class GameController : MonoBehaviour
 {

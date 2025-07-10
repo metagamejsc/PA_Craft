@@ -21,6 +21,30 @@ public class LaserGun : MonoBehaviour
         playerCharacter = FindObjectOfType<PlayerChar>();
     }
 
+    private void Start()
+    {
+        Ray screenRay = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
+        Vector3 endPosition = firePoint.position + screenRay.direction * range;
+
+        if (Physics.Raycast(screenRay, out hit, range, hitLayers))
+        {
+            endPosition = hit.point;
+
+            BaseCharacter target = hit.collider.GetComponent<BaseCharacter>();
+            if (target != null)
+            {
+                target.TakeDamage(damagePerSecond * Time.deltaTime);
+            }
+        }
+
+        if (gunPivot != null)
+        {
+            Vector3 lookDirection = endPosition - gunPivot.position;
+            if (lookDirection != Vector3.zero)
+                gunPivot.rotation = Quaternion.LookRotation(lookDirection);
+        }
+    }
+
     void Update()
     {
         if (isFiring)

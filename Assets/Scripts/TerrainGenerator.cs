@@ -84,8 +84,8 @@ public class TerrainGenerator : MonoBehaviour
             {
                 yield return new WaitForSeconds(2f);
                 Vector3 playerPos = player.position;
-                int x = Mathf.RoundToInt(playerPos.x + Random.Range(-8, 8));
-                int z = Mathf.RoundToInt(playerPos.z + Random.Range(-8, 8));
+                int x = Mathf.RoundToInt(playerPos.x + Random.Range(-10, 10));
+                int z = Mathf.RoundToInt(playerPos.z + Random.Range(-10, 10));
 
                 int y = TerrainChunk.chunkHeight - 2;
                 while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
