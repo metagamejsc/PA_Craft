@@ -9,12 +9,12 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
-    [LunaPlaygroundField("CountDrop")] public int count;
-    [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
-    [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
-    [LunaPlaygroundField("Tree Count")] public int treeCount=20;
+     public int countDropFinal;
+     public int count;
+    public int timeEndCreative=30;
+     public float noiseIntensity=10;
+   public float landNoiseScale=0.8f;
+    public int treeCount=20;
     public bool isCretivePause;
     private void Awake()
     {
