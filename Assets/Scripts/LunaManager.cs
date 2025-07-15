@@ -24,8 +24,6 @@ public class LunaManager : MonoBehaviour
     public Button[] lstBtnInstall;
     public GameObject EndCard;
     
-
-
     // Start is called before the first frame update
     void Start()
     {
@@ -65,7 +63,7 @@ public class LunaManager : MonoBehaviour
     public void ShowEndCard()
     {
         isCretivePause = true;
-        AudioManager.ins.PlaySoundReward();
+        //AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();

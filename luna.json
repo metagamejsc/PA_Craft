@@ -2,7 +2,7 @@
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 28855,
-    "creativeName": "DHC_V07_HuyenNTT_ToiNV",
+    "creativeName": "CCE_V15_ChiTM_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -73,7 +73,39 @@
                 "Stubs/Sirenix/Odin Inspector/",
                 "Stubs/MeshCombiner/",
                 "Stubs/AnimationBaker/",
-                "Stubs/SupersonicWisdom/"
+                "Stubs/SupersonicWisdom/",
+                "Assets/Scripts/TerrainGenerator.cs",
+                "Assets/Scripts/PlayerMovement.cs",
+                "Assets/Scripts/IceGun.cs",
+                "Assets/Scripts/MouseLook.cs",
+                "Assets/Scripts/Anim3D.cs",
+                "Assets/Scripts/Trunk.cs",
+                "Assets/Scripts/TilePos.cs",
+                "Assets/Scripts/FastNoise.cs",
+                "Assets/Scripts/TerrainChunk.cs",
+                "Assets/Scripts/AudioManager.cs",
+                "Assets/Scripts/ChunkGenerator.cs",
+                "Assets/Scripts/TerrainWallCollider.cs",
+                "Assets/Scripts/LaserGun.cs",
+                "Assets/Scripts/TutorialBuildBlock.cs",
+                "Assets/Scripts/WaterChunk.cs",
+                "Assets/Scripts/PlayerMovement2.cs",
+                "Assets/Scripts/UIManager.cs",
+                "Assets/Scripts/TreeBuilder.cs",
+                "Assets/Scripts/SoundChar.cs",
+                "Assets/Scripts/IronBlock.cs",
+                "Assets/Scripts/JoystickController.cs",
+                "Assets/Scripts/Inventory.cs",
+                "Assets/Scripts/PlayerChar.cs",
+                "Assets/Scripts/WhirlwindProjectile.cs",
+                "Assets/Scripts/CamFly.cs",
+                "Assets/Scripts/GameController.cs",
+                "Assets/Scripts/BaseCharacter.cs",
+                "Assets/Scripts/ZombieChar.cs",
+                "Assets/Scripts/IceSpike.cs",
+                "Assets/Scripts/IceProjectile.cs",
+                "Assets/Scripts/Block.cs",
+                "Assets/Scripts/TerrainModifier.cs"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
             "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
@@ -132,9 +164,11 @@
             ]
         },
         "scenes": [
+            "Assets/Scenes/New Scene.unity"
+        ],
+        "disabledScenes": [
             "Assets/Scenes/Game.unity"
         ],
-        "disabledScenes": [],
         "startupScene": 0,
         "packages": {
             "default": {
@@ -157,7 +191,7 @@
             "logo": ""
         },
         "enableRealtimeShadows": false,
-        "enableLunaCompilerV2": false,
+        "enableLunaCompilerV2": true,
         "optimiseShaderVariantsExport": true,
         "enableMecanimWASM": true,
         "minify": true,
@@ -7991,6 +8025,26 @@
             },
             {
                 "name": "TerrainWallCollider",
+                "excluded": true
+            },
+            {
+                "name": "IceGun",
+                "excluded": true
+            },
+            {
+                "name": "IceProjectile",
+                "excluded": true
+            },
+            {
+                "name": "IceSpike",
+                "excluded": true
+            },
+            {
+                "name": "LaserGun",
+                "excluded": true
+            },
+            {
+                "name": "WhirlwindProjectile",
                 "excluded": true
             }
         ],
@@ -25229,7 +25283,7 @@
                     },
                     {
                         "name": "ResizeInternalArray",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResizeInternalArray$1",
@@ -34852,6 +34906,10 @@
                     {
                         "name": "AtkCompleted",
                         "excluded": false
+                    },
+                    {
+                        "name": "CancleFire",
+                        "excluded": true
                     }
                 ]
             },
@@ -35408,16 +35466,6 @@
                     {
                         "name": "DOShapeCircle",
                         "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "WeaponObject",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
                     }
                 ]
             }
