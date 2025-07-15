@@ -44,7 +44,7 @@ public class LunaManager : MonoBehaviour
         {
             doTweenAnimations[i].enabled = false;
         }*/
-        StartCoroutine(IESelectBuilding());
+        //StartCoroutine(IESelectBuilding());
         
     }
 
