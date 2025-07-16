@@ -38,14 +38,8 @@ public class LunaManager : MonoBehaviour
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
         EndCard.SetActive(false);
-        //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
-        /*for (int i = 0; i < doTweenAnimations.Length; i++)
-        {
-            doTweenAnimations[i].enabled = false;
-        }*/
-        StartCoroutine(IESelectBuilding());
-        
+      
     }
 
     public void CheckClickShowEndCard()
@@ -58,55 +52,7 @@ public class LunaManager : MonoBehaviour
         }
     }
     
-
-    private void FixedUpdate()
-    {
-        /*if (isCretivePause)
-        {
-            return;
-        }
-        timeActive += Time.fixedDeltaTime;
-        if (timeActive>=0.92f)
-        {
-            timeActive = 0;
-            for (int i = 0; i < doTweenAnimations.Length; i++)
-            {
-                doTweenAnimations[i].color = i==numberActive?Color.green:Color.cyan;
-            }
-            numberActive += 1;
-            if (numberActive>=doTweenAnimations.Length)
-            {
-                numberActive = 0;
-            }
-        }*/
-    }
-
-    public IEnumerator IESelectBuilding()
-    {
-        
-        yield return new WaitForSeconds(13f);
-        int number = 0;
-        while (true)
-        {
-            yield return new WaitForSeconds(0.92f);
-            AudioManager.ins.PlaySoundClick();
-            doTweenAnimations[number].color = Color.green;
-            for (int i = 0; i < doTweenAnimations.Length; i++)
-            {
-                yield return null;
-                if (i!=number)
-                {
-                    doTweenAnimations[i].color=Color.cyan;
-                }
-            }
-            number++;
-            if (number>=doTweenAnimations.Length)
-            {
-                number = 0;
-            }
-        }
-        
-    }
+   
     // Update is called once per frame
     public void PauseGameplay()
     {
@@ -135,6 +81,7 @@ public class LunaManager : MonoBehaviour
 
     public void OnClickEndCard()
     {
+        HandPointerController.instance.StopHandPointer();
         Debug.Log("Click end card");
         StopAllCoroutines();
         for (int i = 0; i < doTweenAnimations.Length; i++)
