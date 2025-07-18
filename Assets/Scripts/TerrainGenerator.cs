@@ -40,8 +40,34 @@ public class TerrainGenerator : MonoBehaviour
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
         StartCoroutine(IeSpawnZombie());
+        Invoke(nameof(SpawnGroupEnemy), 1);
     }
 
+    public void SpawnGroupEnemy()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            Vector3 playerPos = player.position;
+            
+            int x = Mathf.RoundToInt(player.forward.x*8+playerPos.x+ Random.Range(-2, 2));
+            int z = Mathf.RoundToInt(player.forward.z*8+playerPos.z+ Random.Range(-2, 2));
+
+            int y = TerrainChunk.chunkHeight - 2;
+            while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
+                y--;
+
+            y++;
+
+            BlockType groundBlock = GetBlockType(x, y - 1, z);
+            if (groundBlock == BlockType.Trunk || groundBlock == BlockType.Leaves)
+            {
+                continue; // bỏ qua nếu trên cây
+            }
+
+            Vector3 spawnPos = new Vector3(x, y+1, z);
+            var a=Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
+        }
+    }
     public void SpawnObjectNearPlayerAvoidTrees()
     {
         for (int attempt = 0; attempt < 20; attempt++) // thử tối đa 20 lần
@@ -84,9 +110,11 @@ public class TerrainGenerator : MonoBehaviour
             {
                 yield return new WaitForSeconds(2f);
                 Vector3 playerPos = player.position;
-                int x = Mathf.RoundToInt(playerPos.x + Random.Range(-10, 10));
-                int z = Mathf.RoundToInt(playerPos.z + Random.Range(-10, 10));
-
+                /*int x = Mathf.RoundToInt(playerPos.x + Random.Range(-10, 10));
+                int z = Mathf.RoundToInt(playerPos.z + Random.Range(-10, 10));*/
+                
+                int x = Mathf.RoundToInt(player.forward.x*Random.Range(8, 15)+playerPos.x);
+                int z = Mathf.RoundToInt(player.forward.z*Random.Range(8, 15)+playerPos.z);
                 int y = TerrainChunk.chunkHeight - 2;
                 while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
                     y--;
@@ -286,7 +314,7 @@ public class TerrainGenerator : MonoBehaviour
 
     void GenerateTrees(BlockType[,,] blocks, int x, int z)
     {
-        System.Random rand = new System.Random(x * 10000 + z);
+        System.Random rand = new System.Random(x * 10000 + z+Random.Range(-100,100));
 
         float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
         if (treeNoise <= 0) return;

@@ -207,8 +207,8 @@ public class BaseCharacter : MonoBehaviour
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
-        animator.transform.parent = null;
-        Destroy(gameObject);
+        //animator.transform.parent = null;
+        Destroy(gameObject,1f);
     }
 }
 
