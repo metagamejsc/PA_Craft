@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using DG.Tweening;
 using Luna.Unity.FacebookInstantGames;
 using UnityEngine;
 
@@ -207,6 +208,10 @@ public class BaseCharacter : MonoBehaviour
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
+        transform.DORotate(new Vector3(0, 0, 90), 1f, RotateMode.FastBeyond360).SetEase(Ease.InOutQuad).OnComplete(() =>
+        {
+            isDead = true;
+        });
         //animator.transform.parent = null;
         Destroy(gameObject,1f);
     }

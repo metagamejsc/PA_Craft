@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 
 public class ZombieChar : BaseCharacter
@@ -24,6 +26,41 @@ public class ZombieChar : BaseCharacter
             return;
         }
         base.Update();
+    }
+
+    public override void HandleAttack()
+    {
+        if (target==null)
+        {
+            return;
+        }
+        if (isDead)
+        {
+            return;
+        }
+        if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin)
+        {
+            isDead = true;
+            rigidbody.isKinematic = true;
+            var targetNew = target.transform.position - transform.forward*2;
+            transform.DOMoveY(targetNew.y+3, attackCooldown/2)
+                .SetEase(Ease.Linear).OnComplete(() =>
+                {
+                    transform.DOMoveY(targetNew.y, attackCooldown/2)
+                        .SetEase(Ease.Linear);
+                });
+            transform.DOMoveX(targetNew.x,attackCooldown).OnComplete(() =>
+            {
+                
+            });
+            transform.DOMoveZ(targetNew.z,attackCooldown).OnComplete(() =>
+            {
+                
+            });
+            animator.SetFloat("AttackSpeed", atkAnimationClip.length/ attackCooldown);  
+            animator.SetTrigger("Attack");
+            // Reset thời gian hồi chiêu
+        }
     }
 
     protected override void SearchForEnemy()
@@ -69,6 +106,18 @@ public class ZombieChar : BaseCharacter
         }
     }
 
+    public void SetDead()
+    {
+        StopAllCoroutines();
+        DOTween.KillAll();
+        animator.SetTrigger("Dead");
+        rigidbody.isKinematic = false;
+        capsuleCollider.enabled = true;
+        transform.DORotate(new Vector3(0, 0, 90), 1f, RotateMode.FastBeyond360).SetEase(Ease.InOutQuad).OnComplete(() =>
+        {
+            isDead = true;
+        });
+    }
     public IEnumerator IeNhapNhay(float time)
     {
         for (int i = 0; i < lstMaterials.Length; i++)

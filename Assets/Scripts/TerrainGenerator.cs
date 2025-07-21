@@ -39,18 +39,18 @@ public class TerrainGenerator : MonoBehaviour
         LoadChunks(true);
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
-        StartCoroutine(IeSpawnZombie());
+        //StartCoroutine(IeSpawnZombie());
         Invoke(nameof(SpawnGroupEnemy), 1);
     }
 
     public void SpawnGroupEnemy()
     {
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 1; i++)
         {
             Vector3 playerPos = player.position;
             
-            int x = Mathf.RoundToInt(player.forward.x*8+playerPos.x+ Random.Range(-2, 2));
-            int z = Mathf.RoundToInt(player.forward.z*8+playerPos.z+ Random.Range(-2, 2));
+            int x = Mathf.RoundToInt(player.forward.x*10+playerPos.x);
+            int z = Mathf.RoundToInt(player.forward.z*10+playerPos.z);
 
             int y = TerrainChunk.chunkHeight - 2;
             while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
@@ -314,7 +314,7 @@ public class TerrainGenerator : MonoBehaviour
 
     void GenerateTrees(BlockType[,,] blocks, int x, int z)
     {
-        System.Random rand = new System.Random(x * 10000 + z+Random.Range(-100,100));
+        System.Random rand = new System.Random(x * Random.Range(1000,10000) + z+Random.Range(-100,100));
 
         float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
         if (treeNoise <= 0) return;
@@ -327,8 +327,8 @@ public class TerrainGenerator : MonoBehaviour
         
         for (int i = 0; i < treeCount; i++)
         {
-            int xPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
-            int zPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
+            int xPos = rand.Next(4, TerrainChunk.chunkWidth - 2);
+            int zPos = rand.Next(4, TerrainChunk.chunkWidth - 2);
 
             Vector2Int pos = new Vector2Int(xPos, zPos);
             bool tooClose = false;
@@ -356,7 +356,7 @@ public class TerrainGenerator : MonoBehaviour
             y++; // bắt đầu từ block trống trên mặt đất
 
             // Trồng thân cây
-            int treeHeight = 4 + rand.Next(6); // 4–6 block cao
+            int treeHeight = 5 + rand.Next(8); // 4–6 block cao
             for (int j = 0; j < treeHeight; j++)
             {
                 if (InBounds(xPos, y + j, zPos))

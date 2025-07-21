@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -15,6 +16,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
     [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
+    public Image imgDotDiem;
     public bool isCretivePause;
     private void Awake()
     {
@@ -22,7 +24,8 @@ public class LunaManager : MonoBehaviour
 
     }
     public Button[] lstBtnInstall;
-    public GameObject EndCard;
+    public Button btnCampFire;
+    public GameObject EndCard, winCard, loseCard;
     
 
 
@@ -36,10 +39,28 @@ public class LunaManager : MonoBehaviour
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
         EndCard.SetActive(false);
+        winCard.SetActive(false);
+        loseCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
 
+    public void TabSau2s()
+    {
+        Debug.Log("Click end card");
+        Luna.Unity.Playable.InstallFullGame();
+    }
+    public void TabTruoc2s()
+    {
+        imgDotDiem.DOColor(Color.white, 1f);
+        imgDotDiem.GetComponent<Button>().enabled = true;
+        btnCampFire.gameObject.SetActive(false);
+        EnableButton();
+    }
+    public void SetAmbient()
+    {
+        RenderSettings.ambientLight = new Color(0.2f, 0.3f, 0.5f);
+    }
     public void CheckClickShowEndCard()
     {
         countDrop++;
@@ -62,6 +83,10 @@ public class LunaManager : MonoBehaviour
         Time.timeScale = 1;
     }
 
+    public void EnableButton()
+    {
+        winCard.GetComponent<Button>().enabled = true;
+    }
     public void ShowEndCard()
     {
         isCretivePause = true;
@@ -70,7 +95,23 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
-
+    public void ShowWinCard()
+    {
+        isCretivePause = true;
+        Invoke(nameof(EnableButton),2f);
+        AudioManager.ins.PlaySoundReward();
+        winCard.SetActive(true);
+        Debug.Log("Show winCard");
+        Luna.Unity.LifeCycle.GameEnded();
+    }
+    public void ShowLoseCard()
+    {
+        isCretivePause = true;
+        AudioManager.ins.PlaySoundReward();
+        loseCard.SetActive(true);
+        Debug.Log("Show loseCard");
+        Luna.Unity.LifeCycle.GameEnded();
+    }
     public void OnClickEndCard()
     {
         Debug.Log("Click end card");

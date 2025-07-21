@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = System.Random;
 
 public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
 {
@@ -13,177 +15,117 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public float timeHold = 0;
     public bool isHold = false;
     public Transform posCam;
+    public TextMeshProUGUI textMeshProUGUI;
+    public bool isLeft = true;
 
     public Inventory inv;
     private void Awake()
     {
         ins= this;
+        isLeft=UnityEngine.Random.Range(0, 2) == 0; // Randomly choose left or right
+        textMeshProUGUI.text= isLeft ? "Swipe Left to Attack" : "Swipe Right to Attack";
+    }
+
+    private void FixedUpdate()
+    {
+        if (enemyBody==null)
+        {
+            if (GameObject.FindGameObjectWithTag("Enemy")!=null)
+            {
+                enemyBody= GameObject.FindGameObjectWithTag("Enemy").transform;
+            }
+        }
     }
 
     public float mouseSensitivity = 180;
 
     public Transform playerBody;
+    public Transform enemyBody;
     public Camera cameraMain;
 
     private float xRotation = 0f;
     public Action onClick;
+    private Vector2 startTouchPosition;
+    private Vector2 endTouchPosition;
     
-    // Start is called before the first frame update
-    void Start()
+    public void OnPointerDown(PointerEventData eventData)
     {
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
-
-        /*mouseSensitivity = 180;
-
-        if(Application.isEditor)
-            mouseSensitivity = 400;*/
-    }
-
-    float mx;
-
-  
-    public void OnDrag(PointerEventData eventData)
-    {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-        if(Mathf.Abs(mouseX) > 20 || Mathf.Abs(mouseY) > 20)
-            return;
-
-        //camera's x rotation (look up and down)
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        cameraMain.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
-
-        //mx = Input.GetAxis("Mouse X");
-        
-        //player body's y rotation (turn left and right)
-        playerBody.Rotate(Vector3.up * mouseX);
+        // Ghi lại vị trí bắt đầu
+        startTouchPosition = eventData.position;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        StopAllCoroutines();
-        playerBody.GetComponent<PlayerChar>().CancleFire();
-        blockPrefab2.SetActive(false);
+        // Ghi lại vị trí kết thúc
+        endTouchPosition = eventData.position;
+
+        // Kiểm tra hướng swipe
+        CheckSwipeDirection();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    private void CheckSwipeDirection()
     {
-        //StartCoroutine(DestroyBlock());
-        playerBody.GetComponent<PlayerChar>().HandleAttack();
-        //DesTroyBlock();
-    }
+        float deltaX = endTouchPosition.x - startTouchPosition.x;
 
-    private void Update()
-    {
-        /*if (isHold)
+        if (Mathf.Abs(deltaX) > 1) // Ngưỡng để xác định swipe
         {
-            timeHold+=Time.deltaTime;
-            if (timeHold>0.1f)
+            if (deltaX > 0)
             {
-                DesTroyBlock();
+                if (!isLeft)
+                {
+                    OnWin();
+                }
+                else
+                {
+                    Lose();
+                }
             }
-        }*/
-        
+            else
+            {
+                if (isLeft)
+                {
+                    OnWin();
+                }
+                else
+                {
+                    Lose();
+                }
+            }
+        }
+    }
+    float mx;
+
+    public void OnWin()
+    {
+        Vector3 directionToEnemy = (enemyBody.position - playerBody.position).normalized;
+// Rotate the player body to face the enemy
+        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(directionToEnemy.x, 0, directionToEnemy.z));
+        playerBody.rotation = lookRotation;
+// Adjust the camera to look at the enemy
+        cameraMain.transform.rotation = Quaternion.LookRotation(directionToEnemy);
+
+        Debug.Log("Swipe sang phải - Camera hướng đến enemy");
+        enemyBody.GetComponent<ZombieChar>().SetDead();
+        playerBody.GetComponent<PlayerChar>().HandleAttack();
+        Invoke(nameof(Win),1f);
     }
 
-    public void DesTroyBlock()
+    public void Win()
     {
-            Debug.Log("DesTroyBlock");
-                    RaycastHit hitInfo;
-                    if(Physics.Raycast(posCam.transform.position, transform.forward, out hitInfo, 5, groundLayer))
-                    {
-                        Debug.Log("DesTroyBlock");
-                        Vector3 pointInTargetBlock;
-        
-                        //destroy
-                        /*if(leftClick)
-                            pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
-                        else
-                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
-                        pointInTargetBlock = hitInfo.point + transform.forward * .01f;
-        
-                        //get the terrain chunk (can't just use collider)
-                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
-        
-                        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
-        
-                        TerrainChunk tc = TerrainGenerator.chunks[cp];
-        
-                        //index of the target block
-                        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
-                        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
-                        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
-
-                        if (blockPrefab2==null)
-                        {
-                            blockPrefab2= Instantiate(blockPrefab, new Vector3(bix+ chunkPosX-1, biy, biz+ chunkPosZ-1), Quaternion.identity);
-                        }
-                        blockPrefab2.SetActive(true);
-                        blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
-                        if (timeHold>=1)
-                        {
-                            inv.AddToInventory(tc.blocks[bix, biy, biz]);
-                            tc.blocks[bix, biy, biz] = BlockType.Air;
-                            tc.BuildMesh();
-                            blockPrefab2.SetActive(false);
-                            isHold = false;
-                            timeHold = 0;
-                        }
-                    }
+        LunaManager.ins.ShowWinCard();
     }
-
-    public IEnumerator DestroyBlock()
+    public void Lose()
     {
-                
-                     RaycastHit hitInfo;
-                    if(Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
-                    {
-                     
-                        Vector3 pointInTargetBlock;
-        
-                        //destroy
-                        /*if(leftClick)
-                            pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
-                        else
-                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
-                        pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
-        
-                        //get the terrain chunk (can't just use collider)
-                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
-                        
-                        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
-        
-                        TerrainChunk tc = TerrainGenerator.chunks[cp];
-        
-                        //index of the target block
-                        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
-                        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
-                        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
-
-                       
-                        blockPrefab2.SetActive(true);
-                        blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        inv.AddToInventory(tc.blocks[bix, biy, biz]);
-                        tc.blocks[bix, biy, biz] = BlockType.Air;
-                        tc.BuildMesh();
-                        blockPrefab2.SetActive(false);
-
-                    }
+        LunaManager.ins.OnClickEndCard();
+    }
+    public void OnDrag(PointerEventData eventData)
+    {
+        /*float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        //camera's x rotation (look up and down)
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        cameraMain.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
+        playerBody.Rotate(Vector3.up * mouseX);*/
     }
 }
