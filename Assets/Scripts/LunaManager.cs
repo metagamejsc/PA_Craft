@@ -52,6 +52,7 @@ public class LunaManager : MonoBehaviour
     }
     public void TabTruoc2s()
     {
+        
         imgDotDiem.DOColor(Color.white, 1f);
         imgDotDiem.GetComponent<Button>().enabled = true;
         btnCampFire.gameObject.SetActive(false);

@@ -113,10 +113,12 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public void Win()
     {
         LunaManager.ins.ShowWinCard();
+        playerBody.GetComponent<PlayerChar>().CancleFire();
     }
     public void Lose()
     {
         LunaManager.ins.OnClickEndCard();
+        playerBody.GetComponent<PlayerChar>().CancleFire();
     }
     public void OnDrag(PointerEventData eventData)
     {
