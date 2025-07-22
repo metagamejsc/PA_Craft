@@ -39,7 +39,8 @@ public class TerrainGenerator : MonoBehaviour
         LoadChunks(true);
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
-        StartCoroutine(IeSpawnZombie());
+        //StartCoroutine(IeSpawnZombie());
+        Invoke(nameof(SpawnGroupEnemy), 1);
     }
 
     public void SpawnObjectNearPlayerAvoidTrees()
@@ -282,12 +283,36 @@ public class TerrainGenerator : MonoBehaviour
         Invoke(nameof(SpawnObjectNearPlayerAvoidTrees),2f);
         //SpawnObjectNearPlayerAvoidTrees();
     }
+    public void SpawnGroupEnemy()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            Vector3 playerPos = player.position;
+            
+            int x = Mathf.RoundToInt(player.forward.x*8+playerPos.x+ Random.Range(-2, 2));
+            int z = Mathf.RoundToInt(player.forward.z*8+playerPos.z+ Random.Range(-2, 2));
 
+            int y = TerrainChunk.chunkHeight - 2;
+            while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
+                y--;
+
+            y++;
+
+            BlockType groundBlock = GetBlockType(x, y - 1, z);
+            if (groundBlock == BlockType.Trunk || groundBlock == BlockType.Leaves)
+            {
+                continue; // bỏ qua nếu trên cây
+            }
+
+            Vector3 spawnPos = new Vector3(x, y+1, z);
+            var a=Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
+        }
+    }
 
     void GenerateTrees(BlockType[,,] blocks, int x, int z)
     {
-        System.Random rand = new System.Random(x * 10000 + z);
-
+        //System.Random rand = new System.Random(x * 10000 + z);
+        System.Random rand = new System.Random(x * 10000 + z+Random.Range(-100,100));
         float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
         if (treeNoise <= 0) return;
 
