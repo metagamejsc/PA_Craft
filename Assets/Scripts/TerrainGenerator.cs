@@ -12,7 +12,7 @@ public class TerrainGenerator : MonoBehaviour
     public static Dictionary<ChunkPos, TerrainChunk> chunks = new Dictionary<ChunkPos, TerrainChunk>();
     [Header("Wall Collider Settings")]
     public float wallHeight = 100f;       // Chiều cao của tường bao
-    public float wallThickness = 2f;      // Độ dày của tường
+     // Độ dày của tường
     public BoxCollider wallCollider;
     
     [Header("Noise Settings")]
@@ -31,7 +31,16 @@ public class TerrainGenerator : MonoBehaviour
 
     List<ChunkPos> toGenerate = new List<ChunkPos>();
 
-    // Start is called before the first frame update
+    [Header("Room Settings")]
+    public int roomInnerWidth = 8;     // Chiều rộng bên trong phòng (trục X)
+    public int roomInnerHeight = 4;     // Chiều cao bên trong phòng (trục Y)
+    public int roomInnerLength = 8;    // Chiều dài bên trong phòng (trục Z)
+    public BlockType roomWallBlockType = BlockType.Stone; // Loại khối dùng cho tường
+    public BlockType roomFloorBlockType = BlockType.Dirt; // Loại khối dùng cho sàn
+    public BlockType roomCeilingBlockType = BlockType.Stone; // Loại khối dùng cho trần (trừ ô sáng)
+    public int wallThickness = 5; // Độ dày tường (từ 1 trở lên)
+    public float lightHoleChance = 0.2f;
+    
     void Start()
     {
         landNoiseScale = LunaManager.ins.landNoiseScale;
@@ -40,7 +49,144 @@ public class TerrainGenerator : MonoBehaviour
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
         //StartCoroutine(IeSpawnZombie());
-        Invoke(nameof(GenHouse),0.1f);
+        //Invoke(nameof(GenHouse),0.1f);
+        Invoke(nameof(CreateRoomAroundPlayer), 0.1f); 
+    }
+public void CreateRoomAroundPlayer()
+    {
+        if (player == null) return;
+
+        Vector3 playerPos = player.position;
+        int playerX = Mathf.RoundToInt(playerPos.x);
+        int playerY = Mathf.RoundToInt(playerPos.y);
+        int playerZ = Mathf.RoundToInt(playerPos.z);
+
+        // Tính toán giới hạn của phòng bên trong (Inner Room Bounds)
+        int innerMinX = playerX - roomInnerWidth / 2;
+        int innerMaxX = playerX + roomInnerWidth / 2;
+        int innerMinY = playerY-2; // Đặt sàn phòng tại chân người chơi
+        int innerMaxY = playerY + roomInnerHeight;
+        int innerMinZ = playerZ - roomInnerLength / 2;
+        int innerMaxZ = playerZ + roomInnerLength / 2;
+
+        // Tính toán giới hạn của tường bên ngoài (Outer Wall Bounds)
+        int outerMinX = innerMinX - wallThickness;
+        int outerMaxX = innerMaxX + wallThickness;
+        int outerMinZ = innerMinZ - wallThickness;
+        int outerMaxZ = innerMaxZ + wallThickness;
+        // Trần và sàn mở rộng thêm độ dày tường
+        int floorMinY = innerMinY - wallThickness;
+        int ceilingMaxY = innerMaxY + wallThickness;
+
+        // Danh sách để lưu các chunk cần cập nhật mesh
+        HashSet<ChunkPos> chunksToUpdate = new HashSet<ChunkPos>();
+        System.Random rand = new System.Random(playerX * 1000 + playerZ); // Dùng seed cố định theo vị trí player để tạo ngẫu nhiên nhất quán
+
+        // Vòng lặp qua tất cả các tọa độ trong khối lập phương bao quanh tường ngoài
+        for (int x = outerMinX; x <= outerMaxX; x++)
+        {
+            for (int y = floorMinY; y <= ceilingMaxY; y++)
+            {
+                for (int z = outerMinZ; z <= outerMaxZ; z++)
+                {
+                    BlockType blockToSet = BlockType.Air; // Mặc định là không khí
+                    bool shouldSetBlock = false; // Chỉ đặt block nếu cần thiết
+
+                    // 1. Tạo sàn (bao gồm cả phần mở rộng dưới chân người chơi)
+                    if (y >= floorMinY && y < innerMinY)
+                    {
+                        // Kiểm tra nếu nằm trong phạm vi sàn mở rộng
+                        if (x >= outerMinX && x <= outerMaxX && z >= outerMinZ && z <= outerMaxZ)
+                        {
+                            blockToSet = roomFloorBlockType;
+                            shouldSetBlock = true;
+                        }
+                    }
+                    // 2. Tạo tường (lớp ngoài và lớp trong)
+                    else if ((x >= outerMinX && x < innerMinX) || (x > innerMaxX && x <= outerMaxX) || // Tường X
+                             (z >= outerMinZ && z < innerMinZ) || (z > innerMaxZ && z <= outerMaxZ) || // Tường Z
+                             (y >= innerMinY && y <= innerMaxY && (x == outerMinX || x == outerMaxX || z == outerMinZ || z == outerMaxZ))) // Tường Y (cạnh trên/dưới của tường dọc)
+                    {
+                         blockToSet = roomWallBlockType;
+                         shouldSetBlock = true;
+                    }
+                    // 3. Tạo trần (bao gồm cả phần mở rộng phía trên)
+                    else if (y > innerMaxY && y <= ceilingMaxY)
+                    {
+                        // Kiểm tra nếu nằm trong phạm vi trần mở rộng
+                        if (x >= outerMinX && x <= outerMaxX && z >= outerMinZ && z <= outerMaxZ)
+                        {
+                            // Quyết định có tạo ô sáng không
+                            if (rand.NextDouble() < lightHoleChance)
+                            {
+                                // Ô sáng - để trống (BlockType.Air) hoặc block đặc biệt
+                                blockToSet = BlockType.Air; // Hoặc BlockType.Glass nếu bạn muốn block trong suốt
+                                // Nếu bạn muốn block đặc biệt cho ô sáng:
+                                // blockToSet = BlockType.Glass;
+                            }
+                            else
+                            {
+                                // Trần bình thường
+                                blockToSet = roomCeilingBlockType;
+                            }
+                            shouldSetBlock = true;
+                        }
+                    }
+
+                    // Nếu cần đặt block
+                    if (shouldSetBlock)
+                    {
+                        // --- Tương tự như trước: tìm chunk và đặt block ---
+                        // Lấy chunk chứa tọa độ (x, y, z)
+                        int chunkX = Mathf.FloorToInt((float)x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+                        int chunkZ = Mathf.FloorToInt((float)z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+                        ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
+
+                        // Kiểm tra xem chunk đã được tạo chưa
+                        if (chunks.ContainsKey(chunkPos))
+                        {
+                            TerrainChunk chunk = chunks[chunkPos];
+
+                            // Chuyển tọa độ thế giới sang tọa độ cục bộ của chunk (bao gồm padding)
+                            int localX = x - chunkX + 1; // +1 do padding
+                            int localZ = z - chunkZ + 1; // +1 do padding
+                            int localY = y;
+
+                            // Kiểm tra giới hạn cục bộ (bao gồm padding)
+                            if (localX >= 0 && localX < TerrainChunk.chunkWidth + 2 &&
+                                localY >= 0 && localY < TerrainChunk.chunkHeight &&
+                                localZ >= 0 && localZ < TerrainChunk.chunkWidth + 2)
+                            {
+                                // Đặt loại block
+                                chunk.blocks[localX, localY, localZ] = blockToSet;
+                                // Ghi nhớ chunk cần cập nhật mesh
+                                chunksToUpdate.Add(chunkPos);
+                            }
+                        }
+                        // --- Kết thúc phần tìm chunk và đặt block ---
+                    }
+                }
+            }
+        }
+
+        // Cập nhật mesh cho các chunk bị ảnh hưởng
+        foreach (ChunkPos pos in chunksToUpdate)
+        {
+            if (chunks.ContainsKey(pos))
+            {
+                chunks[pos].BuildMesh();
+                // Nếu có nước trong chunk, cũng cập nhật nước
+                WaterChunk waterChunk = chunks[pos].GetComponentInChildren<WaterChunk>();
+                if(waterChunk != null)
+                {
+                    waterChunk.SetLocs(chunks[pos].blocks); // Cập nhật lại trạng thái nước nếu cần
+                    waterChunk.BuildMesh();
+                }
+            }
+        }
+
+         // Di chuyển người chơi vào giữa phòng (tùy chọn, đảm bảo không bị kẹt trong block)
+         player.position = new Vector3(playerX, innerMinY + 1, playerZ); // +1 để người chơi đứng trên sàn
     }
 
     public void GenHouse()

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -16,6 +17,7 @@ public class LunaManager : MonoBehaviour
     public float landNoiseScale=0.8f;
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
     public bool isCretivePause;
+    public TextMeshProUGUI txtTime;
     private void Awake()
     {
         ins = this;
@@ -38,6 +40,15 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
+    }
+
+    private void Update()
+    {
+        if (timeEndCreative - Time.timeSinceLevelLoad<=0)
+        {
+            return;
+        }
+        txtTime.text= $"Time Left: {Mathf.CeilToInt(timeEndCreative - Time.timeSinceLevelLoad)}";
     }
 
     public void CheckClickShowEndCard()

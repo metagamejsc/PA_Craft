@@ -36,13 +36,13 @@ public class TutorialBuildBlock : MonoBehaviour
                 HideStep();
             });
         }
-        //ShowStep();
+        ShowStep();
         //StartCoroutine(IeSpawnStep());
     }
 
     public void ShowStep()
     {
-        GameController.ins.isPauseGame = true;
+        GameController.ins.isPauseGame = false;
         lstStep[stepIndex].SetActive(true);
     }
     public void HideStep()
@@ -50,6 +50,11 @@ public class TutorialBuildBlock : MonoBehaviour
         GameController.ins.isPauseGame = false;
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
+        if (stepIndex < lstStep.Count)
+        {
+            ShowStep();
+        }
+        ShowStep();
         /*if (stepIndex==lstStep.Count-1)
         {
            GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
