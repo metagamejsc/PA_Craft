@@ -38,7 +38,7 @@ public class TerrainGenerator : MonoBehaviour
     public BlockType roomWallBlockType = BlockType.Stone; // Loại khối dùng cho tường
     public BlockType roomFloorBlockType = BlockType.Dirt; // Loại khối dùng cho sàn
     public BlockType roomCeilingBlockType = BlockType.Stone; // Loại khối dùng cho trần (trừ ô sáng)
-    public int wallThickness = 5; // Độ dày tường (từ 1 trở lên)
+    public int wallThickness =>LunaManager.ins.wallThickness ; // Độ dày tường (từ 1 trở lên)
     public float lightHoleChance = 0.2f;
     
     void Start()

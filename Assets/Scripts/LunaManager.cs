@@ -13,9 +13,10 @@ public class LunaManager : MonoBehaviour
      public int countDropFinal;
      public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    public float noiseIntensity=10;
-    public float landNoiseScale=0.8f;
-    [LunaPlaygroundField("Tree Count")] public int treeCount=20;
+    [LunaPlaygroundField("Độ đa dạng địa hình")]public float noiseIntensity=10;
+    [LunaPlaygroundField("Độ cao mặt đất")]public float landNoiseScale=0.8f;
+    [LunaPlaygroundField("Số lượng cây")] public int treeCount=20;
+    [LunaPlaygroundField("Độ dày của tường")] public int wallThickness=5;
     public bool isCretivePause;
     public TextMeshProUGUI txtTime;
     private void Awake()
@@ -23,6 +24,7 @@ public class LunaManager : MonoBehaviour
         ins = this;
 
     }
+    
     public Button[] lstBtnInstall;
     public GameObject EndCard;
     
