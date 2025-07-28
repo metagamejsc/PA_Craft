@@ -73,12 +73,13 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void ButtonUp()
     {
-        StopAllCoroutines();
-        blockPrefab2.SetActive(false);
+        //StopAllCoroutines();
+        //blockPrefab2.SetActive(false);
     }
     public void ButtonDown()
     {
-        StartCoroutine(DestroyBlock2());
+        //StartCoroutine(DestroyBlock2());
+        PlaceBlock2();
     }
     public void DesTroyBlock()
     {
