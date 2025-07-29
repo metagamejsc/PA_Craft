@@ -35,7 +35,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     private float xRotation = 0f;
     public Action onClick;
-    
+
     float mx;
 
 
@@ -76,11 +76,13 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         //StopAllCoroutines();
         //blockPrefab2.SetActive(false);
     }
+
     public void ButtonDown()
     {
         //StartCoroutine(DestroyBlock2());
         PlaceBlock2();
     }
+
     public void DesTroyBlock()
     {
         Debug.Log("DesTroyBlock");
@@ -156,7 +158,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         if (Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
         {
             Vector3 pointInTargetBlock;
-            
+
             pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
 
             //get the terrain chunk (can't just use collider)
@@ -201,7 +203,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             blockPrefab2.SetActive(false);
         }
     }
-public IEnumerator DestroyBlock2()
+
+    public IEnumerator DestroyBlock2()
     {
         RaycastHit hitInfo;
         if (Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
@@ -229,48 +232,49 @@ public IEnumerator DestroyBlock2()
 
             blockPrefab2.SetActive(true);
             blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
-            Vector3 blockWorldPosition = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1)+Vector3.one*0.5f;
-            SpawnDebrisAround(blockWorldPosition,tc.blocks[bix, biy, biz]);
+            Vector3 blockWorldPosition =
+                new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1) + Vector3.one * 0.5f;
+            SpawnDebrisAround(blockWorldPosition, tc.blocks[bix, biy, biz]);
             playerChar.HandleAttack();
             AudioManager.ins.PlayMiningSound();
             yield return new WaitForSeconds(0.2f);
-            SpawnDebrisAround(blockWorldPosition,tc.blocks[bix, biy, biz]);
+            SpawnDebrisAround(blockWorldPosition, tc.blocks[bix, biy, biz]);
 
             playerChar.HandleAttack();
             AudioManager.ins.PlayMiningSound();
             yield return new WaitForSeconds(0.2f);
-            SpawnDebrisAround(blockWorldPosition,tc.blocks[bix, biy, biz]);
+            SpawnDebrisAround(blockWorldPosition, tc.blocks[bix, biy, biz]);
 
             playerChar.HandleAttack();
             AudioManager.ins.PlayMiningSound();
             yield return new WaitForSeconds(0.2f);
-            SpawnDebrisAround(blockWorldPosition,tc.blocks[bix, biy, biz]);
+            SpawnDebrisAround(blockWorldPosition, tc.blocks[bix, biy, biz]);
 
             playerChar.HandleAttack();
             AudioManager.ins.PlayMiningSound();
             yield return new WaitForSeconds(0.2f);
-            SpawnDebrisAround(blockWorldPosition,tc.blocks[bix, biy, biz]);
+            SpawnDebrisAround(blockWorldPosition, tc.blocks[bix, biy, biz]);
 
             playerChar.HandleAttack();
             AudioManager.ins.PlayMiningSound();
             yield return new WaitForSeconds(0.2f);
-            SpawnDebrisAround(blockWorldPosition,tc.blocks[bix, biy, biz]);
+            SpawnDebrisAround(blockWorldPosition, tc.blocks[bix, biy, biz]);
             playerChar.HandleAttack();
 
             inv.AddToInventory(tc.blocks[bix, biy, biz]);
             tc.blocks[bix, biy, biz] = BlockType.Air;
             tc.BuildMesh();
-            LunaManager.ins.CheckClickShowEndCard();
             blockPrefab2.SetActive(false);
         }
     }
+
     public void PlaceBlock()
     {
         RaycastHit hitInfo;
         if (Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
         {
             Vector3 pointInTargetBlock;
-            
+
             pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
 
             //get the terrain chunk (can't just use collider)
@@ -294,11 +298,13 @@ public IEnumerator DestroyBlock2()
             }
         }
     }
-    void SpawnDebrisAround(Vector3 position,BlockType type= BlockType.Stone)
+
+    void SpawnDebrisAround(Vector3 position, BlockType type = BlockType.Stone)
     {
         for (int i = 0; i < debrisCountPerHit; i++)
         {
-            GameObject debris = Instantiate(debrisPrefab, position + Random.insideUnitSphere * 0.5f, Quaternion.identity);
+            GameObject debris =
+                Instantiate(debrisPrefab, position + Random.insideUnitSphere * 0.5f, Quaternion.identity);
             debris.GetComponent<Renderer>().sharedMaterial = GetMaterialByBlockType(type);
             debris.transform.localScale = Random.Range(0.02f, 0.15f) * Vector3.one;
             Rigidbody rb = debris.GetComponent<Rigidbody>();
@@ -306,15 +312,16 @@ public IEnumerator DestroyBlock2()
             {
                 // Hướng ngẫu nhiên + một chút theo hướng ngược lại camera
                 Vector3 randomDir = Random.onUnitSphere;
-                Vector3 direction = (randomDir + (-posCam.transform.forward)+Vector3.up).normalized;
+                Vector3 direction = (randomDir + (-posCam.transform.forward) + Vector3.up).normalized;
 
-                rb.AddForce(direction * Random.Range(1f, 3f)+Vector3.up, ForceMode.Impulse);
+                rb.AddForce(direction * Random.Range(1f, 3f) + Vector3.up, ForceMode.Impulse);
             }
 
             // Tự hủy sau 2 giây
             Destroy(debris, 2f);
         }
     }
+
     public Material GetMaterialByBlockType(BlockType blockType)
     {
         foreach (MatterialType matterialType in matterialTypes)
@@ -324,73 +331,140 @@ public IEnumerator DestroyBlock2()
                 return matterialType.material;
             }
         }
+
         return matterialTypes[0].material;
     }
 
     public void PlaceBlock2()
-{
-    MouseLook.ins.onClick?.Invoke();
-
-    RaycastHit hitInfo;
-    if (Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
     {
-        Vector3 pointInTargetBlock = hitInfo.point + posCam.transform.forward * 0.01f;
+        MouseLook.ins.onClick?.Invoke();
 
-        // Xác định chunk
-        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
-        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
-
-        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
-        TerrainChunk tc = TerrainGenerator.chunks[cp];
-
-        // Tính index khối bị bắn trúng
-        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX + 1;
-        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
-        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ + 1;
-
-        // Kiểm tra xem khối này có phải là Empty hay không
-        if (tc.blocks[bix, biy, biz] == BlockType.Empty)
+        RaycastHit hitInfo;
+        if (Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
         {
-            //LunaManager.ins.CheckClickShowEndCard();
-            AudioManager.ins.PlaySoundBuild();
-            tc.blocks[bix, biy, biz] = inv.GetCurBlock();
-            tc.BuildMesh();
-            inv.ReduceCur();
-            return;
-        }
+            Vector3 pointInTargetBlock = hitInfo.point + posCam.transform.forward * 0.01f;
 
-        // Nếu không phải empty -> đặt khối bên cạnh theo hướng mặt tiếp xúc
-        if (inv.CanPlaceCur())
-        {
-            // Lấy normal của mặt va chạm
-            Vector3 normal = hitInfo.normal;
+            // Xác định chunk
+            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
-            // Dịch chuyển theo hướng normal 1 đơn vị để chọn khối kế bên
-            Vector3 adjacentPoint = hitInfo.point + normal*0.5f;
+            ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
+            TerrainChunk tc = TerrainGenerator.chunks[cp];
 
-            // Tính lại chunk và index khối kế bên
-            int adjChunkPosX = Mathf.FloorToInt(adjacentPoint.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
-            int adjChunkPosZ = Mathf.FloorToInt(adjacentPoint.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+            // Tính index khối bị bắn trúng
+            int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX + 1;
+            int biy = Mathf.FloorToInt(pointInTargetBlock.y);
+            int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ + 1;
 
-            ChunkPos adjCp = new ChunkPos(adjChunkPosX, adjChunkPosZ);
+            // Kiểm tra xem khối này có phải là Empty hay không
+            if (tc.blocks[bix, biy, biz] == BlockType.Empty)
+            {
+                // Tính tọa độ thế giới của khối sẽ được đặt
+                Vector3 blockWorldPos = new Vector3(
+                    chunkPosX + bix - 1, // -1 do padding
+                    biy,
+                    chunkPosZ + biz - 1 // -1 do padding
+                );
 
-            // Nếu chunk không tồn tại, thoát (có thể sinh ra chunk ở đây nếu cần)
-            if (!TerrainGenerator.chunks.TryGetValue(adjCp, out TerrainChunk adjTc))
+                // Kiểm tra nếu vị trí đặt block trùng với vị trí player đang đứng
+                if (IsPositionOccupiedByPlayer(blockWorldPos))
+                {
+                    return; // Không đặt block nếu trùng vị trí player
+                }
+
+                //LunaManager.ins.CheckClickShowEndCard();
+                AudioManager.ins.PlaySoundBuild();
+                tc.blocks[bix, biy, biz] = inv.GetCurBlock();
+                tc.BuildMesh();
+                inv.ReduceCur();
                 return;
+            }
 
-            int adjBix = Mathf.FloorToInt(adjacentPoint.x) - adjChunkPosX + 1;
-            int adjBiy = Mathf.FloorToInt(adjacentPoint.y);
-            int adjBiz = Mathf.FloorToInt(adjacentPoint.z) - adjChunkPosZ + 1;
+            // Nếu không phải empty -> đặt khối bên cạnh theo hướng mặt tiếp xúc
+            if (inv.CanPlaceCur())
+            {
+                // Lấy normal của mặt va chạm
+                Vector3 normal = hitInfo.normal;
 
-    
-            AudioManager.ins.PlaySoundBuild();
-            //LunaManager.ins.CheckClickShowEndCard();
-            adjTc.blocks[adjBix, adjBiy, adjBiz] = inv.GetCurBlock();
-            adjTc.BuildMesh();
-            inv.ReduceCur();
+                // Dịch chuyển theo hướng normal 1 đơn vị để chọn khối kế bên
+                Vector3 adjacentPoint = hitInfo.point + normal * 0.5f;
+
+                // Tính lại chunk và index khối kế bên
+                int adjChunkPosX = Mathf.FloorToInt(adjacentPoint.x / TerrainChunk.chunkWidth) *
+                                   TerrainChunk.chunkWidth;
+                int adjChunkPosZ = Mathf.FloorToInt(adjacentPoint.z / TerrainChunk.chunkWidth) *
+                                   TerrainChunk.chunkWidth;
+
+                ChunkPos adjCp = new ChunkPos(adjChunkPosX, adjChunkPosZ);
+
+                // Nếu chunk không tồn tại, thoát (có thể sinh ra chunk ở đây nếu cần)
+                if (!TerrainGenerator.chunks.TryGetValue(adjCp, out TerrainChunk adjTc))
+                    return;
+
+                int adjBix = Mathf.FloorToInt(adjacentPoint.x) - adjChunkPosX + 1;
+                int adjBiy = Mathf.FloorToInt(adjacentPoint.y);
+                int adjBiz = Mathf.FloorToInt(adjacentPoint.z) - adjChunkPosZ + 1;
+
+                // Tính tọa độ thế giới của khối sẽ được đặt
+                Vector3 adjBlockWorldPos = new Vector3(
+                    adjChunkPosX + adjBix - 1, // -1 do padding
+                    adjBiy,
+                    adjChunkPosZ + adjBiz - 1 // -1 do padding
+                );
+
+                // Kiểm tra nếu vị trí đặt block trùng với vị trí player đang đứng
+                if (IsPositionOccupiedByPlayer(adjBlockWorldPos))
+                {
+                    return; // Không đặt block nếu trùng vị trí player
+                }
+
+                AudioManager.ins.PlaySoundBuild();
+                LunaManager.ins.CheckClickShowEndCard();
+                adjTc.blocks[adjBix, adjBiy, adjBiz] = inv.GetCurBlock();
+                adjTc.BuildMesh();
+                inv.ReduceCur();
+            }
         }
     }
-}
+
+    /// <summary>
+    /// Kiểm tra xem vị trí khối có bị người chơi chiếm dụng không
+    /// </summary>
+    /// <param name="blockWorldPos">Tọa độ thế giới của khối</param>
+    /// <returns>True nếu người chơi đang đứng ở vị trí đó</returns>
+    private bool IsPositionOccupiedByPlayer(Vector3 blockWorldPos)
+    {
+        // Kiểm tra null reference
+        if (TerrainGenerator.ins == null || TerrainGenerator.ins.player == null)
+            return false;
+
+        // Lấy vị trí người chơi
+        Vector3 playerPos = TerrainGenerator.ins.player.position;
+
+        // Chuyển vị trí người chơi về tọa độ block (làm tròn xuống)
+        Vector3 playerBlockPos = new Vector3(
+            Mathf.Floor(playerPos.x),
+            Mathf.Floor(playerPos.y),
+            Mathf.Floor(playerPos.z)
+        );
+
+        // So sánh tọa độ block
+        // Người chơi thường chiếm 1x2x1 block (chân và đầu)
+        // Kiểm tra cả block chân và block đầu của người chơi
+        Vector3 playerFeetBlockPos = playerBlockPos;
+        Vector3 playerHeadBlockPos = new Vector3(playerBlockPos.x, playerBlockPos.y + 1, playerBlockPos.z);
+
+        // Kiểm tra nếu vị trí khối trùng với chân hoặc đầu người chơi
+        bool isFeetPosition = Mathf.Approximately(blockWorldPos.x, playerFeetBlockPos.x) &&
+                              Mathf.Approximately(blockWorldPos.y, playerFeetBlockPos.y) &&
+                              Mathf.Approximately(blockWorldPos.z, playerFeetBlockPos.z);
+
+        bool isHeadPosition = Mathf.Approximately(blockWorldPos.x, playerHeadBlockPos.x) &&
+                              Mathf.Approximately(blockWorldPos.y, playerHeadBlockPos.y) &&
+                              Mathf.Approximately(blockWorldPos.z, playerHeadBlockPos.z);
+
+        return isFeetPosition || isHeadPosition;
+    }
 }
 
 [System.Serializable]

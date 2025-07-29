@@ -3,6 +3,7 @@ using UnityEngine;
 public class IslandTriggerDetector : MonoBehaviour
 {
     public TerrainGenerator terrainGenerator; // Tham chiếu đến TerrainGenerator
+    public ParticleSystem particleSystem;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -11,6 +12,9 @@ public class IslandTriggerDetector : MonoBehaviour
         {
             Debug.Log($"{this.name} triggered by Player");
             // Gọi hành động từ TerrainGenerator
+            particleSystem.transform.position=other.transform.position+other.transform.forward*2;
+            particleSystem.Play();
+            AudioManager.ins.PlayFireworkSound();
             terrainGenerator?.OnPlayerEnterIsland2?.Invoke();
             // Hoặc gọi trực tiếp hàm
             // terrainGenerator?.PlayerEnteredIsland2();

@@ -53,7 +53,7 @@ public class Inventory : MonoBehaviour
             SetCur(3);*/
     }
 
-    void SetCur(int i)
+    public void SetCur(int i)
     {
         invImgs[curMat].color = new Color(0, 0, 0, 43/255f);
 

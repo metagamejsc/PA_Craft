@@ -1,14 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class TerrainGenerator : MonoBehaviour
 {
+    public static TerrainGenerator ins;
     public GameObject terrainChunk;
 
     public Transform player;
     public GameObject objectToSpawn;
-
+    public ParticleSystem particleSystem;
     public static Dictionary<ChunkPos, TerrainChunk> chunks = new Dictionary<ChunkPos, TerrainChunk>();
 
     [Header("Wall Collider Settings")] public float wallHeight = 100f; // Chiều cao của tường bao
@@ -49,6 +52,10 @@ public class TerrainGenerator : MonoBehaviour
         OnPlayerEnterIsland2 += PlayerEnteredIsland2;
     }
 
+    private void Awake()
+    {
+        ins = this;
+    }
 
     public void SpawnObjectNearPlayerAvoidTrees()
     {
@@ -162,7 +169,7 @@ public class TerrainGenerator : MonoBehaviour
     private BoxCollider islandTriggerCollider; // Collider trigger
     private Vector2Int island2Center; // Lưu vị trí đảo 2 để dùng cho collider
 
-    private float islandRadius = 5f; // Bán kính đảo, nên đồng bộ với trong GetBlockType
+    private float islandRadius =>LunaManager.ins.isLandRadius; // Bán kính đảo, nên đồng bộ với trong GetBlockType
     public System.Action OnPlayerEnterIsland2; // Event khi player vào đảo 2
 
     BlockType GetBlockType(int x, int y, int z)
@@ -172,7 +179,7 @@ public class TerrainGenerator : MonoBehaviour
         Vector2Int island1Center = new Vector2Int(Mathf.RoundToInt(player.position.x), Mathf.RoundToInt(player.position.z)); // Vị trí trung tâm của hòn đảo 1
 
         // Vị trí trung tâm của hòn đảo 2, cách hòn đảo 1 khoảng 10 ô (theo trục X)
-        island2Center = new Vector2Int(island1Center.x + 20, island1Center.y);
+        island2Center = new Vector2Int(island1Center.x + LunaManager.ins.rangeBetweenIsland, island1Center.y);
         // Nếu muốn cách theo trục Z: new Vector2Int(island1Center.x, island1Center.y + 10);
 
         // --- Kiểm tra xem điểm (x, z) có nằm trong vùng tạo đảo không ---
@@ -247,6 +254,7 @@ public class TerrainGenerator : MonoBehaviour
         if (islandTriggerObject.GetComponent<IslandTriggerDetector>() == null)
         {
             IslandTriggerDetector detector = islandTriggerObject.AddComponent<IslandTriggerDetector>();
+            detector.particleSystem= particleSystem; // Gán hệ thống hạt
             detector.terrainGenerator = this; // Gán tham chiếu
         }
 

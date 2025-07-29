@@ -17,6 +17,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip buildSound;
     public AudioClip miningSound;
     public AudioClip getItemSound;
+    public AudioClip deadSound;
+    public AudioClip fireworkSound;
     public List<AudioClip> lstMoveSound;
     public List<AudioClip> soundClick;
 
@@ -41,6 +43,14 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundGetItem()
     {
         sound.PlayOneShot(getItemSound,1);
+    }
+    public void PlaySoundDeadSound()
+    {
+        sound.PlayOneShot(deadSound,1);
+    }
+    public void PlayFireworkSound()
+    {
+        sound.PlayOneShot(fireworkSound,1);
     }
     public void PlaySoundMerge()
     {
