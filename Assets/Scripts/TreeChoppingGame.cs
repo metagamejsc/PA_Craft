@@ -1,3 +1,4 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +7,9 @@ public class TreeChoppingGame : MonoBehaviour
 {
     public ForestEscapeGame gameManager;
     public Button[] treeButtons;
+    public Image[] treeImageButtons;
     public TextMeshProUGUI instructionText;
+    public AnimationCurve chopEase;
 
     void Start()
     {
@@ -26,7 +29,20 @@ public class TreeChoppingGame : MonoBehaviour
     {
         // Disable button after clicking
         treeButtons[treeIndex].interactable = false;
-        
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(treeImageButtons[treeIndex].DOFillAmount(0.66f, 0.33f).SetEase(chopEase).OnComplete(() =>
+        {
+            AudioManager.ins.PlaySoundChop();
+        }));
+        sequence.Append(treeImageButtons[treeIndex].DOFillAmount(0.33f, 0.33f).SetEase(chopEase).OnComplete(() =>
+        {
+            AudioManager.ins.PlaySoundChop();
+        }));
+        sequence.Append(treeImageButtons[treeIndex].DOFillAmount(0f, 0.33f).SetEase(chopEase).OnComplete(() =>
+        {
+            AudioManager.ins.PlaySoundChop();
+        }));
+        sequence.Play();
         // Visual feedback (optional)
         treeButtons[treeIndex].GetComponent<Image>().color = Color.gray;
         

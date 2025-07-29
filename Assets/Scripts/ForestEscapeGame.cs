@@ -50,7 +50,8 @@ public class ForestEscapeGame : MonoBehaviour
         axeButton.onClick.AddListener(() => SelectItem(false));
         torchButton.onClick.AddListener(() => SelectItem(true));
         foodButton.onClick.AddListener(() => SelectItem(false));
-        chopTreeButton.onClick.AddListener(StartChopping);
+        chopTreeButton.gameObject.SetActive(false);
+        //chopTreeButton.onClick.AddListener(StartChopping);
         pathAButton.onClick.AddListener(() => SelectPath(true));
         pathBButton.onClick.AddListener(() => SelectPath(false));
     }
@@ -62,6 +63,7 @@ public class ForestEscapeGame : MonoBehaviour
         {
             currentState = GameState.TreeChopping;
             ShowPanel(treeChoppingPanel);
+            StartChopping();
         }
         else
         {
@@ -85,7 +87,7 @@ public class ForestEscapeGame : MonoBehaviour
         while (currentChoppingTime > 0 && treesChopped < 3)
         {
             currentChoppingTime -= Time.deltaTime;
-            timerText.text = Mathf.Ceil(currentChoppingTime).ToString();
+            timerText.text ="Time Remaining: "+ Mathf.Ceil(currentChoppingTime).ToString();
             yield return null;
         }
 
