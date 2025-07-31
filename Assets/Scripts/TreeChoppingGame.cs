@@ -30,14 +30,17 @@ public class TreeChoppingGame : MonoBehaviour
         // Disable button after clicking
         treeButtons[treeIndex].interactable = false;
         Sequence sequence = DOTween.Sequence();
+        AudioManager.ins.PlaySoundChop();
         sequence.Append(treeImageButtons[treeIndex].DOFillAmount(0.66f, 0.33f).SetEase(chopEase).OnComplete(() =>
         {
             AudioManager.ins.PlaySoundChop();
         }));
+        AudioManager.ins.PlaySoundChop();
         sequence.Append(treeImageButtons[treeIndex].DOFillAmount(0.33f, 0.33f).SetEase(chopEase).OnComplete(() =>
         {
             AudioManager.ins.PlaySoundChop();
         }));
+        AudioManager.ins.PlaySoundChop();
         sequence.Append(treeImageButtons[treeIndex].DOFillAmount(0f, 0.33f).SetEase(chopEase).OnComplete(() =>
         {
             AudioManager.ins.PlaySoundChop();
@@ -52,7 +55,7 @@ public class TreeChoppingGame : MonoBehaviour
         // Update instruction
         instructionText.text = "Cây đã chặt! Còn lại: " + 
             (3 - GetChoppedTreesCount()) + " cây";
-    }
+    } 
 
     int GetChoppedTreesCount()
     {
