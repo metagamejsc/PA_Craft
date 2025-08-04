@@ -2726,10 +2726,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.DynamicGI",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.FrustumPlanes",
                 "excluded": true
             },
@@ -7022,10 +7018,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.BaseMeshEffect",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.CoroutineTween.FloatTween",
                 "excluded": true
             },
@@ -7050,10 +7042,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.Shadow",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.EventSystems.Physics2DRaycaster",
                 "excluded": true
             },
@@ -7063,10 +7051,6 @@
             },
             {
                 "name": "UnityEngine.UI.GridLayoutGroup",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.UI.Outline",
                 "excluded": true
             },
             {
@@ -7103,7 +7087,7 @@
             },
             {
                 "name": "UnityEngine.UI.IMeshModifier",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.Button.ButtonClickedEvent",
@@ -16215,7 +16199,7 @@
                     },
                     {
                         "name": "GetChild",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "IsChildOf",
@@ -18327,7 +18311,7 @@
                     },
                     {
                         "name": "sprite#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "overrideSprite#get",
@@ -18391,7 +18375,7 @@
                     },
                     {
                         "name": "preserveAspect#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "material#set",
@@ -20217,7 +20201,7 @@
                     },
                     {
                         "name": "customReflection#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "customReflection#set",
@@ -20225,7 +20209,7 @@
                     },
                     {
                         "name": "defaultReflectionMode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "defaultReflectionMode#set",
@@ -21403,7 +21387,7 @@
                     },
                     {
                         "name": "rect#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "border#get",
@@ -21567,7 +21551,7 @@
                     },
                     {
                         "name": "materialCount#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "cull#set",
@@ -23695,11 +23679,11 @@
                     },
                     {
                         "name": "FillMesh",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "FromMesh",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -33760,6 +33744,10 @@
                     {
                         "name": "PerformBuildAction",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetButtonIcon",
+                        "excluded": false
                     }
                 ]
             },
@@ -33857,6 +33845,122 @@
                     },
                     {
                         "name": "Update",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.DynamicGI",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "UpdateEnvironment",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BakeReflectionsCubemap",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BakeLightingCubemap",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateEnvironmentLighting",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateSkyboxMaterial",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.BaseMeshEffect",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "graphic#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDidApplyAnimationProperties",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ModifyMesh",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.Shadow",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "effectColor#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "effectColor#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "effectDistance#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "effectDistance#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "useGraphicAlpha#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "useGraphicAlpha#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyShadowZeroAlloc",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyShadow",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ModifyMesh$1",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.Outline",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ModifyMesh$1",
                         "excluded": false
                     }
                 ]

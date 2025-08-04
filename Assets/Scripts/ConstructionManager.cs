@@ -6,12 +6,14 @@ using UnityEngine.UI;
 public class ConstructionManager : MonoBehaviour
 {
     public float timeScale = 1;
+
     [System.Serializable]
     public class BuildOption
     {
         public string optionName;
         public GameObject prefab;               // Vật được xây
         public GameObject placementParticle;    // Hiệu ứng particle khi đặt
+        public Sprite icon;                     // Icon hiển thị trên button
     }
 
     [System.Serializable]
@@ -155,7 +157,7 @@ public class ConstructionManager : MonoBehaviour
     {
         BuildLocation loc = buildLocations[currentLocationIndex];
 
-        // ✅ BẮT BUỘC QUAY MẶT VỀ CAMERA
+        // ✅ Quay mặt về camera
         FaceCamera();
 
         // ✅ Hiệu ứng tại vị trí đặt vật
@@ -164,10 +166,15 @@ public class ConstructionManager : MonoBehaviour
             currentEffect = Instantiate(placementEffectPrefab, loc.buildPosition, Quaternion.identity);
         }
 
-        // ✅ Cập nhật UI lựa chọn
+        // ✅ Cập nhật UI: tên và icon
         optionText1.text = loc.option1.optionName;
         optionText2.text = loc.option2.optionName;
 
+        // Gán icon cho button
+        SetButtonIcon(optionButton1, loc.option1.icon);
+        SetButtonIcon(optionButton2, loc.option2.icon);
+
+        // ✅ Gán sự kiện chọn
         optionButton1.onClick.RemoveAllListeners();
         optionButton1.onClick.AddListener(() => OnOptionSelected(loc.option1));
 
@@ -176,7 +183,28 @@ public class ConstructionManager : MonoBehaviour
 
         optionPanel.SetActive(true);
     }
-[ContextMenu("FaceCamera")]
+
+    // Hàm tiện ích: gán icon cho button và đảm bảo hiển thị rõ
+    void SetButtonIcon(Button button, Sprite icon)
+    {
+        if (icon != null)
+        {
+            Image buttonImage = button.transform.GetChild(1).GetComponent<Image>();
+            if (buttonImage != null)
+            {
+                buttonImage.sprite = icon;
+                buttonImage.preserveAspect = true;
+                buttonImage.color = Color.white; // Đảm bảo không bị mờ/tint
+            }
+        }
+        else
+        {
+            // Có thể đặt icon mặc định nếu muốn
+            // button.image.sprite = defaultIcon;
+        }
+    }
+
+    [ContextMenu("FaceCamera")]
     void FaceCamera()
     {
         if (mainCamera == null || player == null) return;
@@ -184,12 +212,11 @@ public class ConstructionManager : MonoBehaviour
         Vector3 toCamera = mainCamera.transform.position - player.position;
         toCamera.y = 0; // Chỉ xoay ngang
 
-        if (toCamera.sqrMagnitude < 0.01f) return; // quá gần
+        if (toCamera.sqrMagnitude < 0.01f) return;
 
-        Quaternion targetRotation = Quaternion.LookRotation(toCamera); // quay mặt về camera
+        Quaternion targetRotation = Quaternion.LookRotation(toCamera);
         player.rotation = targetRotation;
 
-        // Debug: kiểm tra hướng
         Debug.DrawRay(player.position, toCamera.normalized * 3f, Color.green, 2f);
     }
 
@@ -227,7 +254,7 @@ public class ConstructionManager : MonoBehaviour
         if (selectedOption.placementParticle != null)
         {
             GameObject particle = Instantiate(selectedOption.placementParticle, loc.buildPosition, Quaternion.identity);
-            Destroy(particle, 5f); // tự hủy sau 5s
+            Destroy(particle, 5f);
         }
 
         // 5. Xóa hiệu ứng nhấp nháy
@@ -237,14 +264,15 @@ public class ConstructionManager : MonoBehaviour
             currentEffect = null;
         }
 
-        // 6. Chờ animation xây xong (2s)
+        // 6. Chờ 2s sau khi xây
         yield return new WaitForSeconds(2f);
 
         // 7. Sang vị trí tiếp theo
         currentLocationIndex++;
         if (currentLocationIndex >= buildLocations.Count-1)
         {
-            LunaManager.ins.ShowEndCard();
+            Debug.Log("🏁 Đã hoàn thành tất cả vị trí!");
+            LunaManager.ins.ShowEndCard(); // Gọi end card
         }
         StartMovingToNextLocation();
     }
