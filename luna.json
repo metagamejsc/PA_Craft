@@ -2,7 +2,7 @@
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29429,
-    "creativeName": "MOC_V10_AnhPP_ToiNV",
+    "creativeName": "MOC_V11_AnhPP_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -2728,10 +2728,6 @@
             },
             {
                 "name": "UnityEngine.DefaultExecutionOrder",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.DynamicGI",
                 "excluded": true
             },
             {
@@ -20178,7 +20174,7 @@
                     },
                     {
                         "name": "customReflection#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "customReflection#set",
@@ -20186,7 +20182,7 @@
                     },
                     {
                         "name": "defaultReflectionMode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "defaultReflectionMode#set",
@@ -26266,6 +26262,14 @@
                     },
                     {
                         "name": "islandRadius#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnSpecialTreeOnIsland2",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnTreeAtPosition",
                         "excluded": false
                     }
                 ]
@@ -35875,6 +35879,42 @@
                     {
                         "name": "OnTriggerEnter",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "ButtonSound",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.DynamicGI",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "UpdateEnvironment",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BakeReflectionsCubemap",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BakeLightingCubemap",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateEnvironmentLighting",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateSkyboxMaterial",
+                        "excluded": true
                     }
                 ]
             }

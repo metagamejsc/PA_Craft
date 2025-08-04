@@ -50,13 +50,91 @@ public class TerrainGenerator : MonoBehaviour
         Invoke(nameof(UpdateWallCollider), 1f);
         Invoke(nameof(CreateIslandTriggerCollider), 1.5f);
         OnPlayerEnterIsland2 += PlayerEnteredIsland2;
+        
+        Invoke(nameof(SpawnSpecialTreeOnIsland2), 0.5f); // Chờ chút để chunk được sinh
     }
 
     private void Awake()
     {
         ins = this;
     }
+    void SpawnSpecialTreeOnIsland2()
+    {
+        SpawnTreeAtPosition(island2Center.x, island2Center.y);
+    }
+void SpawnTreeAtPosition(int x, int z)
+{
+    // Tìm chunk chứa tọa độ (x, z)
+    int chunkX = Mathf.FloorToInt((float)x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+    int chunkZ = Mathf.FloorToInt((float)z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
+    if (!chunks.ContainsKey(new ChunkPos(chunkX, chunkZ)))
+    {
+        Debug.LogWarning($"Không thể trồng cây tại ({x}, {z}) – chunk chưa được sinh.");
+        return;
+    }
+
+    TerrainChunk chunk = chunks[new ChunkPos(chunkX, chunkZ)];
+
+    // Tính tọa độ tương đối trong chunk
+    int localX = x - chunkX;
+    int localZ = z - chunkZ;
+
+    // Tìm độ cao mặt đất tại vị trí này
+    int y = TerrainChunk.chunkHeight - 2;
+    while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
+        y--;
+    y++; // vị trí trên mặt đất
+
+    // Kiểm tra loại block dưới chân (phải là Grass hoặc Dirt)
+    BlockType ground = GetBlockType(x, y - 1, z);
+    if (ground != BlockType.Grass && ground != BlockType.Dirt)
+    {
+        Debug.LogWarning($"Không thể trồng cây tại ({x}, {y - 1}, {z}) – không phải mặt đất.");
+        return;
+    }
+
+    // Trồng thân cây (cao hơn bình thường một chút để nổi bật)
+    int treeHeight = 8; // Cây cao hơn bình thường
+    for (int j = 0; j < treeHeight; j++)
+    {
+        if (InBounds(localX, y + j, localZ))
+            chunk.blocks[localX, y + j, localZ] = BlockType.Trunk;
+    }
+
+    // Tán lá – dạng hình cầu nhẹ
+    int leavesStart = y + treeHeight - 3;
+    for (int layer = 0; layer < 4; layer++)
+    {
+        int radius = 3 - layer; // Tán thu nhỏ dần theo độ cao
+        int layerY = leavesStart + layer;
+        for (int lx = -radius; lx <= radius; lx++)
+        {
+            for (int lz = -radius; lz <= radius; lz++)
+            {
+                if (Mathf.Abs(lx) + Mathf.Abs(lz) <= radius + 1)
+                {
+                    int leafX = localX + lx;
+                    int leafZ = localZ + lz;
+                    if (InBounds(leafX, layerY, leafZ) && chunk.blocks[leafX, layerY, leafZ] == BlockType.Air)
+                        chunk.blocks[leafX, layerY, leafZ] = BlockType.Leaves;
+                }
+            }
+        }
+    }
+
+    // Lá trên cùng
+    if (InBounds(localX, y + treeHeight, localZ))
+        chunk.blocks[localX, y + treeHeight, localZ] = BlockType.Leaves;
+
+    // Cập nhật lại mesh của chunk này
+    chunk.BuildMesh();
+    WaterChunk waterChunk = chunk.GetComponentInChildren<WaterChunk>();
+    waterChunk.SetLocs(chunk.blocks);
+    waterChunk.BuildMesh();
+
+    Debug.Log($"Đã trồng một cái cây đặc biệt tại trung tâm đảo 2: ({x}, {y}, {z})");
+}
     public void SpawnObjectNearPlayerAvoidTrees()
     {
         for (int attempt = 0; attempt < 20; attempt++) // thử tối đa 20 lần

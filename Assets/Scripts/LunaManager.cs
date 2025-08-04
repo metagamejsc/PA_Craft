@@ -16,6 +16,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Độ đa dạng địa hình")]public float noiseIntensity=10;
     [LunaPlaygroundField("Độ cao mặt đất")]public float landNoiseScale=0.8f;
     [LunaPlaygroundField("Số lượng cây")] public int treeCount=20;
+    
     [LunaPlaygroundField("Độ dày của tường")] public int wallThickness=5;
     [LunaPlaygroundField("Khoảng cách giữa 2 đảo")] public int rangeBetweenIsland=10;
     [LunaPlaygroundField("bán kính đảo")] public int isLandRadius=5;
