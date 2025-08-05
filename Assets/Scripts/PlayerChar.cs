@@ -14,7 +14,7 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-        SearchForEnemy();
+        //SearchForEnemy();
         attackCooldown -= Time.deltaTime;
         if (SwordObject.activeSelf)
         {
