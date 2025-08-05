@@ -31,6 +31,7 @@ public class TilePos
     {
         {Tile.Dirt, new TilePos(0,0)},
         {Tile.Grass, new TilePos(1,0)},
+        {Tile.TNT, new TilePos(1,1)},
         {Tile.GrassSide, new TilePos(0,1)},
         {Tile.Stone, new TilePos(0,2)},
         {Tile.TreeSide, new TilePos(0,4)},
@@ -44,4 +45,4 @@ public class TilePos
     };
 }
 
-public enum Tile {Dirt, Grass, GrassSide, Stone, TreeSide, TreeCX, Leaves,Iron, PlankBrich, Brick, Glass, Empty}
+public enum Tile {Dirt, Grass, GrassSide, Stone, TreeSide, TreeCX, Leaves,Iron, PlankBrich, Brick, Glass,TNT, Empty}

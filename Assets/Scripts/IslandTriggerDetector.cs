@@ -15,7 +15,6 @@ public class IslandTriggerDetector : MonoBehaviour
             particleSystem.transform.position=other.transform.position+other.transform.forward*2;
             particleSystem.Play();
             AudioManager.ins.PlayFireworkSound();
-            terrainGenerator?.OnPlayerEnterIsland2?.Invoke();
             // Hoặc gọi trực tiếp hàm
             // terrainGenerator?.PlayerEnteredIsland2();
             

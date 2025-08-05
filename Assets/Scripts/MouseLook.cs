@@ -20,6 +20,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public List<MatterialType> matterialTypes = new List<MatterialType>();
 
     public Inventory inv;
+    public ParticleSystem tntExplosionEffect; // Hiệu ứng nổ TNT
     public GameObject debrisPrefab; // Drag DebrisPiece prefab vào đây
     public int debrisCountPerHit = 20; // Số lượng mảnh vụn sinh ra mỗi lần mining
 
@@ -50,7 +51,6 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         //camera's x rotation (look up and down)
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
         cameraMain.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
 
         //mx = Input.GetAxis("Mouse X");
@@ -336,97 +336,166 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     }
 
     public void PlaceBlock2()
+{
+    MouseLook.ins.onClick?.Invoke();
+
+    RaycastHit hitInfo;
+    if (Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
     {
-        MouseLook.ins.onClick?.Invoke();
+        Vector3 pointInTargetBlock = hitInfo.point + posCam.transform.forward * 0.01f;
 
-        RaycastHit hitInfo;
-        if (Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
+        // Xác định chunk
+        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+
+        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
+        if (!TerrainGenerator.chunks.TryGetValue(cp, out TerrainChunk tc))
+            return;
+
+        // Tính index khối bị bắn trúng
+        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX + 1;
+        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
+        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ + 1;
+
+        // ✅ KIỂM TRA NẾU LÀ KHỐI TNT
+        if (InBounds(bix, biy, biz, tc.blocks) && tc.blocks[bix, biy, biz] == BlockType.TNT)
         {
-            Vector3 pointInTargetBlock = hitInfo.point + posCam.transform.forward * 0.01f;
+            tc.blocks[bix, biy, biz] = BlockType.Air;
+            ExplodeTNT(chunkPosX + bix - 1, biy, chunkPosZ + biz - 1);
+            return; // Không đặt block
+        }
 
-            // Xác định chunk
-            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
-            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+        // Nếu không phải TNT, tiếp tục logic đặt block như cũ
 
-            ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
-            TerrainChunk tc = TerrainGenerator.chunks[cp];
+        // Kiểm tra nếu khối bị bắn trúng là Empty
+        if (InBounds(bix, biy, biz, tc.blocks) && tc.blocks[bix, biy, biz] == BlockType.Empty)
+        {
+            Vector3 blockWorldPos = new Vector3(chunkPosX + bix - 1, biy, chunkPosZ + biz - 1);
 
-            // Tính index khối bị bắn trúng
-            int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX + 1;
-            int biy = Mathf.FloorToInt(pointInTargetBlock.y);
-            int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ + 1;
-
-            // Kiểm tra xem khối này có phải là Empty hay không
-            if (tc.blocks[bix, biy, biz] == BlockType.Empty)
-            {
-                // Tính tọa độ thế giới của khối sẽ được đặt
-                Vector3 blockWorldPos = new Vector3(
-                    chunkPosX + bix - 1, // -1 do padding
-                    biy,
-                    chunkPosZ + biz - 1 // -1 do padding
-                );
-
-                // Kiểm tra nếu vị trí đặt block trùng với vị trí player đang đứng
-                if (IsPositionOccupiedByPlayer(blockWorldPos))
-                {
-                    return; // Không đặt block nếu trùng vị trí player
-                }
-
-                //LunaManager.ins.CheckClickShowEndCard();
-                AudioManager.ins.PlaySoundBuild();
-                tc.blocks[bix, biy, biz] = inv.GetCurBlock();
-                tc.BuildMesh();
-                inv.ReduceCur();
+            if (IsPositionOccupiedByPlayer(blockWorldPos))
                 return;
-            }
 
-            // Nếu không phải empty -> đặt khối bên cạnh theo hướng mặt tiếp xúc
-            if (inv.CanPlaceCur())
-            {
-                // Lấy normal của mặt va chạm
-                Vector3 normal = hitInfo.normal;
+            AudioManager.ins.PlaySoundBuild();
+            tc.blocks[bix, biy, biz] = inv.GetCurBlock();
+            tc.BuildMesh();
+            inv.ReduceCur();
+            return;
+        }
 
-                // Dịch chuyển theo hướng normal 1 đơn vị để chọn khối kế bên
-                Vector3 adjacentPoint = hitInfo.point + normal * 0.5f;
+        // Nếu không phải Empty, đặt block vào khối kề bên (theo normal)
+        if (inv.CanPlaceCur())
+        {
+            Vector3 normal = hitInfo.normal;
+            Vector3 adjacentPoint = hitInfo.point + normal * 0.5f;
 
-                // Tính lại chunk và index khối kế bên
-                int adjChunkPosX = Mathf.FloorToInt(adjacentPoint.x / TerrainChunk.chunkWidth) *
-                                   TerrainChunk.chunkWidth;
-                int adjChunkPosZ = Mathf.FloorToInt(adjacentPoint.z / TerrainChunk.chunkWidth) *
-                                   TerrainChunk.chunkWidth;
+            int adjChunkPosX = Mathf.FloorToInt(adjacentPoint.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+            int adjChunkPosZ = Mathf.FloorToInt(adjacentPoint.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
-                ChunkPos adjCp = new ChunkPos(adjChunkPosX, adjChunkPosZ);
+            ChunkPos adjCp = new ChunkPos(adjChunkPosX, adjChunkPosZ);
+            if (!TerrainGenerator.chunks.TryGetValue(adjCp, out TerrainChunk adjTc))
+                return;
 
-                // Nếu chunk không tồn tại, thoát (có thể sinh ra chunk ở đây nếu cần)
-                if (!TerrainGenerator.chunks.TryGetValue(adjCp, out TerrainChunk adjTc))
-                    return;
+            int adjBix = Mathf.FloorToInt(adjacentPoint.x) - adjChunkPosX + 1;
+            int adjBiy = Mathf.FloorToInt(adjacentPoint.y);
+            int adjBiz = Mathf.FloorToInt(adjacentPoint.z) - adjChunkPosZ + 1;
 
-                int adjBix = Mathf.FloorToInt(adjacentPoint.x) - adjChunkPosX + 1;
-                int adjBiy = Mathf.FloorToInt(adjacentPoint.y);
-                int adjBiz = Mathf.FloorToInt(adjacentPoint.z) - adjChunkPosZ + 1;
+            Vector3 adjBlockWorldPos = new Vector3(adjChunkPosX + adjBix - 1, adjBiy, adjChunkPosZ + adjBiz - 1);
 
-                // Tính tọa độ thế giới của khối sẽ được đặt
-                Vector3 adjBlockWorldPos = new Vector3(
-                    adjChunkPosX + adjBix - 1, // -1 do padding
-                    adjBiy,
-                    adjChunkPosZ + adjBiz - 1 // -1 do padding
-                );
+            if (IsPositionOccupiedByPlayer(adjBlockWorldPos))
+                return;
 
-                // Kiểm tra nếu vị trí đặt block trùng với vị trí player đang đứng
-                if (IsPositionOccupiedByPlayer(adjBlockWorldPos))
-                {
-                    return; // Không đặt block nếu trùng vị trí player
-                }
-
-                AudioManager.ins.PlaySoundBuild();
-                LunaManager.ins.CheckClickShowEndCard();
-                adjTc.blocks[adjBix, adjBiy, adjBiz] = inv.GetCurBlock();
-                adjTc.BuildMesh();
-                inv.ReduceCur();
-            }
+            AudioManager.ins.PlaySoundBuild();
+            LunaManager.ins.CheckClickShowEndCard();
+            adjTc.blocks[adjBix, adjBiy, adjBiz] = inv.GetCurBlock();
+            adjTc.BuildMesh();
+            inv.ReduceCur();
         }
     }
+}
+    private void ExplodeTNT(int centerX, int centerY, int centerZ)
+    {
+        int explosionRadius = 4; // Bán kính nổ (theo khối)
+        int radius = Mathf.CeilToInt(explosionRadius);
 
+        List<TerrainChunk> updatedChunks = new List<TerrainChunk>();
+
+        for (int x = -radius; x <= radius; x++)
+        {
+            for (int y = -radius; y <= radius; y++)
+            {
+                for (int z = -radius; z <= radius; z++)
+                {
+                    if (x * x + y * y + z * z > explosionRadius * explosionRadius)
+                        continue;
+
+                    int worldX = centerX + x;
+                    int worldY = centerY + y;
+                    int worldZ = centerZ + z;
+
+                    // Không phá hủy TNT hoặc Glass
+                    BlockType block = GetBlockTypeGlobal(worldX, worldY, worldZ);
+                    if (block == BlockType.Air || block == BlockType.Glass || block == BlockType.TNT)
+                        continue;
+
+                    // Xóa block
+                    SetBlockGlobal(worldX, worldY, worldZ, BlockType.Air);
+                }
+            }
+        }
+
+        // Cập nhật mesh các chunk bị ảnh hưởng
+        for (int x = centerX - radius; x <= centerX + radius; x += TerrainChunk.chunkWidth)
+        {
+            for (int z = centerZ - radius; z <= centerZ + radius; z += TerrainChunk.chunkWidth)
+            {
+                int chunkX = Mathf.FloorToInt(x / (float)TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+                int chunkZ = Mathf.FloorToInt(z / (float)TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+                ChunkPos cp = new ChunkPos(chunkX, chunkZ);
+
+                if (TerrainGenerator.chunks.TryGetValue(cp, out TerrainChunk chunk) && !updatedChunks.Contains(chunk))
+                {
+                    chunk.BuildMesh();
+                    updatedChunks.Add(chunk);
+                }
+            }
+        }
+
+        // Âm thanh nổ
+        AudioManager.ins.PlaySoundTNT(); // Nếu có
+        Debug.Log("💥 TNT đã nổ tại: " + new Vector3(centerX, centerY, centerZ));
+        var a=Instantiate(tntExplosionEffect, new Vector3(centerX, centerY, centerZ), Quaternion.identity);
+        Destroy(a,2f);
+    }
+    private BlockType GetBlockTypeGlobal(int x, int y, int z)
+    {
+        int chunkX = Mathf.FloorToInt(x / (float)TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+        int chunkZ = Mathf.FloorToInt(z / (float)TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+        int localX = x - chunkX;
+        int localZ = z - chunkZ;
+
+        if (localX < 0) { chunkX -= TerrainChunk.chunkWidth; localX += TerrainChunk.chunkWidth; }
+        if (localZ < 0) { chunkZ -= TerrainChunk.chunkWidth; localZ += TerrainChunk.chunkWidth; }
+
+        ChunkPos cp = new ChunkPos(chunkX, chunkZ);
+        if (TerrainGenerator.chunks.TryGetValue(cp, out TerrainChunk chunk))
+        {
+            if (InBounds(localX, y, localZ, chunk.blocks))
+            {
+                return chunk.blocks[localX, y, localZ];
+            }
+        }
+        return BlockType.Air;
+    }
+    private void SetBlockGlobal(int x, int y, int z, BlockType type)
+    {
+        HouseGenerator.SetBlockGlobal(TerrainGenerator.chunks, x, y, z, type, useRandom: false);
+    }
+    private bool InBounds(int x, int y, int z, BlockType[,,] blocks)
+    {
+        return x >= 0 && x < TerrainChunk.chunkWidth &&
+               y >= 0 && y < TerrainChunk.chunkHeight &&
+               z >= 0 && z < TerrainChunk.chunkWidth;
+    }
     /// <summary>
     /// Kiểm tra xem vị trí khối có bị người chơi chiếm dụng không
     /// </summary>
