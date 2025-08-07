@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -50,7 +51,7 @@ public class ConstructionManager : MonoBehaviour
     // === UI ===
     public GameObject optionPanel;
     public Button optionButton1, optionButton2;
-    public Text optionText1, optionText2;
+    public TextMeshProUGUI optionText1, optionText2;
 
     // === Trạng thái ===
     private int currentLocationIndex = 0;
@@ -136,14 +137,27 @@ public class ConstructionManager : MonoBehaviour
         playerAnimator.SetBool("IsMoving", true);
 
         BuildLocation loc = buildLocations[currentLocationIndex];
-        StartCoroutine(MoveAndRotateCamera(loc.cameraPosition, loc.cameraRotation));
+        
+        StartCoroutine(MoveAndRotateCamera(loc.cameraPosition, loc.cameraRotation,currentLocationIndex==0?null:buildLocations[currentLocationIndex-1]));
     }
 
-    IEnumerator MoveAndRotateCamera(Vector3 targetPos, Vector3 targetEulerAngles)
+    IEnumerator MoveAndRotateCamera(Vector3 targetPos, Vector3 targetEulerAngles, BuildLocation lastpos = null)
     {
         Quaternion targetRotation = Quaternion.Euler(targetEulerAngles);
+        /*if (lastpos!=null)
+        {
+            Quaternion targetPlayer = Quaternion.Euler(player.rotation.eulerAngles.x, targetEulerAngles.y, player.rotation.eulerAngles.z);
+            float t0 = 0;
+            while (t0 < 2f)
+            {
+                t0 += Time.deltaTime;
+                mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, lastpos.playerDestination+new Vector3(0,1.5f,0), t0);
+                mainCamera.transform.rotation = Quaternion.Slerp(mainCamera.transform.rotation, targetPlayer, t0);
+                yield return null;
+            }
+        }*/
+        
         float t = 0;
-
         while (t < 1f)
         {
             t += Time.deltaTime * timeScale;
@@ -189,7 +203,7 @@ public class ConstructionManager : MonoBehaviour
     {
         if (icon != null)
         {
-            Image buttonImage = button.transform.GetChild(1).GetComponent<Image>();
+            Image buttonImage = button.transform.GetChild(0).GetComponent<Image>();
             if (buttonImage != null)
             {
                 buttonImage.sprite = icon;
@@ -222,6 +236,7 @@ public class ConstructionManager : MonoBehaviour
 
     void OnOptionSelected(BuildOption selectedOption)
     {
+        AudioManager.ins.PlaySoundBuild();
         BuildLocation loc = buildLocations[currentLocationIndex];
         optionPanel.SetActive(false);
 

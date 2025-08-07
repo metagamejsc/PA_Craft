@@ -14,6 +14,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip bombSound;
     public AudioClip loseSound;
     public AudioClip bgSound;
+    public AudioClip walkSound;
     public AudioClip buildSound;
     public AudioClip clickSound;
 
@@ -50,6 +51,10 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundBuild()
     {
         sound.PlayOneShot(buildSound,1);
+    }
+    public void PlaySoundWalk()
+    {
+        sound.PlayOneShot(walkSound,1);
     }
     public void PlayMusicLose()
     {
