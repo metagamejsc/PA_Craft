@@ -28,6 +28,32 @@ public class ZombieChar : BaseCharacter
         base.Update();
     }
 
+   
+    protected override void HandleMovement()
+    {
+        if (target==null)
+        {
+            return;
+        }
+        
+        if (isDead)
+        {
+            return;
+        }
+
+        if (isFindingEnemy==false)
+        {
+            return;
+        }
+        
+        if (target != null)
+        {
+            transform.rotation = Quaternion.LookRotation(target.position - transform.position);
+            
+        }
+    }
+    
+
     public override void HandleAttack()
     {
         if (target==null)

@@ -74,7 +74,6 @@ public class TerrainModifier : MonoBehaviour
 
     public void PlaceBlock()
     {
-        MouseLook.ins.onClick?.Invoke();
         RaycastHit hitInfo;
         if(Physics.Raycast(transform.position, transform.forward, out hitInfo, maxDist, groundLayer))
         {

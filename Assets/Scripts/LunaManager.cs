@@ -25,7 +25,7 @@ public class LunaManager : MonoBehaviour
     }
     public Button[] lstBtnInstall;
     public Button btnCampFire;
-    public GameObject EndCard, winCard, loseCard;
+    public GameObject EndCard, loseCard;
     
 
 
@@ -39,7 +39,7 @@ public class LunaManager : MonoBehaviour
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
         EndCard.SetActive(false);
-        winCard.SetActive(false);
+       
         loseCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
@@ -86,7 +86,7 @@ public class LunaManager : MonoBehaviour
 
     public void EnableButton()
     {
-        winCard.GetComponent<Button>().enabled = true;
+       
     }
     public void ShowEndCard()
     {
@@ -101,7 +101,7 @@ public class LunaManager : MonoBehaviour
         isCretivePause = true;
         Invoke(nameof(EnableButton),2f);
         AudioManager.ins.PlaySoundReward();
-        winCard.SetActive(true);
+        
         Debug.Log("Show winCard");
         Luna.Unity.LifeCycle.GameEnded();
     }
