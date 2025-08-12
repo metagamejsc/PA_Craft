@@ -17,12 +17,8 @@ public class SoundChar : MonoBehaviour
         {
             return;
         }
-        var a = Random.Range(0, 30);
-        if (a<5)
-        {
-            sound.clip = idleSounds[Random.Range(0, idleSounds.Length)];
-            sound.Play();
-        }
+        sound.clip = idleSounds[Random.Range(0, idleSounds.Length)];
+        sound.Play();
     }
     public void PlayAttackSound()
     {

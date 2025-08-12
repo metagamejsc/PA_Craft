@@ -36,9 +36,9 @@ public class TutorialBuildBlock : MonoBehaviour
                 HideStep();
             });
         }
-        ShowStep();
-        GameController.ins.SetIdWeapon(0);
-        HideStep();
+        //ShowStep();
+        //GameController.ins.SetIdWeapon(0);
+        //HideStep();
         //StartCoroutine(IeSpawnStep());
     }
 

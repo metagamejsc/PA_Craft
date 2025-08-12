@@ -62,7 +62,7 @@ public class PlayerChar : BaseCharacter
 
     public void CraftWeapon(int weaponId = 0)
     {
-        lstWeapons[weaponId].SetActive(true);
+        //lstWeapons[weaponId].SetActive(true);
         //SwordObject.SetActive(true);
     }
     public override void AtkCompleted()

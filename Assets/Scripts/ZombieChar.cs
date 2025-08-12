@@ -9,6 +9,7 @@ public class ZombieChar : BaseCharacter
 {
     public Material material;
     public SkinnedMeshRenderer[] lstMaterials;
+    public AnimationClip holdHandAnimationClip;
     protected override void Start()
     {
         base.Start();
@@ -27,31 +28,7 @@ public class ZombieChar : BaseCharacter
         }
         base.Update();
     }
-
-   
-    protected override void HandleMovement()
-    {
-        if (target==null)
-        {
-            return;
-        }
-        
-        if (isDead)
-        {
-            return;
-        }
-
-        if (isFindingEnemy==false)
-        {
-            return;
-        }
-        
-        if (target != null)
-        {
-            transform.rotation = Quaternion.LookRotation(target.position - transform.position);
-            
-        }
-    }
+    
     
 
     public override void HandleAttack()
@@ -66,7 +43,8 @@ public class ZombieChar : BaseCharacter
         }
         if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin)
         {
-            isDead = true;
+            GameObject.FindObjectOfType<TutorialBuildBlock>().ShowStep();
+            /*isDead = true;
             rigidbody.isKinematic = true;
             var targetNew = target.transform.position - transform.forward*2;
             transform.DOMoveY(targetNew.y+3, attackCooldown/2)
@@ -84,11 +62,18 @@ public class ZombieChar : BaseCharacter
                 
             });
             animator.SetFloat("AttackSpeed", atkAnimationClip.length/ attackCooldown);  
-            animator.SetTrigger("Attack");
+            animator.SetTrigger("Attack");*/
             // Reset thời gian hồi chiêu
         }
     }
-
+    public void HandleHoldHand()
+    {
+        isDead = true;
+        rigidbody.isKinematic = true;
+        rigidbody.useGravity = false;
+        capsuleCollider.enabled = false;
+        animator.Play(holdHandAnimationClip.name, 0, 0f);
+    }
     protected override void SearchForEnemy()
     {
         if (isDead)
