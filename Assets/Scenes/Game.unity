@@ -975,9 +975,9 @@ MonoBehaviour:
   countDropFinal: 20
   count: 0
   timeEndCreative: 99
-  noiseIntensity: 0
-  landNoiseScale: 0
-  treeCount: 0
+  noiseIntensity: 5
+  landNoiseScale: 5
+  treeCount: 20
   imgDotDiem: {fileID: 0}
   isCretivePause: 0
   lstBtnInstall:
@@ -1038,6 +1038,12 @@ MonoBehaviour:
   stoneNoiseScale: 1
   treeNoiseScale: 9
   noiseIntensity: 3
+  flattenAroundPlayer: 1
+  flatRadius: 10
+  flatBlend: 2
+  flatHeightOffset: 5
+  noCavesInFlat: 0
+  noTreesInFlat: 0
 --- !u!4 &220957753
 Transform:
   m_ObjectHideFlags: 0
@@ -3634,7 +3640,7 @@ Camera:
     height: 1
   near clip plane: 0.43
   far clip plane: 1000
-  field of view: 41
+  field of view: 82
   orthographic: 0
   orthographic size: 5
   m_Depth: -1

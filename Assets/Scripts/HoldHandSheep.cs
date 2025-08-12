@@ -48,6 +48,7 @@ public class HoldHandSheep : MonoBehaviour
         StopAllCoroutines();
         sheep.transform.parent = null;
         sheep.GetComponent<Rigidbody>().isKinematic = false;
+        sheep.GetComponentInChildren<AudioSource>().mute = true;
         sheep.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * fireSpeed, ForceMode.Impulse);
     }
 }
