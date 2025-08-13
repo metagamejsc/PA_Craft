@@ -106,7 +106,7 @@ public class TerrainGenerator : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(0.5f);
-            while (!GameController.ins.isPauseGame && !LunaManager.ins.isCretivePause)
+            while (!LunaManager.ins.isCretivePause)
             {
                 yield return new WaitForSeconds(2f);
                 Vector3 playerPos = player.position;
