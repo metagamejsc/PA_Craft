@@ -226,7 +226,7 @@ public class TerrainGenerator : MonoBehaviour
         float baseStoneHeight = TerrainChunk.chunkHeight * 0.25f + stoneHeightMap;
 
         // === FLAT AREA BLEND ===
-        if (flattenAroundPlayer && player != null)
+        if (/*flattenAroundPlayer &&*/ player != null)
         {
             // Lấy chiều cao phẳng tham chiếu theo noise tại vị trí player (giữ cảm giác tự nhiên)
             float ps1 = noise.GetSimplex(player.position.x * landNoiseScale, player.position.z * landNoiseScale) * noiseIntensity;
@@ -359,7 +359,7 @@ public class TerrainGenerator : MonoBehaviour
             if (tooClose) continue;
 
             // Không trồng cây trong vùng phẳng quanh player
-            if (noTreesInFlat && flattenAroundPlayer && player != null)
+            if (noTreesInFlat /*&& flattenAroundPlayer*/ && player != null)
             {
                 float worldX = x + xPos;
                 float worldZ = z + zPos;

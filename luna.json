@@ -2,7 +2,7 @@
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29429,
-    "creativeName": "MOC_V08_AnhPP_ToiNV",
+    "creativeName": "MOC_V13_AnhPP_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -7935,10 +7935,6 @@
             },
             {
                 "name": "IceProjectile",
-                "excluded": true
-            },
-            {
-                "name": "IceSpike",
                 "excluded": true
             },
             {
@@ -22119,7 +22115,7 @@
                     },
                     {
                         "name": "useGravity#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "interpolation#get",
@@ -28843,7 +28839,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RefreshStyle",
@@ -30713,7 +30709,7 @@
                     },
                     {
                         "name": "ResizeMeshInfo",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResizeMeshInfo$1",
@@ -33681,7 +33677,7 @@
                     },
                     {
                         "name": "GetState$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetMotion",
@@ -33923,7 +33919,7 @@
                     },
                     {
                         "name": "Play$4",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Play$1",
@@ -34848,17 +34844,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "HandleMovement",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "IronBlock",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "OnTriggerEnter",
+                        "name": "HandleHoldHand",
                         "excluded": false
                     }
                 ]
@@ -35978,36 +35964,6 @@
                 ]
             },
             {
-                "className": "IceGun",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ShootTowardCenter",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
                 "className": "LaserGun",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -36125,6 +36081,66 @@
                     },
                     {
                         "name": "ctor",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "HoldHandSheep",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartHoldHand",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartRotatePlayer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RotatePlayer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopRotatePlayer",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "TwoFingerTouchController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerDown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerUp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CheckAndStartHold",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CheckAndStopHold",
                         "excluded": false
                     }
                 ]

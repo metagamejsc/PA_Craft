@@ -47,11 +47,11 @@ public class TwoFingerTouchController : MonoBehaviour, IPointerDownHandler, IPoi
     {
         // Khi thả, kiểm tra xem ngón tay ban đầu nhấn vào cái gì
         // Dùng eventData.pointerPress để biết nút nào được nhấn ban đầu
-        if (eventData.pointerPress == touchZone1.gameObject)
+        if (eventData.pointerPress != touchZone1.gameObject)
         {
             isTouching1 = false;
         }
-        if (eventData.pointerPress == touchZone2.gameObject)
+        if (eventData.pointerPress != touchZone2.gameObject)
         {
             isTouching2 = false;
         }
@@ -61,7 +61,7 @@ public class TwoFingerTouchController : MonoBehaviour, IPointerDownHandler, IPoi
 
     private void Update()
     {
-        if (txt1.gameObject.activeSelf)
+        if (txt2.gameObject.activeSelf)
         {
             if (timeCurrent>0)
             {
@@ -72,6 +72,11 @@ public class TwoFingerTouchController : MonoBehaviour, IPointerDownHandler, IPoi
                 txtTime.text = "Time left: 0.00";
                 if (LunaManager.ins.isCretivePause==false)
                 {
+                    if (isHolding)
+                    {
+                        holdHandSheep.StopRotatePlayer();
+                        isHolding = false;
+                    }
                     LunaManager.ins.ShowEndCard();
                 }
             }
