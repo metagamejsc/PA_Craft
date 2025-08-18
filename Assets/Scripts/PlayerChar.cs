@@ -35,7 +35,7 @@ public class PlayerChar : BaseCharacter
     protected override void Start()
     {
         base.Start();
-        SwordObject.SetActive(false);
+        SwordObject.SetActive(true);
         IsFindingEnemy = true;
     }
 
