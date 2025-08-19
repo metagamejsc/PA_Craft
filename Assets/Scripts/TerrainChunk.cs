@@ -5,7 +5,7 @@ using UnityEngine;
 public class TerrainChunk : MonoBehaviour
 {
     //chunk size
-    public const int chunkWidth = 48;
+    public const int chunkWidth = 10;
     public const int chunkHeight = 64;
 
     //0 = air, 1 = land

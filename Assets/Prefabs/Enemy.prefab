@@ -31,8 +31,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -11.45, y: 0.932, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 986997428732283678}
   - {fileID: 3646112027846340615}
@@ -152,7 +152,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 2
   damage: 1
-  moveSpeed: 3
+  moveSpeed: 0.1
   attackSpeed: 1
   detectionRadiusMax: 3
   detectionRadiusMin: 1
@@ -172,6 +172,15 @@ MonoBehaviour:
   - {fileID: 8640388799144071587}
   - {fileID: 4369760760153809170}
   - {fileID: 1552143548657528265}
+  moveSpeed: 3
+  idleTimeMin: 1
+  idleTimeMax: 3
+  moveTimeMin: 2
+  moveTimeMax: 5
+  detectionRadiusMin: 1
+  detectionRadiusMax: 3
+  target: {fileID: 0}
+  animator: {fileID: 1665388798910496227}
 --- !u!1 &2571615408737823837
 GameObject:
   m_ObjectHideFlags: 0
