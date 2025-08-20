@@ -10,13 +10,11 @@ public class SpawnCreeper : MonoBehaviour
     [SerializeField]GameObject creeperPrefab;
     [SerializeField]int numberOfCreepers = 5;
     public Bounds terrainBounds;
+    public Vector3 center;
 
     public void Start()
     {
         SpawnEnemy();
-        Debug.Log(terrainBounds.center + ", Size: " + terrainBounds.size);
-        Debug.Log(terrainBounds.min + ", " + terrainBounds.max + ", " + terrainBounds.extents + ", " +
-                  terrainBounds.size);
     }
 
     public void SpawnEnemy()
@@ -29,7 +27,7 @@ public class SpawnCreeper : MonoBehaviour
 
         for (int i = 0; i < numberOfCreepers; i++)
         {
-            Vector3 randomPosition = GetRandomPositionInBounds(terrainBounds);
+            Vector3 randomPosition = new Vector3(0,0.5f,0)+new Vector3(0,0.2f,0)+new Vector3(Random.Range(-0.5f,0.5f), 0, Random.Range(-0.5f, 0.5f));
             GameObject creeper = Instantiate(creeperPrefab, randomPosition, Quaternion.identity);
             creeper.transform.SetParent(transform); // Set parent to this object
             zombieChars.Add(creeper.GetComponent<ZombieChar>());

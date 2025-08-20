@@ -18,7 +18,7 @@ public class TNTObject : MonoBehaviour
     public void Explore()
     {
         // Tạo hiệu ứng nổ
-        var enemys=Physics.OverlapSphere(transform.position, 0.1f, enemyLayerMask);
+        var enemys=Physics.OverlapSphere(transform.position, 0.2f, enemyLayerMask);
         if (enemys.Length > 0)
         {
             foreach (var enemy in enemys)
@@ -35,6 +35,7 @@ public class TNTObject : MonoBehaviour
     public void AnimExplore()
     {
         AudioManager.ins.PlaySoundXixi();
+        renderer.material.DOColor(Color.red, 0.3f).SetLoops(-1, LoopType.Yoyo);
         Sequence s = DOTween.Sequence();
         s.Append(transform.DOScale(Vector3.one*0.1f, 2f).SetEase(Ease.OutBack))
             .Append(transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack))

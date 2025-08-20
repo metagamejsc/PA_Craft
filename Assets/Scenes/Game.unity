@@ -1547,10 +1547,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   creeperPrefab: {fileID: 1703777549848339777, guid: 4c3ee659094beb44396a02b94c34a086,
     type: 3}
-  numberOfCreepers: 10
+  numberOfCreepers: 15
   terrainBounds:
     m_Center: {x: 0, y: 0.5, z: 0}
     m_Extent: {x: 0.5, y: 0, z: 0.5}
+  center: {x: 0, y: 0, z: 0}
 --- !u!1 &180075940
 GameObject:
   m_ObjectHideFlags: 0
@@ -1864,7 +1865,7 @@ MonoBehaviour:
   getItemSound: {fileID: 0}
   deadSound: {fileID: 8300000, guid: 9fcd84e5f9ad31244a17b8c20bccec39, type: 3}
   fireworkSound: {fileID: 8300000, guid: d9917e52eb2a1fc49a61db0f2dbcd383, type: 3}
-  xixiSound: {fileID: 0}
+  xixiSound: {fileID: 8300000, guid: 29b8df99a36f5384e9c020edd019db30, type: 3}
   lstMoveSound:
   - {fileID: 8300000, guid: a593af0f8c4210d4f82355bfac0da9c3, type: 3}
   soundClick: []
@@ -2007,12 +2008,6 @@ MonoBehaviour:
   countDropFinal: 20
   count: 0
   timeEndCreative: 99
-  noiseIntensity: 1
-  landNoiseScale: 0.8
-  treeCount: 10
-  wallThickness: 5
-  rangeBetweenIsland: 10
-  isLandRadius: 5
   isCretivePause: 0
   txtTime: {fileID: 560094790}
   lstBtnInstall:
@@ -4523,7 +4518,6 @@ MonoBehaviour:
   ironCount: 0
   uiManager: {fileID: 0}
   startGame: {fileID: 0}
-  playerChar: {fileID: 0}
   timeActive: 0
   enemy: {fileID: 0}
   idWeapon: 0
@@ -5476,7 +5470,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: build a bridge to go to another island
+  m_text: Use TNT to destroy zombies
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 92accdf6384d46a43b6bba75ed30a657, type: 2}
   m_sharedMaterial: {fileID: 5244874072666277956, guid: 92accdf6384d46a43b6bba75ed30a657,
@@ -6638,7 +6632,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 846005836}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Inventory, Assembly-CSharp
         m_MethodName: SetCur
         m_Mode: 3
@@ -6895,7 +6889,6 @@ GameObject:
   - component: {fileID: 806270970}
   - component: {fileID: 806270969}
   - component: {fileID: 806270968}
-  - component: {fileID: 806270971}
   m_Layer: 5
   m_Name: ButtonMove
   m_TagString: Untagged
@@ -6996,21 +6989,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 806270966}
   m_CullTransparentMesh: 1
---- !u!114 &806270971
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 806270966}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bb9b1d9d5ed5d248b2fafb3bf3ca887, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystickBackground: {fileID: 806270967}
-  circleCollider2D: {fileID: 0}
-  joystickHandle: {fileID: 1329171123}
 --- !u!1 &840553638
 GameObject:
   m_ObjectHideFlags: 0
@@ -7158,7 +7136,6 @@ GameObject:
   - component: {fileID: 846005834}
   - component: {fileID: 846005833}
   - component: {fileID: 846005835}
-  - component: {fileID: 846005836}
   m_Layer: 5
   m_Name: Inventory
   m_TagString: Untagged
@@ -7253,40 +7230,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &846005836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 846005831}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38f2a499f08b6e14f8d74bd56bf25292, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  matTypes: 01000000030000000400000002000000
-  btnItems:
-  - {fileID: 283501334}
-  - {fileID: 724188300}
-  - {fileID: 1309318932}
-  - {fileID: 600948560}
-  invImgs:
-  - {fileID: 283501332}
-  - {fileID: 724188298}
-  - {fileID: 1309318930}
-  - {fileID: 600948558}
-  matImgs:
-  - {fileID: 423268063}
-  - {fileID: 711595657}
-  - {fileID: 728726130}
-  - {fileID: 47200764}
-  textCount:
-  - {fileID: 1503407899}
-  - {fileID: 1807133786}
-  - {fileID: 342774049}
-  - {fileID: 1825932738}
-  posBlock: {fileID: 0}
 --- !u!1 &861019461
 GameObject:
   m_ObjectHideFlags: 0
@@ -7559,7 +7502,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 846005836}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Inventory, Assembly-CSharp
         m_MethodName: SetCur
         m_Mode: 3
@@ -9240,8 +9183,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 0.06077856}
-  m_Center: {x: 0, y: 0, z: 0.46961072}
+  m_Size: {x: 1, y: 1.1208936, z: 0.06077856}
+  m_Center: {x: 0, y: 0.060446814, z: 0.46961072}
 --- !u!23 &1163340002
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9416,7 +9359,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -220, y: 105}
+  m_AnchoredPosition: {x: 105, y: 138}
   m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1182772750
@@ -9439,7 +9382,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Tap to place the block
+  m_text: Tap to fire TNT
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 92accdf6384d46a43b6bba75ed30a657, type: 2}
   m_sharedMaterial: {fileID: 5244874072666277956, guid: 92accdf6384d46a43b6bba75ed30a657,
@@ -9474,7 +9417,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 4
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -9630,8 +9573,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 0.06077856}
-  m_Center: {x: 0, y: 0, z: 0.46961072}
+  m_Size: {x: 1, y: 1.087225, z: 0.06077856}
+  m_Center: {x: 0, y: 0.04361251, z: 0.46961072}
 --- !u!23 &1206084560
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13577,7 +13520,6 @@ GameObject:
   - component: {fileID: 1856283647}
   - component: {fileID: 1856283646}
   - component: {fileID: 1856283648}
-  - component: {fileID: 1856283649}
   m_Layer: 5
   m_Name: CheckClick
   m_TagString: Untagged
@@ -13687,56 +13629,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 200, y: 200}
   m_EdgeRadius: 0
---- !u!114 &1856283649
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1856283644}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e940b6753c425cf47ba994799eeb313a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  playerChar: {fileID: 0}
-  blockPrefab: {fileID: 2413921364301186378, guid: a50c8ee1f21e59b4db1ca25fc6497c8e,
-    type: 3}
-  blockPrefab2: {fileID: 0}
-  timeHold: 0
-  isHold: 0
-  posCam: {fileID: 0}
-  stickGameObject: {fileID: 0}
-  ironGameObject: {fileID: 0}
-  matterialTypes:
-  - blockType: 1
-    material: {fileID: 2100000, guid: 16168c9128f923e4ea525fc653f461a8, type: 2}
-  - blockType: 2
-    material: {fileID: 2100000, guid: 747e4a7fa05d1a04299c419a7591283b, type: 2}
-  - blockType: 3
-    material: {fileID: 2100000, guid: db86ec54416e54d46ab3d855f945de12, type: 2}
-  - blockType: 4
-    material: {fileID: 2100000, guid: 554691fa3ba4c2345b245c6646f7835e, type: 2}
-  - blockType: 5
-    material: {fileID: 2100000, guid: 747e4a7fa05d1a04299c419a7591283b, type: 2}
-  - blockType: 6
-    material: {fileID: 2100000, guid: db86ec54416e54d46ab3d855f945de12, type: 2}
-  - blockType: 9
-    material: {fileID: 2100000, guid: f46caeb8c6117564d83ced698897cb9b, type: 2}
-  - blockType: 8
-    material: {fileID: 2100000, guid: 0a2f187acd0c91f43bb06ef6824af98e, type: 2}
-  - blockType: 7
-    material: {fileID: 2100000, guid: cd49eb60f948c0b4482442f431f322da, type: 2}
-  inv: {fileID: 846005836}
-  debrisPrefab: {fileID: 5637190474205562672, guid: 78e491f9dfd098847b4aa74a5eb86e2f,
-    type: 3}
-  debrisCountPerHit: 10
-  mouseSensitivity: 480
-  playerBody: {fileID: 0}
-  cameraMain: {fileID: 0}
 --- !u!1 &1856815427
 GameObject:
   m_ObjectHideFlags: 0
@@ -14217,7 +14109,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 846005836}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Inventory, Assembly-CSharp
         m_MethodName: SetCur
         m_Mode: 3

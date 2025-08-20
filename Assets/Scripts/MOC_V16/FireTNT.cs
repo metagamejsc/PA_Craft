@@ -33,7 +33,7 @@ public class FireTNT : MonoBehaviour
         {
             return;
         }
-
+        LunaManager.ins.CheckClickShowEndCard();
         var enemy = SpawnCreeper.zombieChars[UnityEngine.Random.Range(0, SpawnCreeper.zombieChars.Count)];
         var tntClone= Instantiate(tntInstance, transform);
         

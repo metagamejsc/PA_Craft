@@ -9,24 +9,17 @@ public class ZombieChar : BaseCharacter
     public SkinnedMeshRenderer[] lstMaterials;
     
     [Header("Movement")]
-    public float moveSpeed = 3f;
+    
     public float idleTimeMin = 1f;
     public float idleTimeMax = 3f;
     public float moveTimeMin = 2f;
     public float moveTimeMax = 5f;
-
-    [Header("Detection")]
-    public float detectionRadiusMin = 5f;
-    public float detectionRadiusMax = 20f; // Đảm bảo có giá trị này
-    public Transform target;
-
+    
     private bool isMovingRandomly = false;
     private Vector3 randomDirection;
     private float currentMoveTime = 0f;
     private float currentIdleTime = 0f;
-
-    public Animator animator;
-
+    
     // Biên giới terrain
     private Bounds terrainBounds;
     private bool hasBounds = false;
@@ -51,16 +44,7 @@ public class ZombieChar : BaseCharacter
 
     private void InitializeTerrainBounds()
     {
-        if (TerrainGenerator.ins != null)
-        {
-            terrainBounds = TerrainGenerator.ins.GetGeneratedTerrainBounds();
-            hasBounds = true;
-            Debug.Log($"Zombie bounds initialized: {terrainBounds.center}, Size: {terrainBounds.size}");
-        }
-        else
-        {
-            Debug.LogWarning("TerrainGenerator không tìm thấy! Zombie có thể đi ra ngoài bản đồ.");
-        }
+        
     }
 
     protected override void Update()
@@ -80,9 +64,9 @@ public class ZombieChar : BaseCharacter
     protected override void HandleMovement()
     {
         if (isDead) return;
-
+        RandomWander();
         // Nếu có target và đủ gần → đuổi theo
-        if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMax)
+        /*if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMax)
         {
             ChaseTarget();
         }
@@ -90,7 +74,7 @@ public class ZombieChar : BaseCharacter
         {
             // Không có target → di chuyển ngẫu nhiên trong bounds
             RandomWander();
-        }
+        }*/
     }
 
     private void ChaseTarget()
@@ -251,11 +235,5 @@ public class ZombieChar : BaseCharacter
     }
 
     // Gọi khi cần cập nhật bounds (nếu map mở rộng theo thời gian)
-    public void UpdateTerrainBounds()
-    {
-        if (TerrainGenerator.ins != null)
-        {
-            terrainBounds = TerrainGenerator.ins.GetGeneratedTerrainBounds();
-        }
-    }
+   
 }

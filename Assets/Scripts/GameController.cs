@@ -15,7 +15,6 @@ public class GameController : MonoBehaviour
     public int ironCount;
     public UIManager uiManager;
     public GameObject startGame;
-    public PlayerChar playerChar;
     public float timeActive;
     public GameObject enemy;
     public int idWeapon;
@@ -42,14 +41,4 @@ public class GameController : MonoBehaviour
         
     }
 
-    public void SpawnEnemy(Vector3 posSpawn)
-    {
-        enemy.transform.position = posSpawn;
-    }
-
-    public void SetIdWeapon(int id)
-    {
-        idWeapon = id;
-        playerChar.CraftWeapon();
-    }
 }
