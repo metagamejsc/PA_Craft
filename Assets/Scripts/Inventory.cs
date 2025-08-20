@@ -33,11 +33,13 @@ public class Inventory : MonoBehaviour
                 SetCur(i1);
             });
         }
+        
         AddToInventory2(BlockType.Brick, 99);
         AddToInventory2(BlockType.Stone, 99);
         AddToInventory2(BlockType.Glass, 99);
         AddToInventory2(BlockType.Trunk, 99);
-        //matImgs[0].gameObject.SetActive(true);
+        SetCur(1);
+        matImgs[1].gameObject.SetActive(true);
     }
 
     // Update is called once per frame
