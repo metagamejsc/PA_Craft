@@ -29,6 +29,7 @@ public class PlayerChar : BaseCharacter
             lstWeapons[i].SetActive(false);
         }
         //SwordObject.SetActive(false);
+        GameController.ins.SetIdWeapon(0);
         IsFindingEnemy = true;
     }
 

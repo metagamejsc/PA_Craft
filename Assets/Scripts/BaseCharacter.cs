@@ -23,7 +23,7 @@ public class BaseCharacter : MonoBehaviour
     public Transform target;
     protected Rigidbody rigidbody;
     protected CapsuleCollider capsuleCollider;
-    private static readonly int IsMoving = Animator.StringToHash("isMoving");
+    public static readonly int IsMoving = Animator.StringToHash("isMoving");
 
     public bool IsFindingEnemy
     {

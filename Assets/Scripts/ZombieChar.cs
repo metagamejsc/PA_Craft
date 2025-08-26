@@ -7,9 +7,15 @@ public class ZombieChar : BaseCharacter
 {
     public Material material;
     public SkinnedMeshRenderer[] lstMaterials;
+    public bool canTakeDamage = false;
+    public float timeMoveMax = 2f;
+    public float timeIdleMax = 2f;
+    public float timeAction = 0;
+    public bool isMoving = false;
     protected override void Start()
     {
         base.Start();
+        timeAction = 2;
         IsFindingEnemy = true;
         //health = LunaManager.ins.countDropFinal;
         for (int i = 0; i < lstMaterials.Length; i++)
@@ -19,11 +25,41 @@ public class ZombieChar : BaseCharacter
     }
     protected override void Update()
     {
-        if (GameController.ins.isPauseGame)
+        if (LunaManager.ins.isCretivePause)
         {
             return;
         }
-        base.Update();
+        //SearchForEnemy();
+        HandleMovement();
+        //HandleAttack();
+    }
+
+    protected override void HandleMovement()
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        timeAction -= Time.deltaTime;
+        if (timeAction<=0)
+        {
+            isMoving=Random.Range(0,2)==0;
+            timeAction= isMoving ? timeMoveMax : timeIdleMax;
+        }
+
+        if (!isMoving)
+        {
+            animator.SetBool(IsMoving, false);
+        }
+        else
+        {
+            Vector3 move = Vector3.right;
+            Vector3 direction = new Vector3(move.x, 0, move.z);
+            transform.rotation = Quaternion.LookRotation(direction);
+            transform.position = Vector3.MoveTowards(transform.position, transform.position+move, moveSpeed * Time.deltaTime);
+            animator.SetBool(IsMoving, true);
+        }
     }
 
     protected override void SearchForEnemy()
@@ -55,13 +91,21 @@ public class ZombieChar : BaseCharacter
         {
             return;
         }
-
+        /*if (!canTakeDamage)
+        {
+            return;
+        }*/
+        if (!isMoving)
+        {
+            return;
+        }
         detectionRadiusMax = 999;
         health -= dmg;
         
         StartCoroutine(IeNhapNhay(2f));
         if (health <= 0)
         {
+            LunaManager.ins.CheckClickShowEndCard();
             GameController.ins.EnemyDead();
             animator.SetTrigger("Dead");
             isDead = true;
