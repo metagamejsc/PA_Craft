@@ -25,6 +25,7 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
+        bgSound=LunaManager.ins.bgSound;
         PlayMusic();
     }
 

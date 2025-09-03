@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29429,
-    "creativeName": "MOC_V09_AnhPP_ToiNV",
+    "applicationID": 31160,
+    "creativeName": "BCRWV_V24_ChiTM_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -1738,10 +1738,6 @@
                 "excluded": true
             },
             {
-                "name": "System.OperationCanceledException",
-                "excluded": true
-            },
-            {
                 "name": "System.OverflowException",
                 "excluded": true
             },
@@ -1915,10 +1911,6 @@
             },
             {
                 "name": "System.Threading.Thread",
-                "excluded": true
-            },
-            {
-                "name": "System.Threading.Tasks.TaskCanceledException",
                 "excluded": true
             },
             {
@@ -7015,7 +7007,7 @@
             },
             {
                 "name": "UnityEngine.EventSystems.EventTriggerType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.EventSystems.MoveDirection",
@@ -12327,7 +12319,7 @@
                     },
                     {
                         "name": "Count#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$ICollection$IsSynchronized#get",
@@ -12355,11 +12347,11 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getItem",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$Generic$IList$1$getItem",
@@ -21441,7 +21433,7 @@
                     },
                     {
                         "name": "bounds#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isTrigger#get",
@@ -26091,14 +26083,6 @@
                     },
                     {
                         "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DesTroyBlock",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DestroyBlock",
                         "excluded": false
                     }
                 ]
@@ -34519,7 +34503,7 @@
                     },
                     {
                         "name": "Range$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Range",
@@ -34841,6 +34825,14 @@
                     },
                     {
                         "name": "IeNhapNhay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleMovement",
                         "excluded": false
                     }
                 ]
@@ -35885,7 +35877,7 @@
                 "instanceMethods": [
                     {
                         "name": "triggers#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "triggers#set",
@@ -35897,15 +35889,15 @@
                     },
                     {
                         "name": "OnPointerEnter",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnPointerExit",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDrag",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDrop",
@@ -35913,15 +35905,15 @@
                     },
                     {
                         "name": "OnPointerDown",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnPointerUp",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnPointerClick",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnSelect",
@@ -35945,15 +35937,15 @@
                     },
                     {
                         "name": "OnInitializePotentialDrag",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnBeginDrag",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnEndDrag",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnSubmit",
@@ -35965,7 +35957,7 @@
                     },
                     {
                         "name": "Execute",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -36074,6 +36066,132 @@
                         "excluded": true
                     }
                 ]
+            },
+            {
+                "className": "System.OperationCanceledException",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "CancellationToken#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CancellationToken#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor5",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor4",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor3",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "System.Threading.Tasks.TaskCanceledException",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Task#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor3",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DetectEnemy",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "SetMaterial",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetMeshSize",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyMaterial",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RandomCube",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "SpawnEnemy",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "numberOfZombies#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnZombies",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -36177,9 +36295,9 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:30.000",
-                        "lengthInSeconds": 30.0,
-                        "bitrate": 64,
+                        "endTime": "01:02.925",
+                        "lengthInSeconds": 62.92499923706055,
+                        "bitrate": 128,
                         "script": "",
                         "ext": "",
                         "name": "Assets/SoundFX/an_ordinary_day (mp3cut.net).mp3"
@@ -36187,12 +36305,52 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:00.000",
-                        "lengthInSeconds": 0.0,
+                        "endTime": "01:02.925",
+                        "lengthInSeconds": 62.92499923706055,
                         "bitrate": 128,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Sound/wind-128967 (mp3cut.net).mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "01:02.925",
+                        "lengthInSeconds": 62.92499923706055,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/long-whoosh-194554.mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "01:02.925",
+                        "lengthInSeconds": 62.92499923706055,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/ice-cracking-field-recording-06-139709.mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "01:02.925",
+                        "lengthInSeconds": 62.92499923706055,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/sci-fi-gun-shot-312659.mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "01:02.925",
+                        "lengthInSeconds": 62.92499923706055,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/Zombie/say2.ogg"
                     }
                 ]
             },

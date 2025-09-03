@@ -15,6 +15,7 @@ public class ZombieChar : BaseCharacter
     protected override void Start()
     {
         base.Start();
+        health = LunaManager.ins.zombieHealth;
         timeAction = 2;
         IsFindingEnemy = true;
         //health = LunaManager.ins.countDropFinal;

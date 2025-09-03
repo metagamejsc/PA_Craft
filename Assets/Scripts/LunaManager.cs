@@ -10,12 +10,16 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     public int countDrop=0;
     [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
-     public int count;
+    [LunaPlaygroundField("Số enemy")] public int enemyCount=10;
+    [LunaPlaygroundAsset("Sound BG")] public AudioClip bgSound;
+    [LunaPlaygroundAsset("Sound Gun")] public AudioClip soundGun;
+    public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Độ đa dạng địa hình")] public float noiseIntensity=10;
-    [LunaPlaygroundField("Độ cao của mặt đất")] public float landNoiseScale=0.8f;
-    [LunaPlaygroundField("Số lượng cây")] public int treeCount=20;
+    public float noiseIntensity=10;
+    public float landNoiseScale=0.8f;
+    public int treeCount=20;
     public bool isCretivePause;
+    
     private void Awake()
     {
         ins = this;
@@ -23,7 +27,7 @@ public class LunaManager : MonoBehaviour
     
     public Button[] lstBtnInstall;
     public GameObject EndCard;
-    
+    [LunaPlaygroundField("Máu Enemy")]public float zombieHealth=5;
 
 
     // Start is called before the first frame update

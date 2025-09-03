@@ -6,7 +6,7 @@ public class SpawnEnemy : MonoBehaviour
 {
     public GameObject zombiePrefab;
     public BoxCollider spawnArea;
-    public int numberOfZombies = 5;
+    private int numberOfZombies =>LunaManager.ins.enemyCount;
     private List<GameObject> spawnedZombies = new List<GameObject>();
     void Start()
     {
