@@ -39,7 +39,7 @@ public class TerrainGenerator : MonoBehaviour
         LoadChunks(true);
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
-        StartCoroutine(IeSpawnZombie());
+        //StartCoroutine(IeSpawnZombie());
     }
 
     public void SpawnObjectNearPlayerAvoidTrees()
@@ -279,7 +279,7 @@ public class TerrainGenerator : MonoBehaviour
         }
 
 
-        Invoke(nameof(SpawnObjectNearPlayerAvoidTrees),2f);
+        //Invoke(nameof(SpawnObjectNearPlayerAvoidTrees),2f);
         //SpawnObjectNearPlayerAvoidTrees();
     }
 

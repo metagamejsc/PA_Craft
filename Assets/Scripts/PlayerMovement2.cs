@@ -26,6 +26,7 @@ public class PlayerMovement2 : MonoBehaviour
     private Rigidbody rb;
     private float xRotation = 0f;
     private bool isGrounded;
+    private bool isJumping;
 
     void Start()
     {
@@ -59,30 +60,16 @@ public class PlayerMovement2 : MonoBehaviour
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        
-        // Xử lý nhìn xung quanh bằng chuột
-        /*float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);  // Giới hạn góc nhìn dọc
-
-        cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        transform.Rotate(Vector3.up * mouseX);
-
-        // Nhảy
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        }*/
-        
-        
+            Jump();
+        }
     }
-
     public void Jump()
     {
         if(isGrounded)
         {
+            animator.SetBool("isJumping", !isGrounded);
             rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
         }
     }
@@ -164,18 +151,30 @@ public class PlayerMovement2 : MonoBehaviour
     
     private void OnCollisionStay(Collision collision)
     {
-        // Kiểm tra nếu nhân vật đứng trên mặt đất
-        /*if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }*/
+        
     }
 
-    private void OnCollisionExit(Collision collision)
+    private void OnCollisionEnter(Collision collision)
     {
-        /*if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Respawn"))
         {
-            isGrounded = false;
-        }*/
+            if (!LunaManager.ins.isCretivePause)
+            {
+                GetComponent<PlayerChar>().Die();
+                LunaManager.ins.ShowEndCard();
+            }
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Finish"))
+        {
+            if (!LunaManager.ins.isCretivePause)
+            {
+                animator.SetBool("isMoving", false);
+                LunaManager.ins.ShowEndCard();
+            }
+        }
     }
 }

@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29242,
-    "creativeName": "DHC_V07_HuyenNTT_ToiNV",
+    "applicationID": 31160,
+    "creativeName": "BCRWV_V25_ChiTM_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -1738,10 +1738,6 @@
                 "excluded": true
             },
             {
-                "name": "System.OperationCanceledException",
-                "excluded": true
-            },
-            {
                 "name": "System.OverflowException",
                 "excluded": true
             },
@@ -1915,10 +1911,6 @@
             },
             {
                 "name": "System.Threading.Thread",
-                "excluded": true
-            },
-            {
-                "name": "System.Threading.Tasks.TaskCanceledException",
                 "excluded": true
             },
             {
@@ -3283,10 +3275,6 @@
             },
             {
                 "name": "UnityEngine.ContactPoint",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.MaterialPropertyBlock",
                 "excluded": true
             },
             {
@@ -6759,7 +6747,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.PhysicMaterial",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.PhysicsMaterial2D",
@@ -12371,7 +12359,7 @@
                     },
                     {
                         "name": "Count#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$ICollection$IsSynchronized#get",
@@ -12399,11 +12387,11 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getItem",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$Generic$IList$1$getItem",
@@ -17089,7 +17077,7 @@
                     },
                     {
                         "name": "sharedMaterial#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sharedMaterials#get",
@@ -17181,19 +17169,19 @@
                     },
                     {
                         "name": "GetPropertyBlock",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetPropertyBlock$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetPropertyBlock",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetPropertyBlock$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "HasPropertyBlock",
@@ -26954,10 +26942,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "OnCollisionExit",
-                        "excluded": false
-                    },
-                    {
                         "name": "IsOnSlope",
                         "excluded": false
                     },
@@ -26972,6 +26956,14 @@
                     {
                         "name": "Awake",
                         "excluded": false
+                    },
+                    {
+                        "name": "OnCollisionEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": true
                     }
                 ]
             },
@@ -35417,6 +35409,352 @@
                 "instanceMethods": [
                     {
                         "name": "Start",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "System.OperationCanceledException",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "CancellationToken#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CancellationToken#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor5",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor4",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor3",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "System.Threading.Tasks.TaskCanceledException",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Task#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor3",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.MaterialPropertyBlock",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "isEmpty#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Clear",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetParameter$3",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetParameter$4",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetParameter$5",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetParameter",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetParameter$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetParameter$2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetFloat$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetFloat",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFloat$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFloat",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetInt$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetInt",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetInt$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetInt",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetMatrix$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetMatrix",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetMatrix$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetMatrix",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetTexture$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetTexture",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetTexture$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetTexture",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetColor$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetColor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetColor$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetColor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVector$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVector",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetVector$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetVector",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetFloatArray$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetFloatArray",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFloatArray$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFloatArray",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetMatrixArray$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetMatrixArray",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetMatrixArray$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetMatrixArray",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVectorArray$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVectorArray",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetVectorArray$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetVectorArray",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetBuffer$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetBuffer",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetConstantBuffer$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetConstantBuffer",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CopyProbeOcclusionArrayFrom$2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CopyProbeOcclusionArrayFrom",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CopyProbeOcclusionArrayFrom$3",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CopyProbeOcclusionArrayFrom$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CopySHCoefficientArraysFrom",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CopySHCoefficientArraysFrom$2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CopySHCoefficientArraysFrom$3",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CopySHCoefficientArraysFrom$1",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "RotateObject",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnCollisionEnter",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "SetupMaterialTiling",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyMaterialAndTiling",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetupTextureWrapMode",
                         "excluded": false
                     }
                 ]

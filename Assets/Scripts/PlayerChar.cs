@@ -113,7 +113,7 @@ public class PlayerChar : BaseCharacter
         }
     }
 
-    protected override void Die()
+    public override void Die()
     {
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;

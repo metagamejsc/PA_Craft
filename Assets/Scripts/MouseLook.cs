@@ -9,7 +9,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public static MouseLook ins;
     public LayerMask groundLayer;
     public GameObject blockPrefab;
-    public GameObject blockPrefab2;
+
     public float timeHold = 0;
     public bool isHold = false;
     public Transform posCam;
@@ -66,7 +66,6 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public void OnPointerUp(PointerEventData eventData)
     {
         StopAllCoroutines();
-        blockPrefab2.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -117,18 +116,13 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         int biy = Mathf.FloorToInt(pointInTargetBlock.y);
                         int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
 
-                        if (blockPrefab2==null)
-                        {
-                            blockPrefab2= Instantiate(blockPrefab, new Vector3(bix+ chunkPosX-1, biy, biz+ chunkPosZ-1), Quaternion.identity);
-                        }
-                        blockPrefab2.SetActive(true);
-                        blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
+                      
                         if (timeHold>=1)
                         {
                             inv.AddToInventory(tc.blocks[bix, biy, biz]);
                             tc.blocks[bix, biy, biz] = BlockType.Air;
                             tc.BuildMesh();
-                            blockPrefab2.SetActive(false);
+                           
                             isHold = false;
                             timeHold = 0;
                         }
@@ -165,8 +159,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
 
                        
-                        blockPrefab2.SetActive(true);
-                        blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
+                       
                         AudioManager.ins.PlayMiningSound();
                         yield return new WaitForSeconds(0.2f);
                         AudioManager.ins.PlayMiningSound();
@@ -180,8 +173,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         inv.AddToInventory(tc.blocks[bix, biy, biz]);
                         tc.blocks[bix, biy, biz] = BlockType.Air;
                         tc.BuildMesh();
-                        blockPrefab2.SetActive(false);
-
+                        
                     }
     }
 }

@@ -202,7 +202,7 @@ public class BaseCharacter : MonoBehaviour
         }
     }
 
-    protected virtual void Die()
+    public virtual void Die()
     {
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
