@@ -12,7 +12,7 @@ public class PlayerMovement2 : MonoBehaviour
         ins = this;
     }
 
-    public float moveSpeed = 5f;
+    public float moveSpeed => LunaManager.ins.playerSpeed;
     public float jumpHeight = 5f;
     public float slopeForce = 5f;
     public float maxStepHeight = 0.5f;
@@ -22,8 +22,10 @@ public class PlayerMovement2 : MonoBehaviour
     public LayerMask groundMask;
     public Animator animator;
     public GameObject model;
+    public float moveX, moveZ;
     
     private Rigidbody rb;
+    private CapsuleCollider cap;
     private float xRotation = 0f;
     private bool isGrounded;
     private bool isJumping;
@@ -31,6 +33,15 @@ public class PlayerMovement2 : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        cap = GetComponent<CapsuleCollider>();
+
+        // Giảm khả năng kẹt và rung
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        // Tăng contact offset 1 chút để bớt dính cạnh
+        //cap.contactOffset = 0.05f;
     }
     bool IsOnSlope()
     {
@@ -75,24 +86,19 @@ public class PlayerMovement2 : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if (GameController.ins.isPauseGame)
-        {
-            return;
-        }
         if (LunaManager.ins.isCretivePause)
         {
             return;
         }
         // Lấy input từ bàn phím (WASD)
-        float moveX = 0;
-        float moveZ = 0;
-#if UNITY_EDITOR
+        
+/*#if UNITY_EDITOR
          moveX = Input.GetAxis("Horizontal");
          moveZ = Input.GetAxis("Vertical");
 #else     
          moveX = JoystickController.ins.Horizontal();
          moveZ = JoystickController.ins.Vertical();
-#endif
+#endif*/
         /*Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
 
         // Xoay nhân vật theo hướng di chuyển nếu có input
@@ -117,6 +123,7 @@ public class PlayerMovement2 : MonoBehaviour
         Vector3 velocity = moveDirection * moveSpeed;
         velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
         rb.velocity = velocity;*/
+        
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
         Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
         
@@ -140,13 +147,13 @@ public class PlayerMovement2 : MonoBehaviour
                 animator.Play("metarig|Idle");*/
         }
         animator.SetBool("isMoving", isMoving);
-        if (IsOnSlope())
+        /*if (IsOnSlope())
         {
             rb.AddForce(Vector3.down * slopeForce, ForceMode.Acceleration);
         }
 
         // Xử lý bước lên dốc (Step Climb)
-        StepClimb();
+        StepClimb();*/
     }
     
     private void OnCollisionStay(Collision collision)
@@ -154,6 +161,10 @@ public class PlayerMovement2 : MonoBehaviour
         
     }
 
+    public void StartMove()
+    {
+        moveZ = 1;
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Respawn"))

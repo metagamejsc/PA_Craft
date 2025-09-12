@@ -65,12 +65,12 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        StopAllCoroutines();
+        //StopAllCoroutines();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        StartCoroutine(DestroyBlock());
+        //StartCoroutine(DestroyBlock());
         //DesTroyBlock();
     }
 
