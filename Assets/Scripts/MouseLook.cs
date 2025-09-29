@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -15,6 +16,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public Transform posCam;
 
     public Inventory inv;
+    private Vector2 previousPointerPosition;
     private void Awake()
     {
         ins= this;
@@ -41,11 +43,10 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     }
 
     float mx;
-
-  
+    
     public void OnDrag(PointerEventData eventData)
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        /*float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         if(Mathf.Abs(mouseX) > 20 || Mathf.Abs(mouseY) > 20)
@@ -60,7 +61,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         //mx = Input.GetAxis("Mouse X");
         
         //player body's y rotation (turn left and right)
-        playerBody.Rotate(Vector3.up * mouseX);
+        playerBody.Rotate(Vector3.up * mouseX);*/
+        
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -73,107 +75,65 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         //StartCoroutine(DestroyBlock());
         //DesTroyBlock();
     }
-
-    private void Update()
+    public void Update()
     {
-        /*if (isHold)
+        if (LunaManager.ins.isCretivePause)
         {
-            timeHold+=Time.deltaTime;
-            if (timeHold>0.1f)
+            return;
+        }
+#if UNITY_EDITOR
+        if (Input.GetMouseButtonDown(0))
+        {
+           
+            previousPointerPosition = Input.mousePosition;
+        }
+        else if (Input.GetMouseButton(0))
+        {
+            Vector2 delta = (Vector2)Input.mousePosition - previousPointerPosition;
+            if (delta.x > 10f)
             {
-                DesTroyBlock();
+                MovePlayer(false);
             }
-        }*/
+            if (delta.x < -10f)
+            {
+                MovePlayer(true);
+            }
+            
+        }
+#else
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began)
+            {
+                previousPointerPosition = touch.position;
+            }
+            else if (touch.phase == TouchPhase.Moved)
+            {
+                Vector2 delta = (Vector2)Input.mousePosition - previousPointerPosition;
+                if (delta.x > 10f)
+                {
+                    MovePlayer(false);
+                }
+                if (delta.x < -10f)
+                {
+                    MovePlayer(true);
+                }
+            }
+        }
+#endif
         
     }
 
-    public void DesTroyBlock()
+    public void MovePlayer(bool MoveLeft)
     {
-            Debug.Log("DesTroyBlock");
-                    RaycastHit hitInfo;
-                    if(Physics.Raycast(posCam.transform.position, transform.forward, out hitInfo, 5, groundLayer))
-                    {
-                        Debug.Log("DesTroyBlock");
-                        Vector3 pointInTargetBlock;
-        
-                        //destroy
-                        /*if(leftClick)
-                            pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
-                        else
-                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
-                        pointInTargetBlock = hitInfo.point + transform.forward * .01f;
-        
-                        //get the terrain chunk (can't just use collider)
-                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
-        
-                        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
-        
-                        TerrainChunk tc = TerrainGenerator.chunks[cp];
-        
-                        //index of the target block
-                        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
-                        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
-                        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
-
-                      
-                        if (timeHold>=1)
-                        {
-                            inv.AddToInventory(tc.blocks[bix, biy, biz]);
-                            tc.blocks[bix, biy, biz] = BlockType.Air;
-                            tc.BuildMesh();
-                           
-                            isHold = false;
-                            timeHold = 0;
-                        }
-                    }
-    }
-
-    public IEnumerator DestroyBlock()
-    {
-                
-                     RaycastHit hitInfo;
-                    if(Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
-                    {
-                     
-                        Vector3 pointInTargetBlock;
-        
-                        //destroy
-                        /*if(leftClick)
-                            pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
-                        else
-                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
-                        pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
-        
-                        //get the terrain chunk (can't just use collider)
-                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
-                        
-                        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
-        
-                        TerrainChunk tc = TerrainGenerator.chunks[cp];
-        
-                        //index of the target block
-                        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
-                        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
-                        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
-
-                       
-                       
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        inv.AddToInventory(tc.blocks[bix, biy, biz]);
-                        tc.blocks[bix, biy, biz] = BlockType.Air;
-                        tc.BuildMesh();
-                        
-                    }
+        if (MoveLeft)
+        {
+            playerBody.transform.DOMoveX(-0.5f, 1f);
+        }
+        else
+        {
+            playerBody.transform.DOMoveX(0.5f, 1f);
+        }
     }
 }

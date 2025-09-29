@@ -65,6 +65,7 @@ public class LunaManager : MonoBehaviour
     public void ShowEndCard()
     {
         isCretivePause = true;
+        LineController.ins.StopLine();
         AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");

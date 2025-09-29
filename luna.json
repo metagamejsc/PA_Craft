@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 32681,
-    "creativeName": "BCRWV_V26_ChiTM_ToiNV",
+    "applicationID": 31160,
+    "creativeName": "BCRWV_V27_ChiTM_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -2719,10 +2719,6 @@
             },
             {
                 "name": "UnityEngine.DefaultExecutionOrder",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.DynamicGI",
                 "excluded": true
             },
             {
@@ -16059,7 +16055,7 @@
                     },
                     {
                         "name": "localPosition#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "localScale#get",
@@ -20181,7 +20177,7 @@
                     },
                     {
                         "name": "customReflection#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "customReflection#set",
@@ -20189,7 +20185,7 @@
                     },
                     {
                         "name": "defaultReflectionMode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "defaultReflectionMode#set",
@@ -26118,11 +26114,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "DesTroyBlock",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DestroyBlock",
+                        "name": "MovePlayer",
                         "excluded": false
                     }
                 ]
@@ -31587,7 +31579,7 @@
                     },
                     {
                         "name": "Pause",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Play",
@@ -32221,7 +32213,7 @@
                     },
                     {
                         "name": "DOMoveX",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOMoveY",
@@ -32229,7 +32221,7 @@
                     },
                     {
                         "name": "DOMoveZ",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOLocalMove",
@@ -32519,7 +32511,7 @@
                     },
                     {
                         "name": "Pause",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Play",
@@ -32889,7 +32881,7 @@
                     },
                     {
                         "name": "SetOptions$12",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetOptions$15",
@@ -34351,7 +34343,7 @@
                 "instanceMethods": [
                     {
                         "name": "Reset",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetFrom$1",
@@ -35716,24 +35708,6 @@
                 ]
             },
             {
-                "className": "RotateObject",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnCollisionEnter",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "SetupMaterialTiling",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35926,6 +35900,102 @@
                     {
                         "name": "OnCountdownFinished",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Line",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "hasZombie#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ActiveZombie",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnCreate",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "LineController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopLine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CreateLine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnNewLine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "LateUpdate",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "StoneButton",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.DynamicGI",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "UpdateEnvironment",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BakeReflectionsCubemap",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BakeLightingCubemap",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateEnvironmentLighting",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateSkyboxMaterial",
+                        "excluded": true
                     }
                 ]
             }
