@@ -66,7 +66,13 @@ public class ZombieChar : BaseCharacter
             Die();
         }
     }
-
+    public void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("EnemyDame") && !isDead)
+        {
+            TakeDamage(1);
+        }
+    }
     public IEnumerator IeNhapNhay(float time)
     {
         for (int i = 0; i < lstMaterials.Length; i++)

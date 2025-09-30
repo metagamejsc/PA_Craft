@@ -44,7 +44,7 @@ public class PlayerMovement2 : MonoBehaviour
 
     void StepClimb()
     {
-        RaycastHit hitLower;
+        /*RaycastHit hitLower;
         RaycastHit hitUpper;
 
         Vector3 lowerStart = transform.position + Vector3.up * 0.1f;
@@ -54,7 +54,7 @@ public class PlayerMovement2 : MonoBehaviour
             !Physics.Raycast(upperStart, transform.forward, out hitUpper, 0.5f))
         {
             rb.position += new Vector3(0f, stepSmooth, 0f)+ transform.forward * 0.3f;
-        }
+        }*/
     }
     void Update()
     {

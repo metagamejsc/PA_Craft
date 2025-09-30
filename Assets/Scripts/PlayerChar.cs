@@ -85,15 +85,16 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-
+        currentWeapon?.Attack();
         if (/*target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && */attackCooldown <= 0)
         {
-            SwordObject.transform.parent = swordPos;
+            //currentWeapon?.Attack();
+            /*SwordObject.transform.parent = swordPos;
             SwordObject.transform.localPosition = Vector3.zero;
             SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
             attackCooldown = atkAnimationClip.length/ attackSpeed;
             animator.SetFloat("AttackSpeed", attackCooldown>attackSpeed?1:attackSpeed);  
-            animator.SetTrigger("Attack");
+            animator.SetTrigger("Attack");*/
             // Reset thời gian hồi chiêu
         }
     }
@@ -120,5 +121,24 @@ public class PlayerChar : BaseCharacter
         capsuleCollider.enabled = false;
         animator.transform.parent = null;
         //Destroy(gameObject);
+    }
+    public Transform weaponHand;
+    public IWeapon currentWeapon;
+
+    public void EquipWeapon(IWeapon newWeapon)
+    {
+        if (currentWeapon != null)
+        {
+            currentWeapon.Unequip();
+        }
+
+        currentWeapon = newWeapon;
+        currentWeapon.Equip(weaponHand);
+    }
+
+    // Bạn có thể thêm UI để đổi vũ khí:
+    public void SwitchToWeapon(Weapon weapon)
+    {
+        EquipWeapon(weapon);
     }
 }

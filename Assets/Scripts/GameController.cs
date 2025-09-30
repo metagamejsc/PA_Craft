@@ -20,6 +20,7 @@ public class GameController : MonoBehaviour
     public GameObject enemy;
     public int idWeapon;
     public Mesh[] lstMeshWeapons;
+    public Weapon[] lstWeaponPrefabs;
     public int countEnemyDefeat = 0;
 
     public void EnemyDead()
@@ -49,7 +50,6 @@ public class GameController : MonoBehaviour
 
     public void SetIdWeapon(int id)
     {
-        idWeapon = id;
-        playerChar.CraftWeapon();
+        playerChar.EquipWeapon(lstWeaponPrefabs[id]);
     }
 }

@@ -204,6 +204,7 @@ public class BaseCharacter : MonoBehaviour
 
     protected virtual void Die()
     {
+        LunaManager.ins.CheckClickShowEndCard();
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;

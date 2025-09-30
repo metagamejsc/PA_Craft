@@ -39,7 +39,8 @@ public class TerrainGenerator : MonoBehaviour
         LoadChunks(true);
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
-        StartCoroutine(IeSpawnZombie());
+        Invoke(nameof(SpawnEnemiesInCollider),0.2f);
+        //StartCoroutine(IeSpawnZombie());
     }
 
     public void SpawnObjectNearPlayerAvoidTrees()
@@ -135,8 +136,8 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         // Tính toán vị trí và kích thước của bức tường collider
-        float width = maxX - minX + 16;
-        float length = maxZ - minZ + 16;
+        float width = maxX - minX +  TerrainChunk.chunkWidth;
+        float length = maxZ - minZ + TerrainChunk.chunkWidth;
         float centerX = minX + width / 2;
         float centerZ = minZ + length / 2;
 
@@ -177,6 +178,13 @@ public class TerrainGenerator : MonoBehaviour
         chunks.Add(new ChunkPos(xPos, zPos), chunk);
     }
 
+    public void StartMove()
+    {
+        foreach (var VARIABLE in enemies)
+        {
+            VARIABLE.detectionRadiusMax = 999;
+        }
+    }
 
     //get the block type at a specific coordinate
     BlockType GetBlockType(int x, int y, int z)
@@ -221,8 +229,8 @@ public class TerrainGenerator : MonoBehaviour
     void LoadChunks(bool instant = false)
     {
         //the current chunk the player is in
-        int curChunkPosX = Mathf.FloorToInt(player.position.x/16)*16;
-        int curChunkPosZ = Mathf.FloorToInt(player.position.z/16)*16;
+        int curChunkPosX = Mathf.FloorToInt(player.position.x/TerrainChunk.chunkWidth)*TerrainChunk.chunkWidth;
+        int curChunkPosZ = Mathf.FloorToInt(player.position.z/TerrainChunk.chunkWidth)*TerrainChunk.chunkWidth;
 
         //entered a new chunk
         if(curChunk.x != curChunkPosX || curChunk.z != curChunkPosZ)
@@ -231,8 +239,8 @@ public class TerrainGenerator : MonoBehaviour
             curChunk.z = curChunkPosZ;
 
 
-            for(int i = curChunkPosX - 16 * chunkDist; i <= curChunkPosX + 16 * chunkDist; i += 16)
-                for(int j = curChunkPosZ - 16 * chunkDist; j <= curChunkPosZ + 16 * chunkDist; j += 16)
+            for(int i = curChunkPosX - TerrainChunk.chunkWidth * chunkDist; i <= curChunkPosX + TerrainChunk.chunkWidth * chunkDist; i += TerrainChunk.chunkWidth)
+                for(int j = curChunkPosZ - TerrainChunk.chunkWidth * chunkDist; j <= curChunkPosZ + TerrainChunk.chunkWidth * chunkDist; j += TerrainChunk.chunkWidth)
                 {
                     ChunkPos cp = new ChunkPos(i, j);
 
@@ -253,8 +261,8 @@ public class TerrainGenerator : MonoBehaviour
             foreach(KeyValuePair<ChunkPos, TerrainChunk> c in chunks)
             {
                 ChunkPos cp = c.Key;
-                if(Mathf.Abs(curChunkPosX - cp.x) > 16 * (chunkDist + 3) || 
-                    Mathf.Abs(curChunkPosZ - cp.z) > 16 * (chunkDist + 3))
+                if(Mathf.Abs(curChunkPosX - cp.x) > TerrainChunk.chunkWidth * (chunkDist + 3) || 
+                    Mathf.Abs(curChunkPosZ - cp.z) > TerrainChunk.chunkWidth * (chunkDist + 3))
                 {
                     toDestroy.Add(c.Key);
                 }
@@ -263,8 +271,8 @@ public class TerrainGenerator : MonoBehaviour
             //remove any up for generation
             foreach(ChunkPos cp in toGenerate)
             {
-                if(Mathf.Abs(curChunkPosX - cp.x) > 16 * (chunkDist + 1) ||
-                    Mathf.Abs(curChunkPosZ - cp.z) > 16 * (chunkDist + 1))
+                if(Mathf.Abs(curChunkPosX - cp.x) > TerrainChunk.chunkWidth * (chunkDist + 1) ||
+                    Mathf.Abs(curChunkPosZ - cp.z) > TerrainChunk.chunkWidth * (chunkDist + 1))
                     toGenerate.Remove(cp);
             }
 
@@ -283,7 +291,50 @@ public class TerrainGenerator : MonoBehaviour
         //SpawnObjectNearPlayerAvoidTrees();
     }
 
+    public BoxCollider spawnArea;
+    public int numberOfEnemies;
+    public List<ZombieChar> enemies;
+    public void SpawnEnemiesInCollider()
+    {
+        numberOfEnemies = LunaManager.ins.maxEnemySpawn;
+        GameObject enemyPrefab = objectToSpawn;
+        Bounds bounds = spawnArea.bounds;
 
+        int spawned = 0;
+        int attempts = 0;
+        int maxAttempts = numberOfEnemies * 10;
+
+        while (spawned < numberOfEnemies && attempts < maxAttempts)
+        {
+            attempts++;
+
+            float x = Random.Range(bounds.min.x, bounds.max.x);
+            float z = Random.Range(bounds.min.z, bounds.max.z);
+
+            int xi = Mathf.RoundToInt(x);
+            int zi = Mathf.RoundToInt(z);
+
+            int yi = TerrainChunk.chunkHeight - 2;
+            while (yi > 0 && GetBlockType(xi, yi, zi) == BlockType.Air)
+                yi--;
+
+            yi++; // block trống trên mặt đất
+
+            BlockType ground = GetBlockType(xi, yi - 1, zi);
+            if (ground == BlockType.Trunk || ground == BlockType.Leaves)
+                continue; // tránh cây
+
+            Vector3 spawnPos = new Vector3(xi, spawnArea.transform.position.y + 1, zi);
+            ZombieChar ene=Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<ZombieChar>();
+            enemies.Add(ene);
+            spawned++;
+        }
+
+        if (spawned < numberOfEnemies)
+        {
+            Debug.LogWarning($"Chỉ spawn được {spawned}/{numberOfEnemies} enemy trong vùng collider.");
+        }
+    }
     void GenerateTrees(BlockType[,,] blocks, int x, int z)
     {
         System.Random rand = new System.Random(x * 10000 + z);
