@@ -1,80 +1,113 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
+using UnityEngine.Video;
 
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    public int countDrop=0;
-    [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
-    [LunaPlaygroundField("Số enemy spawn")] public int maxEnemySpawn=10;
-    [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
-    [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
-    [LunaPlaygroundField("Tree Count")] public int treeCount=20;
-    public bool isCretivePause;
-    private void Awake()
-    {
-        ins = this;
 
-    }
+    [LunaPlaygroundField("Time Show EndCard")] 
+    public int timeEndCreative = 30;
+
+    // --- STEP TIMES (6) ---
+    [LunaPlaygroundField("Step 1 Time")] public float step1Time;
+    [LunaPlaygroundField("Step 2 Time")] public float step2Time;
+    [LunaPlaygroundField("Step 3 Time")] public float step3Time;
+    [LunaPlaygroundField("Step 4 Time")] public float step4Time;
+    [LunaPlaygroundField("Step 5 Time")] public float step5Time;
+    [LunaPlaygroundField("Step 6 Time")] public float step6Time;
+
+    // --- STEP TEXTS (6) ---
+    [LunaPlaygroundField("Step 1 Text")] public string step1Text;
+    [LunaPlaygroundField("Step 2 Text")] public string step2Text;
+    [LunaPlaygroundField("Step 3 Text")] public string step3Text;
+    [LunaPlaygroundField("Step 4 Text")] public string step4Text;
+    [LunaPlaygroundField("Step 5 Text")] public string step5Text;
+    [LunaPlaygroundField("Step 6 Text")] public string step6Text;
+
+    [LunaPlaygroundField("Txt EndCard")] 
+    public string txtEndCard;
+
+    public TextMeshProUGUI tmp_EndCard;
+    public List<TextMeshProUGUI> tmp_Steps;
+
+    //[LunaPlaygroundAsset("Video")] 
+    //public VideoClip videoClip;
+    //public VideoPlayer videoPlayer;
+
+    public bool isCretivePause;
+
+    public List<float> listTimeStep ;
+    private List<string> txtSteps;
+
     public Button[] lstBtnInstall;
     public GameObject EndCard;
-    
 
+    void Awake()
+    {
+        ins = this;
+    }
 
-    // Start is called before the first frame update
     void Start()
     {
+        //videoPlayer.clip = videoClip;
+
+        // === Build Steps Dynamically (only non-empty texts and valid times) ===
+        var allStepTimes = new float[] { step1Time, step2Time, step3Time, step4Time, step5Time, step6Time };
+        var allStepTexts = new string[] { step1Text, step2Text, step3Text, step4Text, step5Text, step6Text };
+        listTimeStep = new List<float>();
+        txtSteps = new List<string>();
+        for (int i = 0; i < 6; i++)
+        {
+            if (!string.IsNullOrEmpty(allStepTexts[i]))
+            {
+                txtSteps.Add(allStepTexts[i]);
+                listTimeStep.Add(allStepTimes[i]);
+            }
+        }
+
+        // === Apply Steps to UI ===
+        for (int i = 0; i < tmp_Steps.Count && i < txtSteps.Count; i++)
+        {
+            tmp_Steps[i].gameObject.SetActive(true);
+            tmp_Steps[i].text = txtSteps[i];
+        }
+
+        // Hide unused step texts
+        for (int i = txtSteps.Count; i < tmp_Steps.Count; i++)
+        {
+            tmp_Steps[i].gameObject.SetActive(false);
+        }
+
+        tmp_EndCard.text = txtEndCard;
+        EndCard.SetActive(false);
+
         Luna.Unity.LifeCycle.OnPause += PauseGameplay;
         Luna.Unity.LifeCycle.OnResume += ResumeGameplay;
-        foreach (var VARIABLE in lstBtnInstall)
+
+        foreach (var btn in lstBtnInstall)
         {
-            VARIABLE.onClick.AddListener(OnClickEndCard);
+            btn.onClick.AddListener(OnClickEndCard);
         }
-        EndCard.SetActive(false);
-        //SetupField();
-        Invoke(nameof(ShowEndCard),timeEndCreative);
+
+        Invoke(nameof(ShowEndCard), timeEndCreative);
     }
 
-    public void CheckClickShowEndCard()
-    {
-        countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
-        {
-            isCretivePause = true;
-            ShowEndCard();
-        }
-    }
-    // Update is called once per frame
-    public void PauseGameplay()
-    {
-        Debug.Log("Pause game");
-        Time.timeScale = 0;
-    }
-
-    public void ResumeGameplay()
-    {
-        Debug.Log("Load game");
-        Time.timeScale = 1;
-    }
+    public void PauseGameplay() => Time.timeScale = 0;
+    public void ResumeGameplay() => Time.timeScale = 1;
 
     public void ShowEndCard()
     {
         isCretivePause = true;
-        AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
-        Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
 
     public void OnClickEndCard()
     {
-        Debug.Log("Click end card");
         Luna.Unity.Playable.InstallFullGame();
     }
-
 }

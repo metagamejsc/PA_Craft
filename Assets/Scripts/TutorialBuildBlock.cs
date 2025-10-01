@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class TutorialBuildBlock : MonoBehaviour
 {
@@ -10,17 +11,40 @@ public class TutorialBuildBlock : MonoBehaviour
     public int stepIndex;
     public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
+    public VideoPlayer videoPlayer;
+    public bool isPlayVideo;
+    
     //public Button btnHideTutorial;
 
     private void Awake()
     {
         ins = this;
-    }
-
-    public IEnumerator IeSpawnStep()
-    {
-        yield return new WaitForSeconds(1f);
         
+    }
+    
+    public void Update()
+    {
+        if (isPlayVideo)
+        {
+            if (stepIndex<LunaManager.ins.listTimeStep.Count)
+            {
+                if (videoPlayer.time>=LunaManager.ins.listTimeStep[stepIndex])
+                {
+                    PasueVideo();
+                    ShowStep();
+                }
+            }
+        }
+    }
+    public void PasueVideo()
+    {
+        videoPlayer.Pause();
+        isPlayVideo = false;
+    }
+    public void ResumeVideo()
+    {
+        videoPlayer.Play();
+        isPlayVideo = true;
     }
 
     private void Start()
@@ -36,24 +60,26 @@ public class TutorialBuildBlock : MonoBehaviour
                 HideStep();
             });
         }
-        ShowStep();
-        //StartCoroutine(IeSpawnStep());
+        isPlayVideo = true;
+        videoPlayer.loopPointReached+= (VideoPlayer vp) =>
+        {
+            LunaManager.ins.ShowEndCard();
+        };
     }
 
     public void ShowStep()
     {
-        GameController.ins.isPauseGame = true;
+        PasueVideo();
         lstStep[stepIndex].SetActive(true);
+        /*for (int i = 0; i < lstStep.Count; i++)
+        {
+            lstStep[i].SetActive(i==stepIndex);
+        }*/
     }
     public void HideStep()
     {
-        GameController.ins.isPauseGame = false;
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
-        /*if (stepIndex==lstStep.Count-1)
-        {
-           GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
-           ShowStep();
-        }*/
+        ResumeVideo();
     }
 }
