@@ -34,9 +34,9 @@ public class LunaManager : MonoBehaviour
     public TextMeshProUGUI tmp_EndCard;
     public List<TextMeshProUGUI> tmp_Steps;
 
-    //[LunaPlaygroundAsset("Video")] 
-    //public VideoClip videoClip;
-    //public VideoPlayer videoPlayer;
+    [LunaPlaygroundAsset("Video")] 
+    public VideoClip videoClip;
+    public VideoPlayer videoPlayer;
 
     public bool isCretivePause;
 
@@ -49,11 +49,12 @@ public class LunaManager : MonoBehaviour
     void Awake()
     {
         ins = this;
+        videoPlayer.clip = videoClip;
     }
 
     void Start()
     {
-        //videoPlayer.clip = videoClip;
+        
 
         // === Build Steps Dynamically (only non-empty texts and valid times) ===
         var allStepTimes = new float[] { step1Time, step2Time, step3Time, step4Time, step5Time, step6Time };
