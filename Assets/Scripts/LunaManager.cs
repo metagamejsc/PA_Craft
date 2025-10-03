@@ -103,6 +103,7 @@ public class LunaManager : MonoBehaviour
     public void ShowEndCard()
     {
         isCretivePause = true;
+        TutorialBuildBlock.ins.HideAllStep();
         EndCard.SetActive(true);
         Luna.Unity.LifeCycle.GameEnded();
     }

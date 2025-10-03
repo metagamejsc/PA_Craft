@@ -21,7 +21,11 @@ public class TutorialBuildBlock : MonoBehaviour
         ins = this;
         
     }
-    
+    public void OnEnable()
+    {
+        isPlayVideo = true;
+        videoPlayer.Play();
+    }
     public void Update()
     {
         if (isPlayVideo)
@@ -34,6 +38,14 @@ public class TutorialBuildBlock : MonoBehaviour
                     ShowStep();
                 }
             }
+        }
+    }
+
+    public void HideAllStep()
+    {
+        for (int i = 0; i < lstStep.Count; i++)
+        {
+            lstStep[i].SetActive(false);
         }
     }
     public void PasueVideo()

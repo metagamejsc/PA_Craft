@@ -2,7 +2,7 @@
     "version": "6.0.0",
     "projectId": "24fb5e92fecfb714c9c9d92918bd86ac",
     "applicationID": 33333,
-    "creativeName": "CWBC_V1",
+    "creativeName": "CWBC_V1_2",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -96,12 +96,14 @@
                 "Stubs/AppsFlyer",
                 "Stubs/IronSource",
                 "Stubs/Vungle",
-                "Stubs/MoreMountains.NiceVibrations",
-                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset"
+                "Stubs/MoreMountains.NiceVibrations"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
-                "Assets/TextMesh Pro/Resources/TMP Settings.asset"
+                "Assets/TextMesh Pro/Resources/TMP Settings.asset",
+                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Drop Shadow.mat",
+                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset",
+                "Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile.shader"
             ]
         },
         "scenes": [
@@ -172,8 +174,8 @@
                 "forceIncluded": false
             }
         ],
-        "disableRuntimeAnalysisForCode": false,
-        "disableRuntimeAnalysisForShaders": false,
+        "disableRuntimeAnalysisForCode": true,
+        "disableRuntimeAnalysisForShaders": true,
         "useShadersCache": true,
         "preventUpdatingRAListWhenRAIsDisabled": false,
         "bakeReferenceAmbientProbe": false,
@@ -6395,10 +6397,6 @@
                 "excluded": true
             },
             {
-                "name": "TMPro.GlyphPairKey",
-                "excluded": true
-            },
-            {
                 "name": "TMPro.KerningPairKey",
                 "excluded": true
             },
@@ -6472,10 +6470,6 @@
             },
             {
                 "name": "TMPro.TMP_FontUtilities",
-                "excluded": true
-            },
-            {
-                "name": "TMPro.TMP_GlyphAdjustmentRecord",
                 "excluded": true
             },
             {
@@ -6560,7 +6554,7 @@
             },
             {
                 "name": "TMPro.FontFeatureLookupFlags",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "TMPro.ITextElement",
@@ -8096,23 +8090,23 @@
             },
             {
                 "name": "DG.Tweening.AutoPlay",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.AxisConstraint",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.Core.ABSSequentiable",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.IDOTweenInit",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.Core.DOTweenSettings.SettingsLocation",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.Core.Enums.NestedTweenFailureBehaviour",
@@ -8148,15 +8142,15 @@
             },
             {
                 "name": "DG.Tweening.Ease",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.LogBehaviour",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.LoopType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.Plugins.Core.IPlugSetter$4",
@@ -8168,31 +8162,31 @@
             },
             {
                 "name": "DG.Tweening.RotateMode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.ScrambleMode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.ShakeRandomnessMode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.TweenType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.UpdateType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.DOTweenAnimation.AnimationType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "DG.Tweening.DOTweenAnimation.TargetType",
-                "excluded": true
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -8676,11 +8670,11 @@
                     },
                     {
                         "name": "format",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "defaultFormat",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "customFormat",
@@ -8740,7 +8734,7 @@
                     },
                     {
                         "name": "sxs",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "clip8",
@@ -8780,7 +8774,7 @@
                     },
                     {
                         "name": "mul",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "umul",
@@ -11266,7 +11260,7 @@
                 "instanceMethods": [
                     {
                         "name": "Current#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Current$1#get",
@@ -11274,15 +11268,15 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "moveNext",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getCurrent",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getCurrent$1",
@@ -11290,7 +11284,7 @@
                     },
                     {
                         "name": "reset",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -18268,7 +18262,7 @@
                     },
                     {
                         "name": "name#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "name#set",
@@ -24320,7 +24314,7 @@
                 "instanceMethods": [
                     {
                         "name": "firstAdjustmentRecord#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "firstAdjustmentRecord#set",
@@ -24328,7 +24322,7 @@
                     },
                     {
                         "name": "secondAdjustmentRecord#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "secondAdjustmentRecord#set",
@@ -24344,7 +24338,7 @@
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
@@ -24362,7 +24356,7 @@
                 "instanceMethods": [
                     {
                         "name": "op_Addition",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getDefaultValue",
@@ -24370,7 +24364,7 @@
                     },
                     {
                         "name": "xPlacement#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "xPlacement#set",
@@ -24378,7 +24372,7 @@
                     },
                     {
                         "name": "yPlacement#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "yPlacement#set",
@@ -24394,7 +24388,7 @@
                     },
                     {
                         "name": "yAdvance#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "yAdvance#set",
@@ -24426,7 +24420,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -26750,7 +26744,7 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Log",
@@ -26810,7 +26804,7 @@
                     },
                     {
                         "name": "SetLogPriority",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ShouldLogSafeModeCapturedError",
@@ -26842,7 +26836,7 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -26852,7 +26846,7 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -26862,7 +26856,7 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -26872,7 +26866,7 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Vector3FromAngle",
@@ -26896,7 +26890,7 @@
                     },
                     {
                         "name": "GetLooseScriptType",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -26936,7 +26930,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Add",
@@ -26976,15 +26970,15 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetTweener",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetSequence",
@@ -26992,7 +26986,7 @@
                     },
                     {
                         "name": "SetUpdateType",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddActiveTweenToSequence",
@@ -27036,11 +27030,11 @@
                     },
                     {
                         "name": "Update$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Update",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "FilteredOperation",
@@ -27068,7 +27062,7 @@
                     },
                     {
                         "name": "Play",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayBackwards",
@@ -27132,7 +27126,7 @@
                     },
                     {
                         "name": "AddActiveTween",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ReorganizeActiveTweens",
@@ -27170,19 +27164,19 @@
                     },
                     {
                         "name": "logBehaviour#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "debugStoreTargetId#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "debugStoreTargetId#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isQuitting#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isQuitting#set",
@@ -27190,7 +27184,7 @@
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "To$16",
@@ -27230,7 +27224,7 @@
                     },
                     {
                         "name": "To$12",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "To$13",
@@ -27262,11 +27256,11 @@
                     },
                     {
                         "name": "InitCheck",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ApplyTo",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Init",
@@ -27274,11 +27268,11 @@
                     },
                     {
                         "name": "Init$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AutoInit",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetTweensCapacity",
@@ -27780,7 +27774,7 @@
                     },
                     {
                         "name": "DOLocalMove",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOLocalMoveX",
@@ -28070,7 +28064,7 @@
                     },
                     {
                         "name": "Play",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayBackwards",
@@ -28200,7 +28194,7 @@
                     },
                     {
                         "name": "SetAutoKill$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetId$1",
@@ -28224,7 +28218,7 @@
                     },
                     {
                         "name": "SetTarget",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetLoops",
@@ -28232,11 +28226,11 @@
                     },
                     {
                         "name": "SetLoops$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetEase$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetEase$4",
@@ -28264,7 +28258,7 @@
                     },
                     {
                         "name": "SetUpdate",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetUpdate$1",
@@ -28312,7 +28306,7 @@
                     },
                     {
                         "name": "OnKill",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnWaypointChange",
@@ -28396,7 +28390,7 @@
                     },
                     {
                         "name": "SetDelay",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetDelay$1",
@@ -28408,7 +28402,7 @@
                     },
                     {
                         "name": "SetRelative$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetSpeedBased",
@@ -28432,7 +28426,7 @@
                     },
                     {
                         "name": "SetOptions$13",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetOptions$12",
@@ -28522,7 +28516,7 @@
                 "instanceMethods": [
                     {
                         "name": "Create",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DestroyInstance",
@@ -28534,23 +28528,23 @@
                     },
                     {
                         "name": "Awake",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Start",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Update",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "LateUpdate",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "FixedUpdate",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDrawGizmos",
@@ -28600,7 +28594,7 @@
                 "instanceMethods": [
                     {
                         "name": "DoGoto",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnTweenCallback",
@@ -28620,15 +28614,15 @@
                     },
                     {
                         "name": "hasLoops#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Reset",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "UpdateDelay",
@@ -28946,7 +28940,7 @@
                 "instanceMethods": [
                     {
                         "name": "Setup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DoUpdateDelay",
@@ -28954,7 +28948,7 @@
                     },
                     {
                         "name": "DoStartup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DoChangeStartValue",
@@ -28974,15 +28968,15 @@
                     },
                     {
                         "name": "DOStartupDurationBased",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -29112,11 +29106,11 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ChangeStartValue",
@@ -29160,7 +29154,7 @@
                     },
                     {
                         "name": "Reset",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Validate",
@@ -29176,11 +29170,11 @@
                     },
                     {
                         "name": "Startup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ApplyTween",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -29198,15 +29192,15 @@
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Awake",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Start",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Reset",
@@ -29234,7 +29228,7 @@
                     },
                     {
                         "name": "CreateTween",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetTweens",
@@ -29346,11 +29340,11 @@
                     },
                     {
                         "name": "GetTweenGO",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetTweenTarget",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ReEvaluateRelativeTween",
@@ -29364,7 +29358,7 @@
                 "instanceMethods": [
                     {
                         "name": "Init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Preserver",
@@ -29459,6 +29453,10 @@
                     {
                         "name": "HideStep",
                         "excluded": false
+                    },
+                    {
+                        "name": "HideAllStep",
+                        "excluded": false
                     }
                 ]
             },
@@ -29528,15 +29526,15 @@
                 "instanceMethods": [
                     {
                         "name": "Current#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getCurrent",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getCurrent$1",
@@ -30115,6 +30113,94 @@
                     {
                         "name": "MarkRestoreExpected",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "TMPro.GlyphPairKey",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "TMPro.TMP_GlyphAdjustmentRecord",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "glyphIndex#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "glyphIndex#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "glyphValueRecord#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "glyphValueRecord#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
                     }
                 ]
             }
