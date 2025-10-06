@@ -75,11 +75,17 @@ public class PlayerMovement2 : MonoBehaviour
     }
     void FixedUpdate()
     {
+        Vector3 velocity;
         if (GameController.ins.isPauseGame)
         {
             return;
         }
-        if (LunaManager.ins.isCretivePause)
+        if (LunaManager.ins.isCretiveEnd)
+        {
+            rb.velocity= Vector3.zero;
+            return;
+        }
+        if (GetComponent<PlayerChar>().isDead)
         {
             return;
         }
@@ -93,44 +99,20 @@ public class PlayerMovement2 : MonoBehaviour
          moveX = JoystickController.ins.Horizontal();
          moveZ = JoystickController.ins.Vertical();
 #endif
-        /*Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
-
-        // Xoay nhân vật theo hướng di chuyển nếu có input
-        if (moveDirection != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, 10 * Time.deltaTime);
-        }*/
-
-        // Gán vận tốc cho Rigidbody
-
-        /*// Chuyển đổi hướng di chuyển theo góc nhìn
-        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
-        Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
-        if (angleDirection != Vector3.zero)
-        {
-            // Xoay trục Y theo hướng di chuyển
-            Quaternion toRotation = Quaternion.LookRotation(angleDirection, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
-        }
-        // Áp dụng lực di chuyển
-        Vector3 velocity = moveDirection * moveSpeed;
-        velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
-        rb.velocity = velocity;*/
+        
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
         Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
         
         if (angleDirection != Vector3.zero)
         {
-            
-            //Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-            // Xoay trục Y theo hướng di chuyển
             Quaternion toRotation = Quaternion.LookRotation(angleDirection, Vector3.up);
-            //transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
         }
-        Vector3 velocity = moveDirection * moveSpeed;
+        velocity = moveDirection * moveSpeed;
         velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
-        rb.velocity = velocity;
+        if (!rb.isKinematic)
+        {
+            rb.velocity = velocity;
+        }
         bool isMoving = moveX != 0 || moveZ != 0;
         if (isGrounded)
         {
@@ -142,11 +124,11 @@ public class PlayerMovement2 : MonoBehaviour
         animator.SetBool("isMoving", isMoving);
         if (IsOnSlope())
         {
-            rb.AddForce(Vector3.down * slopeForce, ForceMode.Acceleration);
+            //rb.AddForce(Vector3.down * slopeForce, ForceMode.Acceleration);
         }
 
         // Xử lý bước lên dốc (Step Climb)
-        StepClimb();
+        //StepClimb();
     }
     
     private void OnCollisionStay(Collision collision)
@@ -158,10 +140,10 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Respawn"))
         {
-            if (!LunaManager.ins.isCretivePause)
+            if (!LunaManager.ins.isCretiveEnd)
             {
-                GetComponent<PlayerChar>().Die();
-                LunaManager.ins.ShowEndCard();
+                GetComponent<PlayerChar>().TakeDamage(999);
+                //LunaManager.ins.ShowEndCard();
             }
         }
     }
@@ -170,7 +152,7 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if (other.CompareTag("Finish"))
         {
-            if (!LunaManager.ins.isCretivePause)
+            if (!LunaManager.ins.isCretiveEnd)
             {
                 animator.SetBool("isMoving", false);
                 LunaManager.ins.ShowEndCard();

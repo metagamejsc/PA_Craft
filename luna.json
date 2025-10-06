@@ -73,7 +73,23 @@
                 "Stubs/Sirenix/Odin Inspector/",
                 "Stubs/MeshCombiner/",
                 "Stubs/AnimationBaker/",
-                "Stubs/SupersonicWisdom/"
+                "Stubs/SupersonicWisdom/",
+                "Assets/Scripts/TerrainGenerator.cs",
+                "Assets/Scripts/Trunk.cs",
+                "Assets/Scripts/TilePos.cs",
+                "Assets/Scripts/WeaponObject.cs",
+                "Assets/Scripts/FastNoise.cs",
+                "Assets/Scripts/TerrainChunk.cs",
+                "Assets/Scripts/ChunkGenerator.cs",
+                "Assets/Scripts/TerrainWallCollider.cs",
+                "Assets/Scripts/WaterChunk.cs",
+                "Assets/Scripts/TreeBuilder.cs",
+                "Assets/Scripts/IronBlock.cs",
+                "Assets/Scripts/Inventory.cs",
+                "Assets/Scripts/CamFly.cs",
+                "Assets/Scripts/ZombieChar.cs",
+                "Assets/Scripts/Block.cs",
+                "Assets/Scripts/TerrainModifier.cs"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
             "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
@@ -124,7 +140,8 @@
                 "Stubs/AppsFlyer",
                 "Stubs/IronSource",
                 "Stubs/Vungle",
-                "Stubs/MoreMountains.NiceVibrations"
+                "Stubs/MoreMountains.NiceVibrations",
+                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
@@ -443,34 +460,6 @@
             },
             {
                 "name": "TMPro.HorizontalAlignmentOptions",
-                "excluded": false
-            },
-            {
-                "name": "BlockType",
-                "excluded": false
-            },
-            {
-                "name": "FastNoise.CellularDistanceFunction",
-                "excluded": false
-            },
-            {
-                "name": "FastNoise.CellularReturnType",
-                "excluded": false
-            },
-            {
-                "name": "FastNoise.FractalType",
-                "excluded": false
-            },
-            {
-                "name": "FastNoise.Interp",
-                "excluded": false
-            },
-            {
-                "name": "FastNoise.NoiseType",
-                "excluded": false
-            },
-            {
-                "name": "Tile",
                 "excluded": false
             },
             {
@@ -7978,7 +7967,7 @@
                 "excluded": false
             },
             {
-                "name": "TerrainWallCollider",
+                "name": "PlayerMovement",
                 "excluded": true
             }
         ],
@@ -21473,7 +21462,7 @@
                     },
                     {
                         "name": "bounds#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isTrigger#get",
@@ -22127,7 +22116,7 @@
                     },
                     {
                         "name": "isKinematic#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isKinematic#set",
@@ -22155,7 +22144,7 @@
                     },
                     {
                         "name": "useGravity#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "interpolation#get",
@@ -25510,788 +25499,6 @@
                 ]
             },
             {
-                "className": "Block",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "$ctor1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetPositions",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "ChunkPos",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "getDefaultValue",
-                        "excluded": false
-                    },
-                    {
-                        "name": "$ctor1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "getHashCode",
-                        "excluded": false
-                    },
-                    {
-                        "name": "equals",
-                        "excluded": false
-                    },
-                    {
-                        "name": "$clone",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "FastNoise",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FastFloor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Lerp",
-                        "excluded": false
-                    },
-                    {
-                        "name": "InterpQuinticFunc",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GradCoord2D",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GradCoord3D",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CalculateFractalBounding",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetPerlinFractal$1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SinglePerlinFractalFBM$1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SinglePerlin$1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetSimplex",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SingleSimplex",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetDecimalType",
-                        "excluded": true
-                    },
-                    {
-                        "name": "FastRound",
-                        "excluded": true
-                    },
-                    {
-                        "name": "InterpHermiteFunc",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CubicLerp",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Hash2D",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Hash3D",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Hash4D",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ValCoord2D",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ValCoord3D",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ValCoord4D",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GradCoord4D",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetSeed",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetSeed",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetFrequency",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetInterp",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetNoiseType",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetFractalOctaves",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetFractalLacunarity",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetFractalGain",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetFractalType",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetCellularDistanceFunction",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetCellularReturnType",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetCellularDistance2Indicies",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetCellularJitter",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetCellularNoiseLookup",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetGradientPerturbAmp",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetNoise$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetNoise",
-                        "excluded": true
-                    },
-                    {
-                        "name": "FloatCast2Int",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetWhiteNoise$2",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetWhiteNoise$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetWhiteNoise",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetWhiteNoiseInt$2",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetWhiteNoiseInt$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetWhiteNoiseInt",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetValueFractal$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetValueFractal",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleValueFractalFBM$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleValueFractalFBM",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleValueFractalBillow$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleValueFractalBillow",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleValueFractalRigidMulti$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleValueFractalRigidMulti",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetValue$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetValue",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleValue$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleValue",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetPerlinFractal",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SinglePerlinFractalFBM",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SinglePerlinFractalBillow$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SinglePerlinFractalBillow",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SinglePerlinFractalRigidMulti$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SinglePerlinFractalRigidMulti",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetPerlin$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetPerlin",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SinglePerlin",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetSimplexFractal$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetSimplexFractal",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleSimplexFractalFBM$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleSimplexFractalFBM",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleSimplexFractalBillow$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleSimplexFractalBillow",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleSimplexFractalRigidMulti$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleSimplexFractalRigidMulti",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetSimplex$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetSimplex$2",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleSimplex$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleSimplex$2",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetCubicFractal$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetCubicFractal",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCubicFractalFBM$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCubicFractalFBM",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCubicFractalBillow$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCubicFractalBillow",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCubicFractalRigidMulti$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCubicFractalRigidMulti",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetCubic$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetCubic",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCubic$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCubic",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetCellular$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetCellular",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCellular$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCellular",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCellular2Edge$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleCellular2Edge",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GradientPerturb$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GradientPerturb",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GradientPerturbFractal$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GradientPerturbFractal",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleGradientPerturb$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SingleGradientPerturb",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "FastNoise.Float2",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "$ctor1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "getDefaultValue",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": true
-                    },
-                    {
-                        "name": "getHashCode",
-                        "excluded": true
-                    },
-                    {
-                        "name": "equals",
-                        "excluded": true
-                    },
-                    {
-                        "name": "$clone",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "FastNoise.Float3",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "$ctor1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "getDefaultValue",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": true
-                    },
-                    {
-                        "name": "getHashCode",
-                        "excluded": true
-                    },
-                    {
-                        "name": "equals",
-                        "excluded": true
-                    },
-                    {
-                        "name": "$clone",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "Inventory",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CanPlaceCur",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetCur",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetCurBlock",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ReduceCur",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AddToInventory",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AddToInventory2",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateTextCount",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "MouseLook",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrag",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerUp",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerDown",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DesTroyBlock",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DestroyBlock",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerMovement",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "TerrainChunk",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "BuildMesh",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AddSquare",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "TerrainGenerator",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "BuildChunk",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetBlockType",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LoadChunks",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GenerateTrees",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DelayBuildChunks",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateWallCollider",
-                        "excluded": false
-                    },
-                    {
-                        "name": "InBounds",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SpawnObjectNearPlayerAvoidTrees",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IeSpawnZombie",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "TerrainModifier",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlaceBlock",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "TilePos",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetUVs",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "WaterChunk",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetLocs",
-                        "excluded": false
-                    },
-                    {
-                        "name": "BuildMesh",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.ScriptableObject",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -26848,40 +26055,6 @@
                 ]
             },
             {
-                "className": "JoystickController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrag",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerDown",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerUp",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Horizontal",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Vertical",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.CustomYieldInstruction",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -26914,56 +26087,6 @@
                     {
                         "name": "Reset",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerMovement2",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FixedUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnCollisionStay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsOnSlope",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StepClimb",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Jump",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnCollisionEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": true
                     }
                 ]
             },
@@ -28177,7 +27300,7 @@
                     },
                     {
                         "name": "length#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
@@ -29900,56 +29023,6 @@
                 ]
             },
             {
-                "className": "AudioManager",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlaySound",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlaySoundMerge",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlaySoundReward",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlaySoundBomb",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlaySoundBuild",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayMusicLose",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlayMusic",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlaySoundMove",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayMiningSound",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "DG.Tweening.DOTweenAnimation",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -30120,92 +29193,6 @@
                     {
                         "name": "ReEvaluateRelativeTween",
                         "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "LunaManager",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CheckClickShowEndCard",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PauseGameplay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ResumeGameplay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowEndCard",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnClickEndCard",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "TutorialBuildBlock",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "IeSpawnStep",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowStep",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideStep",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "UIManager",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
                     }
                 ]
             },
@@ -33717,7 +32704,7 @@
                     },
                     {
                         "name": "GetState$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetMotion",
@@ -33959,7 +32946,7 @@
                     },
                     {
                         "name": "Play$4",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Play$1",
@@ -33975,7 +32962,7 @@
                     },
                     {
                         "name": "Play$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Rebind",
@@ -34519,7 +33506,7 @@
                 "instanceMethods": [
                     {
                         "name": "value#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "onUnitSphere#get",
@@ -34551,7 +33538,7 @@
                     },
                     {
                         "name": "Range$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Range",
@@ -34684,206 +33671,6 @@
                 ]
             },
             {
-                "className": "Anim3D",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnAnimationEvent",
-                        "excluded": true
-                    },
-                    {
-                        "name": "EventAtk",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventIdle",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventDead",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventMove",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventAtkComplete",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "BaseCharacter",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsFindingEnemy#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "IsFindingEnemy#set",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SearchForEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleMovement",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleMovementByPoint",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetIdle",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HandleAttack",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleDeath",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Die",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AtkCompleted",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "SoundChar",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "PlayIdleSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayAttackSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayTakeDameSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayDeadSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayMoveSound",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerChar",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Die",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SearchForEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleAttack",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CraftWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AtkCompleted",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "ZombieChar",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SearchForEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IeNhapNhay",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "IronBlock",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.UI.GridLayoutGroup",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -34957,36 +33744,6 @@
                     },
                     {
                         "name": "SetCellsAlongAxis",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "GameController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CheckCamera",
-                        "excluded": true
-                    },
-                    {
-                        "name": "EnemyDead",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SpawnEnemy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetIdWeapon",
                         "excluded": false
                     }
                 ]
@@ -35404,16 +34161,6 @@
                 ]
             },
             {
-                "className": "WeaponObject",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "System.OperationCanceledException",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35716,6 +34463,418 @@
                 ]
             },
             {
+                "className": "Anim3D",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnAnimationEvent",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventAtk",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventAtkComplete",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventIdle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EventDead",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EventMove",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "AudioManager",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlaySoundMerge",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlaySoundMove",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlaySoundReward",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundBomb",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlaySoundBuild",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayMiningSound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayMusicLose",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayMusic",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "BaseCharacter",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsFindingEnemy#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsFindingEnemy#set",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AtkCompleted",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SearchForEnemy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleMovement",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleMovementByPoint",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetIdle",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleAttack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TakeDamage",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleDeath",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Die",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "BridgeManager",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetupGlassLine",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GameController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnemyDead",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ReSpawnPlayer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GlassBreak",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GlassLine",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ResetLine",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetSafeSide",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GlassTile",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetTile",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnCollisionEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BreakGlass",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnStart",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "JoystickController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDrag",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerDown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerUp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Horizontal",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Vertical",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "LunaManager",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CheckClickShowEndCard",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PauseGameplay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResumeGameplay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowEndCard",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnClickEndCard",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "MouseLook",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDrag",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerUp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerDown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DesTroyBlock",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DestroyBlock",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "PlayerMovement2",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsOnSlope",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StepClimb",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Jump",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FixedUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnCollisionStay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnCollisionEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
                 "className": "RotateObject",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35725,11 +34884,11 @@
                     },
                     {
                         "name": "Update",
-                        "excluded": false
+                        "excluded": true
                     },
                     {
                         "name": "OnCollisionEnter",
-                        "excluded": false
+                        "excluded": true
                     }
                 ]
             },
@@ -35755,6 +34914,100 @@
                     },
                     {
                         "name": "SetupTextureWrapMode",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "SoundChar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "PlayIdleSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayAttackSound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayTakeDameSound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayDeadSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayMoveSound",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "TutorialBuildBlock",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IeSpawnStep",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowStep",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HideStep",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "PlayerChar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SearchForEnemy",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CraftWeapon",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AtkCompleted",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleAttack",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TakeDamage",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetPlayer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Die",
                         "excluded": false
                     }
                 ]
@@ -35851,12 +35104,22 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 30.0,
+                        "bitrate": 32,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/SoundFX/an_ordinary_day (mp3cut.net).mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
                         "endTime": "00:00.000",
                         "lengthInSeconds": 0.0,
                         "bitrate": 128,
                         "script": "",
                         "ext": "",
-                        "name": "Assets/SoundFX/an_ordinary_day (mp3cut.net).mp3"
+                        "name": "Assets/Sound/Lava (1).ogg"
                     }
                 ]
             },

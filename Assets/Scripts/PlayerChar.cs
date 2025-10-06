@@ -15,21 +15,7 @@ public class PlayerChar : BaseCharacter
         }
         SearchForEnemy();
         attackCooldown -= Time.deltaTime;
-        /*if (SwordObject.activeSelf)
-        {
-            if (attackCooldown<=0)
-            {
-                swordFake.SetActive(true);
-            }
-            else
-            {
-                swordFake.SetActive(false);
-            }
-        }
-        else
-        {
-            swordFake.SetActive(false);
-        }*/
+        
     }
 
     protected override void Start()
@@ -104,17 +90,32 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-        health -= dmg;
+        /*health -= dmg;
         if (health <= 0)
         {
-            LunaManager.ins.ShowEndCard();
-            isDead = true;
-            Die();
-        }
-    }
+            
+        }*/
+        Die();
+        Invoke(nameof(ResetPlayer), 1f);
 
+    }
+    public void ResetPlayer()
+    {
+        isDead = false;
+        health = 1;
+        animator.transform.parent = transform;
+        capsuleCollider.enabled = true;
+        rigidbody.isKinematic = false;
+        GameController.ins.ReSpawnPlayer();
+        if (LunaManager.ins.isCretiveEnd)
+        {
+            return;
+        }
+        animator.Play("metarig|Idle");
+    }
     public override void Die()
     {
+        isDead = true;
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;

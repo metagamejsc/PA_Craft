@@ -9,13 +9,11 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
-    [LunaPlaygroundField("CountDrop")] public int count;
+    [LunaPlaygroundField("Số lần chết ra store")] public int countReSpawnFinal=3;
+    [LunaPlaygroundField("Số cầu kính vợt qua ra store")] public int countPassGlassMax=5;
+    public int countPassGlas=0;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
-    [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
-    [LunaPlaygroundField("Tree Count")] public int treeCount=20;
-    public bool isCretivePause;
+    public bool isCretiveEnd;
     private void Awake()
     {
         ins = this;
@@ -42,10 +40,9 @@ public class LunaManager : MonoBehaviour
 
     public void CheckClickShowEndCard()
     {
-        countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
+        countPassGlas++;
+        if (countPassGlas>=countPassGlassMax && isCretiveEnd==false)
         {
-            isCretivePause = true;
             ShowEndCard();
         }
     }
@@ -64,11 +61,14 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
-        isCretivePause = true;
-        AudioManager.ins.PlaySoundReward();
-        EndCard.SetActive(true);
-        Debug.Log("Show end card");
-        Luna.Unity.LifeCycle.GameEnded();
+        if (!isCretiveEnd)
+        {
+            isCretiveEnd = true;
+            AudioManager.ins.PlaySoundReward();
+            EndCard.SetActive(true);
+            Debug.Log("Show end card");
+            Luna.Unity.LifeCycle.GameEnded();
+        }
     }
 
     public void OnClickEndCard()

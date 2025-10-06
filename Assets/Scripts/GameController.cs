@@ -12,44 +12,43 @@ public class GameController : MonoBehaviour
     public List<GameObject> enemyList = new List<GameObject>();
     public Transform posEndCamera;
     public bool isEndGame = false;
-    public int ironCount;
-    public UIManager uiManager;
     public GameObject startGame;
     public PlayerChar playerChar;
-    public float timeActive;
+
     public GameObject enemy;
     public int idWeapon;
     public Mesh[] lstMeshWeapons;
-    public int countEnemyDefeat = 0;
+  
+    public Transform posReSpawn;
+    public int countReSpawn = 0;
+    public int reSpawnMax;
 
     public void EnemyDead()
     {
-        countEnemyDefeat++;
-        if (countEnemyDefeat>=LunaManager.ins.countDropFinal)
+        
+    }
+    public void ReSpawnPlayer()
+    {
+        if (countReSpawn>=reSpawnMax)
         {
             LunaManager.ins.ShowEndCard();
+            return;
         }
+        countReSpawn++;
+        playerChar.transform.position = posReSpawn.position;
+        playerChar.gameObject.SetActive(true);
+        playerChar.health = 1;
+        playerChar.isDead = false;
+        
+    }
+
+    private void Start()
+    {
+        reSpawnMax = LunaManager.ins.countReSpawnFinal;
     }
     private void Awake()
     {
         ins = this;
-        //uiManager=UIManager.ins;
-    }
-    
-    [ContextMenu("Camera")]
-    public void CheckCamera()
-    {
-        
-    }
-
-    public void SpawnEnemy(Vector3 posSpawn)
-    {
-        enemy.transform.position = posSpawn;
-    }
-
-    public void SetIdWeapon(int id)
-    {
-        idWeapon = id;
-        playerChar.CraftWeapon();
+       
     }
 }
