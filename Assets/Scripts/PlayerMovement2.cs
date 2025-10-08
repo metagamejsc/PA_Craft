@@ -70,12 +70,13 @@ public class PlayerMovement2 : MonoBehaviour
         if(isGrounded)
         {
             animator.SetBool("isJumping", !isGrounded);
+            AudioManager.ins.PlaySoundJumping();
             rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
         }
     }
     void FixedUpdate()
     {
-        Vector3 velocity;
+        
         if (GameController.ins.isPauseGame)
         {
             return;
@@ -107,6 +108,7 @@ public class PlayerMovement2 : MonoBehaviour
         {
             Quaternion toRotation = Quaternion.LookRotation(angleDirection, Vector3.up);
         }
+        Vector3 velocity;
         velocity = moveDirection * moveSpeed;
         velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
         if (!rb.isKinematic)

@@ -111,6 +111,8 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
+
+        AudioManager.ins.PlaySoundRespawn();
         animator.Play("metarig|Idle");
     }
     public override void Die()

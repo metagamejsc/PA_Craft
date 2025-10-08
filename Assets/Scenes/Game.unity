@@ -3346,6 +3346,8 @@ MonoBehaviour:
   bgSound: {fileID: 8300000, guid: 357def21355a5a3438fe9dc32fb4d82e, type: 3}
   buildSound: {fileID: 8300000, guid: 3f0659bdf0d9d6b48a747a3dba8bcb56, type: 3}
   miningSound: {fileID: 8300000, guid: ff88d555490d99447a9c8f52aaad7fb2, type: 3}
+  jumpingSound: {fileID: 8300000, guid: 1c66a8ccdddeac845a07987a055fbbc5, type: 3}
+  respawnSound: {fileID: 8300000, guid: 2239bb9d8ac57b748a9d86df06a493b6, type: 3}
   lstMoveSound:
   - {fileID: 8300000, guid: a593af0f8c4210d4f82355bfac0da9c3, type: 3}
 --- !u!4 &195404662
@@ -13392,7 +13394,7 @@ PrefabInstance:
     - target: {fileID: 5396644725169227816, guid: ea0239cecd1b75e40aeef3ac5ca74fef,
         type: 3}
       propertyPath: m_CollisionDetection
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5487143339930200736, guid: ea0239cecd1b75e40aeef3ac5ca74fef,
         type: 3}
@@ -14767,28 +14769,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38f2a499f08b6e14f8d74bd56bf25292, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  matTypes: 01000000030000000400000002000000
-  btnItems:
-  - {fileID: 283501334}
-  - {fileID: 724188300}
-  - {fileID: 1309318932}
-  - {fileID: 600948560}
-  invImgs:
-  - {fileID: 283501332}
-  - {fileID: 724188298}
-  - {fileID: 1309318930}
-  - {fileID: 600948558}
-  matImgs:
-  - {fileID: 423268063}
-  - {fileID: 711595657}
-  - {fileID: 728726130}
-  - {fileID: 47200764}
-  textCount:
-  - {fileID: 1503407899}
-  - {fileID: 1807133786}
-  - {fileID: 342774049}
-  - {fileID: 1825932738}
-  posBlock: {fileID: 0}
 --- !u!1 &861019461
 GameObject:
   m_ObjectHideFlags: 0
@@ -16082,12 +16062,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 981d99fd85c97454aa0445295610ff7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  blockPrefab: {fileID: 2413921364301186378, guid: a50c8ee1f21e59b4db1ca25fc6497c8e,
-    type: 3}
-  inv: {fileID: 846005836}
 --- !u!1 &971485977
 GameObject:
   m_ObjectHideFlags: 0
@@ -30929,7 +30903,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b792cb679ed9154689e263acee6e23c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meshFilter: {fileID: 7782971094132576348}
 --- !u!1001 &7839372443236922648
 PrefabInstance:
   m_ObjectHideFlags: 0
