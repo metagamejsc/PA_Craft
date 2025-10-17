@@ -24,5 +24,12 @@ public class GlassLine : MonoBehaviour
         leftTile.OnStart();
         rightTile.OnStart();
     }
-    
+    public Transform LeftPos()
+    {
+        return leftTile.transform;
+    }
+    public Transform RightPos()
+    {
+        return rightTile.transform;
+    }
 }

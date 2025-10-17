@@ -91,7 +91,7 @@ public class PlayerMovement2 : MonoBehaviour
             return;
         }
         // Lấy input từ bàn phím (WASD)
-        float moveX = 0;
+        /*float moveX = 0;
         float moveZ = 0;
 #if UNITY_EDITOR
          moveX = Input.GetAxis("Horizontal");
@@ -121,7 +121,7 @@ public class PlayerMovement2 : MonoBehaviour
             /*if (isMoving)
                 animator.Play("metarig|Walk");
             else
-                animator.Play("metarig|Idle");*/
+                animator.Play("metarig|Idle");#1#
         }
         animator.SetBool("isMoving", isMoving);
         if (IsOnSlope())
@@ -130,7 +130,7 @@ public class PlayerMovement2 : MonoBehaviour
         }
 
         // Xử lý bước lên dốc (Step Climb)
-        //StepClimb();
+        //StepClimb();*/
     }
     
     private void OnCollisionStay(Collision collision)

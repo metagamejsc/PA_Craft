@@ -29,18 +29,23 @@ public class GlassTile : MonoBehaviour
     
     void OnCollisionEnter(Collision collision)
     {
-        if (steppedOn || !collision.gameObject.CompareTag("Player")) return;
+        if (!collision.gameObject.CompareTag("Player")) return;
 
         if (isSafe && steppedOn==false)
         {
             LunaManager.ins.CheckClickShowEndCard();
         }
+        GameController.ins.currentStep++;
         steppedOn = true;
         AudioSource.PlayClipAtPoint(jumpSound, transform.position);
         if (!isSafe)
         {
-            // Gương vỡ hoặc rơi
+            GameController.ins.UIJump.SetActive(false);
             BreakGlass();
+        }
+        else
+        {
+            GameController.ins.UIJump.SetActive(true);
         }
     }
 

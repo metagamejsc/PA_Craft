@@ -96,7 +96,7 @@ public class PlayerChar : BaseCharacter
             
         }*/
         Die();
-        Invoke(nameof(ResetPlayer), 1f);
+        //Invoke(nameof(ResetPlayer), 1f);
 
     }
     public void ResetPlayer()
@@ -115,6 +115,16 @@ public class PlayerChar : BaseCharacter
         AudioManager.ins.PlaySoundRespawn();
         animator.Play("metarig|Idle");
     }
+    public void SetJump()
+    {
+        AudioManager.ins.PlaySoundJumping();
+        animator.SetBool("isJumping", true);
+    }
+    public void SetIdle()
+    {
+        animator.SetBool("isJumping", false);
+        animator.Play("metarig|Idle");
+    }
     public override void Die()
     {
         isDead = true;
@@ -122,6 +132,7 @@ public class PlayerChar : BaseCharacter
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
         animator.transform.parent = null;
+        GameController.ins.deadPanel.SetActive(true);
         //Destroy(gameObject);
     }
 }
