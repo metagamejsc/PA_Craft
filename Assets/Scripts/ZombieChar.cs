@@ -6,12 +6,14 @@ using UnityEngine;
 public class ZombieChar : BaseCharacter
 {
     public Material material;
+    public Material[] lstMaterialChange;
     public SkinnedMeshRenderer[] lstMaterials;
     protected override void Start()
     {
         base.Start();
         IsFindingEnemy = true;
         //health = LunaManager.ins.countDropFinal;
+        material = lstMaterialChange[Random.Range(0, lstMaterialChange.Length)];
         for (int i = 0; i < lstMaterials.Length; i++)
         {
             lstMaterials[i].material = new Material(material);
@@ -56,7 +58,7 @@ public class ZombieChar : BaseCharacter
             return;
         }
         health -= dmg;
-        
+        GetComponent<Rigidbody>().AddForce((new Vector3(0,2,0)+-transform.forward)*5,ForceMode.Impulse);
         StartCoroutine(IeNhapNhay(2f));
         if (health <= 0)
         {

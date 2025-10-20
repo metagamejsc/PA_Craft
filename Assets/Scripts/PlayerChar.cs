@@ -35,6 +35,7 @@ public class PlayerChar : BaseCharacter
     protected override void Start()
     {
         base.Start();
+        health=LunaManager.ins.healthPlayer;
         SwordObject.SetActive(false);
         IsFindingEnemy = true;
     }
@@ -52,7 +53,7 @@ public class PlayerChar : BaseCharacter
         Camera cam = Camera.main;
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, detectionRadiusMax, LayerMask.GetMask("Enemy"))) 
+        if (Physics.Raycast(ray, out hit, detectionRadiusMin, LayerMask.GetMask("Enemy"))) 
         {
             GameObject hitObj = hit.transform.gameObject;
             
@@ -64,6 +65,10 @@ public class PlayerChar : BaseCharacter
             {
                 target = null;
             }
+        }
+        else
+        {
+            target = null;
         }
     }
 
@@ -91,10 +96,10 @@ public class PlayerChar : BaseCharacter
             //currentWeapon?.Attack();
             /*SwordObject.transform.parent = swordPos;
             SwordObject.transform.localPosition = Vector3.zero;
-            SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+            SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);*/
             attackCooldown = atkAnimationClip.length/ attackSpeed;
             animator.SetFloat("AttackSpeed", attackCooldown>attackSpeed?1:attackSpeed);  
-            animator.SetTrigger("Attack");*/
+            animator.SetTrigger("Attack");
             // Reset thời gian hồi chiêu
         }
     }

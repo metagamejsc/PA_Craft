@@ -12,6 +12,9 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
     [LunaPlaygroundField("Số enemy spawn")] public int maxEnemySpawn=10;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
+    [LunaPlaygroundField("Máu player")] public int healthPlayer=3;
+    
+    
     [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
     [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
