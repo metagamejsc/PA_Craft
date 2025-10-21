@@ -8,7 +8,7 @@ public class PlayerChar : BaseCharacter
     protected override void Update()
     {
 
-        //HandleAttack();
+        /*//HandleAttack();
         if (GameController.ins.isPauseGame)
         {
             return;
@@ -29,7 +29,7 @@ public class PlayerChar : BaseCharacter
         else
         {
             swordFake.SetActive(false);
-        }*/
+        }#1#*/
     }
 
     protected override void Start()

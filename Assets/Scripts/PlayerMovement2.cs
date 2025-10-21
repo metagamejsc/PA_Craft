@@ -88,7 +88,7 @@ public class PlayerMovement2 : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if (GameController.ins.isPauseGame)
+        /*if (GameController.ins.isPauseGame)
         {
             return;
         }
@@ -113,11 +113,11 @@ public class PlayerMovement2 : MonoBehaviour
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
             model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, 10 * Time.deltaTime);
-        }*/
+        }#1#
 
         // Gán vận tốc cho Rigidbody
 
-        /*// Chuyển đổi hướng di chuyển theo góc nhìn
+        /#1#/ Chuyển đổi hướng di chuyển theo góc nhìn
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
         Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
         if (angleDirection != Vector3.zero)
@@ -129,7 +129,7 @@ public class PlayerMovement2 : MonoBehaviour
         // Áp dụng lực di chuyển
         Vector3 velocity = moveDirection * moveSpeed;
         velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
-        rb.velocity = velocity;*/
+        rb.velocity = velocity;#1#
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
         Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
         
@@ -150,7 +150,7 @@ public class PlayerMovement2 : MonoBehaviour
             /*if (isMoving)
                 animator.Play("metarig|Walk");
             else
-                animator.Play("metarig|Idle");*/
+                animator.Play("metarig|Idle");#1#
         }
         animator.SetBool("isMoving", isMoving);
         if (IsOnSlope())
@@ -159,7 +159,7 @@ public class PlayerMovement2 : MonoBehaviour
         }
 
         // Xử lý bước lên dốc (Step Climb)
-        StepClimb();
+        StepClimb();*/
     }
     
     private void OnCollisionStay(Collision collision)
