@@ -140,13 +140,13 @@ public class PlayerMovement2 : MonoBehaviour
                 animator.Play("metarig|Idle");*/
         }
         animator.SetBool("isMoving", isMoving);
-        if (IsOnSlope())
+        /*if (IsOnSlope())
         {
             rb.AddForce(Vector3.down * slopeForce, ForceMode.Acceleration);
-        }
+        }*/
 
         // Xử lý bước lên dốc (Step Climb)
-        StepClimb();
+        //StepClimb();
     }
     
     private void OnCollisionStay(Collision collision)
@@ -173,7 +173,7 @@ public class PlayerMovement2 : MonoBehaviour
             if (!LunaManager.ins.isCretivePause)
             {
                 animator.SetBool("isMoving", false);
-                LunaManager.ins.ShowEndCard();
+                LunaManager.ins.ShowWinCard();
             }
         }
     }

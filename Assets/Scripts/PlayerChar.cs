@@ -5,6 +5,16 @@ public class PlayerChar : BaseCharacter
     public GameObject swordFake;
     public Transform swordFakePos;
     public Transform swordPos;
+
+    public void OnStartRespawn()
+    {
+        isDead = false;
+        health = 1f;
+        capsuleCollider.enabled = true;
+        rigidbody.isKinematic = false;
+        animator.Play(idleAnimationClip.name);
+    }
+   
     protected override void Update()
     {
 
@@ -118,7 +128,7 @@ public class PlayerChar : BaseCharacter
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
-        animator.transform.parent = null;
+        //animator.transform.parent = null;
         //Destroy(gameObject);
     }
 }

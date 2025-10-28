@@ -12,8 +12,9 @@ public class LunaManager : MonoBehaviour
     public int countDropFinal;
     public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
+    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
     public float noiseIntensity=10;
-   public float landNoiseScale=0.8f;
+    public float landNoiseScale=0.8f;
     public int treeCount=20;
     public bool isCretivePause;
     private void Awake()
@@ -23,6 +24,7 @@ public class LunaManager : MonoBehaviour
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
+    public GameObject WinCard;
     
 
 
@@ -36,10 +38,22 @@ public class LunaManager : MonoBehaviour
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
         EndCard.SetActive(false);
+        WinCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
-
+    public void ReplayGame()
+    {
+        isCretivePause = false;
+        EndCard.SetActive(false);
+        var timeEndCreativeRemaining = timeEndCreative - Time.realtimeSinceStartup;
+        if (timeEndCreativeRemaining<0)
+        {
+            timeEndCreativeRemaining = 5f;
+        }
+        Invoke(nameof(ShowEndCard), timeEndCreativeRemaining);
+    }
+   
     public void CheckClickShowEndCard()
     {
         countDrop++;
@@ -64,13 +78,22 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
+        if (isCretivePause) return;
         isCretivePause = true;
         AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
-
+    public void ShowWinCard()
+    {
+        if (isCretivePause) return;
+        isCretivePause = true;
+        AudioManager.ins.PlaySoundReward();
+        WinCard.SetActive(true);
+        Debug.Log("Show win card");
+        Luna.Unity.LifeCycle.GameEnded();
+    }
     public void OnClickEndCard()
     {
         Debug.Log("Click end card");

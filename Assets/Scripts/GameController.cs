@@ -3,25 +3,49 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
     public static GameController ins;
-    public bool isStartGame = false;
     public bool isPauseGame = false;
-    public List<GameObject> enemyList = new List<GameObject>();
-    public Transform posEndCamera;
-    public bool isEndGame = false;
-    public int ironCount;
-    public UIManager uiManager;
-    public GameObject startGame;
+
     public PlayerChar playerChar;
-    public float timeActive;
-    public GameObject enemy;
+
     public int idWeapon;
     public Mesh[] lstMeshWeapons;
     public int countEnemyDefeat = 0;
 
+    public Transform posSpawnPlayer;
+    public int countPlayerDie=0;
+    public bool canRestart;
+    public Button btnRestart;
+    
+    public void StartGame()
+    {
+        playerChar.OnStartRespawn();
+        playerChar.transform.position = posSpawnPlayer.position;
+    }
+    public void RestartGame()
+    {
+        if (canRestart)
+        {
+            if (countPlayerDie>=1)
+            {
+                LunaManager.ins.OnClickEndCard();
+                return;
+            }
+        }
+        else
+        {
+            LunaManager.ins.OnClickEndCard();
+            return;
+        }
+       
+        LunaManager.ins.ReplayGame();
+        StartGame();
+        countPlayerDie++;
+    }
     public void EnemyDead()
     {
         countEnemyDefeat++;
@@ -33,23 +57,11 @@ public class GameController : MonoBehaviour
     private void Awake()
     {
         ins = this;
-        //uiManager=UIManager.ins;
+    }
+    public void Start()
+    {
+        btnRestart.onClick.AddListener(RestartGame);
+        canRestart= LunaManager.ins.canReplay >= 1;
     }
     
-    [ContextMenu("Camera")]
-    public void CheckCamera()
-    {
-        
-    }
-
-    public void SpawnEnemy(Vector3 posSpawn)
-    {
-        enemy.transform.position = posSpawn;
-    }
-
-    public void SetIdWeapon(int id)
-    {
-        idWeapon = id;
-        playerChar.CraftWeapon();
-    }
 }

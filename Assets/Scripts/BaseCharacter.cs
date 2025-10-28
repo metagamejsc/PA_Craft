@@ -18,6 +18,7 @@ public class BaseCharacter : MonoBehaviour
     public Animator animator;
     public GameObject SwordObject;
     public AnimationClip atkAnimationClip;
+    public AnimationClip idleAnimationClip;
     [SerializeField]
     protected float attackCooldown = 0f;
     public Transform target;
@@ -207,8 +208,8 @@ public class BaseCharacter : MonoBehaviour
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
-        animator.transform.parent = null;
-        Destroy(gameObject);
+        //animator.transform.parent = null;
+        //Destroy(gameObject);
     }
 }
 

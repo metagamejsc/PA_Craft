@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 31160,
-    "creativeName": "BCRWV_V25_ChiTM_ToiNV",
+    "applicationID": 33902,
+    "creativeName": "v2",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -124,7 +124,8 @@
                 "Stubs/AppsFlyer",
                 "Stubs/IronSource",
                 "Stubs/Vungle",
-                "Stubs/MoreMountains.NiceVibrations"
+                "Stubs/MoreMountains.NiceVibrations",
+                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
@@ -162,10 +163,10 @@
         "enableMecanimWASM": true,
         "minify": true,
         "forceUncompressed": false,
-        "forceBase64": false,
+        "forceBase64": true,
         "genericCheck": true,
         "disableAntiAliasing": true,
-        "preferWebGl2": false,
+        "preferWebGl2": true,
         "forceStableRandomSeed": false,
         "unusedModules": [
             {
@@ -1506,10 +1507,6 @@
                 "excluded": true
             },
             {
-                "name": "System.Collections.Generic.KeyNotFoundException",
-                "excluded": true
-            },
-            {
                 "name": "System.CharEnumerator",
                 "excluded": true
             },
@@ -2723,10 +2720,6 @@
             },
             {
                 "name": "UnityEngine.DefaultExecutionOrder",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.DynamicGI",
                 "excluded": true
             },
             {
@@ -16067,7 +16060,7 @@
                     },
                     {
                         "name": "localPosition#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "localScale#get",
@@ -17275,11 +17268,11 @@
                     },
                     {
                         "name": "anchoredPosition3D#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "anchoredPosition3D#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetSizeWithCurrentAnchors",
@@ -20189,7 +20182,7 @@
                     },
                     {
                         "name": "customReflection#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "customReflection#set",
@@ -20197,7 +20190,7 @@
                     },
                     {
                         "name": "defaultReflectionMode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "defaultReflectionMode#set",
@@ -25217,7 +25210,7 @@
                     },
                     {
                         "name": "ResizeInternalArray",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResizeInternalArray$1",
@@ -25341,7 +25334,7 @@
                     },
                     {
                         "name": "RestoreWordWrappingState",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SaveGlyphVertexInfo",
@@ -26951,7 +26944,7 @@
                     },
                     {
                         "name": "Jump",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Awake",
@@ -30158,6 +30151,14 @@
                     {
                         "name": "OnClickEndCard",
                         "excluded": false
+                    },
+                    {
+                        "name": "ReplayGame",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ShowWinCard",
+                        "excluded": true
                     }
                 ]
             },
@@ -30183,28 +30184,6 @@
                     },
                     {
                         "name": "HideStep",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "UIManager",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
                         "excluded": false
                     }
                 ]
@@ -32885,7 +32864,7 @@
                     },
                     {
                         "name": "SetOptions$13",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetOptions$12",
@@ -34844,6 +34823,10 @@
                     {
                         "name": "AtkCompleted",
                         "excluded": false
+                    },
+                    {
+                        "name": "OnStartRespawn",
+                        "excluded": true
                     }
                 ]
             },
@@ -34974,19 +34957,19 @@
                         "excluded": false
                     },
                     {
-                        "name": "CheckCamera",
-                        "excluded": true
-                    },
-                    {
                         "name": "EnemyDead",
                         "excluded": false
                     },
                     {
-                        "name": "SpawnEnemy",
+                        "name": "StartGame",
                         "excluded": true
                     },
                     {
-                        "name": "SetIdWeapon",
+                        "name": "RestartGame",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
                         "excluded": false
                     }
                 ]
@@ -35307,7 +35290,7 @@
                     },
                     {
                         "name": "DOAnchorPos3D",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOAnchorPos3DX",
@@ -35758,6 +35741,50 @@
                         "excluded": false
                     }
                 ]
+            },
+            {
+                "className": "System.Collections.Generic.KeyNotFoundException",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.DynamicGI",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "UpdateEnvironment",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BakeReflectionsCubemap",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BakeLightingCubemap",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateEnvironmentLighting",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateSkyboxMaterial",
+                        "excluded": true
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -35851,9 +35878,9 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:00.000",
-                        "lengthInSeconds": 0.0,
-                        "bitrate": 128,
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 30.0,
+                        "bitrate": 32,
                         "script": "",
                         "ext": "",
                         "name": "Assets/SoundFX/an_ordinary_day (mp3cut.net).mp3"
