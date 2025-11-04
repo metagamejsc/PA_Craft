@@ -14,7 +14,6 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     /*[LunaPlaygroundField("NoiseIntensity")] */public float noiseIntensity=10;
     /*[LunaPlaygroundField("LandNoiseScale")] */public float landNoiseScale=0.8f;
-    public Image[] doTweenAnimations;
     public bool isCretivePause;
     public float timeActive = 0;
     public int numberActive = 0;
@@ -80,33 +79,7 @@ public class LunaManager : MonoBehaviour
             }
         }*/
     }
-
-    public IEnumerator IESelectBuilding()
-    {
-        
-        yield return new WaitForSeconds(13f);
-        int number = 0;
-        while (true)
-        {
-            yield return new WaitForSeconds(0.92f);
-            AudioManager.ins.PlaySoundClick();
-            doTweenAnimations[number].color = Color.green;
-            for (int i = 0; i < doTweenAnimations.Length; i++)
-            {
-                yield return null;
-                if (i!=number)
-                {
-                    doTweenAnimations[i].color=Color.cyan;
-                }
-            }
-            number++;
-            if (number>=doTweenAnimations.Length)
-            {
-                number = 0;
-            }
-        }
-        
-    }
+    
     // Update is called once per frame
     public void PauseGameplay()
     {
@@ -122,11 +95,6 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
-        StopAllCoroutines();
-        for (int i = 0; i < doTweenAnimations.Length; i++)
-        {
-            doTweenAnimations[i].color=Color.cyan;
-        }
         AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
@@ -136,11 +104,7 @@ public class LunaManager : MonoBehaviour
     public void OnClickEndCard()
     {
         Debug.Log("Click end card");
-        StopAllCoroutines();
-        for (int i = 0; i < doTweenAnimations.Length; i++)
-        {
-            doTweenAnimations[i].color=Color.cyan;
-        }
+        
         Luna.Unity.Playable.InstallFullGame();
     }
 
