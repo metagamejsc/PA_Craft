@@ -18,7 +18,7 @@ public class BaseCharacter : MonoBehaviour
     public Animator animator;
     public GameObject SwordObject;
     public AnimationClip atkAnimationClip;
-    public AnimationClip idleAnimationClip;
+    public string idleAnimationClip;
     [SerializeField]
     protected float attackCooldown = 0f;
     public Transform target;

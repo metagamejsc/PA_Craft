@@ -10,6 +10,7 @@ public class SoundChar : MonoBehaviour
     public AudioClip[] takeDameSounds;
     public AudioClip[] deadSounds;
     public AudioClip[] moveSounds;
+    public AudioClip[] jumpSounds;
     
     public void PlayIdleSound()
     {
@@ -58,6 +59,15 @@ public class SoundChar : MonoBehaviour
             return;
         }
         sound.clip = moveSounds[Random.Range(0, moveSounds.Length)];
+        sound.Play();
+    }
+    public void PlayJumpSound()
+    {
+        if (jumpSounds.Length==0)
+        {
+            return;
+        }
+        sound.clip = jumpSounds[Random.Range(0, jumpSounds.Length)];
         sound.Play();
     }
 }

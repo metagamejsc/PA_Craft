@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -25,12 +26,27 @@ public class PlayerMovement2 : MonoBehaviour
     
     private Rigidbody rb;
     private float xRotation = 0f;
-    private bool isGrounded;
+    public bool isGrounded;
     private bool isJumping;
+    private bool stopCoutine;
 
+
+    public IEnumerator MoveAndIdle()
+    {
+        while (!stopCoutine)
+        {
+            animator.SetBool("isMoving", true);
+            yield return new WaitForSeconds(2f);
+            animator.SetBool("isMoving", false);
+            yield return new WaitForSeconds(1f);
+        }
+    }
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        moveSpeed = LunaManager.ins.playerSpeed;
+        jumpHeight=LunaManager.ins.playerJumpForce;
+        StartCoroutine(MoveAndIdle());
     }
     bool IsOnSlope()
     {
@@ -59,7 +75,14 @@ public class PlayerMovement2 : MonoBehaviour
     }
     void Update()
     {
+        if (GetComponent<PlayerChar>().isDead)
+        {
+            animator.SetBool("isJumping", false);
+            animator.Play("metarig|Fall");
+            return;
+        }
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        animator.SetBool("isJumping", !isGrounded);
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
@@ -70,6 +93,7 @@ public class PlayerMovement2 : MonoBehaviour
         if(isGrounded)
         {
             animator.SetBool("isJumping", !isGrounded);
+            animator.Play("metarig|Character_Jump");
             rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
         }
     }
@@ -119,7 +143,11 @@ public class PlayerMovement2 : MonoBehaviour
         rb.velocity = velocity;*/
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
         Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
-        
+        if ((moveX!=0 || moveZ!=0)&& !stopCoutine)
+        {
+            StopAllCoroutines();
+            stopCoutine = true;
+        }
         if (angleDirection != Vector3.zero)
         {
             
@@ -132,14 +160,18 @@ public class PlayerMovement2 : MonoBehaviour
         velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
         rb.velocity = velocity;
         bool isMoving = moveX != 0 || moveZ != 0;
-        if (isGrounded)
+        /*if (isGrounded)
         {
-            /*if (isMoving)
+            if (isMoving)
                 animator.Play("metarig|Walk");
             else
-                animator.Play("metarig|Idle");*/
+                animator.Play("metarig|Idle");
+        }*/
+        if (stopCoutine)
+        {
+            animator.SetBool("isMoving", isMoving);
         }
-        animator.SetBool("isMoving", isMoving);
+        
         /*if (IsOnSlope())
         {
             rb.AddForce(Vector3.down * slopeForce, ForceMode.Acceleration);

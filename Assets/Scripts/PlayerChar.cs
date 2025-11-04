@@ -12,7 +12,7 @@ public class PlayerChar : BaseCharacter
         health = 1f;
         capsuleCollider.enabled = true;
         rigidbody.isKinematic = false;
-        animator.Play(idleAnimationClip.name);
+        animator.Play(idleAnimationClip);
     }
    
     protected override void Update()
@@ -122,10 +122,12 @@ public class PlayerChar : BaseCharacter
             Die();
         }
     }
-
     public override void Die()
     {
+        isDead = true;
         animator.SetTrigger("Dead");
+        //animator.SetBool("Dead1",true);
+        //animator.Play("metarig|Fall");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
         //animator.transform.parent = null;

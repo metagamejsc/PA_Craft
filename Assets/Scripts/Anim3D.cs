@@ -65,4 +65,8 @@ public class Anim3D : MonoBehaviour
     {
         soundChar.PlayMoveSound();
     }
+    public void EventJump()
+    {
+        soundChar.PlayJumpSound();
+    }
 }

@@ -13,6 +13,8 @@ public class LunaManager : MonoBehaviour
     public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
+    [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
+    [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce=40f;
     public float noiseIntensity=10;
     public float landNoiseScale=0.8f;
     public int treeCount=20;
