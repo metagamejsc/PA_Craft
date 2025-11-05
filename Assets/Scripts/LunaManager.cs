@@ -10,14 +10,12 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    /*[LunaPlaygroundField("CountDrop")] */public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    /*[LunaPlaygroundField("NoiseIntensity")] */public float noiseIntensity=10;
-    /*[LunaPlaygroundField("LandNoiseScale")] */public float landNoiseScale=0.8f;
-    public Image[] doTweenAnimations;
+    [LunaPlaygroundAsset("BG")] public Texture2D textureBG;
+    [LunaPlaygroundField("Color BG")] public Color colorBG=Color.white;
+    public RawImage rawImageBG;
+
     public bool isCretivePause;
-    public float timeActive = 0;
-    public int numberActive = 0;
     private void Awake()
     {
         ins = this;
@@ -39,20 +37,10 @@ public class LunaManager : MonoBehaviour
         }
         EndCard.SetActive(false);
         Invoke(nameof(ShowEndCard),timeEndCreative);
-      
+        rawImageBG.texture = textureBG;
+        rawImageBG.color = colorBG;
     }
 
-    public void CheckClickShowEndCard()
-    {
-        countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
-        {
-            isCretivePause = true;
-            ShowEndCard();
-        }
-    }
-    
-   
     // Update is called once per frame
     public void PauseGameplay()
     {
@@ -68,11 +56,6 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
-        StopAllCoroutines();
-        for (int i = 0; i < doTweenAnimations.Length; i++)
-        {
-            doTweenAnimations[i].color=Color.cyan;
-        }
         AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
@@ -81,13 +64,7 @@ public class LunaManager : MonoBehaviour
 
     public void OnClickEndCard()
     {
-        HandPointerController.instance.StopHandPointer();
         Debug.Log("Click end card");
-        StopAllCoroutines();
-        for (int i = 0; i < doTweenAnimations.Length; i++)
-        {
-            doTweenAnimations[i].color=Color.cyan;
-        }
         Luna.Unity.Playable.InstallFullGame();
     }
 
