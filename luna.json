@@ -2,7 +2,7 @@
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 34177,
-    "creativeName": "DHC_V10_HuyenNTT_ToiNV",
+    "creativeName": "NC_V33",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -182,7 +182,7 @@
         "forceBase64": true,
         "genericCheck": true,
         "disableAntiAliasing": true,
-        "preferWebGl2": true,
+        "preferWebGl2": false,
         "forceStableRandomSeed": false,
         "unusedModules": [
             {
@@ -3507,10 +3507,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.SkinnedMeshRenderer",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.AI.NavMeshAgent",
                 "excluded": true
             },
@@ -3892,7 +3888,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.RenderSettings.Lightmap",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.RenderSettings.LightProbes",
@@ -16824,7 +16820,7 @@
                     },
                     {
                         "name": "depth#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "backgroundColor#get",
@@ -31360,7 +31356,7 @@
                     },
                     {
                         "name": "DOLocalMove",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOLocalMoveX",
@@ -32732,7 +32728,7 @@
                     },
                     {
                         "name": "GetLastTimingAmongEvents",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -33441,6 +33437,86 @@
                         "excluded": false
                     }
                 ]
+            },
+            {
+                "className": "UnityEngine.SkinnedMeshRenderer",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "m_BlendShapeWeights#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "m_BlendShapeWeights#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sharedMesh#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sharedMesh#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "rootBone#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "rootBone#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "bones#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "bones#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "blendShape#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetBlendShapeWeight",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetBlendShapeWeight",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "CameraDragRotate",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleInput",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AdjustFOV",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -33507,6 +33583,26 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset"
+                    },
+                    {
+                        "maxWidth": 2048,
+                        "maxHeight": 2048,
+                        "format": "png32",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/sky-side.png"
+                    },
+                    {
+                        "maxWidth": 2048,
+                        "maxHeight": 2048,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/skyboxtest11@2x.png"
                     }
                 ]
             },
@@ -33514,8 +33610,8 @@
                 "default": {
                     "channels": 1,
                     "startTime": "00:00.000",
-                    "endTime": "00:00.000",
-                    "lengthInSeconds": 0.0,
+                    "endTime": "00:30.000",
+                    "lengthInSeconds": 30.0,
                     "bitrate": 128,
                     "script": "",
                     "ext": ""
