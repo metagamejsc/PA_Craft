@@ -118,7 +118,6 @@ public class PlayerChar : BaseCharacter
         if (health <= 0)
         {
             LunaManager.ins.ShowEndCard();
-            isDead = true;
             Die();
         }
     }

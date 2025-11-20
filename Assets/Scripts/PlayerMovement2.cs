@@ -23,6 +23,7 @@ public class PlayerMovement2 : MonoBehaviour
     public LayerMask groundMask;
     public Animator animator;
     public GameObject model;
+    public ParticleSystem endEffect;
     
     private Rigidbody rb;
     private float xRotation = 0f;
@@ -82,6 +83,8 @@ public class PlayerMovement2 : MonoBehaviour
             return;
         }
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        //isGrounded=Physics.Raycast(groundCheck.position,Vector3.down,groundDistance,groundMask);
+        //Debug.DrawRay(groundCheck.position, Vector3.down * groundDistance, Color.red);
         animator.SetBool("isJumping", !isGrounded);
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -192,7 +195,7 @@ public class PlayerMovement2 : MonoBehaviour
         {
             if (!LunaManager.ins.isCretivePause)
             {
-                GetComponent<PlayerChar>().Die();
+                GetComponent<PlayerChar>().TakeDamage(999);
                 LunaManager.ins.ShowEndCard();
             }
         }
@@ -204,8 +207,20 @@ public class PlayerMovement2 : MonoBehaviour
         {
             if (!LunaManager.ins.isCretivePause)
             {
+                /*var effect= Instantiate(endEffect);
+                effect.transform.position = transform.position + new Vector3(0, 0, 2);*/
                 animator.SetBool("isMoving", false);
                 LunaManager.ins.ShowWinCard();
+            }
+        }
+        if (other.CompareTag("Enemy"))
+        {
+            if (!LunaManager.ins.isCretivePause)
+            {
+                other.GetComponent<BoxCollider>().enabled = false;
+                AudioManager.ins.PlaySoundReward();
+                var effect= Instantiate(endEffect);
+                effect.transform.position = transform.position + new Vector3(0, 0, 2);
             }
         }
     }
