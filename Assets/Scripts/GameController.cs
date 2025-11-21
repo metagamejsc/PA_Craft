@@ -18,14 +18,14 @@ public class GameController : MonoBehaviour
     public GameObject enemy;
     public int idWeapon;
     public Mesh[] lstMeshWeapons;
-  
+
     public Transform posReSpawn;
     public int countReSpawn = 0;
     public int reSpawnMax;
     public int currentStep;
     public GameObject UIJump;
     public GameObject deadPanel;
-    
+
     public void ReSpawnPlayer()
     {
         countReSpawn++;
@@ -42,14 +42,14 @@ public class GameController : MonoBehaviour
     {
         playerChar.ResetPlayer();
     }
-    private void Start()
-    {
-        reSpawnMax = LunaManager.ins.countReSpawnFinal;
-    }
-    
+    // private void Start()
+    // {
+    //     reSpawnMax = LunaManager.ins.countReSpawnFinal;
+    // }
+
     public void SelectSideBrigde(bool isLeft)
     {
-        if (countReSpawn>=reSpawnMax)
+        if (countReSpawn >= reSpawnMax)
         {
             LunaManager.ins.ShowEndCard();
             return;
@@ -58,7 +58,7 @@ public class GameController : MonoBehaviour
         if (isLeft)
         {
             UIJump.gameObject.SetActive(false);
-            playerChar.transform.DOJump(BridgeManager.ins.glassLines[currentStep].LeftPos().position+new Vector3(0,1.4f,0), 5, 1, 1f)
+            playerChar.transform.DOJump(BridgeManager.ins.glassLines[currentStep].LeftPos().position + new Vector3(0, 1.4f, 0), 5, 1, 1f)
                 .OnComplete(() =>
                 {
                     playerChar.SetIdle();
@@ -67,16 +67,16 @@ public class GameController : MonoBehaviour
         else
         {
             UIJump.gameObject.SetActive(false);
-            playerChar.transform.DOJump(BridgeManager.ins.glassLines[currentStep].RightPos().position+new Vector3(0,1.4f,0), 5, 1, 1f).OnComplete(() =>
+            playerChar.transform.DOJump(BridgeManager.ins.glassLines[currentStep].RightPos().position + new Vector3(0, 1.4f, 0), 5, 1, 1f).OnComplete(() =>
             {
                 playerChar.SetIdle();
             });
         }
     }
-    
+
     private void Awake()
     {
         ins = this;
-       
+
     }
 }

@@ -1,27 +1,27 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
+using UnityEngine.Video;
 
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    public int countDrop=0;
-    [LunaPlaygroundField("Số lần chết ra store")] public int countReSpawnFinal=3;
-    [LunaPlaygroundField("Số cầu kính vợt qua ra store")] public int countPassGlassMax=5;
-    public int countPassGlas=0;
-    [LunaPlaygroundField("Time")] public int timeEndCreative=30;
+    public int countDrop = 0;
+    // [LunaPlaygroundField("Số lần chết ra store")] public int countReSpawnFinal = 3;
+    // [LunaPlaygroundField("Số cầu kính vợt qua ra store")] public int countPassGlassMax = 5;
+    public int countPassGlas = 0;
+    // [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
+    // [LunaPlaygroundAsset("Video")] public VideoClip videoPlayable;
+    // public VideoPlayer videoPlayer;
+    // public VideoPlayer videoPlayerBlur;
     public bool isCretiveEnd;
     private void Awake()
     {
         ins = this;
-
+        //SetUpVideo();
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
-    
+
 
 
     // Start is called before the first frame update
@@ -35,16 +35,24 @@ public class LunaManager : MonoBehaviour
         }
         EndCard.SetActive(false);
         //SetupField();
-        Invoke(nameof(ShowEndCard),timeEndCreative);
-    }
+        // Invoke(nameof(ShowEndCard), timeEndCreative);
 
+        ShowEndCard();
+    }
+    // public void SetUpVideo()
+    // {
+    //     videoPlayerBlur.clip = videoPlayable;
+    //     videoPlayer.clip = videoPlayable;
+    //     videoPlayer.Play();
+    //     videoPlayerBlur.Play();
+    // }
     public void CheckClickShowEndCard()
     {
         countPassGlas++;
-        if (countPassGlas>=countPassGlassMax && isCretiveEnd==false)
-        {
-            ShowEndCard();
-        }
+        // if (countPassGlas >= countPassGlassMax && isCretiveEnd == false)
+        // {
+        //     ShowEndCard();
+        // }
     }
     // Update is called once per frame
     public void PauseGameplay()
