@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -13,7 +14,24 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundAsset("BG")] public Texture2D textureBG;
     [LunaPlaygroundField("Color BG")] public Color colorBG=Color.white;
+    
+    [LunaPlaygroundAsset("Player")] public Texture2D texturePlayer;
+    [LunaPlaygroundField("Color Player")] public Color colorPlayer=Color.white;
+    [LunaPlaygroundField("txt Player")] public string strPlayer="Shooter";
+    [LunaPlaygroundField("Color TXT Player")] public Color colorStrPlayer=Color.white;
+    
+    [LunaPlaygroundAsset("Monster")] public Texture2D textureMonster;
+    [LunaPlaygroundField("Color Monster")] public Color colorMonster=Color.white;
+    [LunaPlaygroundField("txt Monster")] public string strMonsters="Monster";
+    [LunaPlaygroundField("Color TXT Monster")] public Color colorStrMonster=Color.white;
+    [LunaPlaygroundAsset("Music")] public AudioClip musicGame;
+    
     public RawImage rawImageBG;
+    public TextMeshProUGUI txtPlayer;
+    public TextMeshProUGUI txtMonster;
+    public Image rawImagePlayer;
+    public Image rawImageMonster;
+    public AudioSource audioSourceMusic;
 
     public bool isCretivePause;
     private void Awake()
@@ -39,8 +57,25 @@ public class LunaManager : MonoBehaviour
         Invoke(nameof(ShowEndCard),timeEndCreative);
         rawImageBG.texture = textureBG;
         rawImageBG.color = colorBG;
-    }
+        
+        rawImagePlayer.sprite = SpriteFromTexture(texturePlayer);
+        rawImagePlayer.color = colorPlayer;
+        txtPlayer.text = strPlayer;
+        txtPlayer.color = colorStrPlayer;
 
+        rawImageMonster.sprite = SpriteFromTexture(textureMonster);
+        rawImageMonster.color = colorMonster;
+        txtMonster.text = strMonsters;
+        txtMonster.color = colorStrMonster;
+        
+        audioSourceMusic.clip = musicGame;
+        audioSourceMusic.Play();
+    }
+    Sprite SpriteFromTexture(Texture2D tex)
+    {
+        if (tex == null) return null;
+        return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f);
+    }
     // Update is called once per frame
     public void PauseGameplay()
     {
