@@ -207,8 +207,8 @@ public class PlayerMovement2 : MonoBehaviour
         {
             if (!LunaManager.ins.isCretivePause)
             {
-                /*var effect= Instantiate(endEffect);
-                effect.transform.position = transform.position + new Vector3(0, 0, 2);*/
+                var effect= Instantiate(endEffect);
+                effect.transform.position = transform.position + new Vector3(0, 0, 2);
                 animator.SetBool("isMoving", false);
                 LunaManager.ins.ShowWinCard();
             }
