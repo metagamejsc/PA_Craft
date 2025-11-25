@@ -96,7 +96,7 @@ public class PlayerMovement2 : MonoBehaviour
         if(isGrounded)
         {
             animator.SetBool("isJumping", !isGrounded);
-            animator.Play("metarig|Character_Jump");
+            //animator.Play("metarig|Character_Jump");
             rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
         }
     }
