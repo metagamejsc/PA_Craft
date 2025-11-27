@@ -25,12 +25,14 @@ public class PlayerMovement2 : MonoBehaviour
     
     private Rigidbody rb;
     private float xRotation = 0f;
-    private bool isGrounded;
+    public bool isGrounded;
     private bool isJumping;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        moveSpeed = LunaManager.ins.playerSpeed;
+        jumpHeight = LunaManager.ins.playerJumpForce;
     }
     bool IsOnSlope()
     {
@@ -60,6 +62,7 @@ public class PlayerMovement2 : MonoBehaviour
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        animator.SetBool("isJumping", !isGrounded);
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
@@ -69,7 +72,6 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if(isGrounded)
         {
-            animator.SetBool("isJumping", !isGrounded);
             rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
         }
     }
