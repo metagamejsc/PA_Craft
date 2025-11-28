@@ -22,7 +22,7 @@ public class PlayerMovement2 : MonoBehaviour
     public LayerMask groundMask;
     public Animator animator;
     public GameObject model;
-    
+    public ParticleSystem endGameEffect;
     private Rigidbody rb;
     private float xRotation = 0f;
     public bool isGrounded;
@@ -174,8 +174,11 @@ public class PlayerMovement2 : MonoBehaviour
         {
             if (!LunaManager.ins.isCretivePause)
             {
+                rb.velocity=Vector3.zero;
+                var a=Instantiate(endGameEffect, transform.position+new Vector3(1,-1,0), Quaternion.identity);
+                a.transform.rotation= Quaternion.Euler(-90, 0, 0);
                 animator.SetBool("isMoving", false);
-                LunaManager.ins.ShowWinCard();
+                LunaManager.ins.ShowWinCard(2f);
             }
         }
     }

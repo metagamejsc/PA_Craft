@@ -96,14 +96,18 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
-    public void ShowWinCard()
+    public void ShowWinCard(float delay=0)
     {
         if (isCretivePause) return;
         isCretivePause = true;
         AudioManager.ins.PlaySoundReward();
-        WinCard.SetActive(true);
+        Invoke(nameof(ShowObjectWinCard),delay);
         Debug.Log("Show win card");
         Luna.Unity.LifeCycle.GameEnded();
+    }
+    public void ShowObjectWinCard( )
+    {
+        WinCard.SetActive(true);
     }
     public void OnClickEndCard()
     {
