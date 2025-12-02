@@ -13,6 +13,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip rewardSound;
     public AudioClip bombSound;
     public AudioClip loseSound;
+    public AudioClip winSound;
     public AudioClip bgSound;
     public AudioClip buildSound;
     public AudioClip miningSound;
@@ -44,6 +45,14 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundReward()
     {
         sound.PlayOneShot(rewardSound,1);
+    }
+    public void PlaySoundLose()
+    {
+        sound.PlayOneShot(loseSound,1);
+    }
+    public void PlaySoundWin()
+    {
+        sound.PlayOneShot(winSound,1);
     }
     public void PlaySoundBomb()
     {

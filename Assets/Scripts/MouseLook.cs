@@ -14,7 +14,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public bool isHold = false;
     public Transform posCam;
 
-    public Inventory inv;
+//    public Inventory inv;
     private void Awake()
     {
         ins= this;
@@ -86,7 +86,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         
     }
 
-    public void DesTroyBlock()
+    /*public void DesTroyBlock()
     {
             Debug.Log("DesTroyBlock");
                     RaycastHit hitInfo;
@@ -99,7 +99,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         /*if(leftClick)
                             pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
                         else
-                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
+                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;#1#
                         pointInTargetBlock = hitInfo.point + transform.forward * .01f;
         
                         //get the terrain chunk (can't just use collider)
@@ -141,7 +141,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         /*if(leftClick)
                             pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
                         else
-                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
+                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;#1#
                         pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
         
                         //get the terrain chunk (can't just use collider)
@@ -174,5 +174,5 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         tc.BuildMesh();
                         
                     }
-    }
+    }*/
 }

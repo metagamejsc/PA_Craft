@@ -181,5 +181,10 @@ public class PlayerMovement2 : MonoBehaviour
                 LunaManager.ins.ShowWinCard(2f);
             }
         }
+        if (other.CompareTag("Coin"))
+        {
+            other.gameObject.SetActive(false);
+            AudioManager.ins.PlaySoundReward();
+        }
     }
 }

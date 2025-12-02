@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour
 {
     public static GameController ins;
     public bool isPauseGame = false;
+    public bool isEndGame = false;
 
     public PlayerChar playerChar;
 

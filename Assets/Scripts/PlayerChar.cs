@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class PlayerChar : BaseCharacter
@@ -5,6 +6,7 @@ public class PlayerChar : BaseCharacter
     public GameObject swordFake;
     public Transform swordFakePos;
     public Transform swordPos;
+    public DOTweenAnimation effectTakeDame;
 
     public void OnStartRespawn()
     {
@@ -125,6 +127,8 @@ public class PlayerChar : BaseCharacter
 
     public override void Die()
     {
+        effectTakeDame.gameObject.SetActive(true);
+        effectTakeDame.DORestart();
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;

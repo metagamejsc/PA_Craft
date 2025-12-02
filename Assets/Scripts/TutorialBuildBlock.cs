@@ -42,17 +42,21 @@ public class TutorialBuildBlock : MonoBehaviour
 
     public void ShowStep()
     {
-        GameController.ins.isPauseGame = true;
+        LunaManager.ins.isCretivePause = true;
         lstStep[stepIndex].SetActive(true);
     }
     public void HideStep()
     {
-        GameController.ins.isPauseGame = false;
+        LunaManager.ins.isCretivePause = false;
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
         if (stepIndex<lstStep.Count)
         {
             ShowStep();
+        }
+        else
+        {
+            LunaManager.ins.isCretivePause = false;
         }
         /*if (stepIndex==lstStep.Count-1)
         {
