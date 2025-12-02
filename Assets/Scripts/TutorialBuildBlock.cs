@@ -20,7 +20,7 @@ public class TutorialBuildBlock : MonoBehaviour
     public IEnumerator IeSpawnStep()
     {
         yield return new WaitForSeconds(1f);
-        
+
     }
 
     private void Start()
@@ -50,9 +50,13 @@ public class TutorialBuildBlock : MonoBehaviour
         GameController.ins.isPauseGame = false;
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
-        if (stepIndex<lstStep.Count)
+        if (stepIndex < lstStep.Count)
         {
             ShowStep();
+        }
+        else
+        {
+            GameController.ins.lightController.StartRandomCycle(LightController.LightType.Green);
         }
         /*if (stepIndex==lstStep.Count-1)
         {

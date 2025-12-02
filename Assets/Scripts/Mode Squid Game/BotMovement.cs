@@ -4,14 +4,14 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
-public class PlayerMovement2 : MonoBehaviour
+public class BotMovement : MonoBehaviour
 {
-    public static PlayerMovement2 ins;
+    //public static PlayerMovement2 ins;
 
-    private void Awake()
-    {
-        ins = this;
-    }
+    // private void Awake()
+    // {
+    //     ins = this;
+    // }
 
     public float moveSpeed = 5f;
     public float jumpHeight = 5f;
@@ -30,7 +30,10 @@ public class PlayerMovement2 : MonoBehaviour
     public bool isGrounded;
     private bool isJumping;
     private bool stopCoutine;
-
+    [SerializeField] private float decisionInterval = 1f;
+    private float decisionTimer = 0f;
+    private bool shouldMove = false;
+    private bool stopCoutineMove = false;
 
     public IEnumerator MoveAndIdle()
     {
@@ -76,20 +79,17 @@ public class PlayerMovement2 : MonoBehaviour
     }
     void Update()
     {
-        if (GetComponent<PlayerChar>().isDead)
-        {
-            animator.SetBool("isJumping", false);
-            animator.Play("metarig|Fall");
-            return;
-        }
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        //isGrounded=Physics.Raycast(groundCheck.position,Vector3.down,groundDistance,groundMask);
-        //Debug.DrawRay(groundCheck.position, Vector3.down * groundDistance, Color.red);
-        animator.SetBool("isJumping", !isGrounded);
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Jump();
-        }
+        // if (GetComponent<ZombieChar>().isDead)
+        // {
+        //     animator.SetBool("isJumping", false);
+        //     animator.Play("metarig|Fall");
+        //     return;
+        // }
+        // isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        // //isGrounded=Physics.Raycast(groundCheck.position,Vector3.down,groundDistance,groundMask);
+        // //Debug.DrawRay(groundCheck.position, Vector3.down * groundDistance, Color.red);
+        // animator.SetBool("isJumping", !isGrounded);
+
     }
     public void Jump()
     {
@@ -110,83 +110,77 @@ public class PlayerMovement2 : MonoBehaviour
         {
             return;
         }
-        // Lấy input từ bàn phím (WASD)
-        float moveX = 0;
-        float moveZ = 0;
-#if UNITY_EDITOR
-        moveX = Input.GetAxis("Horizontal");
-        moveZ = Input.GetAxis("Vertical");
-#else     
-         moveX = JoystickController.ins.Horizontal();
-         moveZ = JoystickController.ins.Vertical();
-#endif
-        /*Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
 
-        // Xoay nhân vật theo hướng di chuyển nếu có input
-        if (moveDirection != Vector3.zero)
+        // Đếm thời gian để quyết định lại sau mỗi decisionInterval
+        decisionTimer -= Time.fixedDeltaTime;
+        if (decisionTimer <= 0f)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, 10 * Time.deltaTime);
-        }*/
-
-        // Gán vận tốc cho Rigidbody
-
-        /*// Chuyển đổi hướng di chuyển theo góc nhìn
-        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
-        Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
-        if (angleDirection != Vector3.zero)
-        {
-            // Xoay trục Y theo hướng di chuyển
-            Quaternion toRotation = Quaternion.LookRotation(angleDirection, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
+            decisionTimer = decisionInterval;
+            MakeDecision();
         }
-        // Áp dụng lực di chuyển
+
+        float moveX = 0f;
+        float moveZ = shouldMove ? 0.5f : 0f; // Chỉ đi theo trục Z
+
+        Vector3 moveDirection = transform.forward * moveZ; // chỉ Z
         Vector3 velocity = moveDirection * moveSpeed;
-        velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
-        rb.velocity = velocity;*/
-        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
-        Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
-        if ((moveX != 0 || moveZ != 0) && !stopCoutine)
-        {
-            StopAllCoroutines();
-            stopCoutine = true;
-        }
-        if (angleDirection != Vector3.zero)
-        {
-
-            //Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-            // Xoay trục Y theo hướng di chuyển
-            Quaternion toRotation = Quaternion.LookRotation(angleDirection, Vector3.up);
-            //transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
-        }
-        Vector3 velocity = moveDirection * moveSpeed;
-        velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
+        velocity.y = rb.velocity.y;  // giữ nguyên tốc độ rơi
         rb.velocity = velocity;
-        bool isMoving = moveX != 0 || moveZ != 0;
-        if (isMoving && GameController.ins.lightController.isScan && this.transform.position.z > -47)
+
+        bool isMoving = moveZ != 0;
+        animator.SetBool("isMoving", isMoving);
+        // Nếu đang bắt đầu move, dừng coroutine 1 lần (giữ nguyên ý đồ code cũ)
+        if (isMoving && !stopCoutineMove)
         {
-            GetComponent<PlayerChar>().TakeDamage(999);
-            // LunaManager.ins.ShowEndCard();
+            //StopCoroutine(MoveAndIdle());
+            stopCoutineMove = true;
         }
-        /*if (isGrounded)
+        else if (!isMoving)
         {
-            if (isMoving)
-                animator.Play("metarig|Walk");
+            // Cho phép lần sau nếu lại move thì vẫn StopAllCoroutines 1 lần
+            stopCoutineMove = false;
+        }
+
+
+    }
+
+    private void MakeDecision()
+    {
+        float r = UnityEngine.Random.value; // 0..1
+
+        if (GameController.ins.lightController.isScan) // ĐÈN ĐỎ
+        {
+            // 80% dừng, 20% vẫn đi và die
+            if (r <= 0.8f)
+            {
+                shouldMove = false;
+            }
             else
-                animator.Play("metarig|Idle");
-        }*/
-        if (stopCoutine)
-        {
-            animator.SetBool("isMoving", isMoving);
+            {
+                shouldMove = true;
+                Debug.Log("die");
+                if (GameController.ins.lightController.isScan && this.transform.position.z > -47)
+                {
+                    GetComponent<ZombieChar>().TakeDamage(999);
+                    // LunaManager.ins.ShowEndCard();
+                }
+
+            }
         }
-
-        /*if (IsOnSlope())
+        else // ĐÈN XANH
         {
-            rb.AddForce(Vector3.down * slopeForce, ForceMode.Acceleration);
-        }*/
-
-        // Xử lý bước lên dốc (Step Climb)
-        //StepClimb();
+            // 80% đi, 20% đứng lại 1s rồi check tiếp
+            if (r <= 0.8f)
+            {
+                shouldMove = true;
+            }
+            else
+            {
+                shouldMove = false;
+                // Không cần làm gì thêm, vì decisionTimer đã set = 1s,
+                // sau 1s sẽ tự MakeDecision() lại.
+            }
+        }
     }
 
     private void OnCollisionStay(Collision collision)

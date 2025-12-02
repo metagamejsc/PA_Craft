@@ -2,7 +2,7 @@
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 34123,
-    "creativeName": "SMOP_TrangTTH_ToiNV_V07",
+    "creativeName": "SMOP_TrangTTH_AnhPD_V09",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -80,8 +80,8 @@
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.12",
-            "monoVersion": "8.0.14",
+            "msbuildVersion": "17.13",
+            "monoVersion": "9.0.3",
             "dotnetVersion": ""
         },
         "assets": {
@@ -7961,6 +7961,10 @@
             {
                 "name": "TerrainWallCollider",
                 "excluded": true
+            },
+            {
+                "name": "LightController.LightType",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -18336,7 +18340,7 @@
                     },
                     {
                         "name": "fillAmount#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "preserveAspect#get",
@@ -34490,7 +34494,7 @@
                 "instanceMethods": [
                     {
                         "name": "value#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "onUnitSphere#get",
@@ -34522,7 +34526,7 @@
                     },
                     {
                         "name": "Range$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Range",
@@ -35689,32 +35693,6 @@
                 ]
             },
             {
-                "className": "SetupMaterialTiling",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyMaterialAndTiling",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetupTextureWrapMode",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "System.Collections.Generic.KeyNotFoundException",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35937,6 +35915,106 @@
                         "excluded": false
                     }
                 ]
+            },
+            {
+                "className": "BotMovement",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveAndIdle",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsOnSlope",
+                        "excluded": true
+                    },
+                    {
+                        "name": "StepClimb",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Jump",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FixedUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MakeDecision",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnCollisionStay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnCollisionEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "LightController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RotateDoll",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetLight",
+                        "excluded": true
+                    },
+                    {
+                        "name": "StartRandomCycle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SwitchLight",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetRandomTimeForLight",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetTimerAndFill",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateStatusText",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -36043,6 +36121,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Game/Models/Untitled.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Game/Font/MuseoSansRounded1000 SDF.asset"
                     }
                 ]
             },
