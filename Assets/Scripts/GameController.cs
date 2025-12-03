@@ -20,14 +20,7 @@ public class GameController : MonoBehaviour
     public Mesh[] lstMeshWeapons;
     public int countEnemyDefeat = 0;
 
-    public void EnemyDead()
-    {
-        countEnemyDefeat++;
-        if (countEnemyDefeat>=LunaManager.ins.countDropFinal)
-        {
-            LunaManager.ins.ShowEndCard();
-        }
-    }
+   
     private void Awake()
     {
         ins = this;

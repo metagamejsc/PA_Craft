@@ -9,12 +9,12 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
-    [LunaPlaygroundField("CountDrop")] public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
-    [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
-    [LunaPlaygroundField("Tree Count")] public int treeCount=20;
+    [LunaPlaygroundField("Light")] public float intensityLight=0.2f;
+    [LunaPlaygroundField("Color Light")] public Color colorLight=Color.white;
+    [LunaPlaygroundField("Light Range")] public float lightRange=10f;
+    public Light directionalLight;
+    
     public bool isCretivePause;
     private void Awake()
     {
@@ -36,19 +36,14 @@ public class LunaManager : MonoBehaviour
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
         EndCard.SetActive(false);
+        directionalLight.color=colorLight;
+        directionalLight.intensity=intensityLight;
+        directionalLight.range=lightRange;
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
 
-    public void CheckClickShowEndCard()
-    {
-        countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
-        {
-            isCretivePause = true;
-            ShowEndCard();
-        }
-    }
+  
     // Update is called once per frame
     public void PauseGameplay()
     {
