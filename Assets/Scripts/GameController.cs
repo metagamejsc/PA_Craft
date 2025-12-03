@@ -13,9 +13,7 @@ public class GameController : MonoBehaviour
     public Transform posEndCamera;
     public bool isEndGame = false;
     public int ironCount;
-    public UIManager uiManager;
     public GameObject startGame;
-    public PlayerChar playerChar;
     public float timeActive;
     public GameObject enemy;
     public int idWeapon;
@@ -50,6 +48,6 @@ public class GameController : MonoBehaviour
     public void SetIdWeapon(int id)
     {
         idWeapon = id;
-        playerChar.CraftWeapon();
+        
     }
 }
