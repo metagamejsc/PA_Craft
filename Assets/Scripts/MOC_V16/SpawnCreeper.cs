@@ -14,6 +14,7 @@ public class SpawnCreeper : MonoBehaviour
 
     public void Start()
     {
+        numberOfCreepers = LunaManager.ins.numberEnemy;
         SpawnEnemy();
     }
 
@@ -38,6 +39,10 @@ public static void KillEnemy(ZombieChar zombieChar)
         if (zombieChars.Contains(zombieChar))
         {
             zombieChars.Remove(zombieChar);
+            if (zombieChars.Count==0)
+            {
+                LunaManager.ins.ShowEndCard();
+            }
             Destroy(zombieChar.gameObject);
         }
         else

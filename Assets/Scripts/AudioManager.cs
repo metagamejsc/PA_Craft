@@ -20,6 +20,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip deadSound;
     public AudioClip fireworkSound;
     public AudioClip xixiSound;
+    public AudioClip fireSound;
     public List<AudioClip> lstMoveSound;
     public List<AudioClip> soundClick;
 
@@ -48,6 +49,10 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundGetItem()
     {
         sound.PlayOneShot(getItemSound,1);
+    }
+    public void PlaySoundFire()
+    {
+        sound.PlayOneShot(fireSound,1);
     }
     public void PlaySoundDeadSound()
     {

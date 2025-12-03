@@ -11,6 +11,7 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     public int countDrop=0;
     [LunaPlaygroundField("Số lần đặt bắn TNT ra store")]public int countDropFinal;
+    [LunaPlaygroundField("Số Enemy")]public int numberEnemy=15;
      public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     public bool isCretivePause;
