@@ -63,6 +63,7 @@ public class ZombieChar : BaseCharacter
         if (health <= 0)
         {
             GameController.ins.EnemyDead();
+            LunaManager.ins.CheckClickShowEndCard();
             animator.SetTrigger("Dead");
             isDead = true;
             Die();

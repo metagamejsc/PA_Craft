@@ -10,7 +10,6 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     public int countDrop=0;
     [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
-    [LunaPlaygroundField("CountDrop")] public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
     [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
@@ -24,9 +23,12 @@ public class LunaManager : MonoBehaviour
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
-    public float isLandRadius=10;
+    [LunaPlaygroundField("Bán kính đảo")]public float isLandRadius=10;
     public int wallThickness=5;
-    public int rangeBetweenIsland = 10;
+    [LunaPlaygroundField("Khoảng cách giữa 2 đảo")]public int rangeBetweenIsland = 10;
+    [LunaPlaygroundAsset("BG Texture")]public Texture bgTexture;
+    [LunaPlaygroundField("BG Color")]public Color bgColor=Color.white;
+    public RawImage bgRawImage;
 
 
     // Start is called before the first frame update
@@ -41,6 +43,9 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
+        
+        bgRawImage.texture = bgTexture;
+        bgRawImage.color = bgColor;
     }
 
     public void CheckClickShowEndCard()
