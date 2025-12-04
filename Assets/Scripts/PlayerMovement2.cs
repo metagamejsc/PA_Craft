@@ -99,12 +99,16 @@ public class PlayerMovement2 : MonoBehaviour
         // Lấy input từ bàn phím (WASD)
         float moveX = 0;
         float moveZ = 0;
+        
 #if UNITY_EDITOR
          moveX = Input.GetAxis("Horizontal");
          moveZ = Input.GetAxis("Vertical");
-#else     
-         moveX = JoystickController.ins.Horizontal();
+#else
+    if (JoystickController.ins!=null)
+        {
+            moveX = JoystickController.ins.Horizontal();
          moveZ = JoystickController.ins.Vertical();
+        }
 #endif
         /*Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
 
@@ -169,6 +173,14 @@ public class PlayerMovement2 : MonoBehaviour
         {
             isGrounded = true;
         }*/
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Finish"))
+        {
+            GetComponent<PlayerChar>().TakeDamage(999);
+        }
     }
 
     private void OnCollisionExit(Collision collision)

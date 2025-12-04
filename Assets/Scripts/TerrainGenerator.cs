@@ -313,82 +313,93 @@ public class TerrainGenerator : MonoBehaviour
 
 
     void GenerateTrees(BlockType[,,] blocks, int x, int z)
+{
+    System.Random rand = new System.Random(x * 10000 + z + Random.Range(-100, 100));
+
+    // Get the player's position
+    Vector3 playerPos = player.position;
+
+    // Add an offset for tree generation to make sure trees are generated away from the player
+    float distanceFromPlayer = 5f; // Minimum distance from player for tree generation
+
+    // Noise for tree generation
+    float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
+
+    // Number of trees to spawn based on noise
+    int treeCount = LunaManager.ins.treeCount;
+
+    HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
+
+    for (int i = 0; i < treeCount; i++)
     {
-        System.Random rand = new System.Random(x * 10000 + z+Random.Range(-100,100));
+        // Generate random positions for trees within the chunk
+        int xPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
+        int zPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
 
-        float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
-        //if (treeNoise <= 0) return;
-
-        //int treeCount = Mathf.FloorToInt(rand.Next(1, 5) * treeNoise);
-        int treeCount = LunaManager.ins.treeCount;
-
-        HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
-
-        
-        for (int i = 0; i < treeCount; i++)
+        // Ensure that the tree is generated at least 'distanceFromPlayer' away from the player
+        float distanceToPlayer = Vector3.Distance(new Vector3(xPos, playerPos.y, zPos), playerPos);
+        if (distanceToPlayer < distanceFromPlayer)
         {
-            int xPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
-            int zPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
-
-            Vector2Int pos = new Vector2Int(xPos, zPos);
-            bool tooClose = false;
-
-            foreach (var used in usedPositions)
-            {
-                if (Vector2Int.Distance(used, pos) <4f)
-                {
-                    tooClose = true;
-                    break;
-                }
-            }
-
-            if (tooClose) continue;
-            usedPositions.Add(pos);
-            
-            /*int xPos = rand.Next(1, TerrainChunk.chunkWidth - 1);
-            int zPos = rand.Next(1, TerrainChunk.chunkWidth - 1);*/
-
-            // Tìm mặt đất
-            int y = TerrainChunk.chunkHeight - 2;
-            while (y > 0 && blocks[xPos, y, zPos] == BlockType.Air)
-                y--;
-
-            y++; // bắt đầu từ block trống trên mặt đất
-
-            // Trồng thân cây
-            int treeHeight = 4 + rand.Next(6); // 4–6 block cao
-            for (int j = 0; j < treeHeight; j++)
-            {
-                if (InBounds(xPos, y + j, zPos))
-                    blocks[xPos, y + j, zPos] = BlockType.Trunk;
-            }
-
-            // Trồng lá – theo tầng
-            int leavesStart = y + treeHeight - 2;
-            for (int layer = 0; layer < 3; layer++)
-            {
-                int radius = 2 - layer;
-                int layerY = leavesStart + layer;
-
-                for (int lx = -radius; lx <= radius; lx++)
-                for (int lz = -radius; lz <= radius; lz++)
-                {
-                    int leafX = xPos + lx;
-                    int leafZ = zPos + lz;
-
-                    if ((Mathf.Abs(lx) + Mathf.Abs(lz)) <= radius + 1) // làm tròn tán
-                    {
-                        if (InBounds(leafX, layerY, leafZ) && blocks[leafX, layerY, leafZ] == BlockType.Air)
-                            blocks[leafX, layerY, leafZ] = BlockType.Leaves;
-                    }
-                }
-            }
-
-            // Lá đỉnh
-            if (InBounds(xPos, y + treeHeight, zPos))
-                blocks[xPos, y + treeHeight, zPos] = BlockType.Leaves;
+            continue; // Skip generating this tree if it's too close to the player
         }
+
+        // Skip if the position is too close to previously generated trees
+        Vector2Int pos = new Vector2Int(xPos, zPos);
+        bool tooClose = false;
+        foreach (var used in usedPositions)
+        {
+            if (Vector2Int.Distance(used, pos) < 4f) // Adjust 4f for minimum distance between trees
+            {
+                tooClose = true;
+                break;
+            }
+        }
+
+        if (tooClose) continue;
+        usedPositions.Add(pos);
+
+        // Find the ground level for tree planting
+        int y = TerrainChunk.chunkHeight - 2;
+        while (y > 0 && blocks[xPos, y, zPos] == BlockType.Air)
+            y--;
+
+        y++; // Start from the block above ground level
+
+        // Plant the tree trunk
+        int treeHeight = 4 + rand.Next(6); // Tree height between 4 to 6 blocks
+        for (int j = 0; j < treeHeight; j++)
+        {
+            if (InBounds(xPos, y + j, zPos))
+                blocks[xPos, y + j, zPos] = BlockType.Trunk;
+        }
+
+        // Plant leaves - layers
+        int leavesStart = y + treeHeight - 2;
+        for (int layer = 0; layer < 3; layer++)
+        {
+            int radius = 2 - layer;
+            int layerY = leavesStart + layer;
+
+            for (int lx = -radius; lx <= radius; lx++)
+            for (int lz = -radius; lz <= radius; lz++)
+            {
+                int leafX = xPos + lx;
+                int leafZ = zPos + lz;
+
+                if ((Mathf.Abs(lx) + Mathf.Abs(lz)) <= radius + 1) // Rough spherical leaf shape
+                {
+                    if (InBounds(leafX, layerY, leafZ) && blocks[leafX, layerY, leafZ] == BlockType.Air)
+                        blocks[leafX, layerY, leafZ] = BlockType.Leaves;
+                }
+            }
+        }
+
+        // Plant the top leaves
+        if (InBounds(xPos, y + treeHeight, zPos))
+            blocks[xPos, y + treeHeight, zPos] = BlockType.Leaves;
     }
+}
+
 
 bool InBounds(int x, int y, int z)
 {
