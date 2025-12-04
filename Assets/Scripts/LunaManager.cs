@@ -16,6 +16,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
     public bool isCretivePause;
+
     private void Awake()
     {
         ins = this;
@@ -23,7 +24,9 @@ public class LunaManager : MonoBehaviour
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
-    
+    public float isLandRadius=10;
+    public int wallThickness=5;
+    public int rangeBetweenIsland = 10;
 
 
     // Start is called before the first frame update

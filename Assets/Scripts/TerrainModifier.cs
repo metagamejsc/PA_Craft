@@ -37,8 +37,8 @@ public class TerrainModifier : MonoBehaviour
                     pointInTargetBlock = hitInfo.point - transform.forward * .01f;
 
                 //get the terrain chunk (can't just use collider)
-                int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-                int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+                int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+                int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
                 ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
 
@@ -87,12 +87,12 @@ public class TerrainModifier : MonoBehaviour
                 return;
             }
             //get the terrain chunk (can't just use collider)
-            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+            int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+            int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
 
             ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
 
-            TerrainChunk tc = TerrainGenerator.chunks[cp];
+            TerrainChunk tc = TerrainGenerator2.chunks[cp];
 
             //index of the target block
             int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;

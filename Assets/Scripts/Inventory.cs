@@ -33,8 +33,14 @@ public class Inventory : MonoBehaviour
                 SetCur(i1);
             });
         }
-        //AddToInventory2(0, 15);
-        //matImgs[0].gameObject.SetActive(true);
+        AddToInventory2(0, 99);
+        AddToInventory2(BlockType.Stone, 99);
+        AddToInventory2(BlockType.Trunk, 99);
+        //AddToInventory2(BlockType.Leaves, 99);
+        matImgs[0].gameObject.SetActive(true);
+        matImgs[1].gameObject.SetActive(true);
+        matImgs[2].gameObject.SetActive(true);
+        //matImgs[3].gameObject.SetActive(true);
     }
 
     // Update is called once per frame

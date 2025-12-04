@@ -163,8 +163,8 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         // Tính toán vị trí và kích thước của bức tường collider
-        float width = maxX - minX + 16;
-        float length = maxZ - minZ + 16;
+        float width = maxX - minX + 64;
+        float length = maxZ - minZ + 64;
         float centerX = minX + width / 2;
         float centerZ = minZ + length / 2;
 
@@ -249,8 +249,8 @@ public class TerrainGenerator : MonoBehaviour
     void LoadChunks(bool instant = false)
     {
         //the current chunk the player is in
-        int curChunkPosX = Mathf.FloorToInt(player.position.x/16)*16;
-        int curChunkPosZ = Mathf.FloorToInt(player.position.z/16)*16;
+        int curChunkPosX = Mathf.FloorToInt(player.position.x/TerrainChunk.chunkWidth)*TerrainChunk.chunkWidth;
+        int curChunkPosZ = Mathf.FloorToInt(player.position.z/TerrainChunk.chunkWidth)*TerrainChunk.chunkWidth;
 
         //entered a new chunk
         if(curChunk.x != curChunkPosX || curChunk.z != curChunkPosZ)
@@ -259,8 +259,8 @@ public class TerrainGenerator : MonoBehaviour
             curChunk.z = curChunkPosZ;
 
 
-            for(int i = curChunkPosX - 16 * chunkDist; i <= curChunkPosX + 16 * chunkDist; i += 16)
-                for(int j = curChunkPosZ - 16 * chunkDist; j <= curChunkPosZ + 16 * chunkDist; j += 16)
+            for(int i = curChunkPosX - TerrainChunk.chunkWidth * chunkDist; i <= curChunkPosX + TerrainChunk.chunkWidth * chunkDist; i += TerrainChunk.chunkWidth)
+                for(int j = curChunkPosZ - TerrainChunk.chunkWidth * chunkDist; j <= curChunkPosZ + TerrainChunk.chunkWidth * chunkDist; j += TerrainChunk.chunkWidth)
                 {
                     ChunkPos cp = new ChunkPos(i, j);
 
@@ -281,8 +281,8 @@ public class TerrainGenerator : MonoBehaviour
             foreach(KeyValuePair<ChunkPos, TerrainChunk> c in chunks)
             {
                 ChunkPos cp = c.Key;
-                if(Mathf.Abs(curChunkPosX - cp.x) > 16 * (chunkDist + 3) || 
-                    Mathf.Abs(curChunkPosZ - cp.z) > 16 * (chunkDist + 3))
+                if(Mathf.Abs(curChunkPosX - cp.x) > TerrainChunk.chunkWidth * (chunkDist + 3) || 
+                    Mathf.Abs(curChunkPosZ - cp.z) > TerrainChunk.chunkWidth * (chunkDist + 3))
                 {
                     toDestroy.Add(c.Key);
                 }
@@ -291,8 +291,8 @@ public class TerrainGenerator : MonoBehaviour
             //remove any up for generation
             foreach(ChunkPos cp in toGenerate)
             {
-                if(Mathf.Abs(curChunkPosX - cp.x) > 16 * (chunkDist + 1) ||
-                    Mathf.Abs(curChunkPosZ - cp.z) > 16 * (chunkDist + 1))
+                if(Mathf.Abs(curChunkPosX - cp.x) > TerrainChunk.chunkWidth * (chunkDist + 1) ||
+                    Mathf.Abs(curChunkPosZ - cp.z) > TerrainChunk.chunkWidth * (chunkDist + 1))
                     toGenerate.Remove(cp);
             }
 
@@ -317,7 +317,7 @@ public class TerrainGenerator : MonoBehaviour
         System.Random rand = new System.Random(x * 10000 + z+Random.Range(-100,100));
 
         float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
-        if (treeNoise <= 0) return;
+        //if (treeNoise <= 0) return;
 
         //int treeCount = Mathf.FloorToInt(rand.Next(1, 5) * treeNoise);
         int treeCount = LunaManager.ins.treeCount;

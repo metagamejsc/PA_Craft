@@ -72,7 +72,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        //StartCoroutine(DestroyBlock());
+        StartCoroutine(DestroyBlock());
         playerBody.GetComponent<PlayerChar>().HandleAttack();
         //DesTroyBlock();
     }
@@ -107,12 +107,12 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         pointInTargetBlock = hitInfo.point + transform.forward * .01f;
         
                         //get the terrain chunk (can't just use collider)
-                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
         
                         ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
         
-                        TerrainChunk tc = TerrainGenerator.chunks[cp];
+                        TerrainChunk tc = TerrainGenerator2.chunks[cp];
         
                         //index of the target block
                         int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
@@ -154,12 +154,12 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
         
                         //get the terrain chunk (can't just use collider)
-                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
+                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
                         
                         ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
         
-                        TerrainChunk tc = TerrainGenerator.chunks[cp];
+                        TerrainChunk tc = TerrainGenerator2.chunks[cp];
         
                         //index of the target block
                         int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
