@@ -69,4 +69,14 @@ public class AudioManager : MonoBehaviour
         music.clip = bgSound;
         music.Play();
     }
+
+    public void PlaySoundRespawn()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void PlaySoundJumping()
+    {
+        throw new NotImplementedException();
+    }
 }

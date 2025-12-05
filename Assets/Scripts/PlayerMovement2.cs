@@ -45,8 +45,8 @@ public class PlayerMovement2 : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        moveSpeed = LunaManager.ins.playerSpeed;
-        jumpHeight=LunaManager.ins.playerJumpForce;
+        /*moveSpeed = LunaManager.ins.playerSpeed;
+        jumpHeight=LunaManager.ins.playerJumpForce;*/
         StartCoroutine(MoveAndIdle());
     }
     bool IsOnSlope()
@@ -106,7 +106,7 @@ public class PlayerMovement2 : MonoBehaviour
         {
             return;
         }
-        if (LunaManager.ins.isCretivePause)
+        if (LunaManager.ins.isCretiveEnd)
         {
             return;
         }
@@ -193,7 +193,7 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Respawn"))
         {
-            if (!LunaManager.ins.isCretivePause)
+            if (!LunaManager.ins.isCretiveEnd)
             {
                 GetComponent<PlayerChar>().TakeDamage(999);
                 LunaManager.ins.ShowEndCard();
@@ -205,7 +205,7 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if (other.CompareTag("Finish"))
         {
-            if (!LunaManager.ins.isCretivePause)
+            if (!LunaManager.ins.isCretiveEnd)
             {
                 /*var effect= Instantiate(endEffect);
                 effect.transform.position = transform.position + new Vector3(0, 0, 2);*/
@@ -215,7 +215,7 @@ public class PlayerMovement2 : MonoBehaviour
         }
         if (other.CompareTag("Enemy"))
         {
-            if (!LunaManager.ins.isCretivePause)
+            if (!LunaManager.ins.isCretiveEnd)
             {
                 other.GetComponent<BoxCollider>().enabled = false;
                 AudioManager.ins.PlaySoundReward();

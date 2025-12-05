@@ -44,7 +44,7 @@ public class BaseCharacter : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (LunaManager.ins.isCretivePause)
+        if (LunaManager.ins.isCretiveEnd)
         {
             return;
         }

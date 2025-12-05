@@ -5,20 +5,6 @@ public class PlayerChar : BaseCharacter
     public GameObject swordFake;
     public Transform swordFakePos;
     public Transform swordPos;
-
-    public void ResetPlayer()
-    {
-        
-    }
-    public void OnStartRespawn()
-    {
-        isDead = false;
-        health = 1f;
-        capsuleCollider.enabled = true;
-        rigidbody.isKinematic = false;
-        animator.Play(idleAnimationClip);
-    }
-   
     protected override void Update()
     {
 
@@ -29,21 +15,7 @@ public class PlayerChar : BaseCharacter
         }
         SearchForEnemy();
         attackCooldown -= Time.deltaTime;
-        /*if (SwordObject.activeSelf)
-        {
-            if (attackCooldown<=0)
-            {
-                swordFake.SetActive(true);
-            }
-            else
-            {
-                swordFake.SetActive(false);
-            }
-        }
-        else
-        {
-            swordFake.SetActive(false);
-        }*/
+        
     }
 
     protected override void Start()
@@ -118,22 +90,49 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-        health -= dmg;
+        /*health -= dmg;
         if (health <= 0)
         {
-            LunaManager.ins.ShowEndCard();
-            Die();
+            
+        }*/
+        Die();
+        //Invoke(nameof(ResetPlayer), 1f);
+
+    }
+    public void ResetPlayer()
+    {
+        isDead = false;
+        health = 1;
+        animator.transform.parent = transform;
+        capsuleCollider.enabled = true;
+        rigidbody.isKinematic = false;
+        GameController.ins.ReSpawnPlayer();
+        if (LunaManager.ins.isCretiveEnd)
+        {
+            return;
         }
+
+        AudioManager.ins.PlaySoundRespawn();
+        animator.Play("metarig|Idle");
+    }
+    public void SetJump()
+    {
+        AudioManager.ins.PlaySoundJumping();
+        animator.SetBool("isJumping", true);
+    }
+    public void SetIdle()
+    {
+        animator.SetBool("isJumping", false);
+        animator.Play("metarig|Idle");
     }
     public override void Die()
     {
         isDead = true;
         animator.SetTrigger("Dead");
-        //animator.SetBool("Dead1",true);
-        //animator.Play("metarig|Fall");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
-        //animator.transform.parent = null;
+        animator.transform.parent = null;
+        GameController.ins.deadPanel.SetActive(true);
         //Destroy(gameObject);
     }
 }
