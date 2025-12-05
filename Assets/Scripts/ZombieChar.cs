@@ -218,6 +218,7 @@ public class ZombieChar : BaseCharacter
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
         animator.transform.parent = null;
+        LunaManager.ins.CheckEnemyDead();
         SpawnCreeper.KillEnemy(this);
     }
 

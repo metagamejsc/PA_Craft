@@ -10,7 +10,10 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
+    public int countEnemyDead = 0;
     [LunaPlaygroundField("Số lần đặt bắn TNT ra store")]public int countDropFinal;
+
+    /*[LunaPlaygroundField("Số lần giết enemy ra store")] */public int countEnemyDeadFinal = 15;
     [LunaPlaygroundField("Số Enemy")]public int numberEnemy=15;
      public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
@@ -58,6 +61,15 @@ public class LunaManager : MonoBehaviour
             isCretivePause = true;
             ShowEndCard();
         }
+    }
+    public void CheckEnemyDead()
+    {
+        /*countEnemyDead++;
+        if (countEnemyDead>=countEnemyDeadFinal && isCretivePause==false)
+        {
+            isCretivePause = true;
+            ShowEndCard();
+        }*/
     }
     // Update is called once per frame
     public void PauseGameplay()

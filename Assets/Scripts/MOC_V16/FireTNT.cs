@@ -88,6 +88,7 @@ public class FireTNT : MonoBehaviour
             rb.useGravity = false;
             effectFire.Play();
             AudioManager.ins.PlaySoundFire();
+            LunaManager.ins.CheckClickShowEndCard();
             tnt.transform.DOMove(hitPoint, flightDuration)
                 .SetEase(Ease.Linear)
                 .OnComplete(() =>
