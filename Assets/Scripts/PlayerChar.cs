@@ -6,6 +6,10 @@ public class PlayerChar : BaseCharacter
     public Transform swordFakePos;
     public Transform swordPos;
 
+    public void ResetPlayer()
+    {
+        
+    }
     public void OnStartRespawn()
     {
         isDead = false;
