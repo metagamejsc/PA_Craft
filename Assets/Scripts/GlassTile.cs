@@ -26,6 +26,8 @@ public class GlassTile : MonoBehaviour
         steppedOn = false;
         rb.isKinematic = true;
         rb.useGravity = false;
+        boxCollider.enabled = true; // Tắt collider để tránh va chạm sau khi vỡ
+        gameObject.SetActive(true);
         //transform.localPosition = Vector3.zero; // Đặt lại vị trí nếu cần
         //transform.localRotation = Quaternion.identity; // Đặt lại góc quay nếu cần
     }

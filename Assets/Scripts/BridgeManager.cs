@@ -136,4 +136,12 @@ public class BridgeManager : MonoBehaviour
 
         isChangingMaterials = false;
     }
+    public void ResetLines()
+    {
+        foreach (var line in glassLines)
+        {
+            line.leftTile.ResetTile();
+            line.rightTile.ResetTile();
+        }
+    }
 }

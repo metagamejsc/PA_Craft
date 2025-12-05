@@ -36,6 +36,7 @@ public class GameController : MonoBehaviour
         playerChar.gameObject.SetActive(true);
         playerChar.health = 1;
         playerChar.isDead = false;
+        BridgeManager.ins.ResetLines();
         //SpawnPlayer();
     }
     
