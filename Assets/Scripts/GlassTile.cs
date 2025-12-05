@@ -1,23 +1,26 @@
+using System;
 using UnityEngine;
 
 public class GlassTile : MonoBehaviour
 {
     public bool isSafe = false; // được đặt bởi GameManager
     public Material mainMaterial;
+    public Material safeMaterial;
     public MeshRenderer meshRenderer;
     public GlassBreak breakEffect;
     public AudioClip jumpSound;
     private bool steppedOn = false;
 
     private Rigidbody rb;
-    private BoxCollider boxCollider;
+    private MeshCollider boxCollider;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        boxCollider = GetComponent<BoxCollider>();
+        boxCollider = GetComponent<MeshCollider>();
         meshRenderer.material= mainMaterial;
     }
+    
     public void ResetTile()
     {
         steppedOn = false;
@@ -62,5 +65,14 @@ public class GlassTile : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.useGravity = false;
+    }
+
+    public void SetDefaultMaterial()
+    {
+        meshRenderer.material= mainMaterial;
+    }
+    public void SetSafeMaterial()
+    {
+        meshRenderer.material= safeMaterial;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,7 @@ public class GlassLine : MonoBehaviour
     public GlassTile leftTile;
     public GlassTile rightTile;
     public bool isLeftSafe; // Được đặt bởi BridgeManager
-    
+
     public void ResetLine()
     {
         leftTile.isSafe = isLeftSafe;

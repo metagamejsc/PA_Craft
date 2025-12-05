@@ -16,6 +16,9 @@ public class AudioManager : MonoBehaviour
     public AudioClip bgSound;
     public AudioClip buildSound;
     public AudioClip miningSound;
+    public AudioClip jumpingSound;
+    public AudioClip respawnSound;
+    public AudioClip takeDamageSound;
     public List<AudioClip> lstMoveSound;
 
     private void Awake()
@@ -37,6 +40,18 @@ public class AudioManager : MonoBehaviour
     {
         sound.PlayOneShot(lstMergeSound[Random.Range(0,lstMergeSound.Count)],1);
     }
+    public void PlaySoundJumping()
+    {
+        sound.PlayOneShot(jumpingSound,1);
+    }
+    public void PlaySoundRespawn()
+    {
+        sound.PlayOneShot(respawnSound,1);
+    }
+    public void PlaySoundTakeDame()
+    {
+        sound.PlayOneShot(takeDamageSound,1);
+    }
     public void PlaySoundMove()
     {
         sound.PlayOneShot(lstMoveSound[Random.Range(0,lstMoveSound.Count)],1);
@@ -57,6 +72,7 @@ public class AudioManager : MonoBehaviour
     {
         sound.PlayOneShot(miningSound,1);
     }
+    
     public void PlayMusicLose()
     {
         music.loop = false;
@@ -68,15 +84,5 @@ public class AudioManager : MonoBehaviour
         music.loop = true;
         music.clip = bgSound;
         music.Play();
-    }
-
-    public void PlaySoundRespawn()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void PlaySoundJumping()
-    {
-        throw new NotImplementedException();
     }
 }

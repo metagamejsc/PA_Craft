@@ -9,11 +9,15 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số lần chết ra store")] public int countReSpawnFinal=3;
-    [LunaPlaygroundField("Số cầu kính vợt qua ra store")] public int countPassGlassMax=5;
-    public int countPassGlas=0;
+    [LunaPlaygroundField("Số lần vượt qua kính ra store")]public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
+    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
+    [LunaPlaygroundField("Lightning")] public float Lightning=5;
+    [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
+    public Light directionalLight;
     public bool isCretiveEnd;
+    public bool isCretivePause;
+    public GameObject btnRestart;
     private void Awake()
     {
         ins = this;
@@ -21,12 +25,15 @@ public class LunaManager : MonoBehaviour
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
+    public GameObject WinCard;
     
 
 
     // Start is called before the first frame update
     void Start()
     {
+        directionalLight.intensity = Lightning;
+        directionalLight.color = colorLight;
         Luna.Unity.LifeCycle.OnPause += PauseGameplay;
         Luna.Unity.LifeCycle.OnResume += ResumeGameplay;
         foreach (var VARIABLE in lstBtnInstall)
@@ -34,15 +41,34 @@ public class LunaManager : MonoBehaviour
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
         EndCard.SetActive(false);
+        WinCard.SetActive(false);
+        btnRestart.GetComponent<Button>().onClick.AddListener(ReplayGame);
+        btnRestart.GetComponent<Button>().onClick.AddListener(GameController.ins.SpawnPlayer);
+        btnRestart.SetActive(canReplay>=1);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
-
+    public void ReplayGame()
+    {
+        canReplay--;
+        countDrop = 0;
+        btnRestart.SetActive(canReplay>=1);
+        isCretiveEnd = false;
+        EndCard.SetActive(false);
+        var timeEndCreativeRemaining = timeEndCreative - Time.realtimeSinceStartup;
+        if (timeEndCreativeRemaining<0)
+        {
+            timeEndCreativeRemaining = 5f;
+        }
+        Invoke(nameof(ShowEndCard), timeEndCreativeRemaining);
+    }
+   
     public void CheckClickShowEndCard()
     {
-        countPassGlas++;
-        if (countPassGlas>=countPassGlassMax && isCretiveEnd==false)
+        countDrop++;
+        if (countDrop>=countDropFinal && isCretiveEnd==false)
         {
+            isCretiveEnd = true;
             ShowEndCard();
         }
     }
@@ -61,24 +87,35 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
-        if (!isCretiveEnd)
-        {
-            isCretiveEnd = true;
-            AudioManager.ins.PlaySoundReward();
-            EndCard.SetActive(true);
-            Debug.Log("Show end card");
-            Luna.Unity.LifeCycle.GameEnded();
-        }
+        if (isCretiveEnd) return;
+        isCretiveEnd = true;
+        AudioManager.ins.PlaySoundReward();
+        EndCard.SetActive(true);
+        Debug.Log("Show end card");
+        Luna.Unity.LifeCycle.GameEnded();
     }
-
+    public void ShowLoseCard()
+    {
+        if (isCretiveEnd) return;
+        isCretiveEnd = true;
+        AudioManager.ins.PlayMusicLose();
+        EndCard.SetActive(true);
+        Debug.Log("Show end card");
+        Luna.Unity.LifeCycle.GameEnded();
+    }
+    public void ShowWinCard()
+    {
+        if (isCretiveEnd) return;
+        isCretiveEnd = true;
+        AudioManager.ins.PlaySoundReward();
+        WinCard.SetActive(true);
+        Debug.Log("Show win card");
+        Luna.Unity.LifeCycle.GameEnded();
+    }
     public void OnClickEndCard()
     {
         Debug.Log("Click end card");
         Luna.Unity.Playable.InstallFullGame();
     }
 
-    public void ShowWinCard()
-    {
-        throw new NotImplementedException();
-    }
 }

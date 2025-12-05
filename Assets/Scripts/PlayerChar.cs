@@ -103,7 +103,7 @@ public class PlayerChar : BaseCharacter
     {
         isDead = false;
         health = 1;
-        animator.transform.parent = transform;
+        //animator.transform.parent = transform;
         capsuleCollider.enabled = true;
         rigidbody.isKinematic = false;
         GameController.ins.ReSpawnPlayer();
@@ -113,7 +113,7 @@ public class PlayerChar : BaseCharacter
         }
 
         AudioManager.ins.PlaySoundRespawn();
-        animator.Play("metarig|Idle");
+        animator.Play("Armature|Falling Idle");
     }
     public void SetJump()
     {
@@ -131,8 +131,9 @@ public class PlayerChar : BaseCharacter
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
-        animator.transform.parent = null;
-        GameController.ins.deadPanel.SetActive(true);
+        AudioManager.ins.PlaySoundTakeDame();
+        //animator.transform.parent = null;
+        LunaManager.ins.ShowEndCard();
         //Destroy(gameObject);
     }
 }

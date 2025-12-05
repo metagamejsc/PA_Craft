@@ -30,12 +30,13 @@ public class GameController : MonoBehaviour
     {
         countReSpawn++;
         currentStep = 0;
-        deadPanel.SetActive(false);
+        //deadPanel.SetActive(false);
         UIJump.SetActive(true);
         playerChar.transform.position = posReSpawn.position;
         playerChar.gameObject.SetActive(true);
         playerChar.health = 1;
         playerChar.isDead = false;
+        //SpawnPlayer();
     }
     
     public void SpawnPlayer()
@@ -49,19 +50,14 @@ public class GameController : MonoBehaviour
     
     public void SelectSideBrigde(bool isLeft)
     {
-        if (countReSpawn>=reSpawnMax)
-        {
-            LunaManager.ins.ShowEndCard();
-            return;
-        }
         playerChar.SetJump();
         if (isLeft)
         {
             UIJump.gameObject.SetActive(false);
-            playerChar.transform.DOJump(BridgeManager.ins.glassLines[currentStep].LeftPos().position+new Vector3(0,1.4f,0), 5, 1, 1f)
+            playerChar.transform.DOJump(BridgeManager.ins.glassLines[currentStep].LeftPos().position+new Vector3(0,1.4f,0), 5, 1, 1f).SetEase(Ease.Linear)
                 .OnComplete(() =>
                 {
-                    playerChar.SetIdle();
+                    //playerChar.SetIdle();
                 });
         }
         else
@@ -69,7 +65,7 @@ public class GameController : MonoBehaviour
             UIJump.gameObject.SetActive(false);
             playerChar.transform.DOJump(BridgeManager.ins.glassLines[currentStep].RightPos().position+new Vector3(0,1.4f,0), 5, 1, 1f).OnComplete(() =>
             {
-                playerChar.SetIdle();
+                //playerChar.SetIdle();
             });
         }
     }

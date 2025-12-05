@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -34,20 +35,23 @@ public class PlayerMovement2 : MonoBehaviour
 
     public IEnumerator MoveAndIdle()
     {
-        while (!stopCoutine)
-        {
-            animator.SetBool("isMoving", true);
-            yield return new WaitForSeconds(2f);
-            animator.SetBool("isMoving", false);
-            yield return new WaitForSeconds(1f);
-        }
+        yield return new WaitForSeconds(1f);
+        model.transform.DOLocalMove(new Vector3(0, 0, 0), 2f);
+        animator.SetBool("isMoving", true);
+        yield return new WaitForSeconds(2f);
+        animator.SetBool("isMoving", false);
+        
     }
-    void Start()
+    IEnumerator Start()
     {
         rb = GetComponent<Rigidbody>();
         /*moveSpeed = LunaManager.ins.playerSpeed;
         jumpHeight=LunaManager.ins.playerJumpForce;*/
-        StartCoroutine(MoveAndIdle());
+        yield return StartCoroutine(MoveAndIdle());
+        BridgeManager.ins.ShowBridgeHint(() =>
+        {
+            GameController.ins.UIJump.SetActive(true);
+        });
     }
     bool IsOnSlope()
     {
@@ -207,8 +211,8 @@ public class PlayerMovement2 : MonoBehaviour
         {
             if (!LunaManager.ins.isCretiveEnd)
             {
-                /*var effect= Instantiate(endEffect);
-                effect.transform.position = transform.position + new Vector3(0, 0, 2);*/
+                var effect= Instantiate(endEffect);
+                effect.transform.position = transform.position + new Vector3(0, 0, 2);
                 animator.SetBool("isMoving", false);
                 LunaManager.ins.ShowWinCard();
             }
@@ -219,8 +223,8 @@ public class PlayerMovement2 : MonoBehaviour
             {
                 other.GetComponent<BoxCollider>().enabled = false;
                 AudioManager.ins.PlaySoundReward();
-                var effect= Instantiate(endEffect);
-                effect.transform.position = transform.position + new Vector3(0, 0, 2);
+                /*var effect= Instantiate(endEffect);
+                effect.transform.position = transform.position + new Vector3(0, 0, 2);*/
             }
         }
     }
