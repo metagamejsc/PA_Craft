@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerMovement2 : MonoBehaviour
 {
     public static PlayerMovement2 ins;
+    public ParticleSystem finishParticle;
 
     private void Awake()
     {
@@ -27,8 +28,8 @@ public class PlayerMovement2 : MonoBehaviour
     private Rigidbody rb;
     private CapsuleCollider cap;
     private float xRotation = 0f;
-    private bool isGrounded;
-    private bool isJumping;
+    public bool isGrounded;
+    public bool isJumping;
 
     void Start()
     {
@@ -71,6 +72,7 @@ public class PlayerMovement2 : MonoBehaviour
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        animator.SetBool("isJumping", !isGrounded);
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
@@ -80,7 +82,6 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if(isGrounded)
         {
-            animator.SetBool("isJumping", !isGrounded);
             rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
         }
     }
@@ -183,7 +184,9 @@ public class PlayerMovement2 : MonoBehaviour
         {
             if (!LunaManager.ins.isCretivePause)
             {
+                finishParticle.Play();
                 animator.SetBool("isMoving", false);
+                rb.velocity=Vector3.zero;
                 LunaManager.ins.ShowEndCard();
             }
         }

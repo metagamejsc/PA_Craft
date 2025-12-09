@@ -55,7 +55,11 @@ public class Anim3D : MonoBehaviour
     {
         soundChar.PlayIdleSound();
     }
-
+    public void EventJump()
+    {
+        //LunaManager.ins.ShowEndCard();
+        soundChar.PlayJumpSound();
+    }
     public void EventDead()
     {
         //LunaManager.ins.ShowEndCard();

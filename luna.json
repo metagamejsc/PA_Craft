@@ -1,7 +1,7 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 32681,
+    "applicationID": 29138,
     "creativeName": "BCRWV_V26_ChiTM_ToiNV",
     "pgServer": "EU",
     "window": {
@@ -80,8 +80,8 @@
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.12",
-            "monoVersion": "8.0.14",
+            "msbuildVersion": "17.14",
+            "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
         "assets": {
@@ -132,7 +132,7 @@
             ]
         },
         "scenes": [
-            "Assets/Scenes/Game.unity"
+            "Assets/Scenes/SampleScene.unity"
         ],
         "disabledScenes": [],
         "startupScene": 0,
@@ -156,13 +156,13 @@
         "preloader": {
             "logo": ""
         },
-        "enableRealtimeShadows": false,
+        "enableRealtimeShadows": true,
         "enableLunaCompilerV2": false,
         "optimiseShaderVariantsExport": true,
         "enableMecanimWASM": true,
         "minify": true,
         "forceUncompressed": false,
-        "forceBase64": false,
+        "forceBase64": true,
         "genericCheck": true,
         "disableAntiAliasing": true,
         "preferWebGl2": false,
@@ -3031,10 +3031,6 @@
             },
             {
                 "name": "UnityEngine.TouchScreenKeyboard",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.TrailModule",
                 "excluded": true
             },
             {
@@ -21851,11 +21847,11 @@
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetParticles",
@@ -21875,7 +21871,7 @@
                     },
                     {
                         "name": "Play",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Play$1",
@@ -34714,6 +34710,10 @@
                     {
                         "name": "EventAtkComplete",
                         "excluded": false
+                    },
+                    {
+                        "name": "EventJump",
+                        "excluded": false
                     }
                 ]
             },
@@ -34805,6 +34805,10 @@
                     },
                     {
                         "name": "PlayMoveSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayJumpSound",
                         "excluded": false
                     }
                 ]
@@ -35928,6 +35932,20 @@
                         "excluded": false
                     }
                 ]
+            },
+            {
+                "className": "UnityEngine.TrailModule",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "enabled#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "enabled#set",
+                        "excluded": true
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -36021,12 +36039,32 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:00.000",
-                        "lengthInSeconds": 0.0,
-                        "bitrate": 128,
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 30.0,
+                        "bitrate": 32,
                         "script": "",
                         "ext": "",
                         "name": "Assets/SoundFX/an_ordinary_day (mp3cut.net).mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 30.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/Zombie/say3.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 30.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/twinkle_far1.ogg"
                     }
                 ]
             },
