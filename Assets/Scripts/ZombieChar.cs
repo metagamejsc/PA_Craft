@@ -2,21 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ZombieChar : BaseCharacter
 {
     public Material material;
     public SkinnedMeshRenderer[] lstMaterials;
+
+    [Header("UI máu Enemy")]
+    public Image imageFill;
+
+    private float maxHealth;
+
     protected override void Start()
     {
         base.Start();
+        moveSpeed = LunaManager.ins.enemySpeed;
         IsFindingEnemy = true;
-        //health = LunaManager.ins.countDropFinal;
+
+        maxHealth = health;
+        UpdateHealthUI();
+
         for (int i = 0; i < lstMaterials.Length; i++)
         {
             lstMaterials[i].material = new Material(material);
         }
     }
+
     protected override void Update()
     {
         if (GameController.ins.isPauseGame)
@@ -37,36 +49,52 @@ public class ZombieChar : BaseCharacter
         {
             return;
         }
-        
+
         Collider[] hits = Physics.OverlapSphere(transform.position, detectionRadiusMax);
         target = hits
             .Select(h => h.transform)
-            .Where(t => t.CompareTag("Player") && 
-                        t.TryGetComponent<BaseCharacter>(out var player) && 
-                        !player.isDead) // Kiểm tra có component Player và chưa chết
+            .Where(t => t.CompareTag("Player") &&
+                        t.TryGetComponent<BaseCharacter>(out var player) &&
+                        !player.isDead)
             .OrderBy(t => Vector3.Distance(transform.position, t.position))
             .FirstOrDefault();
     }
 
     public override void TakeDamage(float dmg)
     {
-        
         if (isDead)
         {
             return;
         }
 
+        DynamicTextManager.CreateText((this.transform.position + Vector3.up * 2f), "-" + (dmg * 30).ToString(), DynamicTextManager.defaultData);
         detectionRadiusMax = 999;
         health -= dmg;
-        
+
+        UpdateHealthUI();
+
         StartCoroutine(IeNhapNhay(2f));
         if (health <= 0)
         {
-            GameController.ins.EnemyDead();
             animator.SetTrigger("Dead");
             isDead = true;
             Die();
+            UpdateHealthUI();
         }
+    }
+
+    private void UpdateHealthUI()
+    {
+        if (imageFill == null) return;
+
+        if (maxHealth <= 0f)
+        {
+            imageFill.fillAmount = 1f;
+            return;
+        }
+
+        float percent = Mathf.Clamp01(health / maxHealth);
+        imageFill.fillAmount = percent;
     }
 
     public IEnumerator IeNhapNhay(float time)

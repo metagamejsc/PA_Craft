@@ -99,10 +99,15 @@ public class PlayerMovement2 : MonoBehaviour
         // Lấy input từ bàn phím (WASD)
         float moveX = 0;
         float moveZ = 0;
+        
 #if UNITY_EDITOR
          moveX = Input.GetAxis("Horizontal");
          moveZ = Input.GetAxis("Vertical");
 #else     
+        if (JoystickController.ins==null)
+        {
+            return;
+        }
          moveX = JoystickController.ins.Horizontal();
          moveZ = JoystickController.ins.Vertical();
 #endif

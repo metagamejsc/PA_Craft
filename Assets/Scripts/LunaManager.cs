@@ -11,11 +11,14 @@ public class LunaManager : MonoBehaviour
     public int countDrop=0;
     [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
     [LunaPlaygroundField("CountDrop")] public int count;
+    [LunaPlaygroundField("Enemy Speed")] public float enemySpeed=2f;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
-    [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
-    [LunaPlaygroundField("Tree Count")] public int treeCount=20;
+    [LunaPlaygroundField("Time hold to Store")] public int timeHoldStore=10;
+    [LunaPlaygroundField("lightIntensity")] public float lightIntensity;
+    [LunaPlaygroundField("Color light")] public Color lightColor;
+    public Light directionalLight;
     public bool isCretivePause;
+    public Transform objectEndGame;
     private void Awake()
     {
         ins = this;
@@ -36,6 +39,8 @@ public class LunaManager : MonoBehaviour
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
         EndCard.SetActive(false);
+        directionalLight.intensity = lightIntensity;
+        directionalLight.color = lightColor;
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
@@ -76,5 +81,16 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Click end card");
         Luna.Unity.Playable.InstallFullGame();
     }
-
+    public void DelayCallEndCard(float time)
+    {
+        if (GameController.ins.isEndGame)
+        {
+            return;
+        }
+        objectEndGame.gameObject.SetActive(true);
+        MouseLook.ins.target = objectEndGame;
+        GameController.ins.isEndGame = true;
+        Invoke(nameof(OnClickEndCard),time);
+        Invoke(nameof(ShowEndCard),time);
+    }
 }

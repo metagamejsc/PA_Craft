@@ -24,10 +24,10 @@ public class PlayerChar : BaseCharacter
     protected override void Start()
     {
         base.Start();
-        for (int i = 0; i < lstWeapons.Length; i++)
+        /*for (int i = 0; i < lstWeapons.Length; i++)
         {
             lstWeapons[i].SetActive(false);
-        }
+        }*/
         //SwordObject.SetActive(false);
         IsFindingEnemy = true;
     }

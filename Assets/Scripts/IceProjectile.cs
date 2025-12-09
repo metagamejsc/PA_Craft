@@ -29,7 +29,7 @@ public class IceProjectile : MonoBehaviour
             {
                 target.TakeDamage(1);
             }
-            var a=Instantiate(iceSpikePrefab, transform.position, Quaternion.identity);
+            //var a=Instantiate(iceSpikePrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
     }

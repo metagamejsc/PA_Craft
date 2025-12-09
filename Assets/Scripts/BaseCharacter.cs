@@ -204,6 +204,7 @@ public class BaseCharacter : MonoBehaviour
 
     protected virtual void Die()
     {
+        GameController.ins.EnemyDead(this.gameObject);
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;

@@ -4,20 +4,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
+public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,IDragHandler
 {
     public static MouseLook ins;
-    public LayerMask groundLayer;
-    public GameObject blockPrefab;
-    public GameObject blockPrefab2;
-    public float timeHold = 0;
-    public bool isHold = false;
-    public Transform posCam;
+    public float timeHoldFire = 0f;
+    public Transform target;
+    [Header("Mượt hoá khi nhìn theo target")]
+    public float lookAtSmoothSpeed = 5f;   // tăng lên quay nhanh hơn, giảm xuống quay chậm/mượt hơn
 
-    public Inventory inv;
+
     private void Awake()
     {
-        ins= this;
+        ins = this;
     }
 
     public float mouseSensitivity = 180;
@@ -25,165 +23,134 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public Transform playerBody;
     public Camera cameraMain;
 
-    private float xRotation = 0f;
+    // ===== THÊM GIỚI HẠN XOAY THEO X VÀ Y =====
+    [Header("Giới hạn xoay theo trục X (ngẩng/cúi)")]
+    public float minVertical = -60f;   // xuống tối đa
+    public float maxVertical = 60f;    // ngẩng tối đa
+
+    [Header("Giới hạn xoay theo trục Y (quay trái/phải)")]
+    public float minHorizontal = -90f; // quay trái tối đa
+    public float maxHorizontal = 90f;  // quay phải tối đa
+
+    private float xRotation = 0f;      // pitch
+    private float yRotation = 0f;        // yaw
+    private bool isMouseDown = false;
+
     public Action onClick;
-    
-    // Start is called before the first frame update
+
     void Start()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
+        // Lấy góc ban đầu của camera & player để bắt đầu tính
+        Vector3 camEuler = cameraMain.transform.localEulerAngles;
+        xRotation = camEuler.x;
+        if (xRotation > 180f) xRotation -= 360f;  // chuyển về khoảng -180..180
 
-        /*mouseSensitivity = 180;
-
-        if(Application.isEditor)
-            mouseSensitivity = 400;*/
+        Vector3 bodyEuler = playerBody.eulerAngles;
+        yRotation = bodyEuler.y;
+        if (yRotation > 180f) yRotation -= 360f;  // chuyển về khoảng -180..180
     }
 
     float mx;
 
-  
+    // ===== SỬA HÀM OnDrag ĐỂ XOAY CÓ GIỚI HẠN =====
     public void OnDrag(PointerEventData eventData)
     {
+        if (GameController.ins.isEndGame)
+        {
+            return;
+        }
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        if(Mathf.Abs(mouseX) > 20 || Mathf.Abs(mouseY) > 20)
+        // tránh giật value bất thường
+        if (Mathf.Abs(mouseX) > 20 || Mathf.Abs(mouseY) > 20)
             return;
 
-        //camera's x rotation (look up and down)
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        // cập nhật góc xoay
+        xRotation -= mouseY;  // trục X (ngẩng/cúi)
+        yRotation += mouseX;  // trục Y (quay trái/phải)
 
-        cameraMain.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
+        // clamp trong khoảng cho phép
+        xRotation = Mathf.Clamp(xRotation, minVertical, maxVertical);
+        yRotation = Mathf.Clamp(yRotation, minHorizontal, maxHorizontal);
 
-        //mx = Input.GetAxis("Mouse X");
-        
-        //player body's y rotation (turn left and right)
-        playerBody.Rotate(Vector3.up * mouseX);
-    }
+        // áp dụng cho camera (chỉ pitch trên trục X)
+        cameraMain.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        StopAllCoroutines();
-        playerBody.GetComponent<PlayerChar>().CancleFire();
-        blockPrefab2.SetActive(false);
-    }
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        //StartCoroutine(DestroyBlock());
-        playerBody.GetComponent<PlayerChar>().HandleAttack();
-        //DesTroyBlock();
+        // áp dụng yaw cho thân nhân vật
+        playerBody.rotation = Quaternion.Euler(0f, yRotation, 0f);
     }
 
     private void Update()
     {
-        /*if (isHold)
+        if (target)
         {
-            timeHold+=Time.deltaTime;
-            if (timeHold>0.1f)
-            {
-                DesTroyBlock();
-            }
-        }*/
+            UpdateCameraLookAt(target);
+            isMouseDown = false;
+        }
+        
+        if (!isMouseDown)
+        {
+            return;
+        }
+        playerBody.GetComponent<PlayerChar>().HandleAttack();
+        timeHoldFire += Time.deltaTime;
+        if (timeHoldFire>=LunaManager.ins.timeHoldStore)
+        {
+            LunaManager.ins.DelayCallEndCard(2f);
+        }
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (GameController.ins.isEndGame)
+        {
+            return;
+        }
+        isMouseDown = false;
+        StopAllCoroutines();
+        playerBody.GetComponent<PlayerChar>().CancleFire();
         
     }
 
-    public void DesTroyBlock()
+    public void OnPointerDown(PointerEventData eventData)
     {
-            Debug.Log("DesTroyBlock");
-                    RaycastHit hitInfo;
-                    if(Physics.Raycast(posCam.transform.position, transform.forward, out hitInfo, 5, groundLayer))
-                    {
-                        Debug.Log("DesTroyBlock");
-                        Vector3 pointInTargetBlock;
-        
-                        //destroy
-                        /*if(leftClick)
-                            pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
-                        else
-                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
-                        pointInTargetBlock = hitInfo.point + transform.forward * .01f;
-        
-                        //get the terrain chunk (can't just use collider)
-                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
-        
-                        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
-        
-                        TerrainChunk tc = TerrainGenerator.chunks[cp];
-        
-                        //index of the target block
-                        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
-                        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
-                        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
-
-                        if (blockPrefab2==null)
-                        {
-                            blockPrefab2= Instantiate(blockPrefab, new Vector3(bix+ chunkPosX-1, biy, biz+ chunkPosZ-1), Quaternion.identity);
-                        }
-                        blockPrefab2.SetActive(true);
-                        blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
-                        if (timeHold>=1)
-                        {
-                            inv.AddToInventory(tc.blocks[bix, biy, biz]);
-                            tc.blocks[bix, biy, biz] = BlockType.Air;
-                            tc.BuildMesh();
-                            blockPrefab2.SetActive(false);
-                            isHold = false;
-                            timeHold = 0;
-                        }
-                    }
+        if (GameController.ins.isEndGame)
+        {
+            return;
+        }
+        isMouseDown = true;
+        //playerBody.GetComponent<PlayerChar>().HandleAttack();
     }
 
-    public IEnumerator DestroyBlock()
+    public void UpdateCameraLookAt(Transform target)
     {
-                
-                     RaycastHit hitInfo;
-                    if(Physics.Raycast(posCam.transform.position, posCam.transform.forward, out hitInfo, 5, groundLayer))
-                    {
-                     
-                        Vector3 pointInTargetBlock;
-        
-                        //destroy
-                        /*if(leftClick)
-                            pointInTargetBlock = hitInfo.point + transform.forward * .01f;//move a little inside the block
-                        else
-                            pointInTargetBlock = hitInfo.point - transform.forward * .01f;*/
-                        pointInTargetBlock = hitInfo.point + posCam.transform.forward * .01f;
-        
-                        //get the terrain chunk (can't just use collider)
-                        int chunkPosX = Mathf.FloorToInt(pointInTargetBlock.x / 16f) * 16;
-                        int chunkPosZ = Mathf.FloorToInt(pointInTargetBlock.z / 16f) * 16;
-                        
-                        ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
-        
-                        TerrainChunk tc = TerrainGenerator.chunks[cp];
-        
-                        //index of the target block
-                        int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
-                        int biy = Mathf.FloorToInt(pointInTargetBlock.y);
-                        int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ+1;
+        if (target == null || cameraMain == null || playerBody == null) return;
 
-                       
-                        blockPrefab2.SetActive(true);
-                        blockPrefab2.transform.position = new Vector3(bix + chunkPosX - 1, biy, biz + chunkPosZ - 1);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        AudioManager.ins.PlayMiningSound();
-                        yield return new WaitForSeconds(0.2f);
-                        inv.AddToInventory(tc.blocks[bix, biy, biz]);
-                        tc.blocks[bix, biy, biz] = BlockType.Air;
-                        tc.BuildMesh();
-                        blockPrefab2.SetActive(false);
+        // Hướng từ camera tới target
+        Vector3 dir = (target.position - cameraMain.transform.position).normalized;
 
-                    }
+        Vector3 dirHorizontal = new Vector3(dir.x, 0f, dir.z);
+        if (dirHorizontal.sqrMagnitude < 0.0001f) return;
+
+        float yaw = Mathf.Atan2(dirHorizontal.x, dirHorizontal.z) * Mathf.Rad2Deg;
+        float pitch = Mathf.Atan2(dir.y, dirHorizontal.magnitude) * Mathf.Rad2Deg;
+
+        // hệ đang dùng: xRotation = -pitch
+        float targetX = -pitch;
+        float targetY = yaw;
+
+        // clamp góc mục tiêu
+        targetX = Mathf.Clamp(targetX, minVertical, maxVertical);
+        targetY = Mathf.Clamp(targetY, minHorizontal, maxHorizontal);
+
+        // LERP góc hiện tại -> góc mục tiêu cho mượt
+        float t = lookAtSmoothSpeed * Time.deltaTime;
+        xRotation = Mathf.LerpAngle(xRotation, targetX, t);
+        yRotation = Mathf.LerpAngle(yRotation, targetY, t);
+
+        // áp dụng rotation
+        cameraMain.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        playerBody.rotation = Quaternion.Euler(0f, yRotation, 0f);
     }
 }
