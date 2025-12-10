@@ -10,7 +10,6 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     public int countDrop=0;
     public int countDropFinal;
-    public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
@@ -19,15 +18,11 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     public Light directionalLight;
-    public float noiseIntensity=10;
-    public float landNoiseScale=0.8f;
-    public int treeCount=20;
     public bool isCretivePause;
     public GameObject btnRestart;
     private void Awake()
     {
         ins = this;
-
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
