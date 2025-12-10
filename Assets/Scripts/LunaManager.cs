@@ -1,30 +1,32 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 using Random = UnityEngine.Random;
 
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    public int countDrop=0;
-     public int countDropFinal;
-    public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    public float noiseIntensity=10;
-   public float landNoiseScale=0.8f;
-     public int treeCount=20;
+    [LunaPlaygroundAsset("Video")] public VideoClip videoClip;
+    [LunaPlaygroundField("Text")] public string stringEndCreative;
+    [LunaPlaygroundField("Text Color")] public Color colorTextEndCreative;
+    [LunaPlaygroundField("Text Size")] public float sizeTextEndCreative;
+    [LunaPlaygroundField("Text Style")] public FontStyles fontStyleTextEndCreative;
+    public TextMeshProUGUI txtEndCreative;
+
     public bool isCretivePause;
+    public VideoPlayer video;
     private void Awake()
     {
         ins = this;
-
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
-    [LunaPlaygroundField("Speed")] public float playerSpeed;
-
 
     // Start is called before the first frame update
     void Start()
@@ -38,17 +40,13 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
+        video.clip = videoClip;
+        txtEndCreative.text = stringEndCreative;
+        txtEndCreative.color = colorTextEndCreative;
+        txtEndCreative.fontSize = sizeTextEndCreative;
+        txtEndCreative.fontStyle = fontStyleTextEndCreative;
     }
-
-    public void CheckClickShowEndCard()
-    {
-        countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
-        {
-            isCretivePause = true;
-            ShowEndCard();
-        }
-    }
+    
     // Update is called once per frame
     public void PauseGameplay()
     {
@@ -65,7 +63,6 @@ public class LunaManager : MonoBehaviour
     public void ShowEndCard()
     {
         isCretivePause = true;
-        AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
@@ -76,5 +73,4 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Click end card");
         Luna.Unity.Playable.InstallFullGame();
     }
-
 }
