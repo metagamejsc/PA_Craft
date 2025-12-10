@@ -80,8 +80,8 @@
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.12",
-            "monoVersion": "8.0.14",
+            "msbuildVersion": "17.14",
+            "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
         "assets": {
@@ -157,7 +157,7 @@
         "preloader": {
             "logo": ""
         },
-        "enableRealtimeShadows": false,
+        "enableRealtimeShadows": true,
         "enableLunaCompilerV2": false,
         "optimiseShaderVariantsExport": true,
         "enableMecanimWASM": true,
@@ -2587,10 +2587,6 @@
                 "excluded": true
             },
             {
-                "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.Avatar.TOSPair",
-                "excluded": true
-            },
-            {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.ProjectSettings.Physics2DSettings",
                 "excluded": true
             },
@@ -3096,10 +3092,6 @@
             },
             {
                 "name": "UnityEngine.Audio.AudioMixerSnapshot",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.Avatar",
                 "excluded": true
             },
             {
@@ -3852,7 +3844,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.RenderSettings.Lightmap",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.RenderSettings.LightProbes",
@@ -6708,7 +6700,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.Avatar",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animations.BlendTree",
@@ -16244,11 +16236,11 @@
                     },
                     {
                         "name": "LookAt$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "LookAt$3",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetAsLastSibling",
@@ -21864,7 +21856,7 @@
                     },
                     {
                         "name": "Play",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Play$1",
@@ -22856,7 +22848,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -26083,10 +26075,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
                         "name": "OnDrag",
                         "excluded": false
                     },
@@ -26103,15 +26091,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DesTroyBlock",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DestroyBlock",
+                        "name": "LateUpdate",
                         "excluded": false
                     }
                 ]
@@ -35934,6 +35914,112 @@
                     },
                     {
                         "name": "Start",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.Avatar.TOSPair",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.Avatar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "humanDescription#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetMuscleMinMax",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetParameter",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetAxisLength",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetPreRotation",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetPostRotation",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetZYPostQ",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetZYRoll",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetLimitSign",
+                        "excluded": true
+                    },
+                    {
+                        "name": "public_GetAxisLength",
+                        "excluded": true
+                    },
+                    {
+                        "name": "public_GetPreRotation",
+                        "excluded": true
+                    },
+                    {
+                        "name": "public_GetPostRotation",
+                        "excluded": true
+                    },
+                    {
+                        "name": "public_GetZYPostQ",
+                        "excluded": true
+                    },
+                    {
+                        "name": "public_GetZYRoll",
+                        "excluded": true
+                    },
+                    {
+                        "name": "public_GetLimitSign",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "TriggerEffect",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
                         "excluded": false
                     }
                 ]
