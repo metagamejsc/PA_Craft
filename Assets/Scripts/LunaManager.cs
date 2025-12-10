@@ -12,6 +12,9 @@ public class LunaManager : MonoBehaviour
      public int countDropFinal;
     public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
+    [LunaPlaygroundField("Noise Intensity")] public float lightIntensity=1;
+    [LunaPlaygroundField("Light Color")] public Color lightColor=Color.white;
+    public Light directionalLight;
     public float noiseIntensity=10;
    public float landNoiseScale=0.8f;
      public int treeCount=20;
@@ -38,6 +41,8 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
+        directionalLight.intensity = lightIntensity;
+        directionalLight.color = lightColor;
     }
 
     public void CheckClickShowEndCard()
