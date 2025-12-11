@@ -16,6 +16,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip bgSound;
     public AudioClip buildSound;
     public AudioClip miningSound;
+    public AudioClip winSound;
     public List<AudioClip> lstMoveSound;
 
     private void Awake()
@@ -59,12 +60,21 @@ public class AudioManager : MonoBehaviour
     }
     public void PlayMusicLose()
     {
+        music.Stop();
         music.loop = false;
         music.clip = loseSound;
         music.Play();
     }
+    public void PlayMusicWin()
+    {
+        music.Stop();
+        music.loop = false;
+        music.clip = winSound;
+        music.Play();
+    }
     public void PlayMusic()
     {
+        music.Stop();
         music.loop = true;
         music.clip = bgSound;
         music.Play();
