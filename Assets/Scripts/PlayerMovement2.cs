@@ -31,6 +31,11 @@ public class PlayerMovement2 : MonoBehaviour
     private bool isJumping;
     private bool stopCoutine;
 
+    // Thêm các biến cho tính năng leo thang
+    public bool isClimbing = false;  // Biến kiểm tra xem player có đang leo thang không
+    public Transform ladderCheck;  // Vị trí kiểm tra thang
+    public float ladderCheckRadius = 1f;  // Bán kính kiểm tra thang
+    public LayerMask ladderMask;  // Mask để xác định thang
 
     public IEnumerator MoveAndIdle()
     {
@@ -42,13 +47,15 @@ public class PlayerMovement2 : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
     }
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         moveSpeed = LunaManager.ins.playerSpeed;
-        jumpHeight=LunaManager.ins.playerJumpForce;
+        jumpHeight = LunaManager.ins.playerJumpForce;
         StartCoroutine(MoveAndIdle());
     }
+
     bool IsOnSlope()
     {
         RaycastHit hit;
@@ -71,9 +78,10 @@ public class PlayerMovement2 : MonoBehaviour
         if (Physics.Raycast(lowerStart, transform.forward, out hitLower, 0.5f) &&
             !Physics.Raycast(upperStart, transform.forward, out hitUpper, 0.5f))
         {
-            rb.position += new Vector3(0f, stepSmooth, 0f)+ transform.forward * 0.3f;
+            rb.position += new Vector3(0f, stepSmooth, 0f) + transform.forward * 0.3f;
         }
     }
+
     void Update()
     {
         if (GetComponent<PlayerChar>().isDead)
@@ -82,24 +90,74 @@ public class PlayerMovement2 : MonoBehaviour
             animator.Play("metarig|Fall");
             return;
         }
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        //isGrounded=Physics.Raycast(groundCheck.position,Vector3.down,groundDistance,groundMask);
-        //Debug.DrawRay(groundCheck.position, Vector3.down * groundDistance, Color.red);
+
+        if (!isClimbing)
+        {
+            isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        }
+        
         animator.SetBool("isJumping", !isGrounded);
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
         }
-    }
-    public void Jump()
-    {
-        if(isGrounded)
+
+        if (isClimbing)
         {
-            animator.SetBool("isJumping", !isGrounded);
-            //animator.Play("metarig|Character_Jump");
-            rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
+            float moveY = 0;
+            moveY = Input.GetAxis("Vertical");  // Đọc hướng di chuyển lên xuống (trục Y)
+
+            // Nếu di chuyển lên thang
+            if (moveY > 0)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, moveY * moveSpeed, rb.velocity.z);
+            }
+            // Nếu di chuyển xuống thang
+            else if (moveY < 0)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, moveY * moveSpeed, rb.velocity.z);
+            }
+            else
+            {
+                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);  // Không di chuyển trên trục Y
+            }
+
+            // Xử lý khi player không còn tiếp xúc với thang
+            if (!IsTouchingLadder())
+            {
+                isClimbing = false;
+                rb.useGravity = true;  // Bật lại trọng lực
+            }
         }
     }
+
+    private bool IsTouchingLadder()
+    {
+        // Kiểm tra xem player có đang tiếp xúc với thang không
+        Collider[] hitColliders = Physics.OverlapSphere(ladderCheck.position, ladderCheckRadius, ladderMask);
+        return hitColliders.Length > 0;
+    }
+
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Ladder"))
+        {
+            isClimbing = false;
+            rb.useGravity = true;  // Bật lại trọng lực khi ra khỏi thang
+        }
+    }
+
+    public void Jump()
+    {
+        if (isGrounded)
+        {
+            animator.SetBool("isJumping", !isGrounded);
+            rb.AddForce(new Vector3(0, jumpHeight, 0), ForceMode.Impulse);
+        }
+    }
+
     void FixedUpdate()
     {
         if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
@@ -110,8 +168,8 @@ public class PlayerMovement2 : MonoBehaviour
         moveX = Input.GetAxis("Horizontal");
         moveZ = Input.GetAxis("Vertical");
 #else
-    moveX = JoystickController.ins.Horizontal();
-    moveZ = JoystickController.ins.Vertical();
+        moveX = JoystickController.ins.Horizontal();
+        moveZ = JoystickController.ins.Vertical();
 #endif
 
         Vector3 inputDir = new Vector3(moveX, 0, moveZ);
@@ -149,10 +207,9 @@ public class PlayerMovement2 : MonoBehaviour
         animator.SetBool("isJumping", !isGrounded);
     }
 
-    
     private void OnCollisionStay(Collision collision)
     {
-        
+        // Xử lý va chạm nếu cần
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -169,12 +226,16 @@ public class PlayerMovement2 : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.CompareTag("Ladder"))
+        {
+            isClimbing = true;
+            rb.useGravity = false;  // Tắt trọng lực khi leo thang
+            isGrounded = true;
+        }
         if (other.CompareTag("Finish"))
         {
             if (!LunaManager.ins.isCretivePause)
             {
-                //var effect= Instantiate(endEffect);
-                //effect.transform.position = transform.position + new Vector3(0, 0, 2);
                 animator.SetBool("isMoving", false);
                 rb.velocity = Vector3.zero;
                 LunaManager.ins.ShowWinCard();
@@ -186,7 +247,7 @@ public class PlayerMovement2 : MonoBehaviour
             {
                 other.GetComponent<BoxCollider>().enabled = false;
                 AudioManager.ins.PlaySoundReward();
-                var effect= Instantiate(endEffect);
+                var effect = Instantiate(endEffect);
                 effect.transform.position = transform.position + new Vector3(0, 0, 2);
             }
         }

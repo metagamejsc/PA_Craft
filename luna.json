@@ -85,9 +85,7 @@
             "dotnetVersion": ""
         },
         "assets": {
-            "export": [
-                "resources"
-            ],
+            "export": [],
             "excludes": [
                 "**/Editor/",
                 "**/FacebookSDK/",
@@ -133,9 +131,11 @@
             ]
         },
         "scenes": [
+            "Assets/Scenes/SampleScene.unity"
+        ],
+        "disabledScenes": [
             "Assets/Scenes/Game.unity"
         ],
-        "disabledScenes": [],
         "startupScene": 0,
         "packages": {
             "default": {
@@ -26175,6 +26175,14 @@
                     {
                         "name": "MoveAndIdle",
                         "excluded": false
+                    },
+                    {
+                        "name": "IsTouchingLadder",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnTriggerExit",
+                        "excluded": true
                     }
                 ]
             },
