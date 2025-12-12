@@ -13,6 +13,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip rewardSound;
     public AudioClip bombSound;
     public AudioClip loseSound;
+    public AudioClip winSound;
     public AudioClip bgSound;
     public AudioClip buildSound;
     public AudioClip miningSound;
@@ -59,12 +60,21 @@ public class AudioManager : MonoBehaviour
     }
     public void PlayMusicLose()
     {
+        music.Stop();
+        music.loop = false;
+        music.clip = loseSound;
+        music.Play();
+    }
+    public void PlayMusicWin()
+    {
+        music.Stop();
         music.loop = false;
         music.clip = loseSound;
         music.Play();
     }
     public void PlayMusic()
     {
+        music.Stop();
         music.loop = true;
         music.clip = bgSound;
         music.Play();

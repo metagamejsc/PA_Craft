@@ -95,9 +95,11 @@ public class PlayerMovement2 : MonoBehaviour
         {
             isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
         }
-        
+
         animator.SetBool("isJumping", !isGrounded);
 
+        // Nhảy: vẫn dùng phím Space, nếu muốn dùng nút trên joystick
+        // bạn có thể thêm điều kiện từ JoystickController ở đây
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
@@ -105,8 +107,14 @@ public class PlayerMovement2 : MonoBehaviour
 
         if (isClimbing)
         {
-            float moveY = 0;
-            moveY = Input.GetAxis("Vertical");  // Đọc hướng di chuyển lên xuống (trục Y)
+            float moveY = 0f;
+
+            // Dùng joystick khi build, dùng phím trong Editor
+#if UNITY_EDITOR
+            moveY = Input.GetAxis("Vertical");             // W/S hoặc phím lên/xuống
+#else
+        moveY = JoystickController.ins.Vertical();     // Trục dọc của joystick
+#endif
 
             // Nếu di chuyển lên thang
             if (moveY > 0)
@@ -131,6 +139,7 @@ public class PlayerMovement2 : MonoBehaviour
             }
         }
     }
+
 
     private bool IsTouchingLadder()
     {
