@@ -25,6 +25,7 @@ public class LunaManager : MonoBehaviour
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
+    public GameObject EndCardEmpty;
     public GameObject WinCard;
     
 
@@ -44,7 +45,7 @@ public class LunaManager : MonoBehaviour
         WinCard.SetActive(false);
         btnRestart.SetActive(canReplay>=1);
         //SetupField();
-        Invoke(nameof(ShowEndCard),timeEndCreative);
+        Invoke(nameof(ShowEndCardEmpty),timeEndCreative);
     }
     public void ReplayGame()
     {
@@ -91,6 +92,14 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
+    public void ShowEndCardEmpty()
+        {
+            if (isCretivePause) return;
+            isCretivePause = true;
+            EndCardEmpty.SetActive(true);
+            Debug.Log("Show end card");
+            Luna.Unity.LifeCycle.GameEnded();
+        }
     public void ShowWinCard()
     {
         if (isCretivePause) return;
