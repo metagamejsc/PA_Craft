@@ -16,7 +16,6 @@ public class BaseCharacter : MonoBehaviour
     public bool isFindingEnemy = false;
 
     public Animator animator;
-    public GameObject SwordObject;
     public AnimationClip atkAnimationClip;
     public AnimationClip idleAnimationClip;
     [SerializeField]

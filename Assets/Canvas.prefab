@@ -4776,18 +4776,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e940b6753c425cf47ba994799eeb313a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  blockPrefab: {fileID: 2413921364301186378, guid: a50c8ee1f21e59b4db1ca25fc6497c8e,
-    type: 3}
-  timeHold: 0
-  isHold: 0
-  posCam: {fileID: 0}
-  inv: {fileID: 8253682697732472590}
-  mouseSensitivity: 120
-  playerBody: {fileID: 0}
+  target: {fileID: 0}
   cameraMain: {fileID: 0}
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 0
+  distance: 5
+  minDistance: 1.2
+  maxDistance: 5
+  heightOffset: 1.5
+  collisionBuffer: 0.2
+  rotationSpeed: 0.2
+  yMinLimit: -30
+  yMaxLimit: 80
 --- !u!1 &6035857305896722436
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 33902,
-    "creativeName": "CPC_V6_ManhND_ToiNV",
+    "applicationID": 35060,
+    "creativeName": "BHSA_V04_AnhPP_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -7957,6 +7957,10 @@
             {
                 "name": "TerrainWallCollider",
                 "excluded": true
+            },
+            {
+                "name": "AutoMoveByVelocity.State",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -16084,7 +16088,7 @@
                     },
                     {
                         "name": "forward#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "right#set",
@@ -16240,11 +16244,11 @@
                     },
                     {
                         "name": "LookAt$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "LookAt$3",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetAsLastSibling",
@@ -22104,7 +22108,7 @@
                     },
                     {
                         "name": "isKinematic#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isKinematic#set",
@@ -23670,7 +23674,7 @@
                     },
                     {
                         "name": "renderOrderPriority#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sortOrderPriority#get",
@@ -24086,7 +24090,7 @@
                     },
                     {
                         "name": "GetMainCamera",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -26079,10 +26083,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
                         "name": "OnDrag",
                         "excluded": false
                     },
@@ -26099,15 +26099,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DesTroyBlock",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DestroyBlock",
+                        "name": "LateUpdate",
                         "excluded": false
                     }
                 ]
@@ -26940,6 +26932,10 @@
                     },
                     {
                         "name": "OnTriggerEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveAndIdle",
                         "excluded": false
                     }
                 ]
@@ -33866,7 +33862,7 @@
                     },
                     {
                         "name": "GetBool",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetCurrentAnimatorStateInfo",
@@ -34506,7 +34502,7 @@
                     },
                     {
                         "name": "insideUnitCircle#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "rotation#get",
@@ -34518,7 +34514,7 @@
                     },
                     {
                         "name": "Range$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Range",
@@ -34802,10 +34798,6 @@
                     },
                     {
                         "name": "HandleAttack",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CraftWeapon",
                         "excluded": false
                     },
                     {
@@ -35969,6 +35961,68 @@
                         "excluded": true
                     }
                 ]
+            },
+            {
+                "className": "AutoMoveByVelocity",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartAutoMoveTo",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopAutoMove",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FixedUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveTowards",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Reached",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetHorizontalVelocity",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PickNextWanderTarget",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetAnimMoving",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -36065,6 +36119,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Texture/Model_3D/zombie.png"
+                    },
+                    {
+                        "maxWidth": 1024,
+                        "maxHeight": 1024,
+                        "format": "png32",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Texture/Model_3D/minecraft-sign/source/Mineways2Skfb-RGBA.png"
                     }
                 ]
             },
@@ -36098,6 +36162,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Sound/We Wish You a Merry Christmas Karaoke Instrumental.mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 30.0,
+                        "bitrate": 32,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/SoundFX/an_ordinary_day.ogg"
                     }
                 ]
             },

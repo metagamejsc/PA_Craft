@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -22,17 +23,31 @@ public class PlayerMovement2 : MonoBehaviour
     public LayerMask groundMask;
     public Animator animator;
     public GameObject model;
-    public ParticleSystem endGameEffect;
+    public ParticleSystem endEffect;
+    
     private Rigidbody rb;
     private float xRotation = 0f;
     public bool isGrounded;
     private bool isJumping;
+    private bool stopCoutine;
 
+
+    public IEnumerator MoveAndIdle()
+    {
+        while (!stopCoutine)
+        {
+            animator.SetBool("isMoving", true);
+            yield return new WaitForSeconds(2f);
+            animator.SetBool("isMoving", false);
+            yield return new WaitForSeconds(1f);
+        }
+    }
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         moveSpeed = LunaManager.ins.playerSpeed;
-        jumpHeight = LunaManager.ins.playerJumpForce;
+        jumpHeight=LunaManager.ins.playerJumpForce;
+        StartCoroutine(MoveAndIdle());
     }
     bool IsOnSlope()
     {
@@ -61,7 +76,15 @@ public class PlayerMovement2 : MonoBehaviour
     }
     void Update()
     {
+        if (GetComponent<PlayerChar>().isDead)
+        {
+            animator.SetBool("isJumping", false);
+            animator.Play("metarig|Fall");
+            return;
+        }
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        //isGrounded=Physics.Raycast(groundCheck.position,Vector3.down,groundDistance,groundMask);
+        //Debug.DrawRay(groundCheck.position, Vector3.down * groundDistance, Color.red);
         animator.SetBool("isJumping", !isGrounded);
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -72,84 +95,60 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if(isGrounded)
         {
+            animator.SetBool("isJumping", !isGrounded);
+            //animator.Play("metarig|Character_Jump");
             rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
         }
     }
     void FixedUpdate()
     {
-        if (GameController.ins.isPauseGame)
-        {
+        if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
             return;
-        }
-        if (LunaManager.ins.isCretivePause)
-        {
-            return;
-        }
-        // Lấy input từ bàn phím (WASD)
-        float moveX = 0;
-        float moveZ = 0;
+
+        float moveX = 0, moveZ = 0;
 #if UNITY_EDITOR
-         moveX = Input.GetAxis("Horizontal");
-         moveZ = Input.GetAxis("Vertical");
-#else     
-         moveX = JoystickController.ins.Horizontal();
-         moveZ = JoystickController.ins.Vertical();
+        moveX = Input.GetAxis("Horizontal");
+        moveZ = Input.GetAxis("Vertical");
+#else
+    moveX = JoystickController.ins.Horizontal();
+    moveZ = JoystickController.ins.Vertical();
 #endif
-        /*Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
 
-        // Xoay nhân vật theo hướng di chuyển nếu có input
-        if (moveDirection != Vector3.zero)
+        Vector3 inputDir = new Vector3(moveX, 0, moveZ);
+        bool isMoving = inputDir.magnitude > 0.1f;
+
+        if (isMoving && !stopCoutine)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, 10 * Time.deltaTime);
-        }*/
-
-        // Gán vận tốc cho Rigidbody
-
-        /*// Chuyển đổi hướng di chuyển theo góc nhìn
-        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
-        Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
-        if (angleDirection != Vector3.zero)
-        {
-            // Xoay trục Y theo hướng di chuyển
-            Quaternion toRotation = Quaternion.LookRotation(angleDirection, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
+            StopAllCoroutines();
+            stopCoutine = true;
         }
-        // Áp dụng lực di chuyển
-        Vector3 velocity = moveDirection * moveSpeed;
-        velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
-        rb.velocity = velocity;*/
-        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
-        Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
-        
-        if (angleDirection != Vector3.zero)
-        {
-            
-            //Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-            // Xoay trục Y theo hướng di chuyển
-            Quaternion toRotation = Quaternion.LookRotation(angleDirection, Vector3.up);
-            //transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
-        }
-        Vector3 velocity = moveDirection * moveSpeed;
-        velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
+
+        // Hướng nhìn của camera
+        Transform cam = Camera.main.transform;
+
+        // Lấy hướng forward và right theo camera, loại bỏ thành phần Y (không nhìn lên xuống)
+        Vector3 camForward = Vector3.Scale(cam.forward, new Vector3(1, 0, 1)).normalized;
+        Vector3 camRight = Vector3.Scale(cam.right, new Vector3(1, 0, 1)).normalized;
+
+        // Hướng di chuyển theo góc nhìn camera
+        Vector3 moveDir = camForward * moveZ + camRight * moveX;
+
+        // Gán vận tốc
+        Vector3 velocity = moveDir.normalized * moveSpeed;
+        velocity.y = rb.velocity.y;
         rb.velocity = velocity;
-        bool isMoving = moveX != 0 || moveZ != 0;
-        if (isGrounded)
-        {
-            /*if (isMoving)
-                animator.Play("metarig|Walk");
-            else
-                animator.Play("metarig|Idle");*/
-        }
-        animator.SetBool("isMoving", isMoving);
-        /*if (IsOnSlope())
-        {
-            rb.AddForce(Vector3.down * slopeForce, ForceMode.Acceleration);
-        }*/
 
-        // Xử lý bước lên dốc (Step Climb)
-        //StepClimb();
+        // Xoay model theo hướng di chuyển
+        if (isMoving)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveDir);
+            model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * 10f);
+        }
+
+        animator.SetBool("isMoving", isMoving);
+        animator.SetBool("isJumping", !isGrounded);
     }
+
     
     private void OnCollisionStay(Collision collision)
     {
@@ -162,7 +161,7 @@ public class PlayerMovement2 : MonoBehaviour
         {
             if (!LunaManager.ins.isCretivePause)
             {
-                GetComponent<PlayerChar>().Die();
+                GetComponent<PlayerChar>().TakeDamage(999);
                 LunaManager.ins.ShowEndCard();
             }
         }
@@ -174,11 +173,21 @@ public class PlayerMovement2 : MonoBehaviour
         {
             if (!LunaManager.ins.isCretivePause)
             {
-                rb.velocity=Vector3.zero;
-                var a=Instantiate(endGameEffect, transform.position+new Vector3(1,-1,0), Quaternion.identity);
-                a.transform.rotation= Quaternion.Euler(-90, 0, 0);
+                //var effect= Instantiate(endEffect);
+                //effect.transform.position = transform.position + new Vector3(0, 0, 2);
                 animator.SetBool("isMoving", false);
-                LunaManager.ins.ShowWinCard(2f);
+                rb.velocity = Vector3.zero;
+                LunaManager.ins.ShowWinCard();
+            }
+        }
+        if (other.CompareTag("Enemy"))
+        {
+            if (!LunaManager.ins.isCretivePause)
+            {
+                other.GetComponent<BoxCollider>().enabled = false;
+                AudioManager.ins.PlaySoundReward();
+                var effect= Instantiate(endEffect);
+                effect.transform.position = transform.position + new Vector3(0, 0, 2);
             }
         }
     }
