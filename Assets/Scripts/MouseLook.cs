@@ -159,7 +159,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         
                         ChunkPos cp = new ChunkPos(chunkPosX, chunkPosZ);
         
-                        TerrainChunk tc = TerrainGenerator2.chunks[cp];
+                       
         
                         //index of the target block
                         int bix = Mathf.FloorToInt(pointInTargetBlock.x) - chunkPosX+1;
@@ -179,9 +179,23 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
                         yield return new WaitForSeconds(0.2f);
                         AudioManager.ins.PlayMiningSound();
                         yield return new WaitForSeconds(0.2f);
-                        inv.AddToInventory(tc.blocks[bix, biy, biz]);
-                        tc.blocks[bix, biy, biz] = BlockType.Air;
-                        tc.BuildMesh();
+                        
+                        if (TerrainGenerator2.ins)
+                        {
+                            TerrainChunk tc2 = TerrainGenerator2.chunks[cp];
+                            inv.AddToInventory(tc2.blocks[bix, biy, biz]);
+                            tc2.blocks[bix, biy, biz] = BlockType.Air;
+                            tc2.BuildMesh();
+                        }
+
+                        if (TerrainGenerator.ins)
+                        {
+                            TerrainChunk tc = TerrainGenerator.chunks[cp];
+                            inv.AddToInventory(tc.blocks[bix, biy, biz]);
+                            tc.blocks[bix, biy, biz] = BlockType.Air;
+                            tc.BuildMesh();
+                        }
+
                         blockPrefab2.SetActive(false);
 
                     }

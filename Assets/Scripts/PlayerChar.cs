@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 
 public class PlayerChar : BaseCharacter
@@ -62,15 +63,16 @@ public class PlayerChar : BaseCharacter
 
     public void CraftWeapon(int weaponId = 0)
     {
-        lstWeapons[weaponId].SetActive(true);
-        //SwordObject.SetActive(true);
+        //lstWeapons[weaponId].SetActive(true);
+        SwordObject.SetActive(true);
     }
     public override void AtkCompleted()
     {
         base.AtkCompleted();
-        //SwordObject.transform.parent = swordFakePos;
-        //SwordObject.transform.localPosition = Vector3.zero;
-        //SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+        SwordObject.GetComponent<DOTweenAnimation>().DOPause();
+        SwordObject.transform.parent = swordFakePos;
+        SwordObject.transform.localPosition = Vector3.zero;
+        SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
     }
 
     public override void HandleAttack()
@@ -80,16 +82,14 @@ public class PlayerChar : BaseCharacter
             return;
         }
         fire?.Invoke();
-        /*if (/*target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && #1#attackCooldown <= 0)
+        if (/*target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && */attackCooldown <= 0)
         {
-            SwordObject.transform.parent = swordPos;
-            SwordObject.transform.localPosition = Vector3.zero;
-            SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+            SwordObject.GetComponent<DOTweenAnimation>().DORestart();
             attackCooldown = atkAnimationClip.length/ attackSpeed;
             animator.SetFloat("AttackSpeed", attackCooldown>attackSpeed?1:attackSpeed);  
             animator.SetTrigger("Attack");
             // Reset thời gian hồi chiêu
-        }*/
+        }
     }
     public void CancleFire()
     {

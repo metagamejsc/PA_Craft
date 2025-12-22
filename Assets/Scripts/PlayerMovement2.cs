@@ -134,6 +134,10 @@ public class PlayerMovement2 : MonoBehaviour
         Vector3 velocity = moveDirection * moveSpeed;
         velocity.y = rb.velocity.y;  // Giữ nguyên tốc độ rơi
         rb.velocity = velocity;*/
+        if (rb.isKinematic)
+        {
+            return;
+        }
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
         Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
         

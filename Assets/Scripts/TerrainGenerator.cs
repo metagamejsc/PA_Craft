@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour
 {
+    public static TerrainGenerator ins;
+    private void Awake()
+    {
+        ins = this;
+    }
     public GameObject terrainChunk;
 
     public Transform player;
@@ -12,7 +17,7 @@ public class TerrainGenerator : MonoBehaviour
     public static Dictionary<ChunkPos, TerrainChunk> chunks = new Dictionary<ChunkPos, TerrainChunk>();
     [Header("Wall Collider Settings")]
     public float wallHeight = 100f;       // Chiều cao của tường bao
-    public float wallThickness = 2f;      // Độ dày của tường
+     // Độ dày của tường
     public BoxCollider wallCollider;
     
     [Header("Noise Settings")]
@@ -31,7 +36,16 @@ public class TerrainGenerator : MonoBehaviour
 
     List<ChunkPos> toGenerate = new List<ChunkPos>();
 
-    // Start is called before the first frame update
+    [Header("Room Settings")]
+    public int roomInnerWidth = 8;     // Chiều rộng bên trong phòng (trục X)
+    public int roomInnerHeight = 4;     // Chiều cao bên trong phòng (trục Y)
+    public int roomInnerLength = 8;    // Chiều dài bên trong phòng (trục Z)
+    public BlockType roomWallBlockType = BlockType.Stone; // Loại khối dùng cho tường
+    public BlockType roomFloorBlockType = BlockType.Dirt; // Loại khối dùng cho sàn
+    public BlockType roomCeilingBlockType = BlockType.Stone; // Loại khối dùng cho trần (trừ ô sáng)
+    public int wallThickness =>LunaManager.ins.wallThickness ; // Độ dày tường (từ 1 trở lên)
+    public float lightHoleChance = 0.2f;
+    
     void Start()
     {
         landNoiseScale = LunaManager.ins.landNoiseScale;
@@ -39,35 +53,157 @@ public class TerrainGenerator : MonoBehaviour
         LoadChunks(true);
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
-        StartCoroutine(IeSpawnZombie());
-        Invoke(nameof(SpawnGroupEnemy), 1);
+        //StartCoroutine(IeSpawnZombie());
+        //Invoke(nameof(GenHouse),0.1f);
+        Invoke(nameof(CreateRoomAroundPlayer), 0.1f); 
     }
-
-    public void SpawnGroupEnemy()
+public void CreateRoomAroundPlayer()
     {
-        for (int i = 0; i < 6; i++)
+        if (player == null) return;
+
+        Vector3 playerPos = player.position;
+        int playerX = Mathf.RoundToInt(playerPos.x);
+        int playerY = Mathf.RoundToInt(playerPos.y);
+        int playerZ = Mathf.RoundToInt(playerPos.z);
+
+        // Tính toán giới hạn của phòng bên trong (Inner Room Bounds)
+        int innerMinX = playerX - roomInnerWidth / 2;
+        int innerMaxX = playerX + roomInnerWidth / 2;
+        int innerMinY = playerY-2; // Đặt sàn phòng tại chân người chơi
+        int innerMaxY = playerY + roomInnerHeight;
+        int innerMinZ = playerZ - roomInnerLength / 2;
+        int innerMaxZ = playerZ + roomInnerLength / 2;
+
+        // Tính toán giới hạn của tường bên ngoài (Outer Wall Bounds)
+        int outerMinX = innerMinX - wallThickness;
+        int outerMaxX = innerMaxX + wallThickness;
+        int outerMinZ = innerMinZ - wallThickness;
+        int outerMaxZ = innerMaxZ + wallThickness;
+        // Trần và sàn mở rộng thêm độ dày tường
+        int floorMinY = innerMinY - wallThickness;
+        int ceilingMaxY = innerMaxY + wallThickness;
+
+        // Danh sách để lưu các chunk cần cập nhật mesh
+        HashSet<ChunkPos> chunksToUpdate = new HashSet<ChunkPos>();
+        System.Random rand = new System.Random(playerX * 1000 + playerZ); // Dùng seed cố định theo vị trí player để tạo ngẫu nhiên nhất quán
+
+        // Vòng lặp qua tất cả các tọa độ trong khối lập phương bao quanh tường ngoài
+        for (int x = outerMinX; x <= outerMaxX; x++)
         {
-            Vector3 playerPos = player.position;
-            
-            int x = Mathf.RoundToInt(player.forward.x*8+playerPos.x+ Random.Range(-2, 2));
-            int z = Mathf.RoundToInt(player.forward.z*8+playerPos.z+ Random.Range(-2, 2));
-
-            int y = TerrainChunk.chunkHeight - 2;
-            while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
-                y--;
-
-            y++;
-
-            BlockType groundBlock = GetBlockType(x, y - 1, z);
-            if (groundBlock == BlockType.Trunk || groundBlock == BlockType.Leaves)
+            for (int y = floorMinY; y <= ceilingMaxY; y++)
             {
-                continue; // bỏ qua nếu trên cây
-            }
+                for (int z = outerMinZ; z <= outerMaxZ; z++)
+                {
+                    BlockType blockToSet = BlockType.Air; // Mặc định là không khí
+                    bool shouldSetBlock = false; // Chỉ đặt block nếu cần thiết
 
-            Vector3 spawnPos = new Vector3(x, y+1, z);
-            var a=Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
+                    // 1. Tạo sàn (bao gồm cả phần mở rộng dưới chân người chơi)
+                    if (y >= floorMinY && y < innerMinY)
+                    {
+                        // Kiểm tra nếu nằm trong phạm vi sàn mở rộng
+                        if (x >= outerMinX && x <= outerMaxX && z >= outerMinZ && z <= outerMaxZ)
+                        {
+                            blockToSet = roomFloorBlockType;
+                            shouldSetBlock = true;
+                        }
+                    }
+                    // 2. Tạo tường (lớp ngoài và lớp trong)
+                    else if ((x >= outerMinX && x < innerMinX) || (x > innerMaxX && x <= outerMaxX) || // Tường X
+                             (z >= outerMinZ && z < innerMinZ) || (z > innerMaxZ && z <= outerMaxZ) || // Tường Z
+                             (y >= innerMinY && y <= innerMaxY && (x == outerMinX || x == outerMaxX || z == outerMinZ || z == outerMaxZ))) // Tường Y (cạnh trên/dưới của tường dọc)
+                    {
+                         blockToSet = roomWallBlockType;
+                         shouldSetBlock = true;
+                    }
+                    // 3. Tạo trần (bao gồm cả phần mở rộng phía trên)
+                    else if (y > innerMaxY && y <= ceilingMaxY)
+                    {
+                        // Kiểm tra nếu nằm trong phạm vi trần mở rộng
+                        if (x >= outerMinX && x <= outerMaxX && z >= outerMinZ && z <= outerMaxZ)
+                        {
+                            // Quyết định có tạo ô sáng không
+                            if (rand.NextDouble() < lightHoleChance)
+                            {
+                                // Ô sáng - để trống (BlockType.Air) hoặc block đặc biệt
+                                blockToSet = BlockType.Air; // Hoặc BlockType.Glass nếu bạn muốn block trong suốt
+                                // Nếu bạn muốn block đặc biệt cho ô sáng:
+                                // blockToSet = BlockType.Glass;
+                            }
+                            else
+                            {
+                                // Trần bình thường
+                                blockToSet = roomCeilingBlockType;
+                            }
+                            shouldSetBlock = true;
+                        }
+                    }
+
+                    // Nếu cần đặt block
+                    if (shouldSetBlock)
+                    {
+                        // --- Tương tự như trước: tìm chunk và đặt block ---
+                        // Lấy chunk chứa tọa độ (x, y, z)
+                        int chunkX = Mathf.FloorToInt((float)x / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+                        int chunkZ = Mathf.FloorToInt((float)z / TerrainChunk.chunkWidth) * TerrainChunk.chunkWidth;
+                        ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
+
+                        // Kiểm tra xem chunk đã được tạo chưa
+                        if (chunks.ContainsKey(chunkPos))
+                        {
+                            TerrainChunk chunk = chunks[chunkPos];
+
+                            // Chuyển tọa độ thế giới sang tọa độ cục bộ của chunk (bao gồm padding)
+                            int localX = x - chunkX + 1; // +1 do padding
+                            int localZ = z - chunkZ + 1; // +1 do padding
+                            int localY = y;
+
+                            // Kiểm tra giới hạn cục bộ (bao gồm padding)
+                            if (localX >= 0 && localX < TerrainChunk.chunkWidth + 2 &&
+                                localY >= 0 && localY < TerrainChunk.chunkHeight &&
+                                localZ >= 0 && localZ < TerrainChunk.chunkWidth + 2)
+                            {
+                                // Đặt loại block
+                                chunk.blocks[localX, localY, localZ] = blockToSet;
+                                // Ghi nhớ chunk cần cập nhật mesh
+                                chunksToUpdate.Add(chunkPos);
+                            }
+                        }
+                        // --- Kết thúc phần tìm chunk và đặt block ---
+                    }
+                }
+            }
         }
+
+        // Cập nhật mesh cho các chunk bị ảnh hưởng
+        foreach (ChunkPos pos in chunksToUpdate)
+        {
+            if (chunks.ContainsKey(pos))
+            {
+                chunks[pos].BuildMesh();
+                // Nếu có nước trong chunk, cũng cập nhật nước
+                WaterChunk waterChunk = chunks[pos].GetComponentInChildren<WaterChunk>();
+                if(waterChunk != null)
+                {
+                    waterChunk.SetLocs(chunks[pos].blocks); // Cập nhật lại trạng thái nước nếu cần
+                    waterChunk.BuildMesh();
+                }
+            }
+        }
+
+         // Di chuyển người chơi vào giữa phòng (tùy chọn, đảm bảo không bị kẹt trong block)
+         player.position = new Vector3(playerX, innerMinY + 1, playerZ); // +1 để người chơi đứng trên sàn
     }
+
+    /*public void GenHouse()
+    {
+        Vector3Int posHouse = new Vector3Int((int)player.position.x,(int)player.position.y,(int)player.position.z)+new Vector3Int(24,0,24);
+        //HouseGenerator.GenerateHouse(chunks,posHouse.x,posHouse.y,posHouse.z);
+        HouseGenerator.GenerateLargeHouse(chunks,24,31,24);
+        foreach (var VARIABLE in chunks)
+        {
+            VARIABLE.Value.BuildMesh();
+        }
+    }*/
     public void SpawnObjectNearPlayerAvoidTrees()
     {
         for (int attempt = 0; attempt < 20; attempt++) // thử tối đa 20 lần
@@ -110,11 +246,9 @@ public class TerrainGenerator : MonoBehaviour
             {
                 yield return new WaitForSeconds(2f);
                 Vector3 playerPos = player.position;
-                /*int x = Mathf.RoundToInt(playerPos.x + Random.Range(-10, 10));
-                int z = Mathf.RoundToInt(playerPos.z + Random.Range(-10, 10));*/
-                
-                int x = Mathf.RoundToInt(player.forward.x*Random.Range(8, 15)+playerPos.x);
-                int z = Mathf.RoundToInt(player.forward.z*Random.Range(8, 15)+playerPos.z);
+                int x = Mathf.RoundToInt(playerPos.x + Random.Range(-8, 8));
+                int z = Mathf.RoundToInt(playerPos.z + Random.Range(-8, 8));
+
                 int y = TerrainChunk.chunkHeight - 2;
                 while (y > 0 && GetBlockType(x, y, z) == BlockType.Air)
                     y--;
@@ -163,8 +297,8 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         // Tính toán vị trí và kích thước của bức tường collider
-        float width = maxX - minX + 64;
-        float length = maxZ - minZ + 64;
+        float width = maxX - minX + TerrainChunk.chunkWidth;
+        float length = maxZ - minZ + TerrainChunk.chunkWidth;
         float centerX = minX + width / 2;
         float centerZ = minZ + length / 2;
 
@@ -195,6 +329,7 @@ public class TerrainGenerator : MonoBehaviour
             chunk.blocks[x, y, z] = GetBlockType(xPos + x - 1, y, zPos + z - 1);
         }
 
+       
         GenerateTrees(chunk.blocks, xPos, zPos);
         
         chunk.BuildMesh();
@@ -313,93 +448,81 @@ public class TerrainGenerator : MonoBehaviour
 
 
     void GenerateTrees(BlockType[,,] blocks, int x, int z)
-{
-    System.Random rand = new System.Random(x * 10000 + z + Random.Range(-100, 100));
-
-    // Get the player's position
-    Vector3 playerPos = player.position;
-
-    // Add an offset for tree generation to make sure trees are generated away from the player
-    float distanceFromPlayer = 5f; // Minimum distance from player for tree generation
-
-    // Noise for tree generation
-    float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
-
-    // Number of trees to spawn based on noise
-    int treeCount = LunaManager.ins.treeCount;
-
-    HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
-
-    for (int i = 0; i < treeCount; i++)
     {
-        // Generate random positions for trees within the chunk
-        int xPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
-        int zPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
+        System.Random rand = new System.Random(x * 10000 + z);
 
-        // Ensure that the tree is generated at least 'distanceFromPlayer' away from the player
-        float distanceToPlayer = Vector3.Distance(new Vector3(xPos, playerPos.y, zPos), playerPos);
-        if (distanceToPlayer < distanceFromPlayer)
-        {
-            continue; // Skip generating this tree if it's too close to the player
-        }
+        /*float treeNoise = noise.GetSimplex(x * treeNoiseScale, z * treeNoiseScale);
+        if (treeNoise <= 0) return;*/
 
-        // Skip if the position is too close to previously generated trees
-        Vector2Int pos = new Vector2Int(xPos, zPos);
-        bool tooClose = false;
-        foreach (var used in usedPositions)
+        //int treeCount = Mathf.FloorToInt(rand.Next(1, 5) * treeNoise);
+        int treeCount = LunaManager.ins.treeCount;
+
+        HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
+
+        
+        for (int i = 0; i < treeCount; i++)
         {
-            if (Vector2Int.Distance(used, pos) < 4f) // Adjust 4f for minimum distance between trees
+            int xPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
+            int zPos = rand.Next(2, TerrainChunk.chunkWidth - 2);
+
+            Vector2Int pos = new Vector2Int(xPos, zPos);
+            bool tooClose = false;
+
+            foreach (var used in usedPositions)
             {
-                tooClose = true;
-                break;
-            }
-        }
-
-        if (tooClose) continue;
-        usedPositions.Add(pos);
-
-        // Find the ground level for tree planting
-        int y = TerrainChunk.chunkHeight - 2;
-        while (y > 0 && blocks[xPos, y, zPos] == BlockType.Air)
-            y--;
-
-        y++; // Start from the block above ground level
-
-        // Plant the tree trunk
-        int treeHeight = 4 + rand.Next(6); // Tree height between 4 to 6 blocks
-        for (int j = 0; j < treeHeight; j++)
-        {
-            if (InBounds(xPos, y + j, zPos))
-                blocks[xPos, y + j, zPos] = BlockType.Trunk;
-        }
-
-        // Plant leaves - layers
-        int leavesStart = y + treeHeight - 2;
-        for (int layer = 0; layer < 3; layer++)
-        {
-            int radius = 2 - layer;
-            int layerY = leavesStart + layer;
-
-            for (int lx = -radius; lx <= radius; lx++)
-            for (int lz = -radius; lz <= radius; lz++)
-            {
-                int leafX = xPos + lx;
-                int leafZ = zPos + lz;
-
-                if ((Mathf.Abs(lx) + Mathf.Abs(lz)) <= radius + 1) // Rough spherical leaf shape
+                if (Vector2Int.Distance(used, pos) <4f)
                 {
-                    if (InBounds(leafX, layerY, leafZ) && blocks[leafX, layerY, leafZ] == BlockType.Air)
-                        blocks[leafX, layerY, leafZ] = BlockType.Leaves;
+                    tooClose = true; 
+                    break;
                 }
             }
+
+            if (tooClose) continue;
+            usedPositions.Add(pos);
+            
+            /*int xPos = rand.Next(1, TerrainChunk.chunkWidth - 1);
+            int zPos = rand.Next(1, TerrainChunk.chunkWidth - 1);*/
+
+            // Tìm mặt đất
+            int y = TerrainChunk.chunkHeight - 2;
+            while (y > 0 && blocks[xPos, y, zPos] == BlockType.Air)
+                y--;
+
+            y++; // bắt đầu từ block trống trên mặt đất
+
+            // Trồng thân cây
+            int treeHeight = 4 + rand.Next(6); // 4–6 block cao
+            for (int j = 0; j < treeHeight; j++)
+            {
+                if (InBounds(xPos, y + j, zPos))
+                    blocks[xPos, y + j, zPos] = BlockType.Trunk;
+            }
+
+            // Trồng lá – theo tầng
+            int leavesStart = y + treeHeight - 2;
+            for (int layer = 0; layer < 3; layer++)
+            {
+                int radius = 2 - layer;
+                int layerY = leavesStart + layer;
+
+                for (int lx = -radius; lx <= radius; lx++)
+                for (int lz = -radius; lz <= radius; lz++)
+                {
+                    int leafX = xPos + lx;
+                    int leafZ = zPos + lz;
+
+                    if ((Mathf.Abs(lx) + Mathf.Abs(lz)) <= radius + 1) // làm tròn tán
+                    {
+                        if (InBounds(leafX, layerY, leafZ) && blocks[leafX, layerY, leafZ] == BlockType.Air)
+                            blocks[leafX, layerY, leafZ] = BlockType.Leaves;
+                    }
+                }
+            }
+            // Lá đỉnh
+            if (InBounds(xPos, y + treeHeight, zPos))
+                blocks[xPos, y + treeHeight, zPos] = BlockType.Leaves;
         }
-
-        // Plant the top leaves
-        if (InBounds(xPos, y + treeHeight, zPos))
-            blocks[xPos, y + treeHeight, zPos] = BlockType.Leaves;
     }
-}
-
 
 bool InBounds(int x, int y, int z)
 {
