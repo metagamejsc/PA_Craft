@@ -28,8 +28,9 @@ public class HandPointerController : MonoBehaviour
 
     private IEnumerator MoveHandToSlots()
     {
+        handPointer.position = slots[0].position;
         handPointer.gameObject.SetActive(true); // Bật bàn tay lên
-
+        
         foreach (var slot in slots)
         {
             yield return MoveHandToPoint(slot);
