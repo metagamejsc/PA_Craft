@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -9,18 +10,17 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
+    public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
     [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
     public bool isCretivePause;
-
     private void Awake()
     {
         ins = this;
-
     }
+    
     public Button[] lstBtnInstall;
     public GameObject EndCard;
     [LunaPlaygroundField("Bán kính đảo")]public float isLandRadius=10;
@@ -29,6 +29,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundAsset("BG Texture")]public Texture bgTexture;
     [LunaPlaygroundField("BG Color")]public Color bgColor=Color.white;
     public RawImage bgRawImage;
+    public TextMeshProUGUI txtTime1,txtTime2;
 
 
     // Start is called before the first frame update
@@ -46,6 +47,15 @@ public class LunaManager : MonoBehaviour
         
         bgRawImage.texture = bgTexture;
         bgRawImage.color = bgColor;
+    }
+
+    private void Update()
+    {
+        if (!isCretivePause)
+        {
+            txtTime1.text = "Time Left: "+Mathf.Clamp(timeEndCreative - (int)Time.timeSinceLevelLoad, 0, timeEndCreative).ToString();
+            txtTime2.text = "Time Left: "+Mathf.Clamp(timeEndCreative - (int)Time.timeSinceLevelLoad, 0, timeEndCreative).ToString();
+        }
     }
 
     public void CheckClickShowEndCard()

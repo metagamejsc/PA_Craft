@@ -8,6 +8,7 @@ public class TerrainModifier : MonoBehaviour
     public GameObject blockPrefab;
 
     public Inventory inv;
+    public Inventory inv2;
 
     float maxDist = 5;
     float minDist = 2;
