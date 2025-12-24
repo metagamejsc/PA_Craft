@@ -14,7 +14,9 @@ public class HandPointerController : MonoBehaviour
     void Start()
     {
         //CollectSlots();
+        handPointer.position = slots[0].anchoredPosition; // Bắt đầu từ ô đầu tiên
         StartCoroutine(MoveHandToSlots());
+        
     }
 
     void CollectSlots()
@@ -28,9 +30,8 @@ public class HandPointerController : MonoBehaviour
 
     private IEnumerator MoveHandToSlots()
     {
-        handPointer.position = slots[0].position;
         handPointer.gameObject.SetActive(true); // Bật bàn tay lên
-        
+        yield return new WaitForSeconds(delayBetweenMoves);
         foreach (var slot in slots)
         {
             yield return MoveHandToPoint(slot);
