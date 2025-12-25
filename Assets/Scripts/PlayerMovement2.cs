@@ -204,6 +204,7 @@ public class PlayerMovement2 : MonoBehaviour
         {
             if (!LunaManager.ins.isCretivePause)
             {
+                rb.velocity = Vector3.zero;
                 animator.SetBool("isMoving", false);
                 LunaManager.ins.ShowWinCard();
             }
