@@ -1,7 +1,7 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 34123,
+    "applicationID": 29138,
     "creativeName": "SMOP_TrangTTH_ToiNV_V10",
     "pgServer": "EU",
     "window": {
@@ -123,7 +123,9 @@
                 "Stubs/IronSource",
                 "Stubs/Vungle",
                 "Stubs/MoreMountains.NiceVibrations",
-                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset"
+                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset",
+                "Assets/Game/Fonts/Noto_Sans/NotoSans-Bold SDF.asset",
+                "Assets/TextMesh Pro/Fonts/FFFFORWA SDF.asset"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
@@ -23636,7 +23638,7 @@
                     },
                     {
                         "name": "renderOrderPriority#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sortOrderPriority#get",
@@ -29163,6 +29165,18 @@
                     {
                         "name": "PlayMusicWin",
                         "excluded": true
+                    },
+                    {
+                        "name": "PlaySoundGetCoin",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundBuy",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundNotEnough",
+                        "excluded": false
                     }
                 ]
             },
@@ -32632,7 +32646,7 @@
                     },
                     {
                         "name": "IsName",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Reset",
@@ -33106,7 +33120,7 @@
                     },
                     {
                         "name": "GetCurrentAnimatorStateInfo",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetLayerWeight",
@@ -35777,6 +35791,10 @@
                     {
                         "name": "OnTriggerEnter",
                         "excluded": false
+                    },
+                    {
+                        "name": "AssignMonster",
+                        "excluded": false
                     }
                 ]
             },
@@ -35836,6 +35854,10 @@
                     },
                     {
                         "name": "GetRandomRarity",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
                         "excluded": false
                     }
                 ]
@@ -35936,6 +35958,14 @@
                     },
                     {
                         "name": "StopMoving",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
                         "excluded": false
                     }
                 ]
@@ -36065,6 +36095,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Game/Fonts/Noto_Sans/NotoSans-Bold SDF.asset"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/TextMesh Pro/Fonts/Customs/museo-sans-rounded-cufonfonts/MuseoSansRounded1000 SDF.asset"
                     }
                 ]
             },
@@ -36088,6 +36128,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/SoundFX/an_ordinary_day (mp3cut.net).mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 30.0,
+                        "bitrate": 32,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/Hard Parkour Music.mp3"
                     }
                 ]
             },

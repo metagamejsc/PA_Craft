@@ -33,15 +33,15 @@ public class BuyMonsterUIController : MonoBehaviour
     private void OnBuyButtonClick()
     {
         if (currentMonster == null) return;
-
+        
         if (!PlayerGold.Instance.SpendGold(currentMonster.price))
         {
+            AudioManager.ins.PlaySoundNotEnough();
             Debug.Log("Không đủ vàng!");
             return;
         }
-
+        AudioManager.ins.PlaySoundBuy();
         Transform targetSlot = GetNextAvailableSlot();
-
         // CHỈ truyền slot cho monster, KHÔNG gán vào GoldSlot
         currentMonster.SetGoldSlot(targetSlot);
         currentMonster.Buy(playerEntryGate);

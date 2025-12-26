@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using TMPro;
 
@@ -29,6 +30,16 @@ public class MonsterController : MonoBehaviour
     public Animator animator;
     public string walkAnimName = "walk";
     public string idleAnimName = "idle";
+
+    private void Awake()
+    {
+        //animator = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        moveSpeed = LunaManager.ins.speedMonster;
+    }
 
     public void SetTarget(Transform targetPoint)
     {
@@ -79,8 +90,29 @@ public class MonsterController : MonoBehaviour
     {
         if (!isMoving || target == null) return;
 
-        transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
-        animator?.Play(walkAnimName);
+        Vector3 direction = target.position - transform.position;
+        direction.y = 0f; // 🔴 quan trọng: khóa trục Y
+
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                lookRotation,
+                10f * Time.deltaTime
+            );
+        }
+
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            target.position,
+            moveSpeed * Time.deltaTime
+        );
+
+        if (isMoving && !animator.GetCurrentAnimatorStateInfo(0).IsName(walkAnimName))
+        {
+            animator.Play(walkAnimName);
+        }
 
         if (Vector3.Distance(transform.position, target.position) < 0.5f)
         {

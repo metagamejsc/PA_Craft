@@ -16,6 +16,9 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce=40f;
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
+    [LunaPlaygroundField("Speed Monster")] public float speedMonster=5f;
+    [LunaPlaygroundField("Time Spawn")] public float timeSpawn=3f;
+    [LunaPlaygroundField("Starter Gold")] public float starterGold=500;
     public Light directionalLight;
     public bool isCretivePause;
     public GameObject btnRestart;

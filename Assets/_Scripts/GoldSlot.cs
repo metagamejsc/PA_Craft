@@ -31,7 +31,7 @@ public class GoldSlot : MonoBehaviour
         // Play particle effect
         if (spawnEffect != null)
         {
-            Instantiate(spawnEffect, modelHolder.position, Quaternion.identity);
+            //Instantiate(spawnEffect, modelHolder.position, Quaternion.identity);
         }
     }
 
@@ -43,14 +43,14 @@ public class GoldSlot : MonoBehaviour
 
             if (worldText != null)
             {
-                worldText.text = Mathf.FloorToInt(currentGold).ToString();
+                worldText.text = "$"+Mathf.FloorToInt(currentGold).ToString();
             }
         }
     }
 
     private void Start()
     {
-        worldText.text = "0";
+        worldText.text = "$0";
     }
 
     public float CollectGold()
@@ -60,7 +60,7 @@ public class GoldSlot : MonoBehaviour
 
         if (worldText != null)
         {
-            worldText.text = "0";
+            worldText.text = "$0";
         }
 
         return goldToGive;

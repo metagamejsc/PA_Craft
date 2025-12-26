@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class MonsterSpawner : MonoBehaviour
 {
     [Header("Spawn Settings")]
-    public GameObject monsterPrefab;
+    public GameObject[] monsterPrefab;
     public Transform spawnPoint;
     public Transform endPoint;
     public BuyMonsterUIController sharedBuyUI;
@@ -13,6 +15,11 @@ public class MonsterSpawner : MonoBehaviour
     public MonsterRarityData[] rarityConfigs; // gán trong inspector
 
     private float timer;
+
+    private void Start()
+    {
+        spawnInterval = LunaManager.ins.timeSpawn;
+    }
 
     void Update()
     {
@@ -26,7 +33,8 @@ public class MonsterSpawner : MonoBehaviour
 
     void SpawnMonster()
     {
-        GameObject monsterObj = Instantiate(monsterPrefab, spawnPoint.position, Quaternion.identity);
+        
+        GameObject monsterObj = Instantiate(monsterPrefab[Random.Range(0,monsterPrefab.Length)], spawnPoint.position, Quaternion.identity);
 
         MonsterController monster = monsterObj.GetComponent<MonsterController>();
         monster.SetTarget(endPoint);

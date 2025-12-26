@@ -24,11 +24,16 @@ public class PlayerGold : MonoBehaviour
 
     private void Start()
     {
+        currentGold=(int)LunaManager.ins.starterGold;
         UpdateUI();
     }
 
     public void AddGold(int amount)
     {
+        if (amount>0)
+        {
+            AudioManager.ins.PlaySoundGetCoin();
+        }
         currentGold += amount;
         UpdateUI();
     }

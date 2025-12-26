@@ -17,6 +17,9 @@ public class AudioManager : MonoBehaviour
     public AudioClip buildSound;
     public AudioClip miningSound;
     public AudioClip winSound;
+    public AudioClip buySound;
+    public AudioClip noCoinSound;
+    public AudioClip getCoinSound;
     public List<AudioClip> lstMoveSound;
 
     private void Awake()
@@ -45,6 +48,18 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundReward()
     {
         sound.PlayOneShot(rewardSound,1);
+    }
+    public void PlaySoundGetCoin()
+    {
+        sound.PlayOneShot(getCoinSound,1);
+    }
+    public void PlaySoundBuy()
+    {
+        sound.PlayOneShot(buySound,1);
+    }
+    public void PlaySoundNotEnough()
+    {
+        sound.PlayOneShot(noCoinSound,1);
     }
     public void PlaySoundBomb()
     {
