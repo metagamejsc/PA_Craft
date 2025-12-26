@@ -161,9 +161,11 @@ MonoBehaviour:
   groundDistance: 0.4
   groundMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
   animator: {fileID: 142657630353639573}
   model: {fileID: 8437943488417530287}
+  endEffect: {fileID: 0}
+  isGrounded: 0
 --- !u!114 &7782798551340856817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -183,11 +185,17 @@ MonoBehaviour:
   detectionRadiusMax: 5
   detectionRadiusMin: 1.5
   isDead: 0
-  WeaponObject: {fileID: 5930462698812234326}
+  isFindingEnemy: 0
   animator: {fileID: 142657630353639573}
+  SwordObject: {fileID: 0}
   atkAnimationClip: {fileID: 1458329493023206573, guid: 5b4ca9e95bd364e49a26afec89b3461e,
     type: 3}
+  idleAnimationClip: 
+  attackCooldown: 0
   target: {fileID: 0}
+  swordFake: {fileID: 0}
+  swordFakePos: {fileID: 0}
+  swordPos: {fileID: 0}
 --- !u!1 &3285602101414409340
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,6 +288,39 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3285602101414409340}
   m_Enabled: 1
+--- !u!1 &5930462698812234326
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 8428500770985301983, guid: d31903c73840604479b9f3f21dbaf21d,
+    type: 3}
+  m_PrefabInstance: {fileID: 2789189063272762761}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6860606619909824232}
+  m_Layer: 0
+  m_Name: 'Sword (Missing Prefab with guid: d31903c73840604479b9f3f21dbaf21d)'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6860606619909824232
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 8755268103739020129, guid: d31903c73840604479b9f3f21dbaf21d,
+    type: 3}
+  m_PrefabInstance: {fileID: 2789189063272762761}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5930462698812234326}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.10796069, y: -0.7121892, z: -0.688618, w: -0.08328385}
+  m_LocalPosition: {x: -0.005, y: -0.131, z: 0.021}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8527823024677942618}
+  m_LocalEulerAnglesHint: {x: -87.235, y: -141.461, z: 305.913}
 --- !u!1 &7322933632308673202
 GameObject:
   m_ObjectHideFlags: 0
@@ -379,18 +420,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d31903c73840604479b9f3f21dbaf21d, type: 3}
---- !u!1 &5930462698812234326 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8428500770985301983, guid: d31903c73840604479b9f3f21dbaf21d,
-    type: 3}
-  m_PrefabInstance: {fileID: 2789189063272762761}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &6860606619909824232 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8755268103739020129, guid: d31903c73840604479b9f3f21dbaf21d,
-    type: 3}
-  m_PrefabInstance: {fileID: 2789189063272762761}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8780032680843525374
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -649,6 +678,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 1e13f10ba1fa6a847833876ef90fe198, type: 3}
   - {fileID: 8300000, guid: 4082d8e32ff9eef4d9eecbcb85a17d09, type: 3}
   - {fileID: 8300000, guid: d5e0a95f1a631d244b02401ada938ef8, type: 3}
+  jumpSounds: []
 --- !u!4 &8527823024677942618 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1116920125261138340, guid: 5b4ca9e95bd364e49a26afec89b3461e,
