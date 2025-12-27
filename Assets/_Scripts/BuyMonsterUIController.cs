@@ -11,7 +11,7 @@ public class BuyMonsterUIController : MonoBehaviour
     [Header("Entry Point")]
     public Transform playerEntryGate;
     public int nextSlotIndex = 0;
-
+    
     private void Start()
     {
         //gameObject.SetActive(false);

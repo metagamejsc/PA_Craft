@@ -102,7 +102,11 @@ public class PlayerMovement2 : MonoBehaviour
     void FixedUpdate()
     {
         if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
+        {
+            rb.velocity = Vector3.zero;
             return;
+        }
+            
 
         float moveX = 0, moveZ = 0;
 #if UNITY_EDITOR

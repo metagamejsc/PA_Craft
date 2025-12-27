@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using TMPro;
 
@@ -46,6 +47,11 @@ public class PlayerGold : MonoBehaviour
             UpdateUI();
             return true;
         }
+
+        goldText.DOColor(Color.red, 0.05f).SetLoops(5, LoopType.Yoyo).OnComplete(() =>
+        {
+            goldText.color = Color.yellow;
+        });
         return false;
     }
 
