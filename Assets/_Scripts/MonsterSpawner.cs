@@ -23,10 +23,6 @@ public class MonsterSpawner : MonoBehaviour
 
     void Update()
     {
-        if (LunaManager.ins.isCretivePause)
-        {
-            return;
-        }
         timer += Time.deltaTime;
         if (timer >= spawnInterval)
         {
