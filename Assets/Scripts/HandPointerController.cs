@@ -4,36 +4,34 @@ using UnityEngine.UI;
 
 public class HandPointerController : MonoBehaviour
 {
-    public RectTransform handPointer; // Đối tượng hình bàn tay
-    public Transform inventoryPanel;  // Panel chứa các ô inventory
-    public float moveDuration = 0.5f; // Thời gian di chuyển giữa các ô
-    public float delayBetweenMoves = 1f; // Khoảng cách giữa các lần di chuyển
+    public RectTransform handPointer;
+    public float moveDuration = 0.5f;
+    public float delayBetweenMoves = 1f;
 
-    public RectTransform[] slots; // Mảng các ô inventory
+    public RectTransform[] slots;
+
+    public Color defaultColor = Color.black;      // Màu mặc định
+    public Color highlightColor = Color.cyan;   // Màu khi được chọn
+
+    private RectTransform currentSlot; // Slot hiện tại
 
     void Start()
     {
-        //CollectSlots();
-        handPointer.position = slots[0].anchoredPosition; // Bắt đầu từ ô đầu tiên
-        StartCoroutine(MoveHandToSlots());
-        
-    }
+        handPointer.position = slots[0].position;
+        HighlightSlot(slots[0]);
+        currentSlot = slots[0];
 
-    void CollectSlots()
-    {
-        //slots = new RectTransform[inventoryPanel.childCount];
-        /*for (int i = 0; i < inventoryPanel.childCount; i++)
-        {
-            slots[i] = inventoryPanel.GetChild(i) as RectTransform;
-        }*/
+        StartCoroutine(MoveHandToSlots());
     }
 
     private IEnumerator MoveHandToSlots()
     {
-        handPointer.gameObject.SetActive(true); // Bật bàn tay lên
+        handPointer.gameObject.SetActive(true);
         yield return new WaitForSeconds(delayBetweenMoves);
+
         foreach (var slot in slots)
         {
+            ChangeSlotColor(slot);
             yield return MoveHandToPoint(slot);
             yield return new WaitForSeconds(delayBetweenMoves);
         }
@@ -55,5 +53,34 @@ public class HandPointerController : MonoBehaviour
         }
 
         handPointer.position = endPosition;
+    }
+
+    void ChangeSlotColor(RectTransform newSlot)
+    {
+        // Reset slot cũ
+        if (currentSlot != null)
+        {
+            currentSlot.localScale=Vector3.one;
+            SetSlotColor(currentSlot, defaultColor);
+        }
+
+        // Highlight slot mới
+        HighlightSlot(newSlot);
+        currentSlot = newSlot;
+    }
+
+    void HighlightSlot(RectTransform slot)
+    {
+        slot.localScale=Vector3.one*1.1f;
+        SetSlotColor(slot, highlightColor);
+    }
+
+    void SetSlotColor(RectTransform slot, Color color)
+    {
+        Image img = slot.GetComponent<Image>();
+        if (img != null)
+        {
+            img.color = color;
+        }
     }
 }
