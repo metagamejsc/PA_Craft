@@ -6,7 +6,9 @@ namespace Minigames.DoorDash
     {
         [SerializeField] private Rigidbody[] doorRigis;
         [SerializeField] private GameObject navObstacle;
+        public int groupIndex;
 
+        public int doorIndex;
         private bool isDoorCanPass;
 
         private void Start()
@@ -36,22 +38,23 @@ namespace Minigames.DoorDash
 
         private void OnTriggerEnter(Collider other)
         {
-            BaseCharacter targetCharacter = other.GetComponent<BaseCharacter>();
-            if (targetCharacter != null)
+            BotDoorAI bot = other.GetComponent<BotDoorAI>();
+            if (bot == null) return;
+
+            if (!isDoorCanPass)
             {
-                if(!isDoorCanPass)
-                {
-                    navObstacle.SetActive(true);
-                }
-                else
-                {
-                    foreach (Rigidbody rigidbody in doorRigis)
-                    {
-                        rigidbody.isKinematic = false;
-                    }
-                }
+                navObstacle.SetActive(true);
+                bot.OnDoorFailed();
+            }
+            else
+            {
+                foreach (Rigidbody rb in doorRigis)
+                    rb.isKinematic = false;
+
+                bot.OnDoorPassed();
             }
         }
+
     }
 }
 
