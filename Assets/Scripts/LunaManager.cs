@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -25,6 +26,10 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Enviroment_4 color")] public Color Enviroment_4Color=Color.white;
     [LunaPlaygroundAsset("Enviroment_5 Texture")] public Texture Enviroment_5Texture;
     [LunaPlaygroundField("Enviroment_5 color")] public Color Enviroment_5Color=Color.white;
+    [LunaPlaygroundField("Enviroment_1 name")] public string Enviroment_1Name;
+    [LunaPlaygroundField("Enviroment_2 name")] public string Enviroment_2Name;
+    [LunaPlaygroundField("Enviroment_3 name")] public string Enviroment_3Name;
+    [LunaPlaygroundField("Enviroment_4 name")] public string Enviroment_4Name;
 
     public RawImage bgImage,
         enviroment_1Image,
@@ -32,7 +37,12 @@ public class LunaManager : MonoBehaviour
         enviroment_3Image,
         enviroment_4Image,
         enviroment_5Image;
-    
+
+    public TextMeshProUGUI enviroment_1Text,
+        enviroment_2Text,
+        enviroment_3Text,
+        enviroment_4Text;
+
     public bool isCretivePause;
     
     private void Awake()
@@ -103,6 +113,22 @@ public class LunaManager : MonoBehaviour
                 enviroment_5Image.texture = Enviroment_5Texture;
             }
             enviroment_5Image.color = Enviroment_5Color;
+        }
+        if (enviroment_1Text!=null)
+        {
+            enviroment_1Text.text = Enviroment_1Name;
+        }
+        if (enviroment_2Text!=null)
+        {
+            enviroment_2Text.text = Enviroment_2Name;
+        }
+        if (enviroment_3Text!=null)
+        {
+            enviroment_3Text.text = Enviroment_3Name;
+        }
+        if (enviroment_4Text!=null)
+        {
+            enviroment_4Text.text = Enviroment_4Name;
         }
         
     }

@@ -71,7 +71,7 @@ public class HandPointerController : MonoBehaviour
 
     void HighlightSlot(RectTransform slot)
     {
-        slot.localScale=Vector3.one*1.1f;
+        slot.localScale=Vector3.one*1.2f;
         SetSlotColor(slot, highlightColor);
     }
 
