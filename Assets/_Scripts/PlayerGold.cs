@@ -24,7 +24,7 @@ public class PlayerGold : MonoBehaviour
 
     private void Start()
     {
-        currentGold=(int)LunaManager.ins.starterGold;
+        //currentGold=(int)LunaManager.ins.starterGold;
         UpdateUI();
     }
 

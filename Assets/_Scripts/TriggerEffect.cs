@@ -12,7 +12,7 @@ public class TriggerEffect : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy") || other.CompareTag("Player"))
         {
             timeTrigger++;
             if (timeTrigger<=MaxTimeTrigger)

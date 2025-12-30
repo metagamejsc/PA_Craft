@@ -38,6 +38,20 @@ namespace Minigames.DoorDash
 
         private void OnTriggerEnter(Collider other)
         {
+            PlayerMovement2 player = other.GetComponent<PlayerMovement2>();
+            if (player != null)
+            {
+                if (!isDoorCanPass)
+                {
+                    navObstacle.SetActive(true);
+                }
+                else
+                {
+                    foreach (Rigidbody rb in doorRigis)
+                        rb.isKinematic = false;
+                }
+                return;
+            }
             BotDoorAI bot = other.GetComponent<BotDoorAI>();
             if (bot == null) return;
 

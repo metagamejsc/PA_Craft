@@ -36,6 +36,7 @@ public class BotDoorAI : MonoBehaviour
 
     void Start()
     {
+        moveSpeed= LunaManager.ins.speedMonster;
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
@@ -57,6 +58,10 @@ public class BotDoorAI : MonoBehaviour
 
     void Update()
     {
+        if (LunaManager.ins.isCretivePause|| !TutorialBuildBlock.ins.isTutorialCompleted)
+        {
+            return;
+        }
         MoveToTarget();
     }
 

@@ -18,7 +18,7 @@ public class MonsterSpawner : MonoBehaviour
 
     private void Start()
     {
-        spawnInterval = LunaManager.ins.timeSpawn;
+        //spawnInterval = LunaManager.ins.timeSpawn;
     }
 
     void Update()
