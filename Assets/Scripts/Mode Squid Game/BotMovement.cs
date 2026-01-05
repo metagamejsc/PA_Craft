@@ -34,6 +34,7 @@ public class BotMovement : MonoBehaviour
     private float decisionTimer = 0f;
     private bool shouldMove = false;
     private bool stopCoutineMove = false;
+    private bool isStopped = false;
 
     public IEnumerator MoveAndIdle()
     {
@@ -110,7 +111,15 @@ public class BotMovement : MonoBehaviour
         {
             return;
         }
-
+        if (GetComponent<ZombieChar>().isDead)
+        {
+            if (!isStopped)
+            {
+                isStopped = true;
+                animator.Play("metarig|Fall");
+            }
+            return;
+        }
         // Đếm thời gian để quyết định lại sau mỗi decisionInterval
         decisionTimer -= Time.fixedDeltaTime;
         if (decisionTimer <= 0f)

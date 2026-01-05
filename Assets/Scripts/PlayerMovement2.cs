@@ -30,7 +30,7 @@ public class PlayerMovement2 : MonoBehaviour
     public bool isGrounded;
     private bool isJumping;
     private bool stopCoutine;
-
+    private bool isStopped = false;
 
     public IEnumerator MoveAndIdle()
     {
@@ -78,8 +78,11 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if (GetComponent<PlayerChar>().isDead)
         {
-            animator.SetBool("isJumping", false);
-            animator.Play("metarig|Fall");
+            if (!isStopped)
+            {
+                isStopped = true;
+                animator.Play("metarig|Fall");
+            }
             return;
         }
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);

@@ -60,9 +60,10 @@ public class ZombieChar : BaseCharacter
         StartCoroutine(IeNhapNhay(2f));
         if (health <= 0)
         {
+            isDead = true;
             GameController.ins.EnemyDead();
             animator.SetTrigger("Dead");
-            isDead = true;
+            animator.Play("metarig|Fall");
             Die();
         }
     }
