@@ -20,6 +20,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip buySound;
     public AudioClip noCoinSound;
     public AudioClip getCoinSound;
+    public AudioClip openDoorSound;
     public List<AudioClip> lstMoveSound;
 
     private void Awake()
@@ -44,6 +45,10 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundMove()
     {
         sound.PlayOneShot(lstMoveSound[Random.Range(0,lstMoveSound.Count)],1);
+    }
+    public void PlaySoundOpenDoor()
+    {
+        sound.PlayOneShot(openDoorSound,1);
     }
     public void PlaySoundReward()
     {

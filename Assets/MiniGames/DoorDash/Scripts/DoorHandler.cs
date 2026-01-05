@@ -47,6 +47,10 @@ namespace Minigames.DoorDash
                 }
                 else
                 {
+                    if (doorRigis[0].isKinematic==true)
+                    {
+                        AudioManager.ins.PlaySoundOpenDoor();
+                    }
                     foreach (Rigidbody rb in doorRigis)
                         rb.isKinematic = false;
                 }
@@ -62,9 +66,12 @@ namespace Minigames.DoorDash
             }
             else
             {
+                if (doorRigis[0].isKinematic==true)
+                {
+                    AudioManager.ins.PlaySoundOpenDoor();
+                }
                 foreach (Rigidbody rb in doorRigis)
                     rb.isKinematic = false;
-
                 bot.OnDoorPassed();
             }
         }
