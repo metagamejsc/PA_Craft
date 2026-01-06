@@ -17,6 +17,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip walkSound;
     public AudioClip buildSound;
     public AudioClip clickSound;
+    public AudioClip xixiSound;
 
     private void Awake()
     {
@@ -67,5 +68,10 @@ public class AudioManager : MonoBehaviour
         music.loop = true;
         music.clip = bgSound;
         music.Play();
+    }
+
+    public void PlaySoundXixi()
+    {
+        sound.PlayOneShot(xixiSound,1);
     }
 }
