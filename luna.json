@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 31160,
-    "creativeName": "BCRWV_V21_ChiTM_ToiNV",
+    "applicationID": 35572,
+    "creativeName": "UAC_V02_ThuLH_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -98,8 +98,8 @@
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.12",
-            "monoVersion": "8.0.14",
+            "msbuildVersion": "17.14",
+            "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
         "assets": {
@@ -182,7 +182,7 @@
         "enableMecanimWASM": true,
         "minify": true,
         "forceUncompressed": false,
-        "forceBase64": false,
+        "forceBase64": true,
         "genericCheck": true,
         "disableAntiAliasing": true,
         "preferWebGl2": false,
@@ -6994,10 +6994,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.LayoutUtility",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.Misc",
                 "excluded": true
             },
@@ -7991,6 +7987,10 @@
             },
             {
                 "name": "ConstructionManager.BuildOption",
+                "excluded": false
+            },
+            {
+                "name": "ItemButtonManager.ItemButton",
                 "excluded": false
             }
         ],
@@ -11675,11 +11675,11 @@
                     },
                     {
                         "name": "IncreaseCapacity",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetCapacity",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddIfNotPresent",
@@ -11837,7 +11837,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -17295,11 +17295,11 @@
                     },
                     {
                         "name": "SetSizeWithCurrentAnchors",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetParentSize",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetWorldCorners",
@@ -18477,7 +18477,7 @@
                     },
                     {
                         "name": "texture#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "mainTexture#get",
@@ -24195,11 +24195,11 @@
                     },
                     {
                         "name": "minWidth#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "preferredWidth#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "flexibleWidth#get",
@@ -24207,11 +24207,11 @@
                     },
                     {
                         "name": "minHeight#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "preferredHeight#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "flexibleHeight#get",
@@ -24219,7 +24219,7 @@
                     },
                     {
                         "name": "layoutPriority#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "rectChildren#get",
@@ -24255,7 +24255,7 @@
                     },
                     {
                         "name": "DelayedSetDirty",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -32251,7 +32251,7 @@
                 "instanceMethods": [
                     {
                         "name": "horizontalFit#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "horizontalFit#set",
@@ -32259,7 +32259,7 @@
                     },
                     {
                         "name": "verticalFit#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "verticalFit#set",
@@ -32267,7 +32267,7 @@
                     },
                     {
                         "name": "rectTransform#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "init",
@@ -32279,7 +32279,7 @@
                     },
                     {
                         "name": "OnEnable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDisable",
@@ -32291,15 +32291,15 @@
                     },
                     {
                         "name": "HandleSelfFittingAlongAxis",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetLayoutHorizontal",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetLayoutVertical",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetDirty",
@@ -32600,10 +32600,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
                         "name": "Start",
                         "excluded": false
                     },
@@ -32617,10 +32613,6 @@
                     },
                     {
                         "name": "MoveHandToPoint",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StopHandPointer",
                         "excluded": false
                     }
                 ]
@@ -33985,6 +33977,82 @@
                 "instanceMethods": [
                     {
                         "name": "OnFootstep",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.LayoutUtility",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "GetMinSize",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetPreferredSize",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetFlexibleSize",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetMinWidth",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetPreferredWidth",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetFlexibleWidth",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetMinHeight",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetPreferredHeight",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetFlexibleHeight",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetLayoutProperty",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetLayoutProperty$1",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "ItemButtonManager",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnItemButtonClick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowItemWithoutSecondClick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DoSecondClickAction",
                         "excluded": false
                     }
                 ]

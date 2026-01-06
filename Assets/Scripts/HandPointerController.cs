@@ -1,26 +1,23 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HandPointerController : MonoBehaviour
 {
-    public static HandPointerController instance;
     public RectTransform handPointer; // Đối tượng hình bàn tay
     public Transform inventoryPanel;  // Panel chứa các ô inventory
     public float moveDuration = 0.5f; // Thời gian di chuyển giữa các ô
     public float delayBetweenMoves = 1f; // Khoảng cách giữa các lần di chuyển
-    public RectTransform[] slots; // Mảng các ô inventory
+    public ItemButtonManager itemButtonManager; // Kéo thả từ Editor
 
-    private void Awake()
-    {
-        instance = this;
-    }
+    public RectTransform[] slots; // Mảng các ô inventory
 
     void Start()
     {
         //CollectSlots();
+        handPointer.position = slots[0].anchoredPosition; // Bắt đầu từ ô đầu tiên
         StartCoroutine(MoveHandToSlots());
+        
     }
 
     void CollectSlots()
@@ -35,22 +32,23 @@ public class HandPointerController : MonoBehaviour
     private IEnumerator MoveHandToSlots()
     {
         handPointer.gameObject.SetActive(true); // Bật bàn tay lên
+        yield return new WaitForSeconds(delayBetweenMoves);
 
-        foreach (var slot in slots)
+        for (int i = 0; i < slots.Length; i++)
         {
-            yield return MoveHandToPoint(slot);
+            yield return MoveHandToPoint(slots[i]);
             yield return new WaitForSeconds(delayBetweenMoves);
+
+            // Gọi ItemButtonManager để hiển thị item tương ứng
+            itemButtonManager.ShowItemWithoutSecondClick(i);
         }
 
         StartCoroutine(MoveHandToSlots());
     }
 
+
     IEnumerator MoveHandToPoint(RectTransform target)
     {
-        foreach (var VARIABLE in slots)
-        {
-            VARIABLE.gameObject.GetComponent<Image>().color=Color.white;
-        }
         Vector3 startPosition = handPointer.position;
         Vector3 endPosition = target.position;
         float elapsed = 0f;
@@ -61,12 +59,7 @@ public class HandPointerController : MonoBehaviour
             handPointer.position = Vector3.Lerp(startPosition, endPosition, elapsed / moveDuration);
             yield return null;
         }
-        target.gameObject.GetComponent<Image>().color=Color.green;
+
         handPointer.position = endPosition;
-    }
-    public void StopHandPointer()
-    {
-        StopAllCoroutines();
-        //handPointer.gameObject.SetActive(false); // Tắt bàn tay khi dừng
     }
 }
