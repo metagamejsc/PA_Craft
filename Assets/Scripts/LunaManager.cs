@@ -36,7 +36,7 @@ public class LunaManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        startCard.SetActive(true);
+        
         camBuilding.gameObject.SetActive(false);
         UIBuilding.SetActive(false);
         UIIngame.SetActive(false);

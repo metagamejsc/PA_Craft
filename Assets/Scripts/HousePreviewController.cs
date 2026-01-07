@@ -25,7 +25,7 @@ public class HousePreviewController : MonoBehaviour
         btnDown.onClick.AddListener(MoveDown);
         btnBuild.onClick.AddListener(()=>
         {
-            LunaManager.ins.StartBuilding();
+            //LunaManager.ins.StartBuilding();
         });
     }
 
@@ -97,7 +97,7 @@ public class HousePreviewController : MonoBehaviour
     {
         // Có thể dùng vị trí player, hoặc 1 vị trí mặc định
         Vector3 playerPos = FindObjectOfType<TerrainGenerator>().player.position;
-        return new Vector3(Mathf.Round(playerPos.x), 33, Mathf.Round(playerPos.z));
+        return new Vector3(Mathf.Round(playerPos.x), 33, Mathf.Round(playerPos.z)-15);
     }
 
     public static void BuildHouseAt(Vector3 pos)
