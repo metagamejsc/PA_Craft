@@ -61,8 +61,8 @@ public class HandPointerUI : MonoBehaviour
                 yield return StartCoroutine(MoveHandTo(destLocal));
 
                 // pulse nhẹ khi tới (tuỳ chọn)
-                if (pulseAtTarget)
-                    yield return StartCoroutine(Pulse(hand, pulseScale, pulseTime));
+                //if (pulseAtTarget)
+                // yield return StartCoroutine(Pulse(hand, pulseScale, pulseTime));
 
                 // giữ tay chỉ vào trong dwellDuration
                 float t = 0f;

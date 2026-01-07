@@ -8,7 +8,7 @@ public class TutorialBuildBlock : MonoBehaviour
 {
     public static TutorialBuildBlock ins;
     public int stepIndex;
-    public List<GameObject> lstStep;
+    //public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
     //public Button btnHideTutorial;
 
@@ -20,15 +20,15 @@ public class TutorialBuildBlock : MonoBehaviour
     public IEnumerator IeSpawnStep()
     {
         yield return new WaitForSeconds(1f);
-        
+
     }
 
     private void Start()
     {
-        foreach (var VARIABLE in lstStep)
-        {
-            VARIABLE.SetActive(false);
-        }
+        // foreach (var VARIABLE in lstStep)
+        // {
+        //     VARIABLE.SetActive(false);
+        // }
         foreach (var VARIABLE in lstButtonHideStep)
         {
             VARIABLE.onClick.AddListener(() =>
@@ -42,14 +42,14 @@ public class TutorialBuildBlock : MonoBehaviour
 
     public void ShowStep()
     {
-        
-        lstStep[stepIndex].SetActive(true);
+
+        //lstStep[stepIndex].SetActive(true);
     }
     public void HideStep()
     {
-       
-        lstStep[stepIndex].SetActive(false);
-        stepIndex++;
+
+        //lstStep[stepIndex].SetActive(false);
+        //stepIndex++;
         /*if (stepIndex==lstStep.Count-1)
         {
            GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
