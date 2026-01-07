@@ -11,12 +11,13 @@ using Random = UnityEngine.Random;
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundAsset("Video")] public VideoClip videoClip;
-    [LunaPlaygroundField("Text")] public string stringEndCreative;
-    [LunaPlaygroundField("Text Color")] public Color colorTextEndCreative;
-    [LunaPlaygroundField("Text Size")] public float sizeTextEndCreative;
-    [LunaPlaygroundField("Text Style")] public FontStyles fontStyleTextEndCreative;
+    [LunaPlaygroundField("Time")]           public int timeEndCreative=30;
+    [LunaPlaygroundAsset("Video")]          public VideoClip videoClip;
+    [LunaPlaygroundField("Text")]           public string stringEndCreative;
+    [LunaPlaygroundField("Text Color")]     public Color colorTextEndCreative;
+    [LunaPlaygroundField("Text Size")]      public float sizeTextEndCreative;
+    [LunaPlaygroundField("Text Style")]     public FontStyles fontStyleTextEndCreative;
+    [LunaPlaygroundField("Time Show Select Weapon")]     public float timeShowSelectWeapon=2f;
     public TextMeshProUGUI txtEndCreative;
 
     public bool isCretivePause;
