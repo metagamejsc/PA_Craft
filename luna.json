@@ -2,7 +2,7 @@
     "version": "6.4.0",
     "projectId": "a19be57a5ab10974e822a4790aefed8f",
     "applicationID": 34123,
-    "creativeName": "SMOP_V17_ToiNV_ToiNV",
+    "creativeName": "SMOP_V18_ToiNV_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -2290,10 +2290,6 @@
             },
             {
                 "name": "UnityEngine.PolygonCollider2D",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.SphereCollider",
                 "excluded": true
             },
             {
@@ -8401,12 +8397,8 @@
                 "excluded": false
             },
             {
-                "name": "DoorKnowledge",
-                "excluded": true
-            },
-            {
                 "name": "BotState",
-                "excluded": true
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -14320,7 +14312,7 @@
                     },
                     {
                         "name": "NextDouble",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "NextBytes",
@@ -16168,7 +16160,7 @@
                     },
                     {
                         "name": "Range$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Range",
@@ -22104,7 +22096,7 @@
                     },
                     {
                         "name": "Play",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Play$1",
@@ -22514,7 +22506,7 @@
                     },
                     {
                         "name": "constraints#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "freezeRotation#get",
@@ -30500,7 +30492,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RefreshStyle",
@@ -34248,7 +34240,7 @@
                     },
                     {
                         "name": "PlayMusicWin",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayMusic",
@@ -34860,7 +34852,7 @@
                     },
                     {
                         "name": "ShowWinCard",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnClickEndCard",
@@ -36190,43 +36182,83 @@
                     },
                     {
                         "name": "Start",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Update",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "MoveToTarget",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "LoadGroup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ShuffleDoors",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDoorFailed",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "MoveToNextDoor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GoToDoor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDoorPassed",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GoToNextGroup",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.SphereCollider",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "radius#get",
                         "excluded": true
+                    },
+                    {
+                        "name": "radius#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "center#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "center#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DoorKnowledge",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
                     }
                 ]
             }

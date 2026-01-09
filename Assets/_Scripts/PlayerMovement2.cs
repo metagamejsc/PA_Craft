@@ -30,7 +30,6 @@ public class PlayerMovement2 : MonoBehaviour
     private bool isJumping;
     private bool stopCoutine;
 
-
     public IEnumerator MoveAndIdle()
     {
         while (!stopCoutine)
@@ -179,7 +178,7 @@ public class PlayerMovement2 : MonoBehaviour
                 LunaManager.ins.ShowWinCard();
             }
         }
-        if (other.CompareTag("Enemy"))
+        /*if (other.CompareTag("Enemy"))
         {
             if (!LunaManager.ins.isCretivePause)
             {
@@ -188,6 +187,6 @@ public class PlayerMovement2 : MonoBehaviour
                 var effect= Instantiate(endEffect);
                 effect.transform.position = transform.position + new Vector3(0, 0, 2);
             }
-        }
+        }*/
     }
 }

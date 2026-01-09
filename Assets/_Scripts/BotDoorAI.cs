@@ -213,6 +213,20 @@ public class BotDoorAI : MonoBehaviour
 
         LoadGroup();
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Finish"))
+        {
+            if (!LunaManager.ins.isCretivePause)
+            {
+                //var effect= Instantiate(endEffect);
+                //effect.transform.position = transform.position + new Vector3(0, 0, 2);
+                animator.SetBool("isMoving", false);
+                rb.velocity = Vector3.zero;
+                LunaManager.ins.ShowEndCard();
+            }
+        }
+    }
 }
 
 // ================= STATE =================
