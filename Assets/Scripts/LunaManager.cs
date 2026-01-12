@@ -17,7 +17,7 @@ public class LunaManager : MonoBehaviour
     public bool isCretivePause;
     public Image[] doTweenAnimations;
     public RawImage[] doTweenAnimationsRawImage;
-    
+
     [SerializeField] public GameObject UIBuilding,UIIngame;
     [SerializeField] public Camera camBuilding;
     [SerializeField] public GameObject startCard;
@@ -54,6 +54,7 @@ public class LunaManager : MonoBehaviour
             {
                 houseIndex = a;
                 ShowUIBuilding();
+                HousePreviewController.ins.MoveLeft();
             });
         }
         EndCard.SetActive(false);
