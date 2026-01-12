@@ -113,7 +113,7 @@ public class PlayerChar : BaseCharacter
         }
 
         AudioManager.ins.PlaySoundRespawn();
-        animator.Play("Armature|Falling Idle");
+        animator.Play("metarig|Character_Idle");
     }
     public void SetJump()
     {
