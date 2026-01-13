@@ -8,13 +8,15 @@ using Random = UnityEngine.Random;
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    public int countDrop=0;
-    [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Light")] public float intensityLight=0.2f;
-    [LunaPlaygroundField("Color Light")] public Color colorLight=Color.white;
-    [LunaPlaygroundField("Light Range")] public float lightRange=10f;
-    public Light directionalLight;
-    
+    public int countDrop = 0;
+    [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
+    // [LunaPlaygroundField("Light")] public float intensityLight = 0.2f;
+    // [LunaPlaygroundField("Color Light")] public Color colorLight = Color.white;
+    // [LunaPlaygroundField("Light Range")] public float lightRange = 10f;
+    [LunaPlaygroundAsset("BG")] public Texture2D texture2D;
+    public RawImage rawImageBG;
+    //public Light directionalLight;
+
     public bool isCretivePause;
     private void Awake()
     {
@@ -23,7 +25,7 @@ public class LunaManager : MonoBehaviour
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
-    
+
 
 
     // Start is called before the first frame update
@@ -36,14 +38,15 @@ public class LunaManager : MonoBehaviour
             VARIABLE.onClick.AddListener(OnClickEndCard);
         }
         EndCard.SetActive(false);
-        directionalLight.color=colorLight;
-        directionalLight.intensity=intensityLight;
-        directionalLight.range=lightRange;
+        // directionalLight.color = colorLight;
+        // directionalLight.intensity = intensityLight;
+        // directionalLight.range = lightRange;
+        rawImageBG.texture = texture2D;
         //SetupField();
-        Invoke(nameof(ShowEndCard),timeEndCreative);
+        Invoke(nameof(ShowEndCard), timeEndCreative);
     }
 
-  
+
     // Update is called once per frame
     public void PauseGameplay()
     {

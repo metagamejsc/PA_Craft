@@ -7,53 +7,28 @@ using UnityEngine.UI;
 public class TutorialBuildBlock : MonoBehaviour
 {
     public static TutorialBuildBlock ins;
-    public int stepIndex;
-    public List<GameObject> lstStep;
-    public List<Button> lstButtonHideStep;
-    //public Button btnHideTutorial;
+    public GameObject baseRobot;
+    public GameObject[] items;
+    public GameObject[] types;
 
-    private void Awake()
+    void Awake()
     {
         ins = this;
     }
-
-    public IEnumerator IeSpawnStep()
+    void Start()
     {
-        yield return new WaitForSeconds(1f);
-
+        baseRobot.SetActive(true);
+        foreach (GameObject item in items) item.SetActive(false);
+        foreach (GameObject type in types) type.SetActive(false);
+    }
+    public void ClickButton(int index)
+    {
+        foreach (GameObject item in items) item.SetActive(false);
+        foreach (GameObject type in types) type.SetActive(false);
+        baseRobot.SetActive(true);
+        items[index].SetActive(true);
+        if (index == 2) baseRobot.SetActive(false);
+        types[index].SetActive(true);
     }
 
-    private void Start()
-    {
-        foreach (var VARIABLE in lstStep)
-        {
-            VARIABLE.SetActive(false);
-        }
-        foreach (var VARIABLE in lstButtonHideStep)
-        {
-            VARIABLE.onClick.AddListener(() =>
-            {
-                HideStep();
-            });
-        }
-        ShowStep();
-        StartCoroutine(IeSpawnStep());
-    }
-
-    public void ShowStep()
-    {
-
-        lstStep[stepIndex].SetActive(true);
-    }
-    public void HideStep()
-    {
-
-        lstStep[stepIndex].SetActive(false);
-        stepIndex++;
-        /*if (stepIndex==lstStep.Count-1)
-        {
-           GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
-           ShowStep();
-        }*/
-    }
 }
