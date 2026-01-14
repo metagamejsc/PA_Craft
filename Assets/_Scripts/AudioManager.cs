@@ -20,6 +20,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip buySound;
     public AudioClip noCoinSound;
     public AudioClip getCoinSound;
+    public AudioClip fireSound;
     public List<AudioClip> lstMoveSound;
 
     private void Awake()
@@ -40,6 +41,10 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundMerge()
     {
         sound.PlayOneShot(lstMergeSound[Random.Range(0,lstMergeSound.Count)],1);
+    }
+    public void PlaySoundFire()
+    {
+        sound.PlayOneShot(fireSound,1);
     }
     public void PlaySoundMove()
     {

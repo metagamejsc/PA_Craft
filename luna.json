@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 34123,
-    "creativeName": "SMOP_V13_TrangTTH_ToiNV",
+    "applicationID": 35572,
+    "creativeName": "UAC_V04_ThuLH_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -16036,7 +16036,7 @@
                     },
                     {
                         "name": "eulerAngles#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "eulerAngles#set",
@@ -16820,7 +16820,7 @@
                     },
                     {
                         "name": "ViewportToScreenPoint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ViewportToWorldPoint",
@@ -16828,7 +16828,7 @@
                     },
                     {
                         "name": "ViewportPointToRay",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Render",
@@ -20592,7 +20592,7 @@
                     },
                     {
                         "name": "color#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "passCount#get",
@@ -20684,7 +20684,7 @@
                     },
                     {
                         "name": "GetColor$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetColor",
@@ -29177,6 +29177,10 @@
                     {
                         "name": "PlaySoundNotEnough",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundFire",
+                        "excluded": false
                     }
                 ]
             },
@@ -33948,7 +33952,7 @@
                     },
                     {
                         "name": "IsFindingEnemy#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "IsFindingEnemy#set",
@@ -34039,10 +34043,6 @@
                 "staticMethods": [],
                 "instanceMethods": [
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "Start",
                         "excluded": false
                     },
@@ -34059,19 +34059,39 @@
                         "excluded": false
                     },
                     {
-                        "name": "HandleAttack",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CraftWeapon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AtkCompleted",
-                        "excluded": false
-                    },
-                    {
                         "name": "OnStartRespawn",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveAndIdle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FixedUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Jump",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Shoot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnCollisionEnter",
                         "excluded": false
                     }
                 ]
@@ -35961,11 +35981,49 @@
                         "excluded": false
                     },
                     {
-                        "name": "Awake",
+                        "name": "Start",
                         "excluded": false
                     },
                     {
-                        "name": "Start",
+                        "name": "SetTarget$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TakeDamage",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FlashRed",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FlashRedRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Die",
+                        "excluded": false
+                    },
+                    {
+                        "name": "WanderRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDrawGizmosSelected",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Bullet",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
                         "excluded": false
                     }
                 ]

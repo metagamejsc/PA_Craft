@@ -6,26 +6,70 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 {
     public static MouseLook ins;
 
-    public Transform target;                 // Player
-    public Camera cameraMain;               // Main Camera
-    public LayerMask collisionMask;         // Các layer có thể chặn camera
+    public Transform target;
+    public Camera cameraMain;
+    public LayerMask collisionMask;
 
     public float distance = 5f;
     public float minDistance = 1.2f;
     public float maxDistance = 5f;
-    public float heightOffset = 1.5f;        // Camera nhìn ngang tầm đầu
-    public float collisionBuffer = 0.2f;     // Tránh camera dính vào tường
+    public float heightOffset = 1.5f;
+    public float collisionBuffer = 0.2f;
 
     public float rotationSpeed = 0.2f;
     public float yMinLimit = -30f;
     public float yMaxLimit = 80f;
 
-    private float xRotation = 20f;
-    private float yRotation = 0f;
+    [Header("Start Rotation (Euler)")]
+    public Vector3 startEuler = new Vector3(20f, 0f, 0f);
+    public bool applyStartEulerOnStart = true;
+    public GameObject tutorialUI;
+
+    private float xRotation = 20f; // pitch
+    private float yRotation = 0f;  // yaw
 
     private void Awake()
     {
         ins = this;
+    }
+
+    private void Start()
+    {
+        if (applyStartEulerOnStart)
+            SetRotationEuler(startEuler);
+    }
+
+    // Gọi từ ngoài vào: MouseLook.ins.SetRotationEuler(new Vector3(pitch, yaw, 0));
+    public void SetRotationEuler(Vector3 euler)
+    {
+        float pitch = NormalizeAngle(euler.x);
+        float yaw = NormalizeAngle(euler.y);
+
+        xRotation = Mathf.Clamp(pitch, yMinLimit, yMaxLimit);
+        yRotation = yaw;
+    }
+
+    // Nếu bạn muốn truyền vào 1 vector hướng (direction) thay vì Euler:
+    // direction: hướng từ target ra phía camera (ví dụ Vector3.back là camera ở sau lưng)
+    public void SetRotationFromDirection(Vector3 directionFromTargetToCamera)
+    {
+        if (directionFromTargetToCamera.sqrMagnitude < 0.0001f) return;
+
+        // rotation dùng trong LateUpdate: rotation * Vector3.forward là hướng nhìn ra trước camera
+        // CameraPos = targetPos - (rotation * forward * distance)
+        // => (rotation*forward) chính là hướng từ camera -> target (ngược với direction từ target -> camera)
+        Vector3 camToTargetDir = -directionFromTargetToCamera.normalized;
+        Quaternion rot = Quaternion.LookRotation(camToTargetDir, Vector3.up);
+
+        Vector3 euler = rot.eulerAngles;
+        SetRotationEuler(euler);
+    }
+
+    private float NormalizeAngle(float angle)
+    {
+        angle %= 360f;
+        if (angle > 180f) angle -= 360f;
+        return angle;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -40,26 +84,19 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        // Không cần gì ở đây nếu không xử lý click giữ
+        tutorialUI.SetActive(false);
     }
-
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        // Không cần gì ở đây nếu không xử lý click giữ
-    }
+    public void OnPointerUp(PointerEventData eventData) { }
 
     private void LateUpdate()
     {
         if (target == null || cameraMain == null) return;
 
-        // Tính rotation
         Quaternion rotation = Quaternion.Euler(xRotation, yRotation, 0f);
         Vector3 targetPosition = target.position + Vector3.up * heightOffset;
 
-        // Tính vị trí mong muốn của camera
         Vector3 desiredCameraPos = targetPosition - (rotation * Vector3.forward * distance);
 
-        // Raycast kiểm tra vật cản giữa player và camera
         RaycastHit hit;
         float correctedDistance = distance;
 
@@ -68,14 +105,11 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             correctedDistance = Mathf.Clamp(hit.distance - collisionBuffer, minDistance, maxDistance);
         }
 
-        // Tính lại vị trí camera
         Vector3 finalCameraPos = targetPosition - (rotation * Vector3.forward * correctedDistance);
 
-        // Clamp chiều cao để tránh lọt xuống đất
         float minY = target.position.y + 0.3f;
         finalCameraPos.y = Mathf.Max(finalCameraPos.y, minY);
 
-        // Áp dụng vị trí và xoay camera nhìn vào player
         cameraMain.transform.position = finalCameraPos;
         cameraMain.transform.LookAt(targetPosition);
     }
