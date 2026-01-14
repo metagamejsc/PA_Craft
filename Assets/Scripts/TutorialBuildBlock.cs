@@ -27,7 +27,7 @@ public class TutorialBuildBlock : MonoBehaviour
         foreach (GameObject type in types) type.SetActive(false);
         baseRobot.SetActive(true);
         items[index].SetActive(true);
-        if (index == 2) baseRobot.SetActive(false);
+        if (index == 2 || index == 1) baseRobot.SetActive(false);
         types[index].SetActive(true);
     }
 
