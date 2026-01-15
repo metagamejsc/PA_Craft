@@ -159,13 +159,49 @@ public class PlayerChar : BaseCharacter
             model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRot, 1f); // tức thì
         }
 
-        GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, Quaternion.LookRotation(shootDirection));
+        GameObject bullet = Instantiate(bulletPrefab);
+        bullet.transform.position = shootPoint.position;
+        bullet.transform.rotation = Quaternion.LookRotation(shootDirection);
         Rigidbody rbBullet = bullet.GetComponent<Rigidbody>();
         rbBullet.velocity = shootDirection * bulletSpeed;
 
         Destroy(bullet, 5f);
     }
 
+    public void DelayShoot()
+    {
+        AudioManager.ins.PlaySoundFire();
+        LunaManager.ins.CheckClickShowEndCard();
+        shootEffect.Play();
+        Camera cam = Camera.main;
+        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Vector3 targetPoint;
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+        {
+            targetPoint = hit.point;
+        }
+        else
+        {
+            targetPoint = ray.GetPoint(100f);
+        }
+
+        Vector3 shootDirection = (targetPoint - shootPoint.position).normalized;
+
+        // ✅ Quay nhân vật về hướng bắn (chỉ xoay theo trục Y)
+        Vector3 flatDirection = new Vector3(shootDirection.x, 0, shootDirection.z);
+        if (flatDirection.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(flatDirection);
+            model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRot, 1f); // tức thì
+        }
+
+        GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, Quaternion.LookRotation(shootDirection));
+        Rigidbody rbBullet = bullet.GetComponent<Rigidbody>();
+        rbBullet.velocity = shootDirection * bulletSpeed;
+
+        Destroy(bullet, 5f);
+    }
 
 
     protected override void SearchForEnemy()

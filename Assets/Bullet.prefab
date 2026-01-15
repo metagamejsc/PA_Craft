@@ -156,6 +156,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2555625610232632701}
     m_Modifications:
+    - target: {fileID: 125242, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 172192, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
       propertyPath: m_Name
       value: BulletBlue
@@ -211,6 +215,26 @@ PrefabInstance:
     - target: {fileID: 10885402, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 19810316, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
+      propertyPath: SizeModule.enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19810316, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 19810316, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 19810316, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 19810316, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
+      propertyPath: EmissionModule.rateOverDistance.scalar
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 19810316, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
       propertyPath: ColorModule.gradient.maxGradient.key1.b
@@ -273,7 +297,8 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 192050, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 02cc73c949d8da544897c3bf439601c4, type: 3}
