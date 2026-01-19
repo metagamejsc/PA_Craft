@@ -8,59 +8,56 @@ public class ConstructionManager : MonoBehaviour
 {
     public float timeScale = 1;
 
+    [Header("Camera Transition Settings")]
+    public float cameraMoveDuration = 1f;
+    public float cameraRotateDuration = 1f;
+
     [System.Serializable]
     public class BuildOption
     {
         public string optionName;
-        public GameObject prefab;               // Vật được xây
-        public GameObject placementParticle;    // Hiệu ứng particle khi đặt
-        public Sprite icon;                     // Icon hiển thị trên button
+        public GameObject prefab;
+        public GameObject placementParticle;
+        public Sprite icon;
     }
 
     [System.Serializable]
     public class BuildLocation
     {
-        public Vector3 playerDestination;       // Vị trí nhân vật đi đến
-        public Vector3 buildPosition;           // Vị trí đặt vật
-        public Vector3 cameraPosition;          // Vị trí camera
-        public Vector3 cameraRotation;          // Góc xoay camera (Euler)
-        
+        public Vector3 playerDestination;
+        public Vector3 buildPosition;
+        public Vector3 cameraPosition;
+        public Vector3 cameraRotation;
+
         public BuildOption option1;
         public BuildOption option2;
     }
 
-    // === Danh sách vị trí ===
     public List<BuildLocation> buildLocations = new List<BuildLocation>();
 
-    // === Đối tượng ===
-    public GameObject placementEffectPrefab;   // Hiệu ứng nhấp nháy tại vị trí đặt
-    public Transform player;                   // Nhân vật (Transform)
-    public Camera mainCamera;                  // Camera chính
+    public GameObject placementEffectPrefab;
+    public Transform player;
+    public Camera mainCamera;
 
-    // === Di chuyển ===
     public float moveSpeed = 4f;
     public float reachDistance = 0.3f;
 
-    // === Animation ===
     public Animator playerAnimator;
     public string welcomeAnim = "Welcome";
     public string moveAnim = "Move";
     public string idleAnim = "Idle";
-    public string buildAnim = "Build";         // Tên animation xây
+    public string buildAnim = "Build";
 
-    // === UI ===
     public GameObject optionPanel;
     public Button optionButton1, optionButton2;
     public TextMeshProUGUI optionText1, optionText2;
 
-    // === Trạng thái ===
     private int currentLocationIndex = 0;
-    private GameObject currentEffect;          // Hiệu ứng tại vị trí đặt
+    private GameObject currentEffect;
     private bool isMoving = false;
 
     void Start()
     {
-        // Validate references
         if (optionPanel == null) Debug.LogError("Option Panel chưa được gán!");
         if (player == null) { Debug.LogError("Player chưa được gán!"); return; }
         if (mainCamera == null) mainCamera = Camera.main;
@@ -69,8 +66,6 @@ public class ConstructionManager : MonoBehaviour
         if (playerAnimator == null) { Debug.LogError("Animator không được gán!"); return; }
 
         optionPanel.SetActive(false);
-
-        // Bắt đầu với animation chào
         playerAnimator.Play(welcomeAnim);
         StartCoroutine(StartAfterWelcome(2f));
     }
@@ -98,13 +93,9 @@ public class ConstructionManager : MonoBehaviour
             Vector3 targetPos = loc.playerDestination;
             Vector3 direction = (targetPos - player.position).normalized;
 
-            // Di chuyển nhân vật
             player.position += direction * moveSpeed * Time.deltaTime;
-
-            // Cập nhật animation
             playerAnimator.SetBool("IsMoving", true);
 
-            // Chỉ xoay theo hướng di chuyển nếu chưa đến nơi
             if (Vector3.Distance(player.position, targetPos) > reachDistance)
             {
                 if (direction.sqrMagnitude > 0.1f)
@@ -115,11 +106,10 @@ public class ConstructionManager : MonoBehaviour
             }
             else
             {
-                // ĐÃ ĐẾN NƠI → DỪNG DI CHUYỂN
                 player.position = targetPos;
                 isMoving = false;
                 playerAnimator.SetBool("IsMoving", false);
-                ArriveAtLocation(); // Gọi ngay → tránh bị ghi đè
+                ArriveAtLocation();
             }
         }
     }
@@ -137,32 +127,27 @@ public class ConstructionManager : MonoBehaviour
         playerAnimator.SetBool("IsMoving", true);
 
         BuildLocation loc = buildLocations[currentLocationIndex];
-        
-        StartCoroutine(MoveAndRotateCamera(loc.cameraPosition, loc.cameraRotation,currentLocationIndex==0?null:buildLocations[currentLocationIndex-1]));
+
+        StartCoroutine(MoveAndRotateCamera(loc.cameraPosition, loc.cameraRotation, currentLocationIndex == 0 ? null : buildLocations[currentLocationIndex - 1]));
     }
 
     IEnumerator MoveAndRotateCamera(Vector3 targetPos, Vector3 targetEulerAngles, BuildLocation lastpos = null)
     {
         Quaternion targetRotation = Quaternion.Euler(targetEulerAngles);
-        /*if (lastpos!=null)
+        Vector3 startPos = mainCamera.transform.position;
+        Quaternion startRot = mainCamera.transform.rotation;
+
+        float elapsed = 0f;
+        while (elapsed < Mathf.Max(cameraMoveDuration, cameraRotateDuration))
         {
-            Quaternion targetPlayer = Quaternion.Euler(player.rotation.eulerAngles.x, targetEulerAngles.y, player.rotation.eulerAngles.z);
-            float t0 = 0;
-            while (t0 < 2f)
-            {
-                t0 += Time.deltaTime;
-                mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, lastpos.playerDestination+new Vector3(0,1.5f,0), t0);
-                mainCamera.transform.rotation = Quaternion.Slerp(mainCamera.transform.rotation, targetPlayer, t0);
-                yield return null;
-            }
-        }*/
-        
-        float t = 0;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * timeScale;
-            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPos, t);
-            mainCamera.transform.rotation = Quaternion.Slerp(mainCamera.transform.rotation, targetRotation, t);
+            elapsed += Time.deltaTime * timeScale;
+
+            float moveT = Mathf.Clamp01(elapsed / cameraMoveDuration);
+            float rotateT = Mathf.Clamp01(elapsed / cameraRotateDuration);
+
+            mainCamera.transform.position = Vector3.Lerp(startPos, targetPos, moveT);
+            mainCamera.transform.rotation = Quaternion.Slerp(startRot, targetRotation, rotateT);
+
             yield return null;
         }
     }
@@ -170,25 +155,19 @@ public class ConstructionManager : MonoBehaviour
     void ArriveAtLocation()
     {
         BuildLocation loc = buildLocations[currentLocationIndex];
-
-        // ✅ Quay mặt về camera
         FaceCamera();
 
-        // ✅ Hiệu ứng tại vị trí đặt vật
         if (currentEffect == null && placementEffectPrefab != null)
         {
             currentEffect = Instantiate(placementEffectPrefab, loc.buildPosition, Quaternion.identity);
         }
 
-        // ✅ Cập nhật UI: tên và icon
         optionText1.text = loc.option1.optionName;
         optionText2.text = loc.option2.optionName;
 
-        // Gán icon cho button
         SetButtonIcon(optionButton1, loc.option1.icon);
         SetButtonIcon(optionButton2, loc.option2.icon);
 
-        // ✅ Gán sự kiện chọn
         optionButton1.onClick.RemoveAllListeners();
         optionButton1.onClick.AddListener(() => OnOptionSelected(loc.option1));
 
@@ -198,7 +177,6 @@ public class ConstructionManager : MonoBehaviour
         optionPanel.SetActive(true);
     }
 
-    // Hàm tiện ích: gán icon cho button và đảm bảo hiển thị rõ
     void SetButtonIcon(Button button, Sprite icon)
     {
         if (icon != null)
@@ -208,13 +186,8 @@ public class ConstructionManager : MonoBehaviour
             {
                 buttonImage.sprite = icon;
                 buttonImage.preserveAspect = true;
-                buttonImage.color = Color.white; // Đảm bảo không bị mờ/tint
+                buttonImage.color = Color.white;
             }
-        }
-        else
-        {
-            // Có thể đặt icon mặc định nếu muốn
-            // button.image.sprite = defaultIcon;
         }
     }
 
@@ -224,7 +197,7 @@ public class ConstructionManager : MonoBehaviour
         if (mainCamera == null || player == null) return;
 
         Vector3 toCamera = mainCamera.transform.position - player.position;
-        toCamera.y = 0; // Chỉ xoay ngang
+        toCamera.y = 0;
 
         if (toCamera.sqrMagnitude < 0.01f) return;
 
@@ -240,55 +213,38 @@ public class ConstructionManager : MonoBehaviour
         BuildLocation loc = buildLocations[currentLocationIndex];
         optionPanel.SetActive(false);
 
-        // Dừng mọi hành động di chuyển
         isMoving = false;
         playerAnimator.SetBool("IsMoving", false);
 
-        // Bắt đầu hành động xây
         StartCoroutine(PerformBuildAction(selectedOption, loc));
     }
 
     IEnumerator PerformBuildAction(BuildOption selectedOption, BuildLocation loc)
     {
-        // 1. Phát animation xây
         if (playerAnimator != null && !string.IsNullOrEmpty(buildAnim))
         {
             playerAnimator.Play(buildAnim);
         }
 
-        // 2. Chờ 0.5s để animation bắt đầu
         yield return new WaitForSeconds(0.5f);
 
-        // 3. Tạo vật tại vị trí build
         if (selectedOption.prefab != null)
         {
             Instantiate(selectedOption.prefab, loc.buildPosition, Quaternion.identity);
         }
 
-        // 4. Phát particle
         if (selectedOption.placementParticle != null)
         {
             GameObject particle = Instantiate(selectedOption.placementParticle, loc.buildPosition, Quaternion.identity);
             Destroy(particle, 5f);
         }
 
-        // 5. Xóa hiệu ứng nhấp nháy
         if (currentEffect != null)
         {
             Destroy(currentEffect);
             currentEffect = null;
         }
 
-        // 6. Chờ 2s sau khi xây
-        yield return new WaitForSeconds(2f);
-
-        // 7. Sang vị trí tiếp theo
-        currentLocationIndex++;
-        if (currentLocationIndex >= buildLocations.Count-1)
-        {
-            Debug.Log("🏁 Đã hoàn thành tất cả vị trí!");
-            LunaManager.ins.ShowEndCard(); // Gọi end card
-        }
-        StartMovingToNextLocation();
+        LunaManager.ins.ShowEndCard();
     }
 }
