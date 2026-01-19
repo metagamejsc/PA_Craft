@@ -44,6 +44,21 @@ public class PlayerChar : BaseCharacter
         moveSpeed = LunaManager.ins.playerSpeed;
         jumpHeight = LunaManager.ins.playerJumpForce;
         //StartCoroutine(MoveAndIdle());
+        MouseLook.ins.onMouseUpShoot += OnMouseUpShoot;
+    }
+    private void OnDestroy()
+    {
+        if (MouseLook.ins != null)
+            MouseLook.ins.onMouseUpShoot -= OnMouseUpShoot;
+    }
+
+    void OnMouseUpShoot()
+    {
+        if (isDead) return;
+        if (GameController.ins.isPauseGame) return;
+        if (!MouseLook.ins.allowInput) return;
+
+        Shoot();
     }
     public void OnStartRespawn()
     {
@@ -55,7 +70,7 @@ public class PlayerChar : BaseCharacter
     }
     void Update()
     {
-        if (isDead)
+        /*if (isDead)
         {
             animator.SetBool("isJumping", false);
             animator.Play("metarig|Fall");
@@ -66,20 +81,20 @@ public class PlayerChar : BaseCharacter
             return;
 
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        animator.SetBool("isJumping", !isGrounded);
+        animator.SetBool("isJumping", !isGrounded);*/
 
         if (Input.GetKeyDown(KeyCode.Space))
             Jump();
 
-        if (Input.GetMouseButtonDown(0))  // Chuột trái bắn
-            Shoot();
+        /*if (Input.GetMouseButtonDown(0))  // Chuột trái bắn
+            Shoot();*/
 
         SearchForEnemy();
     }
 
     void FixedUpdate()
     {
-        if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
+        /*if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
         {
             rigidbody.velocity = Vector3.zero;
             return;
@@ -118,7 +133,7 @@ public class PlayerChar : BaseCharacter
             model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
 
-        animator.SetBool("isMoving", isMoving);
+        animator.SetBool("isMoving", isMoving);*/
     }
 
     public void Jump()
@@ -167,43 +182,7 @@ public class PlayerChar : BaseCharacter
 
         Destroy(bullet, 5f);
     }
-
-    public void DelayShoot()
-    {
-        AudioManager.ins.PlaySoundFire();
-        LunaManager.ins.CheckClickShowEndCard();
-        shootEffect.Play();
-        Camera cam = Camera.main;
-        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        Vector3 targetPoint;
-
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f))
-        {
-            targetPoint = hit.point;
-        }
-        else
-        {
-            targetPoint = ray.GetPoint(100f);
-        }
-
-        Vector3 shootDirection = (targetPoint - shootPoint.position).normalized;
-
-        // ✅ Quay nhân vật về hướng bắn (chỉ xoay theo trục Y)
-        Vector3 flatDirection = new Vector3(shootDirection.x, 0, shootDirection.z);
-        if (flatDirection.sqrMagnitude > 0.001f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(flatDirection);
-            model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRot, 1f); // tức thì
-        }
-
-        GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, Quaternion.LookRotation(shootDirection));
-        Rigidbody rbBullet = bullet.GetComponent<Rigidbody>();
-        rbBullet.velocity = shootDirection * bulletSpeed;
-
-        Destroy(bullet, 5f);
-    }
-
-
+    
     protected override void SearchForEnemy()
     {
         if (isDead || !IsFindingEnemy) return;

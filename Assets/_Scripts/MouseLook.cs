@@ -15,6 +15,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public float maxDistance = 5f;
     public float heightOffset = 1.5f;
     public float collisionBuffer = 0.2f;
+    public bool allowInput = true;
+    public Action onMouseUpShoot;
 
     public float rotationSpeed = 0.2f;
     public float yMinLimit = -30f;
@@ -74,6 +76,8 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (!allowInput) return;
+
         float deltaX = eventData.delta.x * rotationSpeed;
         float deltaY = eventData.delta.y * rotationSpeed;
 
@@ -82,11 +86,20 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         xRotation = Mathf.Clamp(xRotation, yMinLimit, yMaxLimit);
     }
 
+
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (!allowInput) return;
         tutorialUI.SetActive(false);
     }
-    public void OnPointerUp(PointerEventData eventData) { }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (!allowInput) return;
+
+        onMouseUpShoot?.Invoke();
+    }
+
 
     private void LateUpdate()
     {

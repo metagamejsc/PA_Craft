@@ -22,7 +22,7 @@ public class BaseCharacter : MonoBehaviour
     [SerializeField]
     protected float attackCooldown = 0f;
     public Transform target;
-    protected Rigidbody rigidbody;
+    public Rigidbody rigidbody;
     protected CapsuleCollider capsuleCollider;
     private static readonly int IsMoving = Animator.StringToHash("isMoving");
 
