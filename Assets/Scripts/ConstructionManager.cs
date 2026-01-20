@@ -245,6 +245,15 @@ public class ConstructionManager : MonoBehaviour
             currentEffect = null;
         }
 
-        LunaManager.ins.ShowEndCard();
+        yield return new WaitForSeconds(1f);
+
+        // 7. Sang vị trí tiếp theo
+        currentLocationIndex++;
+        if (currentLocationIndex >= buildLocations.Count)
+        {
+            Debug.Log("🏁 Đã hoàn thành tất cả vị trí!");
+            LunaManager.ins.ShowEndCard(); // Gọi end card
+        }
+        StartMovingToNextLocation();
     }
 }
