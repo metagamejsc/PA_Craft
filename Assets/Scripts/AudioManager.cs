@@ -17,6 +17,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip walkSound;
     public AudioClip buildSound;
     public AudioClip clickSound;
+    public AudioClip openChest;
 
     private void Awake()
     {
@@ -43,6 +44,11 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundReward()
     {
         sound.PlayOneShot(rewardSound,1);
+    }
+    
+    public void PlaySoundOpenChest()
+    {
+        sound.PlayOneShot(openChest,1);
     }
     public void PlaySoundBomb()
     {
