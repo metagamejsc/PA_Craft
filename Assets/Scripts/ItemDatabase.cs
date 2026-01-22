@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Chest/ItemDatabase")]
-public class ItemDatabase : ScriptableObject
+public class ItemDatabase : MonoBehaviour
 {
     public static ItemDatabase Instance;
     public List<Item> items;
@@ -23,4 +23,10 @@ public class ItemDatabase : ScriptableObject
         currentIndex = (currentIndex + 1) % items.Count; // vòng lặp
         return item;
     }
+}
+[System.Serializable]
+public class Item
+{
+    public string itemName;
+    public Sprite icon;
 }

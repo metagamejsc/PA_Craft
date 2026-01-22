@@ -11,6 +11,9 @@ public class ChestController : MonoBehaviour
     public MeshRenderer[] meshRenderers3;   // size = 3
     public Color colorMesh1, colorMesh2, colorMesh3;
     private MaterialPropertyBlock mpb;
+    private static readonly int Open = Animator.StringToHash("Open");
+    public AnimationClip openAnimationClip;
+
     public void ApplyMeshesAndMaterials()
     {
         Apply(meshRenderers1, materials[0], colorMesh1);
@@ -58,7 +61,7 @@ public class ChestController : MonoBehaviour
 
         isOpened = true;
         arrow.SetActive(false);
-        animator.SetTrigger("Open");
+        animator.Play(openAnimationClip.name);
         AudioManager.ins.PlaySoundClick();
         ChestManager.Instance.isBusy = true;
         ChestManager.Instance.OpenChestAfterDelay(this, 1f);
@@ -68,7 +71,7 @@ public class ChestController : MonoBehaviour
     {
         isOpened = false;
         arrow.SetActive(true);
-        animator.Play("Idle", 0, 0f);
+        //animator.Play("Idle", 0, 0f);
         ApplyMeshesAndMaterials();
     }
 }
