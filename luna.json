@@ -1,7 +1,7 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 35802,
+    "applicationID": 0,
     "creativeName": "SFMS_V01_NgocNDL_ToiNV",
     "pgServer": "EU",
     "window": {
@@ -7897,6 +7897,14 @@
             },
             {
                 "name": "DG.Tweening.Plugins.Core.ITPlugin$4",
+                "excluded": false
+            },
+            {
+                "name": "WeaponPickup",
+                "excluded": true
+            },
+            {
+                "name": "IInteractable",
                 "excluded": false
             }
         ],
@@ -21399,7 +21407,7 @@
                     },
                     {
                         "name": "isTrigger#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "material#get",
@@ -24331,7 +24339,7 @@
                     },
                     {
                         "name": "color#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "alpha#get",
@@ -35917,6 +35925,190 @@
                     },
                     {
                         "name": "Reconstruct",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "FaceCamera",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "LateUpdate",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "PlayerInteractionController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Stats#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DoInteract",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayPickup",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayFight",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayDie",
+                        "excluded": true
+                    },
+                    {
+                        "name": "MoveNear",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "PlayerPointsLabel",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleChanged",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "PlayerStats",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Points#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasAtLeast",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddPoints",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetPoints",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "WorldValueLabelTMP",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Apply",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "EnemyEncounter",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "FaceXZ",
+                        "excluded": false
+                    },
+                    {
+                        "name": "rewardPoints#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CanInteract",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Interact",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnemyMoveTowards",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetEnemyWalk",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TriggerEnemyAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TriggerEnemyDie",
                         "excluded": false
                     }
                 ]
