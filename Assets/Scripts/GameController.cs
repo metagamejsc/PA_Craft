@@ -15,10 +15,7 @@ public class GameController : MonoBehaviour
     public Button btnRestart;
     public bool canRestart;
     public int countPlayerDie = 0;
-
-    public MonsterController monsterController1;
-    public List<MonsterController> listMonsterControllers;
-
+    
     [Header("Black Screen")]
     public GameObject blackImage; // Image/Panel màn đen (full screen)
 
@@ -30,7 +27,6 @@ public class GameController : MonoBehaviour
     private CanvasGroup blackGroup;
     private Sequence blackSeq;
 
-    private bool monster1DeathSequencePlayed;
 
     private void Awake()
     {
@@ -44,22 +40,13 @@ public class GameController : MonoBehaviour
 
         SetupBlackUI();
 
-        // Tắt hết quái ban đầu
-        foreach (var monster in listMonsterControllers)
-            monster.gameObject.SetActive(false);
-
-        RegisterMonster1DeathEvent();
-        monster1DeathSequencePlayed = false;
 
         MouseLook.ins.tutorialUI.SetActive(true);
     }
 
     private void OnDestroy()
     {
-        if (monsterController1 != null)
-            monsterController1.onDeath -= OnMonster1Death;
 
-        blackSeq?.Kill();
         blackGroup?.DOKill();
     }
 
@@ -75,26 +62,13 @@ public class GameController : MonoBehaviour
         blackGroup.interactable = false;
         blackImage.SetActive(false);
     }
-
-    private void RegisterMonster1DeathEvent()
-    {
-        if (monsterController1 == null) return;
-
-        monsterController1.onDeath -= OnMonster1Death;
-        monsterController1.onDeath += OnMonster1Death;
-    }
-
+    
     public void StartGame()
     {
         playerChar.OnStartRespawn();
         playerChar.transform.position = posSpawnPlayer.position;
 
-        foreach (var monster in listMonsterControllers)
-            monster.gameObject.SetActive(false);
-
-        RegisterMonster1DeathEvent();
-        monster1DeathSequencePlayed = false;
-
+       
         HideBlackInstant(); // reset màn đen nếu đang hiện
     }
 
@@ -118,29 +92,9 @@ public class GameController : MonoBehaviour
         StartGame();
         countPlayerDie++;
     }
-
-    public void ShowListMonster()
-    {
-        foreach (var monster in listMonsterControllers)
-            monster.gameObject.SetActive(true);
-    }
+    
 
     // ====== Monster 1 chết: Fade IN đen -> bật quái -> Fade OUT đen ======
-    private void OnMonster1Death()
-    {
-        Debug.Log("OnMonster1Death");
-
-        if (monster1DeathSequencePlayed) return;
-        monster1DeathSequencePlayed = true;
-
-        FadeBlackInOut(() =>
-        {
-            LunaManager.ins.countDropFinal = LunaManager.ins.countDrop + 10;
-            ShowListMonster();
-            MouseLook.ins.tutorialUI.SetActive(true);
-        });
-    }
-
     /// Fade in -> chạy action ở giữa -> fade out
     private void FadeBlackInOut(Action midAction, Action onComplete = null)
     {

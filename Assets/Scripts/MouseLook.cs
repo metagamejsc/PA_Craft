@@ -10,13 +10,20 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public Camera cameraMain;
     public LayerMask collisionMask;
 
+    [Header("Tap/Click To Move")]
+    public LayerMask clickMoveMask;          // Layer ground/stairs để click
+    public float clickRayDistance = 200f;
+    public float tapThresholdPixels = 12f;   // kéo quá ngưỡng này => coi như drag, không move
+
     public float distance = 5f;
     public float minDistance = 1.2f;
     public float maxDistance = 5f;
     public float heightOffset = 1.5f;
     public float collisionBuffer = 0.2f;
     public bool allowInput = true;
-    public Action onMouseUpShoot;
+
+    // NEW: click-to-move callback
+    public Action<Vector3> onClickMove;
 
     public float rotationSpeed = 0.2f;
     public float yMinLimit = -30f;
@@ -30,10 +37,11 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     private float xRotation = 20f; // pitch
     private float yRotation = 0f;  // yaw
 
-    private void Awake()
-    {
-        ins = this;
-    }
+    // NEW: tap vs drag tracking
+    private Vector2 pointerDownPos;
+    private bool dragged;
+
+    private void Awake() => ins = this;
 
     private void Start()
     {
@@ -41,7 +49,6 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             SetRotationEuler(startEuler);
     }
 
-    // Gọi từ ngoài vào: MouseLook.ins.SetRotationEuler(new Vector3(pitch, yaw, 0));
     public void SetRotationEuler(Vector3 euler)
     {
         float pitch = NormalizeAngle(euler.x);
@@ -51,22 +58,6 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         yRotation = yaw;
     }
 
-    // Nếu bạn muốn truyền vào 1 vector hướng (direction) thay vì Euler:
-    // direction: hướng từ target ra phía camera (ví dụ Vector3.back là camera ở sau lưng)
-    public void SetRotationFromDirection(Vector3 directionFromTargetToCamera)
-    {
-        if (directionFromTargetToCamera.sqrMagnitude < 0.0001f) return;
-
-        // rotation dùng trong LateUpdate: rotation * Vector3.forward là hướng nhìn ra trước camera
-        // CameraPos = targetPos - (rotation * forward * distance)
-        // => (rotation*forward) chính là hướng từ camera -> target (ngược với direction từ target -> camera)
-        Vector3 camToTargetDir = -directionFromTargetToCamera.normalized;
-        Quaternion rot = Quaternion.LookRotation(camToTargetDir, Vector3.up);
-
-        Vector3 euler = rot.eulerAngles;
-        SetRotationEuler(euler);
-    }
-
     private float NormalizeAngle(float angle)
     {
         angle %= 360f;
@@ -74,9 +65,23 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         return angle;
     }
 
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (!allowInput) return;
+
+        pointerDownPos = eventData.position;
+        dragged = false;
+
+        if (tutorialUI != null) tutorialUI.SetActive(false);
+    }
+
     public void OnDrag(PointerEventData eventData)
     {
         if (!allowInput) return;
+
+        // nếu kéo xa quá => coi là drag
+        if (!dragged && Vector2.Distance(pointerDownPos, eventData.position) > tapThresholdPixels)
+            dragged = true;
 
         float deltaX = eventData.delta.x * rotationSpeed;
         float deltaY = eventData.delta.y * rotationSpeed;
@@ -86,20 +91,23 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         xRotation = Mathf.Clamp(xRotation, yMinLimit, yMaxLimit);
     }
 
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (!allowInput) return;
-        tutorialUI.SetActive(false);
-    }
-
     public void OnPointerUp(PointerEventData eventData)
     {
         if (!allowInput) return;
 
-        onMouseUpShoot?.Invoke();
-    }
+        // Nếu vừa drag thì không coi là click
+        if (dragged) return;
 
+        // Tap/Click => raycast xuống ground lấy điểm move
+        if (cameraMain == null) cameraMain = Camera.main;
+        if (cameraMain == null) return;
+
+        Ray ray = cameraMain.ScreenPointToRay(eventData.position);
+        if (Physics.Raycast(ray, out RaycastHit hit, clickRayDistance, clickMoveMask))
+        {
+            onClickMove?.Invoke(hit.point);
+        }
+    }
 
     private void LateUpdate()
     {
