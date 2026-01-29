@@ -12,6 +12,10 @@ public class LunaManager : MonoBehaviour
     public int countDrop=0;
     /*[LunaPlaygroundField("CountDrop")] */public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
+    [LunaPlaygroundField("Light Color")] public Color lightColor=Color.white;
+    [LunaPlaygroundField("Light Instensity")] public float lightInstensity=1;
+    public Light mainLight;
+    
     /*[LunaPlaygroundField("NoiseIntensity")] */public float noiseIntensity=10;
     /*[LunaPlaygroundField("LandNoiseScale")] */public float landNoiseScale=0.8f;
     public Image[] doTweenAnimations;
@@ -39,7 +43,9 @@ public class LunaManager : MonoBehaviour
         }
         EndCard.SetActive(false);
         Invoke(nameof(ShowEndCard),timeEndCreative);
-      
+        mainLight.color=lightColor;
+        mainLight.intensity=lightInstensity;
+        
     }
 
     public void CheckClickShowEndCard()
