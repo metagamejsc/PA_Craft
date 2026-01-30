@@ -8,6 +8,7 @@ public class EnemyEncounter : MonoBehaviour, IInteractable
     public int enemyPower = 10;          // cần >= enemyPower để thắng
     public int rewardPoints =>enemyPower;        // thắng thì +rewardPoints
     public bool destroyOnDefeat = true;
+    public bool isBoss = false;
 
     [Header("Engage")]
     public Transform engagePoint;        // null -> dùng transform.position
@@ -55,6 +56,7 @@ public class EnemyEncounter : MonoBehaviour, IInteractable
 
     public IEnumerator Interact(PlayerInteractionController player)
     {
+        player.IsBusy = true;
         used = true;
         if (col) col.enabled = false;
 
@@ -78,13 +80,16 @@ public class EnemyEncounter : MonoBehaviour, IInteractable
         SetEnemyWalk(false);
 
         // Quay mặt vào nhau
-        FaceXZ(transform, player.transform.position);
-        FaceXZ(player.transform, transform.position);
+        Transform enemyLookT  = (enemyAnimator != null) ? enemyAnimator.transform : transform;
+        Transform playerLookT = (player.animator != null) ? player.animator.transform : player.transform;
+
+        FaceXZ(enemyLookT, playerLookT.position);
+        FaceXZ(playerLookT, enemyLookT.position);
 
         // Play đánh nhau
         TriggerEnemyAttack();
         yield return player.PlayFight();
-
+        player.IsBusy = false;
         // Kết quả
         if (!player.Stats.HasAtLeast(enemyPower))
         {
@@ -107,6 +112,11 @@ public class EnemyEncounter : MonoBehaviour, IInteractable
 
         if (destroyOnDefeat) Destroy(gameObject);
         else gameObject.SetActive(false);
+    }
+
+    public Transform GetTransform()
+    {
+        return transform;
     }
 
     IEnumerator EnemyMoveTowards(Vector3 enemyOrigin, Vector3 playerTarget)
@@ -147,8 +157,13 @@ public class EnemyEncounter : MonoBehaviour, IInteractable
 
     void TriggerEnemyDie()
     {
+        LunaManager.ins.CheckClickShowEndCard();
         if (enemyAnimator == null || string.IsNullOrEmpty(dieTrigger)) return;
         enemyAnimator.SetTrigger(dieTrigger);
+        if (isBoss)
+        {
+            LunaManager.ins.ShowEndCardEmpty();
+        }
     }
 
     static void FaceXZ(Transform t, Vector3 lookAtWorld)

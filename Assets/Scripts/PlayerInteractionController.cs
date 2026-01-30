@@ -11,8 +11,7 @@ public class PlayerInteractionController : MonoBehaviour
     public float pickupAnimTime = 0.7f;
     public float fightAnimTime = 0.9f;
     public float dieAnimTime = 1.2f;
-
-    public bool IsBusy { get; private set; }
+    public bool IsBusy { get;  set; }
     public bool IsDead { get; private set; }
 
     PlayerStats stats;
@@ -71,6 +70,7 @@ public class PlayerInteractionController : MonoBehaviour
     {
         IsDead = true;
         if (animator) animator.SetTrigger("Die");
+        LunaManager.ins.ShowEndCard();
         yield return new WaitForSeconds(dieAnimTime);
     }
 
@@ -88,5 +88,10 @@ public class PlayerInteractionController : MonoBehaviour
 
         while (mover.isMoving && !IsDead)
             yield return null;
+    }
+
+    public void SetBusy(bool p0)
+    {
+       IsBusy = p0;
     }
 }

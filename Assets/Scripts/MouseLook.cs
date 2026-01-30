@@ -111,7 +111,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     private void LateUpdate()
     {
-        if (target == null || cameraMain == null) return;
+        /*if (target == null || cameraMain == null) return;
 
         Quaternion rotation = Quaternion.Euler(xRotation, yRotation, 0f);
         Vector3 targetPosition = target.position + Vector3.up * heightOffset;
@@ -132,6 +132,6 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         finalCameraPos.y = Mathf.Max(finalCameraPos.y, minY);
 
         cameraMain.transform.position = finalCameraPos;
-        cameraMain.transform.LookAt(targetPosition);
+        cameraMain.transform.LookAt(targetPosition);*/
     }
 }

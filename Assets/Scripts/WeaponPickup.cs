@@ -29,16 +29,22 @@ public class WeaponPickup : MonoBehaviour, IInteractable
 
     public IEnumerator Interact(PlayerInteractionController player)
     {
+        player.IsBusy = true;
         used = true;
         if (col) col.enabled = false;
 
         // play anim nhặt
         yield return player.PlayPickup();
-
+        player.IsBusy = false;
         // cộng/trừ điểm
         player.Stats.AddPoints(value);
 
         if (destroyOnPickup) Destroy(gameObject);
         else gameObject.SetActive(false);
+    }
+
+    public Transform GetTransform()
+    {
+        return transform;
     }
 }

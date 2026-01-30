@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
     public Button btnRestart;
     public bool canRestart;
     public int countPlayerDie = 0;
+    public EnemyEncounter bossMonster;
     
     [Header("Black Screen")]
     public GameObject blackImage; // Image/Panel màn đen (full screen)
@@ -40,8 +41,10 @@ public class GameController : MonoBehaviour
 
         SetupBlackUI();
 
-
-        MouseLook.ins.tutorialUI.SetActive(true);
+        if (MouseLook.ins.tutorialUI!=null)
+        {
+            MouseLook.ins.tutorialUI.SetActive(true);
+        }
     }
 
     private void OnDestroy()
