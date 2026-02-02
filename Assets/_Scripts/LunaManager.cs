@@ -16,6 +16,7 @@ public class LunaManager : MonoBehaviour
     public float playerJumpForce=40f;
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
+    [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
     public float speedMonster=5f;
     public float timeSpawn=3f;
     public float starterGold=500;

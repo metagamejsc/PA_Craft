@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 36200,
-    "creativeName": "SFMS_V01_NgocNDL_ToiNV",
+    "applicationID": 29023,
+    "creativeName": "UAC_V09_ThuLH_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -7909,6 +7909,10 @@
             {
                 "name": "Rarity",
                 "excluded": false
+            },
+            {
+                "name": "PlayerSequenceController",
+                "excluded": true
             }
         ],
         "unusedMethods": [
@@ -34099,7 +34103,11 @@
                         "excluded": false
                     },
                     {
-                        "name": "DelayShoot",
+                        "name": "OnDestroy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnMouseUpShoot",
                         "excluded": false
                     }
                 ]
@@ -34241,15 +34249,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "RegisterMonster1DeathEvent",
-                        "excluded": false
-                    },
-                    {
                         "name": "ShowListMonster",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnMonster1Death",
                         "excluded": false
                     },
                     {
@@ -34259,6 +34259,10 @@
                     {
                         "name": "HideBlackInstant",
                         "excluded": true
+                    },
+                    {
+                        "name": "SetupTranform",
+                        "excluded": false
                     }
                 ]
             },
@@ -36186,6 +36190,28 @@
                     },
                     {
                         "name": "EvaluateAndApply",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "HandPointerController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveHandToSlots",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveHandToPoint",
                         "excluded": false
                     }
                 ]

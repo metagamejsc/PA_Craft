@@ -15,9 +15,9 @@ public class GameController : MonoBehaviour
     public Button btnRestart;
     public bool canRestart;
     public int countPlayerDie = 0;
-
-    public MonsterController monsterController1;
+    
     public List<MonsterController> listMonsterControllers;
+    public Transform tranformMonster1, tranformMonster2, tranformMonster3;
 
     [Header("Black Screen")]
     public GameObject blackImage; // Image/Panel màn đen (full screen)
@@ -43,26 +43,31 @@ public class GameController : MonoBehaviour
         canRestart = LunaManager.ins.canReplay >= 1;
 
         SetupBlackUI();
-
-        // Tắt hết quái ban đầu
-        foreach (var monster in listMonsterControllers)
-            monster.gameObject.SetActive(false);
-
-        RegisterMonster1DeathEvent();
-        monster1DeathSequencePlayed = false;
-
-        MouseLook.ins.tutorialUI.SetActive(true);
     }
 
     private void OnDestroy()
     {
-        if (monsterController1 != null)
-            monsterController1.onDeath -= OnMonster1Death;
-
         blackSeq?.Kill();
         blackGroup?.DOKill();
     }
 
+    public void SetupTranform(int id)
+    {
+        listMonsterControllers[id].transform.position = tranformMonster1.position;
+        listMonsterControllers[id].transform.localScale= Vector3.one*2;
+        listMonsterControllers.RemoveAt(id);
+        for (int i = 0; i < listMonsterControllers.Count; i++)
+        {
+            if (i==0)
+            {
+                listMonsterControllers[id].transform.position = tranformMonster2.position;
+            }
+            if (i==1)
+            {
+                listMonsterControllers[id].transform.position = tranformMonster3.position;
+            }
+        }
+    }
     private void SetupBlackUI()
     {
         if (blackImage == null) return;
@@ -75,26 +80,13 @@ public class GameController : MonoBehaviour
         blackGroup.interactable = false;
         blackImage.SetActive(false);
     }
-
-    private void RegisterMonster1DeathEvent()
-    {
-        if (monsterController1 == null) return;
-
-        monsterController1.onDeath -= OnMonster1Death;
-        monsterController1.onDeath += OnMonster1Death;
-    }
+    
 
     public void StartGame()
     {
         playerChar.OnStartRespawn();
         playerChar.transform.position = posSpawnPlayer.position;
-
-        foreach (var monster in listMonsterControllers)
-            monster.gameObject.SetActive(false);
-
-        RegisterMonster1DeathEvent();
-        monster1DeathSequencePlayed = false;
-
+        
         HideBlackInstant(); // reset màn đen nếu đang hiện
     }
 
@@ -126,20 +118,6 @@ public class GameController : MonoBehaviour
     }
 
     // ====== Monster 1 chết: Fade IN đen -> bật quái -> Fade OUT đen ======
-    private void OnMonster1Death()
-    {
-        Debug.Log("OnMonster1Death");
-
-        if (monster1DeathSequencePlayed) return;
-        monster1DeathSequencePlayed = true;
-
-        FadeBlackInOut(() =>
-        {
-            LunaManager.ins.countDropFinal = LunaManager.ins.countDrop + 10;
-            ShowListMonster();
-            MouseLook.ins.tutorialUI.SetActive(true);
-        });
-    }
 
     /// Fade in -> chạy action ở giữa -> fade out
     private void FadeBlackInOut(Action midAction, Action onComplete = null)

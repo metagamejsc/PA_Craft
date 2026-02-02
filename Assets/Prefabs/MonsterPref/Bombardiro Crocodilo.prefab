@@ -131,6 +131,11 @@ MonoBehaviour:
   animator: {fileID: 1219343242496278050}
   walkAnimName: walk
   idleAnimName: idle
+  maxHP: 10
+  currentHP: 0
+  allowRandomMove: 1
+  wanderRadius: 3
+  wanderInterval: 3
 --- !u!136 &302346750328106654
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -782,6 +787,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bombardiro Crocodilo
       objectReference: {fileID: 0}
+    - target: {fileID: 7813908278622763136, guid: 45cb103433925754cb331d4289c089b2,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: dd917687de6036346adb6f8886147726, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

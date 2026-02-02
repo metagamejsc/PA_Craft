@@ -68,6 +68,7 @@ public class PlayerChar : BaseCharacter
         rigidbody.isKinematic = false;
         animator.Play(idleAnimationClip);
     }
+    
     void Update()
     {
         /*if (isDead)
@@ -94,7 +95,7 @@ public class PlayerChar : BaseCharacter
 
     void FixedUpdate()
     {
-        /*if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
+        if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
         {
             rigidbody.velocity = Vector3.zero;
             return;
@@ -133,7 +134,7 @@ public class PlayerChar : BaseCharacter
             model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
 
-        animator.SetBool("isMoving", isMoving);*/
+        animator.SetBool("isMoving", isMoving);
     }
 
     public void Jump()
@@ -148,7 +149,7 @@ public class PlayerChar : BaseCharacter
     public void Shoot()
     {
         animator.SetTrigger("Shoot");
-        AudioManager.ins.PlaySoundFire();
+        //AudioManager.ins.PlaySoundFire();
         LunaManager.ins.CheckClickShowEndCard();
         shootEffect.Play();
         Camera cam = Camera.main;
