@@ -1,5 +1,4 @@
-// ButtonSequenceAnimator.cs
-using System.Collections;
+// ButtonSequenceAnimator_UpdateTween.cs
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,10 +6,9 @@ using UnityEngine.UI;
 public class ButtonSequenceAnimator : MonoBehaviour
 {
     [Header("Buttons")]
-    [Tooltip("Danh sách button chạy theo thứ tự này")]
     [SerializeField] private List<Button> buttons = new List<Button>();
 
-    [Tooltip("Parent chứa tất cả buttons (để SetAsLastSibling cho button hiện tại)")]
+    [Tooltip("Parent chứa tất cả buttons (để SetAsLastSibling cho button hiện tại lên trên cùng)")]
     [SerializeField] private Transform buttonsParent;
 
     [Tooltip("Nếu button hiện tại không nằm dưới buttonsParent thì tự SetParent vào")]
@@ -19,22 +17,15 @@ public class ButtonSequenceAnimator : MonoBehaviour
     [Tooltip("Nếu parent có LayoutGroup và bạn muốn update ngay sau khi đổi sibling")]
     [SerializeField] private bool rebuildLayoutAfterReorder = false;
 
-    [Tooltip("Tự chạy khi OnEnable")]
     [SerializeField] private bool autoStart = true;
-
-    [Tooltip("Lặp lại từ nút 1 sau khi hoàn tất")]
     [SerializeField] private bool loop = true;
 
-    [Tooltip("Delay trước khi bắt đầu chuỗi (giây)")]
     [SerializeField] private float initialDelay = 0f;
-
-    [Tooltip("Khoảng nghỉ giữa hai nút (giây)")]
     [SerializeField] private float gapBetweenButtons = 0.2f;
 
-    [Tooltip("Dùng thời gian không bị Time.timeScale ảnh hưởng (khuyên dùng cho UI)")]
     [SerializeField] private bool useUnscaledTime = true;
 
-    [Tooltip("Nếu bật, sau khi 'ấn' sẽ gọi button.onClick.Invoke()")]
+    [Tooltip("Bật nếu bạn muốn giả click onClick (playable thường KHÔNG cần)")]
     [SerializeField] private bool invokeButtonClickEvent = false;
 
     [Header("Button Scale Effect")]
@@ -45,24 +36,48 @@ public class ButtonSequenceAnimator : MonoBehaviour
     [SerializeField] private float scaleDown = 0.9f;
 
     [Header("Hand")]
-    [Tooltip("RectTransform hình bàn tay (optional)")]
     [SerializeField] private RectTransform handRect = null;
-
     [SerializeField] private float handMoveDuration = 0.25f;
     [SerializeField] private float handPressScale = 0.85f;
     [SerializeField] private float handPressDuration = 0.25f;
     [SerializeField] private float delayAfterHandPress = 0.05f;
 
     [Header("Border")]
-    [Tooltip("Border RectTransform (kéo GameObject border vào đây)")]
     [SerializeField] private RectTransform borderRect = null;
 
-    private int _currentIndex = 0;
-    private bool _running = false;
-    private Coroutine _sequenceCo = null;
+    [Header("Debug")]
+    [SerializeField] private bool debugLog = false;
 
-    // Lưu original scale
+    // ===== runtime =====
     private readonly Dictionary<Transform, Vector3> _originalScales = new Dictionary<Transform, Vector3>();
+    private int _idx = 0;
+    private bool _running = false;
+
+    private enum Step
+    {
+        None,
+        InitDelay,
+        PrepareButton,
+        MoveHand,
+        ShowBorder,
+        PressDown,
+        PressUp,
+        HideBorderAfterPress,
+        DelayAfterPress,
+        BtnScaleUp,
+        BtnScaleDown,
+        BtnScaleBack,
+        Gap,
+    }
+
+    private Step _step = Step.None;
+    private float _t = 0f;
+
+    // tween caches
+    private RectTransform _btnRect;
+    private Vector3 _handFromPos, _handToPos;
+    private Vector3 _handOrigScale, _handPressScaleVec;
+    private Vector3 _btnOrigScale, _btnUpScale, _btnDownScale;
 
     private void OnEnable()
     {
@@ -84,10 +99,8 @@ public class ButtonSequenceAnimator : MonoBehaviour
             {
                 var b = buttons[i];
                 if (!b) continue;
-
-                var t = b.transform;
-                if (!_originalScales.ContainsKey(t))
-                    _originalScales[t] = t.localScale;
+                if (!_originalScales.ContainsKey(b.transform))
+                    _originalScales[b.transform] = b.transform.localScale;
             }
         }
 
@@ -99,30 +112,28 @@ public class ButtonSequenceAnimator : MonoBehaviour
     {
         if (buttons == null || buttons.Count == 0) return;
 
-        StopSequence();
         CacheOriginalScales();
         HideBorder();
 
         _running = true;
-        _currentIndex = Mathf.Clamp(fromIndex, 0, buttons.Count - 1);
+        _idx = Mathf.Clamp(fromIndex, 0, buttons.Count - 1);
 
-        // Fix button đầu tiên bị lệch: chạy coroutine rồi mới place hand (sau 1 frame)
-        _sequenceCo = StartCoroutine(SequenceRoutine(_currentIndex));
+        // settle UI 1 frame bằng flag
+        _step = Step.InitDelay;
+        _t = -1f; // dùng -1 để “đợi 1 frame” trước khi tính delay thật
+
+        if (debugLog) Debug.Log("[Seq] Start at " + _idx);
     }
 
     public void StopSequence()
     {
         _running = false;
-
-        if (_sequenceCo != null)
-        {
-            StopCoroutine(_sequenceCo);
-            _sequenceCo = null;
-        }
+        _step = Step.None;
+        _t = 0f;
 
         HideBorder();
 
-        // Reset scales
+        // reset scales
         if (buttons != null)
         {
             for (int i = 0; i < buttons.Count; i++)
@@ -130,133 +141,320 @@ public class ButtonSequenceAnimator : MonoBehaviour
                 var b = buttons[i];
                 if (!b) continue;
 
-                var t = b.transform;
-                if (_originalScales.TryGetValue(t, out var orig))
-                    t.localScale = orig;
+                Vector3 s;
+                if (_originalScales.TryGetValue(b.transform, out s))
+                    b.transform.localScale = s;
             }
         }
 
-        if (handRect && _originalScales.TryGetValue(handRect, out var handOrig))
-            handRect.localScale = handOrig;
+        if (handRect)
+        {
+            Vector3 hs;
+            if (_originalScales.TryGetValue(handRect, out hs))
+                handRect.localScale = hs;
+        }
     }
 
-    private IEnumerator SequenceRoutine(int startIndex)
+    private void Update()
     {
-        // Chờ 1 frame để layout update xong
-        yield return null;
-        Canvas.ForceUpdateCanvases();
+        if (!_running) return;
+        if (buttons == null || buttons.Count == 0) { StopSequence(); return; }
 
-        // Place hand đúng button đầu tiên
-        var startRect = GetButtonRect(startIndex);
-        if (handRect && startRect != null)
-            PlaceHandInstant(startRect);
+        float dt = DtSafe();
 
-        // Border phải tắt khi bắt đầu
-        HideBorder();
-
-        var w0 = Wait(initialDelay);
-        if (w0 != null) yield return w0;
-
-        int idx = startIndex;
-        bool isFirst = true;
-
-        while (_running)
+        // Step machine
+        switch (_step)
         {
-            var btn = (idx >= 0 && idx < buttons.Count) ? buttons[idx] : null;
-            if (!btn)
-            {
-                (idx, isFirst) = NextIndex(idx);
-                if (!_running) yield break;
-                continue;
-            }
-
-            var btnRect = btn.transform as RectTransform;
-            if (btnRect == null)
-            {
-                (idx, isFirst) = NextIndex(idx);
-                if (!_running) yield break;
-                continue;
-            }
-
-            // Khi "đến" button này: đưa button xuống cuối trong parent để render lên trên
-            BringButtonToFront(btnRect);
-
-            // Border TẮT trong lúc chuẩn bị move sang button này
-            HideBorder();
-
-            if (handRect != null)
-            {
-                // Move hand tới button (từ button thứ 2 trở đi)
-                if (!isFirst)
+            case Step.InitDelay:
+                // đợi 1 frame để layout update trong playable
+                if (_t < 0f)
                 {
-                    Vector3 toLocal = GetPosInParent(handRect.parent, btnRect);
-                    yield return MoveLocalPosition(handRect, toLocal, Mathf.Max(0f, handMoveDuration));
+                    _t += 1f;
+                    Canvas.ForceUpdateCanvases();
+                    PlaceHandInstantForCurrent();
+                    HideBorder();
+                    return;
+                }
+                _t += dt;
+                if (_t >= Mathf.Max(0f, initialDelay))
+                {
+                    _t = 0f;
+                    _step = Step.PrepareButton;
+                }
+                break;
+
+            case Step.PrepareButton:
+                if (!TryGetCurrentButtonRect(out _btnRect))
+                {
+                    GoNext();
+                    break;
                 }
 
-                // Hand đã tới nơi => BẬT border (đặt theo vị trí button giống cách hand tính)
-                ShowBorderAt(btnRect);
-
-                // Press hand
-                Vector3 handOrig = GetOriginalScale(handRect);
-                Vector3 pressScale = new Vector3(
-                    handOrig.x * handPressScale,
-                    handOrig.y * handPressScale,
-                    handOrig.z
-                );
-
-                float halfPress = Mathf.Max(0f, handPressDuration) * 0.5f;
-                yield return ScaleTo(handRect, pressScale, halfPress);
-                yield return ScaleTo(handRect, handOrig, halfPress);
-
-                // Ấn xong => TẮT border
+                BringButtonToFront(_btnRect);
                 HideBorder();
 
-                var w1 = Wait(delayAfterHandPress);
-                if (w1 != null) yield return w1;
+                // set tween caches
+                _btnOrigScale = GetOriginalScale(_btnRect);
+                _btnUpScale = new Vector3(_btnOrigScale.x * scaleUp, _btnOrigScale.y * scaleUp, _btnOrigScale.z);
+                _btnDownScale = new Vector3(_btnOrigScale.x * scaleDown, _btnOrigScale.y * scaleDown, _btnOrigScale.z);
 
-                // Button effect
-                yield return PlayButtonEffect(btnRect);
+                if (handRect)
+                {
+                    _handOrigScale = GetOriginalScale(handRect);
+                    _handPressScaleVec = new Vector3(_handOrigScale.x * handPressScale, _handOrigScale.y * handPressScale, _handOrigScale.z);
 
-                if (invokeButtonClickEvent)
-                    btn.onClick?.Invoke();
-            }
-            else
-            {
-                // Không có hand: vẫn có thể bật border 1 nhịp rồi tắt (tuỳ bạn)
-                ShowBorderAt(btnRect);
-                yield return PlayButtonEffect(btnRect);
+                    _handFromPos = handRect.position;
+                    _handToPos = GetTargetWorldPos(handRect, _btnRect);
+
+                    _t = 0f;
+                    _step = Step.MoveHand;
+                }
+                else
+                {
+                    _t = 0f;
+                    _step = Step.ShowBorder;
+                }
+
+                if (debugLog) Debug.Log("[Seq] Prepare idx=" + _idx + " btn=" + _btnRect.name);
+                break;
+
+            case Step.MoveHand:
+                if (!handRect || _btnRect == null)
+                {
+                    _step = Step.ShowBorder;
+                    _t = 0f;
+                    break;
+                }
+
+                // move hand tween
+                _t += dt;
+                float md = Mathf.Max(0f, handMoveDuration);
+                if (md <= 0f)
+                {
+                    handRect.position = _handToPos;
+                    _t = 0f;
+                    _step = Step.ShowBorder;
+                }
+                else
+                {
+                    float p = Mathf.Clamp01(_t / md);
+                    handRect.position = Vector3.LerpUnclamped(_handFromPos, _handToPos, p);
+                    if (p >= 1f)
+                    {
+                        _t = 0f;
+                        _step = Step.ShowBorder;
+                    }
+                }
+                break;
+
+            case Step.ShowBorder:
+                if (_btnRect != null)
+                    ShowBorderAt(_btnRect); // bật border sau khi move xong
+                _t = 0f;
+                _step = handRect ? Step.PressDown : Step.BtnScaleUp;
+                break;
+
+            case Step.PressDown:
+                if (!handRect)
+                {
+                    _step = Step.BtnScaleUp;
+                    _t = 0f;
+                    break;
+                }
+                _t += dt;
+                {
+                    float half = Mathf.Max(0f, handPressDuration) * 0.5f;
+                    if (half <= 0f)
+                    {
+                        handRect.localScale = _handPressScaleVec;
+                        _t = 0f;
+                        _step = Step.PressUp;
+                    }
+                    else
+                    {
+                        float p = Mathf.Clamp01(_t / half);
+                        handRect.localScale = Vector3.LerpUnclamped(_handOrigScale, _handPressScaleVec, p);
+                        if (p >= 1f)
+                        {
+                            _t = 0f;
+                            _step = Step.PressUp;
+                        }
+                    }
+                }
+                break;
+
+            case Step.PressUp:
+                if (!handRect)
+                {
+                    _step = Step.HideBorderAfterPress;
+                    _t = 0f;
+                    break;
+                }
+                _t += dt;
+                {
+                    float half = Mathf.Max(0f, handPressDuration) * 0.5f;
+                    if (half <= 0f)
+                    {
+                        handRect.localScale = _handOrigScale;
+                        _t = 0f;
+                        _step = Step.HideBorderAfterPress;
+                    }
+                    else
+                    {
+                        float p = Mathf.Clamp01(_t / half);
+                        handRect.localScale = Vector3.LerpUnclamped(_handPressScaleVec, _handOrigScale, p);
+                        if (p >= 1f)
+                        {
+                            _t = 0f;
+                            _step = Step.HideBorderAfterPress;
+                        }
+                    }
+                }
+                break;
+
+            case Step.HideBorderAfterPress:
+                // ấn xong -> tắt border
                 HideBorder();
+                _t = 0f;
+                _step = Step.DelayAfterPress;
+                break;
 
-                if (invokeButtonClickEvent)
-                    btn.onClick?.Invoke();
-            }
+            case Step.DelayAfterPress:
+                _t += dt;
+                if (_t >= Mathf.Max(0f, delayAfterHandPress))
+                {
+                    _t = 0f;
+                    _step = Step.BtnScaleUp;
+                }
+                break;
 
-            var w2 = Wait(gapBetweenButtons);
-            if (w2 != null) yield return w2;
+            case Step.BtnScaleUp:
+                if (_btnRect == null) { _step = Step.Gap; _t = 0f; break; }
+                if (TweenScaleStep(_btnRect, _btnOrigScale, _btnUpScale, scaleUpDuration, ref _t, dt))
+                {
+                    _t = 0f;
+                    _step = Step.BtnScaleDown;
+                }
+                break;
 
-            (idx, isFirst) = NextIndex(idx);
-            if (!_running) yield break;
+            case Step.BtnScaleDown:
+                if (_btnRect == null) { _step = Step.Gap; _t = 0f; break; }
+                if (TweenScaleStep(_btnRect, _btnUpScale, _btnDownScale, scaleDownDuration, ref _t, dt))
+                {
+                    _t = 0f;
+                    _step = Step.BtnScaleBack;
+                }
+                break;
+
+            case Step.BtnScaleBack:
+                if (_btnRect == null) { _step = Step.Gap; _t = 0f; break; }
+                if (TweenScaleStep(_btnRect, _btnDownScale, _btnOrigScale, scaleBackDuration, ref _t, dt))
+                {
+                    // optional click
+                    if (invokeButtonClickEvent)
+                    {
+                        var b = buttons[_idx];
+                        if (b) b.onClick?.Invoke();
+                    }
+
+                    _t = 0f;
+                    _step = Step.Gap;
+                }
+                break;
+
+            case Step.Gap:
+                _t += dt;
+                if (_t >= Mathf.Max(0f, gapBetweenButtons))
+                {
+                    _t = 0f;
+                    GoNext();
+                }
+                break;
         }
+    }
+
+    // ===== helpers =====
+
+    private bool TweenScaleStep(Transform t, Vector3 from, Vector3 to, float duration, ref float timer, float dt)
+    {
+        duration = Mathf.Max(0f, duration);
+        if (duration <= 0f)
+        {
+            t.localScale = to;
+            return true;
+        }
+
+        timer += dt;
+        float p = Mathf.Clamp01(timer / duration);
+        t.localScale = Vector3.LerpUnclamped(from, to, p);
+        return p >= 1f;
+    }
+
+    private bool TryGetCurrentButtonRect(out RectTransform rt)
+    {
+        rt = null;
+        if (_idx < 0 || _idx >= buttons.Count) return false;
+
+        var btn = buttons[_idx];
+        if (!btn) return false;
+        if (!btn.gameObject.activeInHierarchy) return false;
+
+        rt = btn.transform as RectTransform;
+        return rt != null;
+    }
+
+    private void GoNext()
+    {
+        if (!_running) return;
+
+        int last = buttons.Count - 1;
+        if (_idx >= last)
+        {
+            if (!loop)
+            {
+                StopSequence();
+                return;
+            }
+            _idx = 0;
+            // reset for loop: place hand instantly to first, border off
+            Canvas.ForceUpdateCanvases();
+            PlaceHandInstantForCurrent();
+            HideBorder();
+            _step = Step.PrepareButton;
+            _t = 0f;
+            if (debugLog) Debug.Log("[Seq] Loop to 0");
+        }
+        else
+        {
+            _idx++;
+            _step = Step.PrepareButton;
+            _t = 0f;
+        }
+    }
+
+    private void PlaceHandInstantForCurrent()
+    {
+        if (!handRect) return;
+        RectTransform rt;
+        if (!TryGetCurrentButtonRect(out rt)) return;
+        handRect.position = GetTargetWorldPos(handRect, rt);
     }
 
     private void BringButtonToFront(RectTransform btnRect)
     {
         if (!btnRect) return;
-
         Transform parent = buttonsParent != null ? buttonsParent : btnRect.parent;
-        if (parent == null) return;
+        if (!parent) return;
 
         if (forceReparentIntoButtonsParent && btnRect.parent != parent)
             btnRect.SetParent(parent, worldPositionStays: true);
 
-        // Render/top: SetAsLastSibling
         btnRect.SetAsLastSibling();
 
-        // Nếu border đang cùng parent, về sau khi ShowBorder sẽ SetAsLastSibling lại border để border nằm trên cùng
         if (rebuildLayoutAfterReorder && parent is RectTransform prt)
             LayoutRebuilder.ForceRebuildLayoutImmediate(prt);
 
-        // Vì đổi sibling có thể ảnh hưởng layout/pos => update ngay
+        // playable: force update để vị trí ổn định
         Canvas.ForceUpdateCanvases();
     }
 
@@ -264,22 +462,13 @@ public class ButtonSequenceAnimator : MonoBehaviour
     {
         if (!borderRect || !targetBtnRect) return;
 
-        // Border bật sau khi hand move tới nút
         if (!borderRect.gameObject.activeSelf)
             borderRect.gameObject.SetActive(true);
 
-        Transform bParent = borderRect.parent;
-        if (bParent != null)
-        {
-            borderRect.localPosition = GetPosInParent(bParent, targetBtnRect);
-        }
-        else
-        {
-            // Không có parent: dùng world position
-            borderRect.position = targetBtnRect.position;
-        }
+        Vector3 p = targetBtnRect.position;
+        p.z = borderRect.position.z;
+        borderRect.position = p;
 
-        // Border luôn nằm trên cùng để không bị che
         borderRect.SetAsLastSibling();
     }
 
@@ -289,147 +478,29 @@ public class ButtonSequenceAnimator : MonoBehaviour
             borderRect.gameObject.SetActive(false);
     }
 
-    private (int nextIdx, bool nextIsFirst) NextIndex(int prevIdx)
-    {
-        if (!_running) return (prevIdx, false);
-
-        int last = buttons.Count - 1;
-
-        if (prevIdx >= last)
-        {
-            if (loop)
-            {
-                _currentIndex = 0;
-
-                // loop về đầu: tắt border, đặt hand tức thời cho đúng
-                HideBorder();
-
-                var firstRect = GetButtonRect(0);
-                if (handRect && firstRect != null)
-                    PlaceHandInstant(firstRect);
-
-                return (0, true);
-            }
-            else
-            {
-                StopSequence();
-                return (prevIdx, false);
-            }
-        }
-        else
-        {
-            _currentIndex = prevIdx + 1;
-            return (_currentIndex, false);
-        }
-    }
-
-    private IEnumerator PlayButtonEffect(RectTransform target)
-    {
-        if (!target) yield break;
-
-        Vector3 orig = GetOriginalScale(target);
-        Vector3 up = new Vector3(orig.x * scaleUp, orig.y * scaleUp, orig.z);
-        Vector3 down = new Vector3(orig.x * scaleDown, orig.y * scaleDown, orig.z);
-
-        yield return ScaleTo(target, up, Mathf.Max(0f, scaleUpDuration));
-        yield return ScaleTo(target, down, Mathf.Max(0f, scaleDownDuration));
-        yield return ScaleTo(target, orig, Mathf.Max(0f, scaleBackDuration));
-    }
-
-    private void PlaceHandInstant(RectTransform targetBtnRect)
-    {
-        if (!handRect || !targetBtnRect) return;
-
-        handRect.localPosition = GetPosInParent(handRect.parent, targetBtnRect);
-    }
-
-    // Convert world pos của button -> local pos trong một parent bất kỳ (giống inverseTransformPoint)
-    private Vector3 GetPosInParent(Transform parent, RectTransform targetBtnRect)
-    {
-        Vector3 worldPos = targetBtnRect.position;
-        if (parent != null)
-            return parent.InverseTransformPoint(worldPos);
-        return worldPos;
-    }
-
-    private RectTransform GetButtonRect(int idx)
-    {
-        if (buttons == null || idx < 0 || idx >= buttons.Count) return null;
-        var b = buttons[idx];
-        if (!b) return null;
-        return b.transform as RectTransform;
-    }
-
     private Vector3 GetOriginalScale(Transform t)
     {
         if (!t) return Vector3.one;
 
-        if (!_originalScales.TryGetValue(t, out var orig))
-        {
-            orig = t.localScale;
-            _originalScales[t] = orig;
-        }
-        return orig;
+        Vector3 s;
+        if (_originalScales.TryGetValue(t, out s)) return s;
+
+        s = t.localScale;
+        _originalScales[t] = s;
+        return s;
     }
 
-    private IEnumerator MoveLocalPosition(Transform t, Vector3 to, float duration)
+    private Vector3 GetTargetWorldPos(RectTransform mover, RectTransform targetBtnRect)
     {
-        if (!t) yield break;
-
-        if (duration <= 0f)
-        {
-            t.localPosition = to;
-            yield break;
-        }
-
-        Vector3 from = t.localPosition;
-        float time = 0f;
-
-        while (time < duration)
-        {
-            time += Dt();
-            float p = Mathf.Clamp01(time / duration);
-            t.localPosition = Vector3.LerpUnclamped(from, to, p); // linear
-            yield return null;
-        }
-
-        t.localPosition = to;
+        Vector3 p = targetBtnRect.position;
+        p.z = mover.position.z;
+        return p;
     }
 
-    private IEnumerator ScaleTo(Transform t, Vector3 to, float duration)
+    private float DtSafe()
     {
-        if (!t) yield break;
-
-        if (duration <= 0f)
-        {
-            t.localScale = to;
-            yield break;
-        }
-
-        Vector3 from = t.localScale;
-        float time = 0f;
-
-        while (time < duration)
-        {
-            time += Dt();
-            float p = Mathf.Clamp01(time / duration);
-            t.localScale = Vector3.LerpUnclamped(from, to, p); // linear
-            yield return null;
-        }
-
-        t.localScale = to;
-    }
-
-    private float Dt() => useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
-
-    // Trả object để yield return được cả WaitForSeconds và WaitForSecondsRealtime
-    private object Wait(float seconds)
-    {
-        seconds = Mathf.Max(0f, seconds);
-        if (seconds <= 0f) return null;
-
-        return useUnscaledTime
-            ? (object)new WaitForSecondsRealtime(seconds)
-            : new WaitForSeconds(seconds);
+        float dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+        if (dt <= 0f) dt = 1f / 60f; // fallback để không bị kẹt trong playable
+        return dt;
     }
 }
