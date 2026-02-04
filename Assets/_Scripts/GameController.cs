@@ -16,9 +16,6 @@ public class GameController : MonoBehaviour
     public bool canRestart;
     public int countPlayerDie = 0;
     
-    public List<MonsterController> listMonsterControllers;
-    public Transform tranformMonster1, tranformMonster2, tranformMonster3;
-
     [Header("Black Screen")]
     public GameObject blackImage; // Image/Panel màn đen (full screen)
 
@@ -42,7 +39,6 @@ public class GameController : MonoBehaviour
         btnRestart.onClick.AddListener(RestartGame);
         canRestart = LunaManager.ins.canReplay >= 1;
 
-        SetupBlackUI();
     }
 
     private void OnDestroy()
@@ -50,44 +46,13 @@ public class GameController : MonoBehaviour
         blackSeq?.Kill();
         blackGroup?.DOKill();
     }
-
-    public void SetupTranform(int id)
-    {
-        listMonsterControllers[id].transform.position = tranformMonster1.position;
-        listMonsterControllers[id].transform.localScale= Vector3.one*2;
-        listMonsterControllers.RemoveAt(id);
-        for (int i = 0; i < listMonsterControllers.Count; i++)
-        {
-            if (i==0)
-            {
-                listMonsterControllers[id].transform.position = tranformMonster2.position;
-            }
-            if (i==1)
-            {
-                listMonsterControllers[id].transform.position = tranformMonster3.position;
-            }
-        }
-    }
-    private void SetupBlackUI()
-    {
-        if (blackImage == null) return;
-
-        blackGroup = blackImage.GetComponent<CanvasGroup>();
-        if (blackGroup == null) blackGroup = blackImage.AddComponent<CanvasGroup>();
-
-        blackGroup.alpha = 0f;
-        blackGroup.blocksRaycasts = false;
-        blackGroup.interactable = false;
-        blackImage.SetActive(false);
-    }
+    
     
 
     public void StartGame()
     {
         playerChar.OnStartRespawn();
         playerChar.transform.position = posSpawnPlayer.position;
-        
-        HideBlackInstant(); // reset màn đen nếu đang hiện
     }
 
     public void RestartGame()
@@ -111,59 +76,5 @@ public class GameController : MonoBehaviour
         countPlayerDie++;
     }
 
-    public void ShowListMonster()
-    {
-        foreach (var monster in listMonsterControllers)
-            monster.gameObject.SetActive(true);
-    }
-
-    // ====== Monster 1 chết: Fade IN đen -> bật quái -> Fade OUT đen ======
-
-    /// Fade in -> chạy action ở giữa -> fade out
-    private void FadeBlackInOut(Action midAction, Action onComplete = null)
-    {
-        if (blackImage == null || blackGroup == null)
-        {
-            midAction?.Invoke();
-            onComplete?.Invoke();
-            return;
-        }
-
-        blackSeq?.Kill();
-        blackGroup.DOKill();
-
-        blackImage.SetActive(true);
-        blackGroup.alpha = 0f;
-
-        // muốn chặn thao tác lúc đang đen thì để true, không chặn thì để false
-        blackGroup.blocksRaycasts = true;
-        blackGroup.interactable = true;
-
-        blackSeq = DOTween.Sequence();
-        blackSeq.Append(blackGroup.DOFade(1f, blackFadeIn));
-        blackSeq.AppendCallback(() => midAction?.Invoke());
-        if (blackHold > 0f) blackSeq.AppendInterval(blackHold);
-        blackSeq.Append(blackGroup.DOFade(0f, blackFadeOut));
-
-        blackSeq.OnComplete(() =>
-        {
-            blackGroup.blocksRaycasts = false;
-            blackGroup.interactable = false;
-            blackImage.SetActive(false);
-            onComplete?.Invoke();
-        });
-    }
-
-    private void HideBlackInstant()
-    {
-        if (blackImage == null || blackGroup == null) return;
-
-        blackSeq?.Kill();
-        blackGroup.DOKill();
-
-        blackGroup.alpha = 0f;
-        blackGroup.blocksRaycasts = false;
-        blackGroup.interactable = false;
-        blackImage.SetActive(false);
-    }
+    
 }

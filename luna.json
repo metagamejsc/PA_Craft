@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29023,
-    "creativeName": "UAC_V09_ThuLH_ToiNV",
+    "applicationID": 32131,
+    "creativeName": "UAC_V10_ChiTM_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -17018,7 +17018,7 @@
                     },
                     {
                         "name": "sharedMaterials#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "localToWorldMatrix#get",
@@ -20926,11 +20926,11 @@
                     },
                     {
                         "name": "name#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "name#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "vertices#get",
@@ -21026,7 +21026,7 @@
                     },
                     {
                         "name": "subMeshCount#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "blendShapeCount#get",
@@ -21154,7 +21154,7 @@
                     },
                     {
                         "name": "SetTriangles$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetTriangles$4",
@@ -34243,26 +34243,6 @@
                     {
                         "name": "OnDestroy",
                         "excluded": true
-                    },
-                    {
-                        "name": "SetupBlackUI",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowListMonster",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FadeBlackInOut",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideBlackInstant",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetupTranform",
-                        "excluded": false
                     }
                 ]
             },
@@ -35793,24 +35773,6 @@
                 ]
             },
             {
-                "className": "Game.Common.Utilities.Billboard",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "GoldSlot",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35837,44 +35799,6 @@
                     {
                         "name": "AssignMonster",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "HAVIGAME.UI.AutoCanvasScaler",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Reset",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnValidate",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CalculatorScale",
-                        "excluded": true
-                    },
-                    {
-                        "name": "AutoUpdate",
-                        "excluded": true
                     }
                 ]
             },
@@ -35930,20 +35854,6 @@
                     },
                     {
                         "name": "UpdateUI",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "FaceCamera",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
                         "excluded": false
                     }
                 ]
@@ -36213,6 +36123,80 @@
                     {
                         "name": "MoveHandToPoint",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "BoxWithTilingUV",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "MeshName#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureUniqueMesh",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GenerateBox",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyMaterials",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateCollider",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "CameraMoveAndRotate",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveAndRotate",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "TriggerEffect",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": true
                     }
                 ]
             }

@@ -71,7 +71,7 @@ public class PlayerChar : BaseCharacter
     
     void Update()
     {
-        /*if (isDead)
+        if (isDead)
         {
             animator.SetBool("isJumping", false);
             animator.Play("metarig|Fall");
@@ -82,7 +82,7 @@ public class PlayerChar : BaseCharacter
             return;
 
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        animator.SetBool("isJumping", !isGrounded);*/
+        animator.SetBool("isJumping", !isGrounded);
 
         if (Input.GetKeyDown(KeyCode.Space))
             Jump();
@@ -102,12 +102,16 @@ public class PlayerChar : BaseCharacter
         }
 
         float moveX = 0, moveZ = 0;
+        
 #if UNITY_EDITOR
         moveX = Input.GetAxis("Horizontal");
         moveZ = Input.GetAxis("Vertical");
 #else
-        moveX = JoystickController.ins.Horizontal();
-        moveZ = JoystickController.ins.Vertical();
+        if (JoystickController.ins != null)
+        {
+            moveX = JoystickController.ins.Horizontal();
+            moveZ = JoystickController.ins.Vertical();
+        }
 #endif
 
         Vector3 inputDir = new Vector3(moveX, 0, moveZ);
