@@ -87,13 +87,13 @@ public class LunaManager : MonoBehaviour
 
     public void OnClickEndCard()
     {
-        HandPointerController.instance.StopHandPointer();
+        //HandPointerController.instance.StopHandPointer();
         Debug.Log("Click end card");
-        StopAllCoroutines();
+        /*StopAllCoroutines();
         for (int i = 0; i < doTweenAnimations.Length; i++)
         {
             doTweenAnimations[i].color=Color.cyan;
-        }
+        }*/
         Luna.Unity.Playable.InstallFullGame();
     }
 

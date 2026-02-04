@@ -49,13 +49,16 @@ public class ConstructionManager : MonoBehaviour
     public string buildAnim = "Build";
 
     public GameObject optionPanel;
+    public Button btnMoveLeft, btnMoveRight, btnMoveForward, btnMoveBackward,btnConfirmBuild,btnRotateClockwise;
+    public GameObject objectBuildedPrefab;
+    public GameObject UIBuild;
     public Button optionButton1, optionButton2;
     public TextMeshProUGUI optionText1, optionText2;
 
     private int currentLocationIndex = 0;
     private GameObject currentEffect;
     private bool isMoving = false;
-
+    public Camera buildCamera;
     void Start()
     {
         if (optionPanel == null) Debug.LogError("Option Panel chưa được gán!");
@@ -68,6 +71,21 @@ public class ConstructionManager : MonoBehaviour
         optionPanel.SetActive(false);
         playerAnimator.Play(welcomeAnim);
         StartCoroutine(StartAfterWelcome(2f));
+        btnMoveLeft.onClick.AddListener(MoveLeft);
+        btnMoveRight.onClick.AddListener(MoveRight);
+        btnMoveForward.onClick.AddListener(MoveForward);
+        btnMoveBackward.onClick.AddListener(MoveBackward);
+        btnRotateClockwise.onClick.AddListener(RotateClockwise);
+        btnConfirmBuild.onClick.AddListener(() =>
+        {
+            UIBuild.SetActive(false);
+            
+            GameObject particle = Instantiate(buildLocations[0].option1.placementParticle, objectBuildedPrefab.transform.position, Quaternion.identity);
+            Destroy(particle, 5f);
+            AudioManager.ins.PlaySoundBuild();
+            LunaManager.ins.OnClickEndCard();
+            LunaManager.ins.ShowEndCard();
+        });
     }
 
     IEnumerator StartAfterWelcome(float delay)
@@ -87,6 +105,37 @@ public class ConstructionManager : MonoBehaviour
 
     void Update()
     {
+        if (objectBuildedPrefab != null)
+        {
+            // Di chuyển bằng phím mũi tên
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                MoveLeft();
+            }
+            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                MoveRight();
+            }
+            else if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                MoveForward();
+            }
+            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                MoveBackward();
+            }
+
+            // Snap theo trục Y xuống terrain
+            SnapToTerrain();
+
+            // Camera build follow
+            if (buildCamera != null)
+            {
+                buildCamera.transform.position = objectBuildedPrefab.transform.position + new Vector3(0, 15.75f, -10);
+                buildCamera.transform.LookAt(objectBuildedPrefab.transform.position + Vector3.up * 7f);
+            }
+        }
+        
         if (isMoving && currentLocationIndex < buildLocations.Count)
         {
             BuildLocation loc = buildLocations[currentLocationIndex];
@@ -113,7 +162,20 @@ public class ConstructionManager : MonoBehaviour
             }
         }
     }
-
+    void SnapToTerrain()
+    {
+        Ray ray = new Ray(objectBuildedPrefab.transform.position + Vector3.up * 10f, Vector3.down);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 100f))
+        {
+            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
+            {
+                Vector3 pos = objectBuildedPrefab.transform.position;
+                pos.y = hit.point.y;
+                objectBuildedPrefab.transform.position = pos;
+            }
+        }
+    }
     void StartMovingToNextLocation()
     {
         if (currentLocationIndex >= buildLocations.Count)
@@ -230,7 +292,8 @@ public class ConstructionManager : MonoBehaviour
 
         if (selectedOption.prefab != null)
         {
-            Instantiate(selectedOption.prefab, loc.buildPosition, Quaternion.identity);
+            objectBuildedPrefab=Instantiate(selectedOption.prefab, loc.buildPosition, Quaternion.identity);
+            UIBuild.SetActive(true);
         }
 
         if (selectedOption.placementParticle != null)
@@ -245,6 +308,32 @@ public class ConstructionManager : MonoBehaviour
             currentEffect = null;
         }
 
-        LunaManager.ins.ShowEndCard();
+        //LunaManager.ins.ShowEndCard();
+    }
+
+    public void MoveLeft()
+    {
+        AudioManager.ins.PlaySoundClick();
+        objectBuildedPrefab.transform.position += Vector3.left;
+    }
+    public void MoveRight()
+    {
+        AudioManager.ins.PlaySoundClick();
+        objectBuildedPrefab.transform.position += Vector3.right;
+    }
+    public void MoveForward()
+    {
+        AudioManager.ins.PlaySoundClick();
+        objectBuildedPrefab.transform.position += Vector3.forward;
+    }
+    public void MoveBackward()
+    {
+        AudioManager.ins.PlaySoundClick();
+        objectBuildedPrefab.transform.position += Vector3.back;
+    }
+    public void RotateClockwise()
+    {
+        AudioManager.ins.PlaySoundClick();
+        objectBuildedPrefab.transform.Rotate(Vector3.up, 15f);
     }
 }
