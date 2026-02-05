@@ -12,6 +12,7 @@ public class HandPointerController : MonoBehaviour
 
     public RectTransform[] slots; // Mảng các ô inventory
     public GameObject[] effect;
+    public float scaleFactor = 1.1f; // Hệ số scale khi di chuyển đến ô
 
     private int currentSlotIndex = 0; // Theo dõi slot hiện tại
 
@@ -22,7 +23,7 @@ public class HandPointerController : MonoBehaviour
 
         if (enableSlotScaling)
         {
-            slots[0].localScale = Vector3.one * 1.2f;
+            slots[0].localScale = Vector3.one * scaleFactor;
         }
 
         StartCoroutine(MoveHandToSlots());
@@ -54,7 +55,7 @@ public class HandPointerController : MonoBehaviour
             // Scale và bật effect cho slot mới
             if (enableSlotScaling)
             {
-                slots[nextSlotIndex].localScale = Vector3.one * 1.2f;
+                slots[nextSlotIndex].localScale = Vector3.one * scaleFactor;
             }
 
             if (effect != null && effect.Length > nextSlotIndex && effect[nextSlotIndex] != null)
