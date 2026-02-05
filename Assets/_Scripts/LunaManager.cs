@@ -9,14 +9,21 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số lần bắn ra Store")]public int countDropFinal;
+    public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
-    [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
+    public int canReplay=0;
+    public float playerSpeed=1.5f;
     public float playerJumpForce=40f;
-    [LunaPlaygroundField("Lightning")] public float Lightning=5;
-    [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
+     public float Lightning=5;
+     public Color colorLight=Color.black;
+    
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
+    [LunaPlaygroundAsset("BG")] public Texture bgTexture;
+    [LunaPlaygroundField("Color Bg")] public Color bgColor;
+    [LunaPlaygroundField("Positon Text")] public Vector2 positionText;
+    public RectTransform textRect;
+    public RawImage bgImage;
+    
     public float speedMonster=5f;
     public float timeSpawn=3f;
     public float starterGold=500;
@@ -50,6 +57,28 @@ public class LunaManager : MonoBehaviour
         btnRestart.SetActive(canReplay>=1);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
+        SetTexture(bgImage,bgTexture);
+        bgImage.color = bgColor;
+        textRect.anchoredPosition = positionText;
+    }
+    public void SetTexture(RawImage raw,Texture tex)
+    {
+        var fitter = raw.GetComponent<AspectRatioFitter>();
+
+        raw.texture = tex;
+
+        if (tex != null)
+        {
+            fitter.aspectRatio = (float)tex.width / tex.height;
+        }
+
+        /*// đảm bảo phủ parent theo anchor
+        var rt = (RectTransform)transform;
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        rt.pivot = new Vector2(0.5f, 0.5f);*/
     }
     public void ReplayGame()
     {
