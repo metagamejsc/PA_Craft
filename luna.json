@@ -1,8 +1,8 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29023,
-    "creativeName": "UAC_V09_ThuLH_ToiNV",
+    "applicationID": 0,
+    "creativeName": "SFMS_V04_NgocNDL_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -16160,7 +16160,7 @@
                     },
                     {
                         "name": "Rotate$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RotateAround",
@@ -22060,7 +22060,7 @@
                     },
                     {
                         "name": "isKinematic#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isKinematic#set",
@@ -29409,6 +29409,18 @@
                     {
                         "name": "ShowEndCardEmpty",
                         "excluded": false
+                    },
+                    {
+                        "name": "ShowEndCardPanel",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ShowendCardEmptyPanel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowWinCardPanel",
+                        "excluded": true
                     }
                 ]
             },
@@ -29434,6 +29446,10 @@
                     },
                     {
                         "name": "HideStep",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
                         "excluded": false
                     }
                 ]
@@ -35935,20 +35951,6 @@
                 ]
             },
             {
-                "className": "FaceCamera",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "MonsterBuyTrigger",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -36212,6 +36214,56 @@
                     },
                     {
                         "name": "MoveHandToPoint",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "EnemyAI",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AttackPlayer",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TakeDamage",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FlashRed",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Die",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DeathSequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundOnce",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundLoop",
                         "excluded": false
                     }
                 ]

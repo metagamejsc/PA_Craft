@@ -97,7 +97,10 @@ public class PlayerChar : BaseCharacter
     {
         if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
         {
-            rigidbody.velocity = Vector3.zero;
+            if (!rigidbody.isKinematic)
+            {
+                rigidbody.velocity = Vector3.zero;
+            }
             return;
         }
 
@@ -126,8 +129,11 @@ public class PlayerChar : BaseCharacter
 
         Vector3 velocity = moveDir.normalized * moveSpeed;
         velocity.y = rigidbody.velocity.y;
-        rigidbody.velocity = velocity;
-
+        
+        if (!rigidbody.isKinematic)
+        {
+            rigidbody.velocity = velocity;
+        }
         if (isMoving)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDir);
@@ -148,6 +154,7 @@ public class PlayerChar : BaseCharacter
 
     public void Shoot()
     {
+        
         animator.SetTrigger("Shoot");
         //AudioManager.ins.PlaySoundFire();
         LunaManager.ins.CheckClickShowEndCard();
@@ -230,9 +237,10 @@ public class PlayerChar : BaseCharacter
         if (other.CompareTag("Enemy") && !LunaManager.ins.isCretivePause)
         {
             other.GetComponent<BoxCollider>().enabled = false;
-            AudioManager.ins.PlaySoundReward();
-            var effect = Instantiate(endEffect);
-            effect.transform.position = transform.position + new Vector3(0, 0, 2);
+            //AudioManager.ins.PlaySoundReward();
+            //var effect = Instantiate(endEffect);
+            TakeDamage(999);
+            //effect.transform.position = transform.position + new Vector3(0, 0, 2);
         }
     }
 

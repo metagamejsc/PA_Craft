@@ -17,10 +17,11 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
-    public float speedMonster=5f;
+    [LunaPlaygroundField("Speed Monster")]public float speedMonster=5f;
+    //[LunaPlaygroundField("Health Monster")]public float healthMonster=3f;
     public float timeSpawn=3f;
     public float starterGold=500;
-    public Light directionalLight;
+    public Light[] directionalLight;
     public bool isCretivePause;
     public GameObject btnRestart;
     private void Awake()
@@ -36,8 +37,11 @@ public class LunaManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        directionalLight.intensity = Lightning;
-        directionalLight.color = colorLight;
+        foreach (Light VARIABLE in directionalLight)
+        {
+            VARIABLE.intensity = Lightning;
+            VARIABLE.color = colorLight;
+        }
         Luna.Unity.LifeCycle.OnPause += PauseGameplay;
         Luna.Unity.LifeCycle.OnResume += ResumeGameplay;
         foreach (var VARIABLE in lstBtnInstall)
@@ -91,7 +95,7 @@ public class LunaManager : MonoBehaviour
         if (isCretivePause) return;
         isCretivePause = true;
         AudioManager.ins.PlayMusicLose();
-        EndCard.SetActive(true);
+        Invoke(nameof(ShowEndCardPanel), 2f);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
@@ -100,7 +104,8 @@ public class LunaManager : MonoBehaviour
         if (isCretivePause) return;
         isCretivePause = true;
         //AudioManager.ins.PlayMusicLose();
-        EndCardEmpty.SetActive(true);
+        //Invoke(nameof(ShowendCardEmptyPanel), );
+        ShowendCardEmptyPanel();
         Debug.Log("ShowEndCardEmpty");
         Luna.Unity.LifeCycle.GameEnded();
     }
@@ -109,7 +114,7 @@ public class LunaManager : MonoBehaviour
         if (isCretivePause) return;
         isCretivePause = true;
         AudioManager.ins.PlayMusicWin();
-        WinCard.SetActive(true);
+        Invoke(nameof(ShowWinCardPanel), 2f);
         Debug.Log("Show win card");
         Luna.Unity.LifeCycle.GameEnded();
     }
@@ -119,4 +124,16 @@ public class LunaManager : MonoBehaviour
         Luna.Unity.Playable.InstallFullGame();
     }
 
+    public void ShowEndCardPanel()
+    {
+        EndCard.SetActive(true);
+    }
+    public void ShowendCardEmptyPanel()
+    {
+        EndCardEmpty.SetActive(true);
+    }
+    public void ShowWinCardPanel()
+    {
+        WinCard.SetActive(true);
+    }
 }

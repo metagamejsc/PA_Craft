@@ -76,6 +76,10 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (LunaManager.ins.isCretivePause)
+        {
+            return;
+        }
         if (!allowInput) return;
 
         float deltaX = eventData.delta.x * rotationSpeed;
@@ -89,12 +93,20 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (LunaManager.ins.isCretivePause)
+        {
+            return;
+        }
         if (!allowInput) return;
-        tutorialUI.SetActive(false);
+        //tutorialUI.SetActive(false);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (LunaManager.ins.isCretivePause)
+        {
+            return;
+        }
         if (!allowInput) return;
 
         onMouseUpShoot?.Invoke();
@@ -103,6 +115,10 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     private void LateUpdate()
     {
+        if (LunaManager.ins.isCretivePause)
+        {
+            return;
+        }
         if (target == null || cameraMain == null) return;
 
         Quaternion rotation = Quaternion.Euler(xRotation, yRotation, 0f);
