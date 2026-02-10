@@ -16,6 +16,8 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -112,7 +114,14 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.42989275
+        functionName: PlaySoundEvent
+        data: attack
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}
@@ -278,7 +287,14 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.077586494
+        functionName: PlaySoundEvent
+        data: dead
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}
@@ -816,15 +832,15 @@ ModelImporter:
       curves: []
       events:
       - time: 0.17982483
-        functionName: OnAnimationEvent
-        data: run_step
+        functionName: PlaySoundEvent
+        data: move
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
       - time: 0.6878994
-        functionName: OnAnimationEvent
-        data: run_step
+        functionName: PlaySoundEvent
+        data: move
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
@@ -953,15 +969,15 @@ ModelImporter:
       curves: []
       events:
       - time: 0.20040995
-        functionName: OnAnimationEvent
-        data: walk_step
+        functionName: PlaySoundEvent
+        data: move
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
       - time: 0.64921576
-        functionName: OnAnimationEvent
-        data: walk_step
+        functionName: PlaySoundEvent
+        data: move
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0

@@ -9,27 +9,19 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    public int countDropFinal;
+    [LunaPlaygroundField("Giết số enemy để ra store")]public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    public int canReplay=0;
-    public float playerSpeed=1.5f;
-    public float playerJumpForce=40f;
-     public float Lightning=5;
-     public Color colorLight=Color.black;
-    
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
-    [LunaPlaygroundAsset("BG")] public Texture bgTexture;
-    [LunaPlaygroundField("Color Bg")] public Color bgColor;
-    [LunaPlaygroundField("Positon Text")] public Vector2 positionText;
-    public RectTransform textRect;
-    public RawImage bgImage;
+    [LunaPlaygroundField("Range Time Spawn")] public Vector2 rangeTimeSpawn;
+    [LunaPlaygroundField("Range Speed Monster")] public Vector2 rangeSpeedMonster;
+    [LunaPlaygroundField("Time Delay Attack Player")] public float timeDelayAttackPlayer=0.8f;
+    [LunaPlaygroundField("Health Player")] public float healthPlayer=1;
     
-    public float speedMonster=5f;
-    public float timeSpawn=3f;
-    public float starterGold=500;
+    [LunaPlaygroundField("Light Intensity")]public float lightIntensity=1f;
+    [LunaPlaygroundField("Light Color")]public Color colorLight=Color.white;
     public Light directionalLight;
     public bool isCretivePause;
-    public GameObject btnRestart;
+
     private void Awake()
     {
         ins = this;
@@ -43,8 +35,9 @@ public class LunaManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        directionalLight.intensity = Lightning;
+        directionalLight.intensity = lightIntensity;
         directionalLight.color = colorLight;
+        
         Luna.Unity.LifeCycle.OnPause += PauseGameplay;
         Luna.Unity.LifeCycle.OnResume += ResumeGameplay;
         foreach (var VARIABLE in lstBtnInstall)
@@ -54,12 +47,7 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         EndCardEmpty.SetActive(false);
         WinCard.SetActive(false);
-        btnRestart.SetActive(canReplay>=1);
-        //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
-        SetTexture(bgImage,bgTexture);
-        bgImage.color = bgColor;
-        textRect.anchoredPosition = positionText;
     }
     public void SetTexture(RawImage raw,Texture tex)
     {
@@ -72,18 +60,9 @@ public class LunaManager : MonoBehaviour
             fitter.aspectRatio = (float)tex.width / tex.height;
         }
 
-        /*// đảm bảo phủ parent theo anchor
-        var rt = (RectTransform)transform;
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
-        rt.pivot = new Vector2(0.5f, 0.5f);*/
     }
     public void ReplayGame()
     {
-        canReplay--;
-        btnRestart.SetActive(canReplay>=1);
         isCretivePause = false;
         EndCard.SetActive(false);
         var timeEndCreativeRemaining = timeEndCreative - Time.realtimeSinceStartup;
@@ -147,5 +126,4 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Click end card");
         Luna.Unity.Playable.InstallFullGame();
     }
-
 }
