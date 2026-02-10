@@ -39,6 +39,6 @@ public class GameController : MonoBehaviour
     public void SetIdWeapon(int id)
     {
         idWeapon = id;
-        playerChar.CraftWeapon(id);
+        //playerChar.CraftWeapon(id);
     }
 }

@@ -32,6 +32,11 @@ public class TerrainGenerator2 : MonoBehaviour
 
     List<ChunkPos> toGenerate = new List<ChunkPos>();
     public int wallThickness => LunaManager.ins.wallThickness; // Độ dày tường (từ 1 trở lên)
+    
+    [Header("One Block Mode")]
+    public bool isOneBlockMode = false; // gán true để chạy chế độ Sky One Block
+    public Vector3Int oneBlockPosition = new Vector3Int(0, 0, 0); // Vị trí duy nhất có block
+
 
     void Start()
     {
@@ -243,6 +248,22 @@ void SpawnTreeAtPosition(int x, int z)
 
     BlockType GetBlockType(int x, int y, int z)
     {
+        if (isOneBlockMode)
+        {
+            Vector3 playerPos = player.position;
+            int px = Mathf.FloorToInt(playerPos.x);
+            int py = Mathf.FloorToInt(playerPos.y - 1); // block dưới chân
+            int pz = Mathf.FloorToInt(playerPos.z);
+
+            if (x == px && y == py && z == pz)
+            {
+                return BlockType.Dirt; // hoặc loại block bạn muốn
+            }
+            else
+            {
+                return BlockType.Air;
+            }
+        }
         // --- Cấu hình vị trí hai hòn đảo ---
         // Vị trí trung tâm của hòn đảo 1 (gần vị trí người chơi bắt đầu)
         Vector2Int island1Center = new Vector2Int(Mathf.RoundToInt(player.position.x), Mathf.RoundToInt(player.position.z)); // Vị trí trung tâm của hòn đảo 1

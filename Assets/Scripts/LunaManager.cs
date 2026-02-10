@@ -15,6 +15,8 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
     [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
+    [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
+    [LunaPlaygroundField("Player JumpForce")]public float playerJumpForce=40f;
     public bool isCretivePause;
     private void Awake()
     {

@@ -20,74 +20,107 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         ins= this;
     }
 
-    public float mouseSensitivity = 180;
-
-    public Transform playerBody;
-    public Camera cameraMain;
-
-    private float xRotation = 0f;
     public Action onClick;
     
-    // Start is called before the first frame update
-    void Start()
-    {
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
-
-        /*mouseSensitivity = 180;
-
-        if(Application.isEditor)
-            mouseSensitivity = 400;*/
-    }
-
+    public float distance = 5f;
+    public float minDistance = 1.2f;
+    public float maxDistance = 5f;
+    public float heightOffset = 1.5f;
+    public float collisionBuffer = 0.2f;
+    public Transform target;
+    public Camera cameraMain;
+    public LayerMask collisionMask;
+    public float rotationSpeed = 0.2f;
+    public float yMinLimit = -30f;
+    public float yMaxLimit = 80f;
+    
+    private float xRotation = 0f;
+    private float yRotation = 0f;  // yaw
+    public bool allowInput = true;
+    
     float mx;
 
   
+    public void SetRotationFromDirection(Vector3 directionFromTargetToCamera)
+    {
+        if (directionFromTargetToCamera.sqrMagnitude < 0.0001f) return;
+
+        // rotation dùng trong LateUpdate: rotation * Vector3.forward là hướng nhìn ra trước camera
+        // CameraPos = targetPos - (rotation * forward * distance)
+        // => (rotation*forward) chính là hướng từ camera -> target (ngược với direction từ target -> camera)
+        Vector3 camToTargetDir = -directionFromTargetToCamera.normalized;
+        Quaternion rot = Quaternion.LookRotation(camToTargetDir, Vector3.up);
+
+        Vector3 euler = rot.eulerAngles;
+        SetRotationEuler(euler);
+    }
+    public void SetRotationEuler(Vector3 euler)
+    {
+        float pitch = NormalizeAngle(euler.x);
+        float yaw = NormalizeAngle(euler.y);
+
+        xRotation = Mathf.Clamp(pitch, yMinLimit, yMaxLimit);
+        yRotation = yaw;
+    }
+    private float NormalizeAngle(float angle)
+    {
+        angle %= 360f;
+        if (angle > 180f) angle -= 360f;
+        return angle;
+    }
+
     public void OnDrag(PointerEventData eventData)
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        if (!allowInput) return;
 
-        if(Mathf.Abs(mouseX) > 20 || Mathf.Abs(mouseY) > 20)
-            return;
+        float deltaX = eventData.delta.x * rotationSpeed;
+        float deltaY = eventData.delta.y * rotationSpeed;
 
-        //camera's x rotation (look up and down)
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        yRotation += deltaX;
+        xRotation -= deltaY;
+        xRotation = Mathf.Clamp(xRotation, yMinLimit, yMaxLimit);
+    }
 
-        cameraMain.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
 
-        //mx = Input.GetAxis("Mouse X");
-        
-        //player body's y rotation (turn left and right)
-        playerBody.Rotate(Vector3.up * mouseX);
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (!allowInput) return;
+        StartCoroutine(DestroyBlock());
+        target.GetComponent<PlayerChar>().HandleAttack();
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (!allowInput) return;
         StopAllCoroutines();
-        playerBody.GetComponent<PlayerChar>().CancleFire();
         blockPrefab2.SetActive(false);
     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        StartCoroutine(DestroyBlock());
-        playerBody.GetComponent<PlayerChar>().HandleAttack();
-        //DesTroyBlock();
-    }
 
-    private void Update()
+    private void LateUpdate()
     {
-        /*if (isHold)
+        if (target == null || cameraMain == null) return;
+
+        Quaternion rotation = Quaternion.Euler(xRotation, yRotation, 0f);
+        Vector3 targetPosition = target.position + Vector3.up * heightOffset;
+
+        Vector3 desiredCameraPos = targetPosition - (rotation * Vector3.forward * distance);
+
+        RaycastHit hit;
+        float correctedDistance = distance;
+
+        if (Physics.Raycast(targetPosition, desiredCameraPos - targetPosition, out hit, distance + collisionBuffer, collisionMask))
         {
-            timeHold+=Time.deltaTime;
-            if (timeHold>0.1f)
-            {
-                DesTroyBlock();
-            }
-        }*/
-        
+            correctedDistance = Mathf.Clamp(hit.distance - collisionBuffer, minDistance, maxDistance);
+        }
+
+        Vector3 finalCameraPos = targetPosition - (rotation * Vector3.forward * correctedDistance);
+
+        float minY = target.position.y + 0.3f;
+        finalCameraPos.y = Mathf.Max(finalCameraPos.y, minY);
+
+        cameraMain.transform.position = finalCameraPos;
+        cameraMain.transform.LookAt(targetPosition);
     }
 
     public void DesTroyBlock()
