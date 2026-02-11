@@ -16,8 +16,8 @@ public class SkinSwitcher : MonoBehaviour
         }
         */
         
-        targets[0].SetActive(true);
-        buttons[0].transform.GetChild(2).GetComponent<Image>().gameObject.SetActive(true);
+        //targets[0].SetActive(true);
+        //buttons[0].transform.GetChild(2).GetComponent<Image>().gameObject.SetActive(true);
     }
 
     public void ChangeSkin(int skinIndex)
