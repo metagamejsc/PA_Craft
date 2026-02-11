@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -7,49 +5,106 @@ using Random = UnityEngine.Random;
 public class SpawnCreeper : MonoBehaviour
 {
     public static List<ZombieChar> zombieChars = new List<ZombieChar>();
-    [SerializeField]GameObject creeperPrefab;
-    [SerializeField]int numberOfCreepers = 5;
-    public Bounds terrainBounds;
-    public Vector3 center;
 
-    public void Start()
+    [SerializeField] GameObject[] creeperPrefab;
+    [SerializeField] int numberOfCreepers = 5;
+
+    public Vector2 spawnAreaSize = new Vector2(4f, 4f);
+    public float spacingPadding = 0.3f;
+
+    void Start()
     {
-        SpawnEnemy();
+        //SpawnEnemy();
+    }
+    void OnEnable()
+    {
+        CollectChildrenEnemies();
+    }
+    public void CollectChildrenEnemies()
+    {
+        zombieChars.Clear();
+
+        foreach (Transform child in transform)
+        {
+            ZombieChar zombie = child.GetComponent<ZombieChar>();
+            if (zombie != null)
+            {
+                zombieChars.Add(zombie);
+            }
+        }
     }
 
     public void SpawnEnemy()
     {
-        if (creeperPrefab == null)
+        if (creeperPrefab == null || creeperPrefab.Length == 0)
         {
             Debug.LogError("Creeper prefab is not assigned!");
             return;
         }
 
-        for (int i = 0; i < numberOfCreepers; i++)
+        List<Vector3> positions = GenerateSpawnPositions();
+
+        for (int i = 0; i < positions.Count; i++)
         {
-            Vector3 randomPosition = new Vector3(0,0.5f,0)+new Vector3(0,0.2f,0)+new Vector3(Random.Range(-0.5f,0.5f), 0, Random.Range(-0.5f, 0.5f));
-            GameObject creeper = Instantiate(creeperPrefab, randomPosition, Quaternion.identity);
-            creeper.transform.SetParent(transform); // Set parent to this object
+            GameObject creeper = Instantiate(
+                creeperPrefab[Random.Range(0, creeperPrefab.Length)],
+                positions[i],
+                Quaternion.identity
+            );
+
+            creeper.transform.SetParent(transform);
             zombieChars.Add(creeper.GetComponent<ZombieChar>());
         }
     }
-public static void KillEnemy(ZombieChar zombieChar)
+
+    List<Vector3> GenerateSpawnPositions()
+    {
+        List<Vector3> result = new List<Vector3>();
+
+        int gridSize = Mathf.CeilToInt(Mathf.Sqrt(numberOfCreepers));
+
+        float cellWidth = spawnAreaSize.x / gridSize;
+        float cellHeight = spawnAreaSize.y / gridSize;
+
+        int count = 0;
+
+        for (int x = 0; x < gridSize; x++)
+        {
+            for (int z = 0; z < gridSize; z++)
+            {
+                if (count >= numberOfCreepers)
+                    return result;
+
+                Vector3 pos = GetPositionInCell(x, z, cellWidth, cellHeight);
+                result.Add(pos);
+                count++;
+            }
+        }
+
+        return result;
+    }
+
+    Vector3 GetPositionInCell(int xIndex, int zIndex, float cellWidth, float cellHeight)
+    {
+        float baseX = -spawnAreaSize.x * 0.5f + xIndex * cellWidth;
+        float baseZ = -spawnAreaSize.y * 0.5f + zIndex * cellHeight;
+
+        float offsetX = Random.Range(spacingPadding, cellWidth - spacingPadding);
+        float offsetZ = Random.Range(spacingPadding, cellHeight - spacingPadding);
+
+        return new Vector3(
+            baseX + offsetX,
+            0.5f,
+            baseZ + offsetZ
+        );
+    }
+
+    public static void KillEnemy(ZombieChar zombieChar)
     {
         if (zombieChars.Contains(zombieChar))
         {
             zombieChars.Remove(zombieChar);
             Destroy(zombieChar.gameObject);
         }
-        else
-        {
-            Debug.LogWarning("ZombieChar not found in the list.");
-        }
-    }
-    private Vector3 GetRandomPositionInBounds(Bounds bounds)
-    {
-        float x = Random.Range(bounds.min.x, bounds.max.x);
-        float y = Random.Range(bounds.min.y, bounds.max.y);
-        float z = Random.Range(bounds.min.z, bounds.max.z);
-        return new Vector3(x, y, z);
     }
 }

@@ -7,19 +7,19 @@ public class ZombieChar : BaseCharacter
 {
     public Material material;
     public SkinnedMeshRenderer[] lstMaterials;
-    
+
     [Header("Movement")]
-    
+
     public float idleTimeMin = 1f;
     public float idleTimeMax = 3f;
     public float moveTimeMin = 2f;
     public float moveTimeMax = 5f;
-    
+
     private bool isMovingRandomly = false;
     private Vector3 randomDirection;
     private float currentMoveTime = 0f;
     private float currentIdleTime = 0f;
-    
+
     // Biên giới terrain
     private Bounds terrainBounds;
     private bool hasBounds = false;
@@ -44,7 +44,7 @@ public class ZombieChar : BaseCharacter
 
     private void InitializeTerrainBounds()
     {
-        
+
     }
 
     protected override void Update()
@@ -133,7 +133,8 @@ public class ZombieChar : BaseCharacter
                 if (!hasBounds || terrainBounds.Contains(newPos))
                 {
                     transform.position = newPos;
-                    animator.SetBool(IsMoving, true);
+                    if (animator != null) { animator.SetBool(IsMoving, true); }
+
                 }
                 else
                 {
@@ -189,8 +190,8 @@ public class ZombieChar : BaseCharacter
         Collider[] hits = Physics.OverlapSphere(transform.position, detectionRadiusMax);
         target = hits
             .Select(h => h.transform)
-            .Where(t => t.CompareTag("Player") && 
-                        t.TryGetComponent<BaseCharacter>(out var player) && 
+            .Where(t => t.CompareTag("Player") &&
+                        t.TryGetComponent<BaseCharacter>(out var player) &&
                         !player.isDead)
             .OrderBy(t => Vector3.Distance(transform.position, t.position))
             .FirstOrDefault();
@@ -235,5 +236,5 @@ public class ZombieChar : BaseCharacter
     }
 
     // Gọi khi cần cập nhật bounds (nếu map mở rộng theo thời gian)
-   
+
 }
