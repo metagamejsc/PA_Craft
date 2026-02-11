@@ -10,18 +10,17 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    /*[LunaPlaygroundField("CountDrop")] */public int countDropFinal;
+    [LunaPlaygroundField("Click to store")] public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Light Color")] public Color lightColor=Color.white;
     [LunaPlaygroundField("Light Instensity")] public float lightInstensity=1;
     public Light mainLight;
     
-    /*[LunaPlaygroundField("NoiseIntensity")] */public float noiseIntensity=10;
-    /*[LunaPlaygroundField("LandNoiseScale")] */public float landNoiseScale=0.8f;
-    public Image[] doTweenAnimations;
     public bool isCretivePause;
-    public float timeActive = 0;
-    public int numberActive = 0;
+
+    [LunaPlaygroundAsset("BG")] public Texture bgTexture;
+    [LunaPlaygroundField("Color Bg")] public Color bgColor;
+    public RawImage bgImage;
     private void Awake()
     {
         ins = this;
@@ -46,6 +45,8 @@ public class LunaManager : MonoBehaviour
         mainLight.color=lightColor;
         mainLight.intensity=lightInstensity;
         
+        SetTexture(bgImage,bgTexture);
+        bgImage.color = bgColor;
     }
 
     public void CheckClickShowEndCard()
@@ -71,14 +72,19 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Load game");
         Time.timeScale = 1;
     }
+    public void SetTexture(RawImage raw,Texture tex)
+    {
+        var fitter = raw.GetComponent<AspectRatioFitter>();
 
+        raw.texture = tex;
+
+        if (tex != null)
+        {
+            fitter.aspectRatio = (float)tex.width / tex.height;
+        }
+    }
     public void ShowEndCard()
     {
-        StopAllCoroutines();
-        for (int i = 0; i < doTweenAnimations.Length; i++)
-        {
-            doTweenAnimations[i].color=Color.cyan;
-        }
         AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
@@ -87,13 +93,7 @@ public class LunaManager : MonoBehaviour
 
     public void OnClickEndCard()
     {
-        //HandPointerController.instance.StopHandPointer();
         Debug.Log("Click end card");
-        /*StopAllCoroutines();
-        for (int i = 0; i < doTweenAnimations.Length; i++)
-        {
-            doTweenAnimations[i].color=Color.cyan;
-        }*/
         Luna.Unity.Playable.InstallFullGame();
     }
 
