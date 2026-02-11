@@ -162,6 +162,7 @@ public class EnemyEncounter : MonoBehaviour, IInteractable
         enemyAnimator.SetTrigger(dieTrigger);
         if (isBoss)
         {
+            GetComponent<AudioSource>().Play();
             LunaManager.ins.ShowEndCardEmpty();
         }
     }
