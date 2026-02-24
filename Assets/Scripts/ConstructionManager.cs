@@ -11,6 +11,7 @@ public class ConstructionManager : MonoBehaviour
     [Header("Camera Transition Settings")]
     public float cameraMoveDuration = 1f;
     public float cameraRotateDuration = 1f;
+    public GameObject UIDaily;
 
     [System.Serializable]
     public class BuildOption
@@ -70,7 +71,7 @@ public class ConstructionManager : MonoBehaviour
 
         optionPanel.SetActive(false);
         playerAnimator.Play(welcomeAnim);
-        StartCoroutine(StartAfterWelcome(2f));
+        //StartCoroutine(StartAfterWelcome(2f));
         btnMoveLeft.onClick.AddListener(MoveLeft);
         btnMoveRight.onClick.AddListener(MoveRight);
         btnMoveForward.onClick.AddListener(MoveForward);
@@ -86,6 +87,13 @@ public class ConstructionManager : MonoBehaviour
             LunaManager.ins.OnClickEndCard();
             LunaManager.ins.ShowEndCard();
         });
+        
+        BuildLocation loc = buildLocations[currentLocationIndex];
+        optionButton1.onClick.RemoveAllListeners();
+        optionButton1.onClick.AddListener(() => OnOptionSelected(loc.option1));
+
+        optionButton2.onClick.RemoveAllListeners();
+        optionButton2.onClick.AddListener(() => OnOptionSelected(loc.option2));
     }
 
     IEnumerator StartAfterWelcome(float delay)
@@ -132,11 +140,11 @@ public class ConstructionManager : MonoBehaviour
             if (buildCamera != null)
             {
                 buildCamera.transform.position = objectBuildedPrefab.transform.position + new Vector3(0, 15.75f, -10);
-                buildCamera.transform.LookAt(objectBuildedPrefab.transform.position + Vector3.up * 7f);
+                buildCamera.transform.LookAt(objectBuildedPrefab.transform.position + Vector3.up );
             }
         }
         
-        if (isMoving && currentLocationIndex < buildLocations.Count)
+        /*if (isMoving && currentLocationIndex < buildLocations.Count)
         {
             BuildLocation loc = buildLocations[currentLocationIndex];
             Vector3 targetPos = loc.playerDestination;
@@ -160,7 +168,7 @@ public class ConstructionManager : MonoBehaviour
                 playerAnimator.SetBool("IsMoving", false);
                 ArriveAtLocation();
             }
-        }
+        }*/
     }
     void SnapToTerrain()
     {
@@ -190,7 +198,7 @@ public class ConstructionManager : MonoBehaviour
 
         BuildLocation loc = buildLocations[currentLocationIndex];
 
-        StartCoroutine(MoveAndRotateCamera(loc.cameraPosition, loc.cameraRotation, currentLocationIndex == 0 ? null : buildLocations[currentLocationIndex - 1]));
+        //StartCoroutine(MoveAndRotateCamera(loc.cameraPosition, loc.cameraRotation, currentLocationIndex == 0 ? null : buildLocations[currentLocationIndex - 1]));
     }
 
     IEnumerator MoveAndRotateCamera(Vector3 targetPos, Vector3 targetEulerAngles, BuildLocation lastpos = null)
@@ -229,7 +237,7 @@ public class ConstructionManager : MonoBehaviour
 
         SetButtonIcon(optionButton1, loc.option1.icon);
         SetButtonIcon(optionButton2, loc.option2.icon);
-
+        
         optionButton1.onClick.RemoveAllListeners();
         optionButton1.onClick.AddListener(() => OnOptionSelected(loc.option1));
 
@@ -271,6 +279,7 @@ public class ConstructionManager : MonoBehaviour
 
     void OnOptionSelected(BuildOption selectedOption)
     {
+        UIDaily.SetActive(false);
         AudioManager.ins.PlaySoundBuild();
         BuildLocation loc = buildLocations[currentLocationIndex];
         optionPanel.SetActive(false);
