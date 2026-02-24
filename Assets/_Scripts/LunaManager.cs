@@ -9,24 +9,17 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    public int countDropFinal;
+    [LunaPlaygroundField("Số lần click ra store")]public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     public int canReplay=0;
-    public float playerSpeed=1.5f;
-    public float playerJumpForce=40f;
-     public float Lightning=5;
-     public Color colorLight=Color.black;
-    
-    [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
+    [LunaPlaygroundField("Light Ins")]public float Lightning=5;
+    [LunaPlaygroundField("Light Color")]public Color colorLight=Color.black;
+    [LunaPlaygroundAsset("Music")]public AudioClip bgMusic;
     [LunaPlaygroundAsset("BG")] public Texture bgTexture;
     [LunaPlaygroundField("Color Bg")] public Color bgColor;
-    [LunaPlaygroundField("Positon Text")] public Vector2 positionText;
+    public Vector2 positionText;
     public RectTransform textRect;
     public RawImage bgImage;
-    
-    public float speedMonster=5f;
-    public float timeSpawn=3f;
-    public float starterGold=500;
     public Light directionalLight;
     public bool isCretivePause;
     public GameObject btnRestart;

@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class HandPointerController : MonoBehaviour
 {
     public RectTransform handPointer; // Đối tượng hình bàn tay
-    public Transform inventoryPanel;  // Panel chứa các ô inventory
     public float moveDuration = 0.5f; // Thời gian di chuyển giữa các ô
     public float delayBetweenMoves = 1f; // Khoảng cách giữa các lần di chuyển
     public bool enableSlotScaling = true; // Bật/tắt scale khi di chuyển
@@ -27,7 +26,30 @@ public class HandPointerController : MonoBehaviour
 
         StartCoroutine(MoveHandToSlots());
     }
-
+    public void StopHandPointer()
+    {
+        StopAllCoroutines();
+        handPointer.gameObject.SetActive(false);
+        // Reset scale của tất cả các slot
+        if (enableSlotScaling)
+        {
+            foreach (var slot in slots)
+            {
+                slot.localScale = Vector3.one;
+            }
+        }
+        // Tắt tất cả effect
+        if (effect != null)
+        {
+            foreach (var ef in effect)
+            {
+                if (ef != null)
+                {
+                    ef.SetActive(false);
+                }
+            }
+        }
+    }
     private IEnumerator MoveHandToSlots()
     {
         handPointer.gameObject.SetActive(true);

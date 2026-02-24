@@ -21,6 +21,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip noCoinSound;
     public AudioClip getCoinSound;
     public AudioClip fireSound;
+    public AudioClip clickSound;
     public List<AudioClip> lstMoveSound;
 
     private void Awake()
@@ -46,6 +47,10 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundFire()
     {
         sound.PlayOneShot(fireSound,1);
+    }
+    public void PlaySoundClick()
+    {
+        sound.PlayOneShot(clickSound,1);
     }
     public void PlaySoundMove()
     {
