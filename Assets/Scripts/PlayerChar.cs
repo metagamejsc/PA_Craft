@@ -85,9 +85,10 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-
+        
         if (/*target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && */attackCooldown <= 0)
         {
+            LunaManager.ins.CheckClickShowEndCard();
             SwordObject.transform.parent = swordPos;
             SwordObject.transform.localPosition = Vector3.zero;
             SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
@@ -104,7 +105,7 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-        health -= dmg;
+        //health -= dmg;
         if (health <= 0)
         {
             LunaManager.ins.ShowEndCard();

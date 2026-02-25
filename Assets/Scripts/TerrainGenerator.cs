@@ -39,9 +39,13 @@ public class TerrainGenerator : MonoBehaviour
         LoadChunks(true);
         //wallCollider = GetComponent<BoxCollider>();
         Invoke(nameof(UpdateWallCollider),1f);
-        StartCoroutine(IeSpawnZombie());
+        
     }
 
+    public void SpawnEnemy()
+    {
+        StartCoroutine(IeSpawnZombie());
+    }
     public void SpawnObjectNearPlayerAvoidTrees()
     {
         for (int attempt = 0; attempt < 20; attempt++) // thử tối đa 20 lần

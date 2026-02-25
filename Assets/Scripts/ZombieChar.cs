@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ZombieChar : BaseCharacter
 {
     public Material material;
     public SkinnedMeshRenderer[] lstMaterials;
+    public GameObject[] lstIconHeart;
     protected override void Start()
     {
         base.Start();
@@ -22,6 +24,11 @@ public class ZombieChar : BaseCharacter
         if (GameController.ins.isPauseGame)
         {
             return;
+        }
+
+        foreach (var VARIABLE in lstIconHeart)
+        {
+            VARIABLE.transform.rotation = Quaternion.Euler(0, Camera.main.transform.rotation.eulerAngles.y, 0);
         }
         base.Update();
     }
@@ -56,10 +63,11 @@ public class ZombieChar : BaseCharacter
             return;
         }
         health -= dmg;
-        
+        lstIconHeart[(int)health].SetActive(false);
         StartCoroutine(IeNhapNhay(2f));
         if (health <= 0)
         {
+            
             GameController.ins.EnemyDead();
             animator.SetTrigger("Dead");
             isDead = true;
