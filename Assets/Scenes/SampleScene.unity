@@ -441,6 +441,7 @@ GameObject:
   - component: {fileID: 194589170}
   - component: {fileID: 194589174}
   - component: {fileID: 194589175}
+  - component: {fileID: 194589176}
   m_Layer: 5
   m_Name: ButtonRawImage
   m_TagString: Untagged
@@ -465,8 +466,8 @@ RectTransform:
   m_Father: {fileID: 204491748}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 150}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &194589170
@@ -548,6 +549,20 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &194589176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194589167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 4
+  m_AspectRatio: 1
 --- !u!1 &195404660
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,22 +741,22 @@ MonoBehaviour:
   countDrop: 0
   countDropFinal: 10
   timeEndCreative: 30
-  bgTexture: {fileID: 2800000, guid: 4a8092ddc97d5cb40a95e4e45d5d650a, type: 3}
+  bgTexture: {fileID: 2800000, guid: 9b53f68eaa9efab488c4f2a3ccedd137, type: 3}
   bgColor: {r: 1, g: 1, b: 1, a: 1}
-  Enviroment_1Texture: {fileID: 2800000, guid: 067c1c0450427074d83342ba40c1ea3c, type: 3}
+  Enviroment_1Texture: {fileID: 2800000, guid: 9cddb43952578624699d590f5516b269, type: 3}
   Enviroment_1Color: {r: 1, g: 1, b: 1, a: 1}
   Enviroment_2Texture: {fileID: 2800000, guid: 0819435708779be4bb0607e36b3913a5, type: 3}
   Enviroment_2Color: {r: 1, g: 1, b: 1, a: 1}
   Enviroment_3Texture: {fileID: 2800000, guid: 35fc27b3cdc604246a7cc9b9bc7eede6, type: 3}
   Enviroment_3Color: {r: 1, g: 1, b: 1, a: 1}
-  Enviroment_4Texture: {fileID: 2800000, guid: ecfeed778c52a4343be16f5a0a75123f, type: 3}
+  Enviroment_4Texture: {fileID: 2800000, guid: 41d0963d9ef7ccc41bcb0ac7bf361934, type: 3}
   Enviroment_4Color: {r: 1, g: 1, b: 1, a: 1}
   Enviroment_5Texture: {fileID: 2800000, guid: 67178652f710b544fa628d13dfb50d47, type: 3}
   Enviroment_5Color: {r: 1, g: 1, b: 1, a: 1}
-  Enviroment_1Name: Prison Parkour
+  Enviroment_1Name: Prison Escape
   Enviroment_2Name: Easy Parkour
-  Enviroment_3Name: Steal Brainot
-  Enviroment_4Name: Tower Parkour
+  Enviroment_3Name: Steal a Brainot
+  Enviroment_4Name: Hard Parkour
   bgImage: {fileID: 194589175}
   enviroment_1Image: {fileID: 1896628046}
   enviroment_2Image: {fileID: 959026334}
@@ -4799,7 +4814,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1266728273}
   m_HandleRect: {fileID: 1266728272}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

@@ -70,7 +70,7 @@ public class LunaManager : MonoBehaviour
         {
             if (bgTexture!=null)
             {
-                bgImage.texture = bgTexture;
+                SetTexture(bgImage,bgTexture);
             }
             bgImage.color = bgColor;
         }
@@ -131,8 +131,28 @@ public class LunaManager : MonoBehaviour
             enviroment_4Text.text = Enviroment_4Name;
         }
         
+       
+        //textRect.anchoredPosition = positionText;
+        /*rawImageMonster.sprite = SpriteFromTexture(textureMonster);
+        rawImageMonster.color = colorMonster;*/
     }
 
+    Sprite SpriteFromTexture(Texture2D tex)
+{
+    if (tex == null) return null;
+    return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f);
+}
+public void SetTexture(RawImage raw,Texture tex)
+{
+    var fitter = raw.GetComponent<AspectRatioFitter>();
+
+    raw.texture = tex;
+
+    if (tex != null)
+    {
+        fitter.aspectRatio = (float)tex.width / tex.height;
+    }
+}
     public void CheckClickShowEndCard()
     {
         countDrop++;
