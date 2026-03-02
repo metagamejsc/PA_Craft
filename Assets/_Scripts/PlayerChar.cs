@@ -44,19 +44,19 @@ public class PlayerChar : BaseCharacter
         moveSpeed = LunaManager.ins.playerSpeed;
         jumpHeight = LunaManager.ins.playerJumpForce;
         //StartCoroutine(MoveAndIdle());
-        MouseLook.ins.onMouseUpShoot += OnMouseUpShoot;
+        MouseLook.ins.onPointerUpAction += OnMouseUpShoot;
     }
     private void OnDestroy()
     {
-        if (MouseLook.ins != null)
-            MouseLook.ins.onMouseUpShoot -= OnMouseUpShoot;
+        /*if (MouseLook.ins != null)
+            MouseLook.ins.onMouseUpShoot -= OnMouseUpShoot;*/
     }
 
     void OnMouseUpShoot()
     {
         if (isDead) return;
         if (GameController.ins.isPauseGame) return;
-        if (!MouseLook.ins.allowInput) return;
+        //if (!MouseLook.ins.allowInput) return;
 
         Shoot();
     }
@@ -106,10 +106,12 @@ public class PlayerChar : BaseCharacter
         moveX = Input.GetAxis("Horizontal");
         moveZ = Input.GetAxis("Vertical");
 #else
-        moveX = JoystickController.ins.Horizontal();
-        moveZ = JoystickController.ins.Vertical();
+        if (JoystickController.ins!=null)
+        {
+            moveX = JoystickController.ins.Horizontal();
+            moveZ = JoystickController.ins.Vertical();
+        }
 #endif
-
         Vector3 inputDir = new Vector3(moveX, 0, moveZ);
         bool isMoving = inputDir.magnitude > 0.1f;
 
@@ -131,7 +133,7 @@ public class PlayerChar : BaseCharacter
         if (isMoving)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDir);
-            model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * 10f);
+            //model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
 
         animator.SetBool("isMoving", isMoving);
@@ -150,6 +152,7 @@ public class PlayerChar : BaseCharacter
     {
         animator.SetTrigger("Shoot");
         //AudioManager.ins.PlaySoundFire();
+        Debug.Log("Shoot");
         LunaManager.ins.CheckClickShowEndCard();
         shootEffect.Play();
         Camera cam = Camera.main;
@@ -175,12 +178,12 @@ public class PlayerChar : BaseCharacter
             model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRot, 1f); // tức thì
         }
 
-        GameObject bullet = Instantiate(bulletPrefab);
-        bullet.transform.position = shootPoint.position;
-        bullet.transform.rotation = Quaternion.LookRotation(shootDirection);
+        GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, Quaternion.LookRotation(shootDirection));
+        //bullet.transform.position = shootPoint.position;
+        //bullet.transform.rotation = Quaternion.LookRotation(shootDirection);
         Rigidbody rbBullet = bullet.GetComponent<Rigidbody>();
         rbBullet.velocity = shootDirection * bulletSpeed;
-
+        bullet.GetComponent<Bullet>().PlayEffect();
         Destroy(bullet, 5f);
     }
     

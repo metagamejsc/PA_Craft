@@ -9,7 +9,9 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
+    public int countEnemyDead=0;
     [LunaPlaygroundField("Số lần bắn ra Store")]public int countDropFinal;
+    [LunaPlaygroundField("Số Enemy chết ra Store")]public int countEnemyDeadFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
@@ -17,7 +19,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
-    public float speedMonster=5f;
+    [LunaPlaygroundField("Speed Bird")]public float speedMonster=5f;
     public float timeSpawn=3f;
     public float starterGold=500;
     public Light directionalLight;
@@ -69,6 +71,14 @@ public class LunaManager : MonoBehaviour
     {
         countDrop++;
         if (countDrop>=countDropFinal && isCretivePause==false)
+        {
+            ShowEndCardEmpty();
+        }
+    }
+    public void CheckEnemyDeadShowEndCard()
+    {
+        countEnemyDead++;
+        if (countEnemyDead>=countEnemyDeadFinal && isCretivePause==false)
         {
             ShowEndCardEmpty();
         }

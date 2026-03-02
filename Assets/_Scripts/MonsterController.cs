@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using TMPro;
 
@@ -42,10 +43,16 @@ public class MonsterController : MonoBehaviour
     public float wanderRadius = 3f;
     public float wanderInterval = 3f;
 
+    [Header("Sound")]
+    public AudioSource audioSource;
+    public AudioClip deadSound;
+    public AudioClip freeFallSound;
+
     private Vector3 initialPosition;
     private Coroutine wanderCoroutine;
     private Color originalColor;
     private Coroutine flashCoroutine;
+    private bool isDead = false;
 
     private void Start()
     {
@@ -53,6 +60,9 @@ public class MonsterController : MonoBehaviour
         currentHP = maxHP;
         originalColor = modelRenderer.material.color;
         initialPosition = transform.position;
+
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
 
         if (!isBought && allowRandomMove)
         {
@@ -75,25 +85,7 @@ public class MonsterController : MonoBehaviour
     {
         goldSlotTarget = slot;
     }
-
-    public void ApplyRarity(Rarity rarity)
-    {
-        switch (rarity)
-        {
-            case Rarity.Normal:
-                modelRenderer.material = normalMaterial;
-                break;
-            case Rarity.Rare:
-                modelRenderer.material = rareMaterial;
-                break;
-            case Rarity.Epic:
-                modelRenderer.material = epicMaterial;
-                break;
-            case Rarity.Legendary:
-                modelRenderer.material = legendaryMaterial;
-                break;
-        }
-    }
+    
 
     public void SetStats(int _price, float _gps)
     {
@@ -118,7 +110,7 @@ public class MonsterController : MonoBehaviour
 
     void Update()
     {
-        if (!isMoving || target == null) return;
+        if (!isMoving || target == null || isDead) return;
 
         Vector3 direction = target.position - transform.position;
         direction.y = 0f;
@@ -140,7 +132,6 @@ public class MonsterController : MonoBehaviour
         {
             if (!isBought)
             {
-                // nếu là điểm random, không destroy
                 if (target.name == "TargetPoint")
                 {
                     Destroy(target.gameObject);
@@ -152,13 +143,7 @@ public class MonsterController : MonoBehaviour
                 headingToEntryGate = false;
 
                 transform.position = goldSlotTarget.position;
-
-                GoldSlot slot = goldSlotTarget.GetComponent<GoldSlot>();
-                if (slot != null)
-                {
-                    slot.AssignMonster(this);
-                }
-
+                
                 StopMoving();
             }
         }
@@ -166,6 +151,8 @@ public class MonsterController : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if (isDead) return;
+
         currentHP -= damage;
         FlashRed();
 
@@ -192,19 +179,42 @@ public class MonsterController : MonoBehaviour
 
     void Die()
     {
+        if (isDead) return;
+        isDead = true;
+
         onDeath?.Invoke();
         Debug.Log("Die");
         isMoving = false;
         StopAllCoroutines();
+        LunaManager.ins.CheckEnemyDeadShowEndCard();
+
+        // Phát sound chết
+        if (audioSource != null && deadSound != null)
+        {
+            audioSource.PlayOneShot(deadSound);
+        }
 
         // Ngã ngửa
         Quaternion fallRotation = Quaternion.Euler(90f, transform.eulerAngles.y, 0f);
-        transform.rotation = fallRotation;
+        transform.DORotateQuaternion(fallRotation, 0.5f).SetEase(Ease.InBack);
 
         // Đổi màu
         modelRenderer.material.color = Color.gray;
 
-        Destroy(gameObject, 1.5f);
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.useGravity = true;
+
+            // Phát sound rơi tự do
+            if (audioSource != null && freeFallSound != null)
+            {
+                audioSource.PlayOneShot(freeFallSound);
+            }
+        }
+
+        animator.enabled = false;
+        Destroy(gameObject, 5f);
     }
 
     public void StopMoving()

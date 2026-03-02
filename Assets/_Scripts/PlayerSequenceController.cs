@@ -36,7 +36,7 @@ public class PlayerSequenceController : MonoBehaviour
     }
     IEnumerator LookAtMonsterSmooth(Transform monster, float duration = 0.5f)
     {
-        MouseLook.ins.allowInput = false;
+        //MouseLook.ins.allowInput = false;
 
         Vector3 dir = monster.position - player.transform.position;
         dir.y = 0;
@@ -49,11 +49,11 @@ public class PlayerSequenceController : MonoBehaviour
         {
             t += Time.deltaTime / duration;
             player.model.transform.rotation = Quaternion.Slerp(startRot, targetRot, t);
-            MouseLook.ins.SetRotationFromDirection(-dir);
+            //MouseLook.ins.SetRotationFromDirection(-dir);
             yield return null;
         }
 
-        MouseLook.ins.allowInput = true;
+        //MouseLook.ins.allowInput = true;
     }
 
     IEnumerator Sequence_AfterMonster1()
@@ -75,7 +75,7 @@ public class PlayerSequenceController : MonoBehaviour
 
     IEnumerator MovePlayerTo(Transform target)
     {
-        MouseLook.ins.allowInput = false;
+        //MouseLook.ins.allowInput = false;
         player.animator.SetBool("isMoving", true);
 
         while (Vector3.Distance(player.transform.position, target.position) > 0.2f)
@@ -91,14 +91,14 @@ public class PlayerSequenceController : MonoBehaviour
                 player.model.transform.rotation, rot, Time.deltaTime * 10f);
 
             // xoay camera theo hướng di chuyển
-            MouseLook.ins.SetRotationFromDirection(-dir);
+           // MouseLook.ins.SetRotationFromDirection(-dir);
 
             yield return null;
         }
 
         player.rigidbody.velocity = Vector3.zero;
         player.animator.SetBool("isMoving", false);
-        MouseLook.ins.allowInput = true;
+        //MouseLook.ins.allowInput = true;
     }
 
     void LookAtMonster(Transform monster)
@@ -110,6 +110,6 @@ public class PlayerSequenceController : MonoBehaviour
         player.model.transform.rotation = Quaternion.LookRotation(dir);
 
         // xoay camera
-        MouseLook.ins.SetRotationFromDirection(-dir);
+        //MouseLook.ins.SetRotationFromDirection(-dir);
     }
 }
