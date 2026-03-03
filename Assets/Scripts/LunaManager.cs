@@ -8,16 +8,18 @@ using Random = UnityEngine.Random;
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    public int countDrop=0;
+    public int countDrop = 0;
     public int countDropFinal;
     public int count;
-    [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
-    [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
-    [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce=40f;
-    public float noiseIntensity=10;
-    public float landNoiseScale=0.8f;
-    public int treeCount=20;
+    public GameObject btnEnd;
+    [LunaPlaygroundField("Hiện Btn EndCard")] public bool isBtnEnd = false;
+    [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
+    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay = 0;
+    [LunaPlaygroundField("Player Speed")] public float playerSpeed = 1.5f;
+    [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce = 40f;
+    public float noiseIntensity = 10;
+    public float landNoiseScale = 0.8f;
+    public int treeCount = 20;
     public bool isCretivePause;
     private void Awake()
     {
@@ -27,7 +29,7 @@ public class LunaManager : MonoBehaviour
     public Button[] lstBtnInstall;
     public GameObject EndCard;
     public GameObject WinCard;
-    
+
 
 
     // Start is called before the first frame update
@@ -42,24 +44,33 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         WinCard.SetActive(false);
         //SetupField();
-        Invoke(nameof(ShowEndCard),timeEndCreative);
+        Invoke(nameof(ShowEndCard), timeEndCreative);
+        //setup btn end card
+        if (isBtnEnd)
+        {
+            btnEnd.SetActive(true);
+        }
+        else
+        {
+            btnEnd.SetActive(false);
+        }
     }
     public void ReplayGame()
     {
         isCretivePause = false;
         EndCard.SetActive(false);
         var timeEndCreativeRemaining = timeEndCreative - Time.realtimeSinceStartup;
-        if (timeEndCreativeRemaining<0)
+        if (timeEndCreativeRemaining < 0)
         {
             timeEndCreativeRemaining = 5f;
         }
         Invoke(nameof(ShowEndCard), timeEndCreativeRemaining);
     }
-   
+
     public void CheckClickShowEndCard()
     {
         countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
+        if (countDrop >= countDropFinal && isCretivePause == false)
         {
             isCretivePause = true;
             ShowEndCard();
