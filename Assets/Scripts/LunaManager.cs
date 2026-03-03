@@ -12,7 +12,7 @@ public class LunaManager : MonoBehaviour
     public int countDropFinal;
     public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
+    /*[LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")]*/ public int canReplay=0;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
     [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce=40f;
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
@@ -96,6 +96,15 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
+    public void ShowEndCardDelay(float delay=0)
+    {
+        if (isCretivePause) return;
+        isCretivePause = true;
+        AudioManager.ins.PlaySoundReward();
+        Invoke(nameof(ShowObjectEndCard),delay);
+        Debug.Log("Show end card");
+        Luna.Unity.LifeCycle.GameEnded();
+    }
     public void ShowWinCard(float delay=0)
     {
         if (isCretivePause) return;
@@ -108,6 +117,10 @@ public class LunaManager : MonoBehaviour
     public void ShowObjectWinCard( )
     {
         WinCard.SetActive(true);
+    }
+    public void ShowObjectEndCard( )
+    {
+        EndCard.SetActive(true);
     }
     public void OnClickEndCard()
     {

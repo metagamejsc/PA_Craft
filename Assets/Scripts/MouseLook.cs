@@ -22,12 +22,38 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     private float xRotation = 20f;
     private float yRotation = 0f;
-
+    
+    [Header("Chest Interaction")]
+    public LayerMask chestLayer;
+    public float chestInteractDistance = 2.5f;
+    public Transform player; 
     private void Awake()
     {
         ins = this;
     }
+    private void TryInteractChest(PointerEventData eventData)
+    {
+        if (player == null) return;
 
+        Ray ray = cameraMain.ScreenPointToRay(eventData.position);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 100f, chestLayer))
+        {
+            ChestController chest = hit.transform.GetComponent<ChestController>();
+
+            if (chest != null)
+            {
+                float distance = Vector3.Distance(player.position, chest.transform.position);
+
+                if (distance <= chestInteractDistance)
+                {
+                    //player.
+                    chest.OpenChest();
+                }
+            }
+        }
+    }
     public void OnDrag(PointerEventData eventData)
     {
         float deltaX = eventData.delta.x * rotationSpeed;
@@ -41,6 +67,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public void OnPointerDown(PointerEventData eventData)
     {
         // Không cần gì ở đây nếu không xử lý click giữ
+        TryInteractChest(eventData);
     }
 
     public void OnPointerUp(PointerEventData eventData)

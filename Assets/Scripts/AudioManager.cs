@@ -16,6 +16,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip bgSound;
     public AudioClip buildSound;
     public AudioClip miningSound;
+    public AudioClip xixiSound;
     public List<AudioClip> lstMoveSound;
 
     private void Awake()
@@ -68,5 +69,10 @@ public class AudioManager : MonoBehaviour
         music.loop = true;
         music.clip = bgSound;
         music.Play();
+    }
+
+    public void PlaySoundXixi()
+    {
+        sound.PlayOneShot(xixiSound,1);
     }
 }
