@@ -56,7 +56,7 @@ public class MonsterController : MonoBehaviour
 
     private void Start()
     {
-        moveSpeed = LunaManager.ins.speedMonster;
+        
         currentHP = maxHP;
         originalColor = modelRenderer.material.color;
         initialPosition = transform.position;

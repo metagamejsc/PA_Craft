@@ -1,9 +1,17 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HandPointerController : MonoBehaviour
 {
+    public static HandPointerController ins;
+
+    private void Awake()
+    {
+        ins = this;
+    }
+
     public RectTransform handPointer; // Đối tượng hình bàn tay
     public Transform inventoryPanel;  // Panel chứa các ô inventory
     public float moveDuration = 0.5f; // Thời gian di chuyển giữa các ô
@@ -26,7 +34,19 @@ public class HandPointerController : MonoBehaviour
 
         StartCoroutine(MoveHandToSlots());
     }
-
+    public void StopHandPointer()
+    {
+        StopAllCoroutines();
+        handPointer.gameObject.SetActive(false);
+        // Reset scale của tất cả các slot
+        if (enableSlotScaling)
+        {
+            foreach (var slot in slots)
+            {
+                slot.localScale = Vector3.one;
+            }
+        }
+    }
     private IEnumerator MoveHandToSlots()
     {
         handPointer.gameObject.SetActive(true);
