@@ -9,17 +9,18 @@ public class HandPointerController : MonoBehaviour
     public float moveDuration = 0.5f; // Thời gian di chuyển giữa các ô
     public float delayBetweenMoves = 1f; // Khoảng cách giữa các lần di chuyển
     public bool enableSlotScaling = true; // Bật/tắt scale khi di chuyển
-
+    public Animator handAnimator;
     public RectTransform[] slots; // Mảng các ô inventory
     public GameObject[] effect;
+    public TrailRenderer trailRenderer;
 
     private int currentSlotIndex = 0; // Theo dõi slot hiện tại
 
     void Start()
     {
         // Bắt đầu từ slot đầu tiên
-        handPointer.position = slots[0].position;
-
+        //handPointer.position = slots[0].position;
+       StartCoroutine(MoveHandToPoint(slots[0], true));
         if (enableSlotScaling)
         {
             slots[0].localScale = Vector3.one * 1.2f;
@@ -37,52 +38,73 @@ public class HandPointerController : MonoBehaviour
         {
             int nextSlotIndex = (currentSlotIndex + 1) % slots.Length;
 
-            // Scale và tắt effect của slot hiện tại
             if (enableSlotScaling)
             {
                 slots[currentSlotIndex].localScale = Vector3.one;
             }
 
-            if (effect != null && effect.Length > currentSlotIndex && effect[currentSlotIndex] != null)
-            {
-                effect[currentSlotIndex].SetActive(false); // ❌ Tắt effect cũ
-            }
-
-            // Di chuyển tay tới slot mới
+            // Di chuyển tay
             yield return MoveHandToPoint(slots[nextSlotIndex]);
 
-            // Scale và bật effect cho slot mới
             if (enableSlotScaling)
             {
                 slots[nextSlotIndex].localScale = Vector3.one * 1.2f;
             }
 
-            if (effect != null && effect.Length > nextSlotIndex && effect[nextSlotIndex] != null)
-            {
-                effect[nextSlotIndex].SetActive(true); // ✅ Bật effect mới
-            }
-
+            // ▶ chạy animation scratch
+            handAnimator.SetTrigger("Scratch");
+            //trailRenderer.Clear();
+            //trailRenderer.gameObject.SetActive(true);
+            // ⏳ đợi animation scratch chạy xong
+            yield return new WaitUntil(() =>
+                handAnimator.GetCurrentAnimatorStateInfo(0).IsName("Scratch")
+            );
+            
+            yield return new WaitUntil(() =>
+                handAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f
+            );
             currentSlotIndex = nextSlotIndex;
 
             yield return new WaitForSeconds(delayBetweenMoves);
+            //trailRenderer.gameObject.SetActive(false);
         }
     }
 
-
-
-    IEnumerator MoveHandToPoint(RectTransform target)
+    IEnumerator MoveHandToPoint(RectTransform target, bool instant = false)
     {
         Vector3 startPosition = handPointer.position;
+
+        // Lấy 4 góc của RectTransform
+        Vector3[] corners = new Vector3[4];
+        target.GetWorldCorners(corners);
+
+        // corners:
+        // 0 = bottom-left
+        // 1 = top-left
+        // 2 = top-right
+        // 3 = bottom-right
+
+        // Lấy vị trí bottom center
+        Vector3 bottomCenter = (corners[0] + corners[3]) / 2f;
+
         Vector3 endPosition = target.position;
-        float elapsed = 0f;
-
-        while (elapsed < moveDuration)
+        if (instant)
         {
-            elapsed += Time.deltaTime;
-            handPointer.position = Vector3.Lerp(startPosition, endPosition, elapsed / moveDuration);
-            yield return null;
+            handPointer.position = endPosition;
         }
+        else
+        {
+            float elapsed = 0f;
 
-        handPointer.position = endPosition;
+            while (elapsed < moveDuration)
+            {
+                elapsed += Time.deltaTime;
+                handPointer.position = Vector3.Lerp(startPosition, endPosition, elapsed / moveDuration);
+                yield return null;
+            }
+
+            handPointer.position = endPosition;
+        }
     }
+    
 }

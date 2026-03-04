@@ -20,7 +20,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
     [LunaPlaygroundAsset("BG")] public Texture bgTexture;
     [LunaPlaygroundField("Color Bg")] public Color bgColor;
-    [LunaPlaygroundField("Positon Text")] public Vector2 positionText;
+    public Vector2 positionText;
     public RectTransform textRect;
     public RawImage bgImage;
     
@@ -30,6 +30,7 @@ public class LunaManager : MonoBehaviour
     public Light directionalLight;
     public bool isCretivePause;
     public GameObject btnRestart;
+    
     private void Awake()
     {
         ins = this;
