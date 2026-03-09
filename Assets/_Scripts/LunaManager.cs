@@ -7,7 +7,7 @@ public class LunaManager : MonoBehaviour
     public int countDrop = 0;
     public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
-    [LunaPlaygroundField("Time")] public bool isLock = true;
+    [LunaPlaygroundField("Look")] public bool isLock = true;
     public GameObject[] listLock;
     public GameObject[] listUnLock;
     //public Light directionalLight    public bool isCretivePause;
