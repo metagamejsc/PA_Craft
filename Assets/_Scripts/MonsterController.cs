@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class MonsterController : MonoBehaviour
 {
@@ -41,6 +43,10 @@ public class MonsterController : MonoBehaviour
     public bool allowRandomMove = true;
     public float wanderRadius = 3f;
     public float wanderInterval = 3f;
+    public Slider hpBarSlider;
+    public TextMeshProUGUI hpText;
+    public AudioSource audioSource;
+    public AudioClip hitSound;
 
     private Vector3 initialPosition;
     private Coroutine wanderCoroutine;
@@ -50,10 +56,13 @@ public class MonsterController : MonoBehaviour
     private void Start()
     {
         moveSpeed = LunaManager.ins.speedMonster;
+        maxHP = LunaManager.ins.enemyHp;
         currentHP = maxHP;
         originalColor = modelRenderer.material.color;
         initialPosition = transform.position;
-
+        hpBarSlider.maxValue = maxHP;
+            if (hpText) hpText.text = $"{currentHP}/{maxHP}";
+            hpBarSlider.value = currentHP;
         if (!isBought && allowRandomMove)
         {
             wanderCoroutine = StartCoroutine(WanderRoutine());
@@ -74,25 +83,6 @@ public class MonsterController : MonoBehaviour
     public void SetGoldSlot(Transform slot)
     {
         goldSlotTarget = slot;
-    }
-
-    public void ApplyRarity(Rarity rarity)
-    {
-        switch (rarity)
-        {
-            case Rarity.Normal:
-                modelRenderer.material = normalMaterial;
-                break;
-            case Rarity.Rare:
-                modelRenderer.material = rareMaterial;
-                break;
-            case Rarity.Epic:
-                modelRenderer.material = epicMaterial;
-                break;
-            case Rarity.Legendary:
-                modelRenderer.material = legendaryMaterial;
-                break;
-        }
     }
 
     public void SetStats(int _price, float _gps)
@@ -152,13 +142,6 @@ public class MonsterController : MonoBehaviour
                 headingToEntryGate = false;
 
                 transform.position = goldSlotTarget.position;
-
-                GoldSlot slot = goldSlotTarget.GetComponent<GoldSlot>();
-                if (slot != null)
-                {
-                    slot.AssignMonster(this);
-                }
-
                 StopMoving();
             }
         }
@@ -166,11 +149,18 @@ public class MonsterController : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        currentHP -= damage;
+        if (currentHP <= 0) return;
+            currentHP -= damage;
+        audioSource.PlayOneShot(hitSound);
+        if (hpBarSlider != null)
+        {
+            hpBarSlider.value = currentHP;
+        }
         FlashRed();
-
+        hpText.text = $"{currentHP}/{maxHP}";
         if (currentHP <= 0)
         {
+            hpText.text = $"0/{maxHP}";
             Die();
         }
     }
@@ -198,15 +188,26 @@ public class MonsterController : MonoBehaviour
         StopAllCoroutines();
 
         // Ngã ngửa
-        Quaternion fallRotation = Quaternion.Euler(90f, transform.eulerAngles.y, 0f);
-        transform.rotation = fallRotation;
-
+        /*Quaternion fallRotation = Quaternion.Euler(-90f, transform.eulerAngles.y, 0f);
+        transform.rotation = fallRotation;*/
+        StartCoroutine(AnimDead());
+        animator.enabled = false;
         // Đổi màu
-        modelRenderer.material.color = Color.gray;
-
-        Destroy(gameObject, 1.5f);
+        
     }
+    public IEnumerator AnimDead()
+    {
+        Quaternion fallRotation = Quaternion.Euler(-90f, transform.eulerAngles.y, 0f);
+        transform.DORotate(fallRotation.eulerAngles, 1f).SetEase(Ease.InBack).OnComplete(() =>
+        {
+            modelRenderer.material.color = Color.gray;
 
+            Destroy(gameObject, 2f);
+        });
+        yield return new WaitForSeconds(1f);
+        LunaManager.ins.ShowWinCard();
+        LunaManager.ins.OnClickEndCard();
+    }
     public void StopMoving()
     {
         isMoving = false;

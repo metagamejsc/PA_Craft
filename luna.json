@@ -124,12 +124,13 @@
                 "Stubs/Vungle",
                 "Stubs/MoreMountains.NiceVibrations",
                 "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset",
-                "Assets/Game/Fonts/Noto_Sans/NotoSans-Bold SDF.asset",
-                "Assets/TextMesh Pro/Fonts/FFFFORWA SDF.asset"
+                "Assets/Game/Fonts/Noto_Sans/NotoSans-Bold SDF.asset"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
-                "Assets/TextMesh Pro/Resources/TMP Settings.asset"
+                "Assets/TextMesh Pro/Resources/TMP Settings.asset",
+                "Assets/Game/Audios/SoundFX/weapons/fire.ogg",
+                "Assets/TextMesh Pro/Fonts/FFFFORWA SDF.asset"
             ]
         },
         "scenes": [
@@ -29168,7 +29169,7 @@
                     },
                     {
                         "name": "PlayMusicWin",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlaySoundGetCoin",
@@ -33388,7 +33389,7 @@
                     },
                     {
                         "name": "maxValue#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "wholeNumbers#get",
@@ -34259,10 +34260,6 @@
                     {
                         "name": "HideBlackInstant",
                         "excluded": true
-                    },
-                    {
-                        "name": "SetupTranform",
-                        "excluded": false
                     }
                 ]
             },
@@ -36033,6 +36030,10 @@
                     {
                         "name": "OnDrawGizmosSelected",
                         "excluded": true
+                    },
+                    {
+                        "name": "AnimDead",
+                        "excluded": false
                     }
                 ]
             },
@@ -36384,6 +36385,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Sound/Hard Parkour Music.mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 30.0,
+                        "bitrate": 16,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/SoundFX/an_ordinary_day.ogg"
                     }
                 ]
             },

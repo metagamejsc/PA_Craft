@@ -50,24 +50,7 @@ public class GameController : MonoBehaviour
         blackSeq?.Kill();
         blackGroup?.DOKill();
     }
-
-    public void SetupTranform(int id)
-    {
-        listMonsterControllers[id].transform.position = tranformMonster1.position;
-        listMonsterControllers[id].transform.localScale= Vector3.one*2;
-        listMonsterControllers.RemoveAt(id);
-        for (int i = 0; i < listMonsterControllers.Count; i++)
-        {
-            if (i==0)
-            {
-                listMonsterControllers[id].transform.position = tranformMonster2.position;
-            }
-            if (i==1)
-            {
-                listMonsterControllers[id].transform.position = tranformMonster3.position;
-            }
-        }
-    }
+    
     private void SetupBlackUI()
     {
         if (blackImage == null) return;
