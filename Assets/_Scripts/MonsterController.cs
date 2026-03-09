@@ -75,26 +75,7 @@ public class MonsterController : MonoBehaviour
     {
         goldSlotTarget = slot;
     }
-
-    public void ApplyRarity(Rarity rarity)
-    {
-        switch (rarity)
-        {
-            case Rarity.Normal:
-                modelRenderer.material = normalMaterial;
-                break;
-            case Rarity.Rare:
-                modelRenderer.material = rareMaterial;
-                break;
-            case Rarity.Epic:
-                modelRenderer.material = epicMaterial;
-                break;
-            case Rarity.Legendary:
-                modelRenderer.material = legendaryMaterial;
-                break;
-        }
-    }
-
+    
     public void SetStats(int _price, float _gps)
     {
         price = _price;
@@ -152,13 +133,7 @@ public class MonsterController : MonoBehaviour
                 headingToEntryGate = false;
 
                 transform.position = goldSlotTarget.position;
-
-                GoldSlot slot = goldSlotTarget.GetComponent<GoldSlot>();
-                if (slot != null)
-                {
-                    slot.AssignMonster(this);
-                }
-
+                
                 StopMoving();
             }
         }
