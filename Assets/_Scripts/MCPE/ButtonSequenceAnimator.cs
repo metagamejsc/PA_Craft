@@ -10,6 +10,7 @@ public class ButtonSequenceAnimator : MonoBehaviour
 
     [Tooltip("Parent chứa tất cả buttons (để SetAsLastSibling cho button hiện tại lên trên cùng)")]
     [SerializeField] private Transform buttonsParent;
+    [SerializeField] private bool isUseButtonUp = false;
 
     [Tooltip("Nếu button hiện tại không nằm dưới buttonsParent thì tự SetParent vào")]
     [SerializeField] private bool forceReparentIntoButtonsParent = false;
@@ -190,7 +191,11 @@ public class ButtonSequenceAnimator : MonoBehaviour
                     break;
                 }
 
-                BringButtonToFront(_btnRect);
+                if (isUseButtonUp)
+                {
+                    BringButtonToFront(_btnRect);
+                }
+
                 HideBorder();
 
                 // set tween caches

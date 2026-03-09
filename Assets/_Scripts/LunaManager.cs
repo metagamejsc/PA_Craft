@@ -7,6 +7,9 @@ public class LunaManager : MonoBehaviour
     public int countDrop = 0;
     public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
+    [LunaPlaygroundField("Time")] public bool isLock = true;
+    public GameObject[] listLock;
+    public GameObject[] listUnLock;
     //public Light directionalLight    public bool isCretivePause;
     //public GameObject btnRestart;
     private void Awake()
@@ -16,8 +19,8 @@ public class LunaManager : MonoBehaviour
     public Button[] lstBtnInstall;
     public GameObject EndCard;
     //public GameObject WinCard;
-
-
+    public RectTransform target;
+    //----------------------------------------------
 
     // Start is called before the first frame update
     void Start()
@@ -31,6 +34,22 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard), timeEndCreative);
+        CheckLock();
+    }
+    void Update()
+    {
+        AdjustUI();
+    }
+    void CheckLock()
+    {
+        foreach (var item in listLock)
+        {
+            item.SetActive(isLock);
+        }
+        foreach (var item in listUnLock)
+        {
+            item.SetActive(!isLock);
+        }
     }
     public void ReplayGame()
     {
@@ -80,6 +99,19 @@ public class LunaManager : MonoBehaviour
     {
         Debug.Log("Click end card");
         Luna.Unity.Playable.InstallFullGame();
+    }
+    void AdjustUI()
+    {
+        if (Screen.width > Screen.height)
+        {
+            target.sizeDelta = new Vector2(1594, 1038);
+            target.localScale = Vector3.one * 1.5f;
+        }
+        else
+        {
+            target.sizeDelta = new Vector2(1080, 1300);
+            target.localScale = Vector3.one;
+        }
     }
 
 }
