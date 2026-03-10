@@ -1,8 +1,8 @@
 {
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29023,
-    "creativeName": "WML_V37_DungNV_ToiNV",
+    "applicationID": 36200,
+    "creativeName": "SFMS_V06_v2_NgocNDL_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -132,7 +132,9 @@
                 "Assets/Sound/wind-128967 (mp3cut.net).mp3",
                 "Assets/Sound/long-whoosh-194554.mp3",
                 "Assets/Sound/ice-cracking-field-recording-06-139709.mp3",
-                "Assets/Game/Models/MC_10009/MC_T_10009.png"
+                "Assets/Game/Models/MC_10009/MC_T_10009.png",
+                "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/monticule_diffuse.png",
+                "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/TexturesCom_HighRiseTowers0146_S_diffuse.png"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
@@ -3143,10 +3145,6 @@
             },
             {
                 "name": "UnityEngine.DefaultExecutionOrder",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.DynamicGI",
                 "excluded": true
             },
             {
@@ -20637,7 +20635,7 @@
                     },
                     {
                         "name": "customReflection#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "customReflection#set",
@@ -20645,7 +20643,7 @@
                     },
                     {
                         "name": "defaultReflectionMode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "defaultReflectionMode#set",
@@ -35306,6 +35304,10 @@
                     {
                         "name": "IeNhapNhay",
                         "excluded": false
+                    },
+                    {
+                        "name": "UpdateHealthUI",
+                        "excluded": false
                     }
                 ]
             },
@@ -37244,6 +37246,32 @@
                     {
                         "name": "StartDespawn",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.DynamicGI",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "UpdateEnvironment",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BakeReflectionsCubemap",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BakeLightingCubemap",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateEnvironmentLighting",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateSkyboxMaterial",
+                        "excluded": true
                     }
                 ]
             }

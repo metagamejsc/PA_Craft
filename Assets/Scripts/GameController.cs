@@ -86,10 +86,10 @@ public class GameController : MonoBehaviour
     {
         Vector3 spawnPos = GetRandomPointInBox(spawnArea);
         SpawnEnemy(spawnPos);
-         spawnPos = GetRandomPointInBox(spawnArea);
+         /*spawnPos = GetRandomPointInBox(spawnArea);
         SpawnEnemy(spawnPos);
          spawnPos = GetRandomPointInBox(spawnArea);
-        SpawnEnemy(spawnPos);
+        SpawnEnemy(spawnPos);*/
         while (isEndGame == false)
         {
             // Chỉ spawn khi game đang chạy và chưa pause

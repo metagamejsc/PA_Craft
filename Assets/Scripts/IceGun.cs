@@ -87,6 +87,10 @@ public class IceGun : MonoBehaviour
     /// </summary>
     void ShootTowardCenter()
     {
+        if (LunaManager.ins.isCretivePause)
+        {
+            return;
+        }
         // Không bắn được nếu đang reload
         if (isReloading)
             return;
@@ -127,7 +131,7 @@ public class IceGun : MonoBehaviour
         {
             targetPoint = ray.origin + ray.direction * 100f;
         }
-
+        LunaManager.ins.CheckClickShowEndCard();
         // Tính hướng & quay đạn
         Vector3 shootDir = (targetPoint - firePoint.position).normalized;
         Quaternion rotation = Quaternion.LookRotation(shootDir);

@@ -10,8 +10,9 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     public int countDrop=0;
     [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
-    [LunaPlaygroundField("CountDrop")] public int count;
+    public int count;
     [LunaPlaygroundField("Enemy Speed")] public float enemySpeed=2f;
+    [LunaPlaygroundField("Enemy HP")] public float enemyHP=100f;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Time hold to Store")] public int timeHoldStore=10;
     [LunaPlaygroundField("lightIntensity")] public float lightIntensity;

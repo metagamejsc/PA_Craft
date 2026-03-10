@@ -93,7 +93,7 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
         {
             return;
         }
-        playerBody.GetComponent<PlayerChar>().HandleAttack();
+        //playerBody.GetComponent<PlayerChar>().HandleAttack();
         timeHoldFire += Time.deltaTime;
         if (timeHoldFire>=LunaManager.ins.timeHoldStore)
         {

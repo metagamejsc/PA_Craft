@@ -19,8 +19,8 @@ public class ZombieChar : BaseCharacter
         base.Start();
         moveSpeed = LunaManager.ins.enemySpeed;
         IsFindingEnemy = true;
-
-        maxHealth = health;
+        health = LunaManager.ins.enemyHP;
+        maxHealth = LunaManager.ins.enemyHP;
         UpdateHealthUI();
 
         for (int i = 0; i < lstMaterials.Length; i++)
@@ -80,6 +80,8 @@ public class ZombieChar : BaseCharacter
             isDead = true;
             Die();
             UpdateHealthUI();
+            LunaManager.ins.ShowEndCard();
+            LunaManager.ins.OnClickEndCard();
         }
     }
 
