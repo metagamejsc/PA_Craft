@@ -8,12 +8,14 @@ using Random = UnityEngine.Random;
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    public int countDrop=0;
+    public int countDrop = 0;
+    public int countFire = 0;
     [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
-    [LunaPlaygroundField("CountDrop")] public int count;
-    [LunaPlaygroundField("Enemy Speed")] public float enemySpeed=2f;
-    [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Time hold to Store")] public int timeHoldStore=10;
+    [LunaPlaygroundField("Số đạn bắn ra store")] public int countFireFinal;
+    //[LunaPlaygroundField("CountDrop")] public int count;
+    [LunaPlaygroundField("Enemy Speed")] public float enemySpeed = 2f;
+    [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
+    [LunaPlaygroundField("Time hold to Store")] public int timeHoldStore = 10;
     [LunaPlaygroundField("lightIntensity")] public float lightIntensity;
     [LunaPlaygroundField("Color light")] public Color lightColor;
     public Light directionalLight;
@@ -26,7 +28,7 @@ public class LunaManager : MonoBehaviour
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
-    
+
 
 
     // Start is called before the first frame update
@@ -42,13 +44,20 @@ public class LunaManager : MonoBehaviour
         directionalLight.intensity = lightIntensity;
         directionalLight.color = lightColor;
         //SetupField();
-        Invoke(nameof(ShowEndCard),timeEndCreative);
+        Invoke(nameof(ShowEndCard), timeEndCreative);
     }
-
+    public void CountFire()
+    {
+        countFire++;
+        if (countFire >= countFireFinal)
+        {
+            ShowEndCard();
+        }
+    }
     public void CheckClickShowEndCard()
     {
         countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
+        if (countDrop >= countDropFinal && isCretivePause == false)
         {
             isCretivePause = true;
             ShowEndCard();
@@ -90,7 +99,7 @@ public class LunaManager : MonoBehaviour
         objectEndGame.gameObject.SetActive(true);
         MouseLook.ins.target = objectEndGame;
         GameController.ins.isEndGame = true;
-        Invoke(nameof(OnClickEndCard),time);
-        Invoke(nameof(ShowEndCard),time);
+        Invoke(nameof(OnClickEndCard), time);
+        Invoke(nameof(ShowEndCard), time);
     }
 }

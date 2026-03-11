@@ -28,7 +28,7 @@ public class IceGun : MonoBehaviour
     public Image reloadCircle;         // Vòng tròn reload (Image với Fill Method = Radial360)
 
     [Header("Player & Sound")]
-    public PlayerChar playerCharacter; 
+    public PlayerChar playerCharacter;
     public AudioClip fireSound;
     public AudioClip reloadSound;
     public ParticleSystem muzzleFlash;
@@ -135,6 +135,7 @@ public class IceGun : MonoBehaviour
         muzzleFlashTween.DORestart();
         AudioManager.ins.PlaySoundFire();
         Instantiate(iceProjectilePrefab, firePoint.position, rotation);
+        LunaManager.ins.CountFire();
     }
 
     /// <summary>
@@ -166,7 +167,7 @@ public class IceGun : MonoBehaviour
             elapsed += Time.deltaTime;
             if (reloadCircle != null)
             {
-                reloadCircle.fillAmount = Mathf.Clamp01((reloadTime-elapsed) / reloadTime);
+                reloadCircle.fillAmount = Mathf.Clamp01((reloadTime - elapsed) / reloadTime);
             }
             yield return null;
         }
