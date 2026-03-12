@@ -1,7 +1,7 @@
 {
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29023,
+    "applicationID": 36981,
     "creativeName": "UAC_V09_ThuLH_ToiNV",
     "pgServer": "EU",
     "window": {
@@ -7900,20 +7900,24 @@
                 "excluded": false
             },
             {
-                "name": "UIManager",
+                "name": "BoatController",
                 "excluded": true
             },
             {
-                "name": "MonsterRarityData",
-                "excluded": false
-            },
-            {
-                "name": "Rarity",
-                "excluded": false
-            },
-            {
-                "name": "PlayerSequenceController",
+                "name": "PlayerJoystickMove",
                 "excluded": true
+            },
+            {
+                "name": "PlayerOnBoatLookMoveDir",
+                "excluded": true
+            },
+            {
+                "name": "RotateByJoystickAndCamera",
+                "excluded": true
+            },
+            {
+                "name": "MinecraftIceSlide.Direction",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -14521,7 +14525,7 @@
                     },
                     {
                         "name": "SmoothDamp",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SmoothDamp$1",
@@ -14541,7 +14545,7 @@
                     },
                     {
                         "name": "MoveTowards",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "LerpAngle",
@@ -15441,7 +15445,7 @@
                     },
                     {
                         "name": "zero#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "one#get",
@@ -15449,19 +15453,19 @@
                     },
                     {
                         "name": "up#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "down#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "left#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "right#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Distance",
@@ -15593,7 +15597,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -16157,7 +16161,7 @@
                     },
                     {
                         "name": "Rotate",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Rotate$1",
@@ -16193,7 +16197,7 @@
                     },
                     {
                         "name": "LookAt",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "LookAt$2",
@@ -19583,7 +19587,7 @@
                     },
                     {
                         "name": "RaycastAll$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RaycastNonAlloc$2",
@@ -21407,7 +21411,7 @@
                     },
                     {
                         "name": "bounds#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isTrigger#get",
@@ -25490,24 +25494,6 @@
                 ]
             },
             {
-                "className": "PlayerMovement",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.ScriptableObject",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -26129,60 +26115,6 @@
                     },
                     {
                         "name": "Reset",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerMovement2",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FixedUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnCollisionStay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsOnSlope",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StepClimb",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Jump",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnCollisionEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "MoveAndIdle",
                         "excluded": false
                     }
                 ]
@@ -33914,232 +33846,6 @@
                 ]
             },
             {
-                "className": "Anim3D",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnAnimationEvent",
-                        "excluded": true
-                    },
-                    {
-                        "name": "EventAtk",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventIdle",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventDead",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventMove",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventAtkComplete",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventJump",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "BaseCharacter",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsFindingEnemy#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsFindingEnemy#set",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SearchForEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleMovement",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleMovementByPoint",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetIdle",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HandleAttack",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleDeath",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Die",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AtkCompleted",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "SoundChar",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "PlayIdleSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayAttackSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayTakeDameSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayDeadSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayMoveSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayJumpSound",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerChar",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Die",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SearchForEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnStartRespawn",
-                        "excluded": false
-                    },
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "MoveAndIdle",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update$1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FixedUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Jump",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Shoot",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerEnter$1",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnCollisionEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnMouseUpShoot",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "ZombieChar",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SearchForEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IeNhapNhay",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.UI.GridLayoutGroup",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -34214,52 +33920,6 @@
                     {
                         "name": "SetCellsAlongAxis",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "GameController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StartGame",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RestartGame",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetupBlackUI",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowListMonster",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FadeBlackInOut",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideBlackInstant",
-                        "excluded": true
                     }
                 ]
             },
@@ -34672,16 +34332,6 @@
                     {
                         "name": "DOShapeCircle",
                         "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "WeaponObject",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
                     }
                 ]
             },
@@ -35760,298 +35410,6 @@
                 ]
             },
             {
-                "className": "BuyMonsterUIController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Show",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Hide",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnBuyButtonClick",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetNextAvailableSlot",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "Game.Common.Utilities.Billboard",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "GoldSlot",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CollectGold",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AssignMonster",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "HAVIGAME.UI.AutoCanvasScaler",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Reset",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnValidate",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CalculatorScale",
-                        "excluded": true
-                    },
-                    {
-                        "name": "AutoUpdate",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "MonsterSpawner",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SpawnMonster",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetRandomRarity",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerGold",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AddGold",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SpendGold",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateUI",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "FaceCamera",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "MonsterBuyTrigger",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerExit",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetMonster",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "MonsterController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetTarget",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetGoldSlot",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyRarity",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetStats",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Buy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StopMoving",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetTarget$1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FlashRed",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FlashRedRoutine",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Die",
-                        "excluded": false
-                    },
-                    {
-                        "name": "WanderRoutine",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrawGizmosSelected",
-                        "excluded": true
-                    },
-                    {
-                        "name": "AnimDead",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "Bullet",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.PropertyHelper",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -36214,6 +35572,174 @@
                     {
                         "name": "MoveHandToPoint",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "BoatAutoMoveController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateTurn",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveForwardStepUpOnly",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBottomOffset",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SampleGroundHeightStable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SampleGroundHeightStableAtFront",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryGetGroundY",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsFrontBlocked",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RotateBoatVisual",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RotatePlayerFollowMoveDirection",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HoldLeft",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HoldRight",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ReleaseTurn",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDrawGizmosSelected",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DrawRayBox",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RayBlocked",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "BoatTurnButton",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "OnPointerDown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerUp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "CameraFollow",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "LateUpdate",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "MinecraftIceSlide",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureRefs",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Generate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ClearMesh",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BuildBlockSet",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RasterizeSegment",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AddCrossSection",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DirectionToVector",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RightOf",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BuildVoxelMesh",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AddFace",
+                        "excluded": true
                     }
                 ]
             }
