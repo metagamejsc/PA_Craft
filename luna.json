@@ -1,8 +1,8 @@
 {
     "version": "6.3.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29023,
-    "creativeName": "WML_V37_DungNV_ToiNV",
+    "applicationID": 35701,
+    "creativeName": "PEOP_V24_DungNV_AnhPD",
     "pgServer": "EU",
     "window": {
         "‐″": true
@@ -132,11 +132,15 @@
                 "Assets/Sound/wind-128967 (mp3cut.net).mp3",
                 "Assets/Sound/long-whoosh-194554.mp3",
                 "Assets/Sound/ice-cracking-field-recording-06-139709.mp3",
-                "Assets/Game/Models/MC_10009/MC_T_10009.png"
+                "Assets/Game/Models/MC_10009/MC_T_10009.png",
+                "Assets/Game/Models/Player/BaseCharacter/S2_gun.fbx",
+                "Assets/TextMesh Pro/Sprites/EmojiOne.png",
+                "Assets/Texture/Model_3D/base_Character_Final_Final.png"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
-                "Assets/TextMesh Pro/Resources/TMP Settings.asset"
+                "Assets/TextMesh Pro/Resources/TMP Settings.asset",
+                "Assets/Texture/Free-Minecraft-Steve-SVG.jpg"
             ]
         },
         "scenes": [
@@ -11377,8 +11381,8 @@
                         "name": "Assets/TextMesh Pro/Resources/Fonts & Materials/Minecraft SDF.asset"
                     },
                     {
-                        "maxWidth": 1024,
-                        "maxHeight": 1024,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "png32",
                         "compression": "quantSize",
                         "quality": 65,
@@ -11387,18 +11391,18 @@
                         "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/TexturesCom_HighRiseTowers0146_S_diffuse.png"
                     },
                     {
-                        "maxWidth": 1024,
-                        "maxHeight": 1024,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "png32",
-                        "compression": "quantSize",
+                        "compression": "quantQuality",
                         "quality": 65,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/structure-toile_diffuse.png"
                     },
                     {
-                        "maxWidth": 1024,
-                        "maxHeight": 1024,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "png32",
                         "compression": "quantSize",
                         "quality": 65,
@@ -11407,44 +11411,84 @@
                         "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/monticule_diffuse.png"
                     },
                     {
-                        "maxWidth": 1024,
-                        "maxHeight": 1024,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "png32",
-                        "compression": "quantSize",
+                        "compression": "quantQuality",
                         "quality": 65,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/wall.002_diffuse.png"
                     },
                     {
-                        "maxWidth": 1024,
-                        "maxHeight": 1024,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "png32",
-                        "compression": "quantSize",
+                        "compression": "quantQuality",
                         "quality": 65,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/TexturesCom_BuildingsTallHouse0057_S_diffuse.png"
                     },
                     {
-                        "maxWidth": 1024,
-                        "maxHeight": 1024,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "png32",
-                        "compression": "quantSize",
+                        "compression": "quantQuality",
                         "quality": 65,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/TexturesCom_RoadsBarriers0011_4_S_diffuse.png"
                     },
                     {
-                        "maxWidth": 1024,
-                        "maxHeight": 1024,
+                        "maxWidth": 256,
+                        "maxHeight": 256,
                         "format": "png32",
                         "compression": "quantSize",
                         "quality": 65,
                         "script": "",
                         "ext": "",
                         "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/wall_diffuse.png"
+                    },
+                    {
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Texture/Model_3D/Worm/Worm_Color.jpeg"
+                    },
+                    {
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/route_diffuse.png"
+                    },
+                    {
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/ivy-leaves.001_emissive.png"
+                    },
+                    {
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Texture/Model_3D/GunGold/new/textures/TommyStock2Mtl_baseColor.png"
                     }
                 ]
             },
@@ -11506,7 +11550,12 @@
                 "default": {
                     "halfPrecision": true
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "halfPrecision": true,
+                        "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/abadoned.fbx"
+                    }
+                ]
             },
             "animations": {
                 "default": {
