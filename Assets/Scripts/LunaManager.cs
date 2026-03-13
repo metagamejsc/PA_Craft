@@ -15,6 +15,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Hiện Btn EndCard")] public bool isBtnEnd = false;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
     [LunaPlaygroundField("Time Climb")] public int timeClimb = 5;
+    [LunaPlaygroundField("Speed Climb")] public int climbSpeed = 5;
     [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay = 0;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed = 1.5f;
     [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce = 40f;
@@ -30,6 +31,7 @@ public class LunaManager : MonoBehaviour
     public Button[] lstBtnInstall;
     public GameObject EndCard;
     public GameObject WinCard;
+    public GameObject btnBuild;
 
 
 
@@ -98,6 +100,7 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(true);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
+        btnBuild.SetActive(false);
     }
     public void ShowWinCard()
     {

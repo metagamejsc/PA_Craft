@@ -54,6 +54,7 @@ public class PlayerMovement2 : MonoBehaviour
         moveSpeed = LunaManager.ins.playerSpeed;
         jumpHeight = LunaManager.ins.playerJumpForce;
         climbLayer = LayerMask.NameToLayer("Climb");
+        climbSpeed = LunaManager.ins.climbSpeed;
         timeClimb = LunaManager.ins.timeClimb;
         StartCoroutine(MoveAndIdle());
     }
