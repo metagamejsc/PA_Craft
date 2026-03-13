@@ -1,17 +1,39 @@
 using UnityEngine;
 
-public class CameraFollow : MonoBehaviour
+public class CameraFollowForward : MonoBehaviour
 {
     public Transform target;
-    public Vector3 offset = new Vector3(0f, 8f, -6f);
-    public float followSpeed = 5f;
 
-    private void LateUpdate()
+    public float distance = 6f;
+    public float height = 3f;
+
+    public float positionSmooth = 5f;
+    public float rotationSmooth = 5f;
+
+    void LateUpdate()
     {
         if (target == null) return;
 
-        Vector3 desiredPos = target.position + offset;
-        //transform.position = Vector3.Lerp(transform.position, desiredPos, followSpeed * Time.deltaTime);
-        transform.LookAt(target);
+        // vị trí camera phía sau object
+        Vector3 desiredPosition =
+            target.position
+            - target.forward * distance
+            + Vector3.up * height;
+
+        transform.position = Vector3.Lerp(
+            transform.position,
+            desiredPosition,
+            positionSmooth * Time.deltaTime
+        );
+
+        // camera nhìn về object
+        Quaternion desiredRotation =
+            Quaternion.LookRotation(target.forward);
+
+        transform.rotation = Quaternion.Lerp(
+            transform.rotation,
+            desiredRotation,
+            rotationSmooth * Time.deltaTime
+        );
     }
 }

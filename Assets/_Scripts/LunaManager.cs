@@ -10,21 +10,20 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     public int countDrop=0;
     [LunaPlaygroundField("Số lần bắn ra Store")]public int countDropFinal;
-    [LunaPlaygroundField("Hp Enemy")]public int enemyHp=10;
-    [LunaPlaygroundField("Speed Enemy")]public float speedMonster=5f;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
-    public float playerJumpForce=40f;
+    [LunaPlaygroundField("Player Rotate")] public float playerRotate=60f;
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
     
-    public float timeSpawn=3f;
-    public float starterGold=500;
+    [LunaPlaygroundField("Độ dài cả đường băng")] public int segementCount=500;
+    [LunaPlaygroundField("Độ dài 1 đoạn đường băng")] public int lenghOneStep=5;
+    [LunaPlaygroundField("Độ rộng đường băng")] public int widthLine=5;
+    [LunaPlaygroundField("Độ cong đường băng")] public int curveStrength=5;
+    [LunaPlaygroundField("Tần suất đường cong")] public float curveFrequency=0.25f;
     public Light directionalLight;
     public bool isCretivePause;
-    public GameObject btnRestart;
     private void Awake()
     {
         ins = this;
@@ -49,14 +48,14 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         EndCardEmpty.SetActive(false);
         WinCard.SetActive(false);
-        btnRestart.SetActive(canReplay>=1);
+        
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
     public void ReplayGame()
     {
-        canReplay--;
-        btnRestart.SetActive(canReplay>=1);
+       
+        
         isCretivePause = false;
         EndCard.SetActive(false);
         var timeEndCreativeRemaining = timeEndCreative - Time.realtimeSinceStartup;

@@ -25,7 +25,7 @@ public class MinecraftIceSlideEditor : Editor
         if (GUILayout.Button("Clear"))
         {
             Undo.RecordObject(gen, "Clear Minecraft Ice Slide");
-            gen.ClearMesh();
+            //gen.ClearMesh();
             EditorUtility.SetDirty(gen);
         }
 

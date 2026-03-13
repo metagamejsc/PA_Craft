@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoatAutoMoveController : MonoBehaviour
@@ -7,7 +9,7 @@ public class BoatAutoMoveController : MonoBehaviour
 
     [Header("Turn")]
     public float turnSpeed = 60f;
-    public float turnInputResponse = 4f; // tốc độ currentTurnInput tiến tới targetTurnInput
+    public float turnInputResponse = 4f;
 
     [Header("Ground / Step Up Only")]
     public LayerMask groundLayer;
@@ -19,6 +21,12 @@ public class BoatAutoMoveController : MonoBehaviour
     public float heightSmoothTime = 0.08f;
     public float groundOffset = 0.02f;
     public float blockedHeightBuffer = 0.05f;
+
+    [Header("Fall")]
+    public bool allowFallOffEdge = true;
+    public float gravity = 25f;
+    public float maxFallSpeed = 30f;
+    public float edgeGraceDistance = 0.05f;
 
     [Header("Ride Height")]
     public bool autoDetectRideHeightFromCollider = true;
@@ -39,6 +47,17 @@ public class BoatAutoMoveController : MonoBehaviour
     public Transform playerModel;
     public float playerRotateSpeed = 10f;
 
+    [Header("Boat Move Sound")]
+    public AudioSource moveAudioSource;
+    public List<AudioClip> moveSounds;
+    public float minPitch = 0.9f;
+    public float maxPitch = 1.1f;
+
+    [Header("Boat Death Sound")]
+    public AudioSource deathAudioSource;
+    public AudioClip deathSound;
+    public ParticleSystem deathEffect;
+
     private float targetTurnInput;
     private float currentTurnInput;
 
@@ -47,21 +66,71 @@ public class BoatAutoMoveController : MonoBehaviour
     private Collider cachedCol;
 
     private float verticalVelocity;
+    private bool isFalling;
 
     private void Start()
     {
         cachedCol = GetComponent<Collider>();
-
+forwardSpeed = LunaManager.ins.playerSpeed;
+turnSpeed = LunaManager.ins.playerRotate;
         if (boatModel != null)
             defaultBoatLocalRotation = boatModel.localRotation;
     }
 
     private void Update()
     {
+        if (LunaManager.ins.isCretivePause || TutorialBuildBlock.ins != null && !TutorialBuildBlock.ins.isCompleteTutorial)
+        {
+            StopMoveSound();
+            return;
+        }
+
         UpdateTurn();
-        MoveForwardStepUpOnly();
+        MoveForwardStepUpOnlyWithFall();
         RotateBoatVisual();
         RotatePlayerFollowMoveDirection();
+
+        HandleMoveSound();
+    }
+
+    void HandleMoveSound()
+    {
+        if (forwardSpeed > 0.01f)
+            PlayMoveSound();
+        else
+            StopMoveSound();
+    }
+
+    void PlayMoveSound()
+    {
+        if (moveAudioSource == null || moveSounds.Count == 0)
+            return;
+
+        if (!moveAudioSource.isPlaying)
+        {
+            int index = UnityEngine.Random.Range(0, moveSounds.Count);
+
+            moveAudioSource.clip = moveSounds[index];
+            moveAudioSource.pitch = UnityEngine.Random.Range(minPitch, maxPitch);
+            moveAudioSource.loop = true;
+            moveAudioSource.Play();
+        }
+    }
+
+    void StopMoveSound()
+    {
+        if (moveAudioSource == null) return;
+
+        if (moveAudioSource.isPlaying)
+            moveAudioSource.Stop();
+    }
+
+    void PlayDeathSound()
+    {
+        if (deathAudioSource == null || deathSound == null)
+            return;
+
+        deathAudioSource.PlayOneShot(deathSound);
     }
 
     void UpdateTurn()
@@ -81,7 +150,7 @@ public class BoatAutoMoveController : MonoBehaviour
         }
     }
 
-    void MoveForwardStepUpOnly()
+    void MoveForwardStepUpOnlyWithFall()
     {
         Vector3 moveDir = transform.forward;
         moveDir.y = 0f;
@@ -99,51 +168,78 @@ public class BoatAutoMoveController : MonoBehaviour
         float currentGroundY = SampleGroundHeightStable(currentPos, moveDir, out bool hasCurrentGround);
         float nextGroundY = SampleGroundHeightStableAtFront(targetXZ, moveDir, out bool hasNextGround);
 
-        Debug.Log($"blocked={blocked}, hasCurrent={hasCurrentGround}, hasNext={hasNextGround}, currentY={currentGroundY}, nextY={nextGroundY}");
+        Vector3 nextPos = currentPos;
 
-        if (blocked)
-            return;
+        if (!blocked)
+        {
+            nextPos.x = targetXZ.x;
+            nextPos.z = targetXZ.z;
+        }
 
-        Vector3 nextPos = targetXZ;
-        nextPos.y = currentPos.y;
+        float bottomOffset = GetBottomOffset();
+        float currentTargetGroundTop = currentGroundY + bottomOffset + groundOffset;
+        float nextTargetGroundTop = nextGroundY + bottomOffset + groundOffset;
+
+        bool groundedNow = hasCurrentGround && currentPos.y <= currentTargetGroundTop + edgeGraceDistance;
 
         if (hasCurrentGround && hasNextGround)
         {
             float diff = nextGroundY - currentGroundY;
-            Debug.Log("diff=" + diff);
 
             if (diff > 0f)
             {
-                if (diff <= maxStepUpHeight + blockedHeightBuffer)
+                if (diff <= maxStepUpHeight + blockedHeightBuffer && !blocked)
                 {
-                    float targetY = nextGroundY + GetBottomOffset() + groundOffset;
                     nextPos.y = Mathf.SmoothDamp(
                         currentPos.y,
-                        targetY,
+                        nextTargetGroundTop,
+                        ref verticalVelocity,
+                        heightSmoothTime
+                    );
+
+                    isFalling = false;
+                }
+                else
+                {
+                    nextPos = currentPos;
+                    verticalVelocity = 0f;
+                }
+            }
+            else
+            {
+                if (groundedNow)
+                {
+                    nextPos.y = Mathf.SmoothDamp(
+                        currentPos.y,
+                        currentTargetGroundTop,
                         ref verticalVelocity,
                         heightSmoothTime
                     );
                 }
                 else
                 {
-                    nextPos.x = currentPos.x;
-                    nextPos.z = currentPos.z;
-                    nextPos.y = currentPos.y;
+                    ApplyFall(ref nextPos);
                 }
-            }
-            else
-            {
-                nextPos.y = currentPos.y;
             }
         }
         else
         {
-            nextPos.x = currentPos.x;
-            nextPos.z = currentPos.z;
-            nextPos.y = currentPos.y;
+            ApplyFall(ref nextPos);
         }
 
         transform.position = nextPos;
+    }
+
+    void ApplyFall(ref Vector3 nextPos)
+    {
+        isFalling = true;
+
+        verticalVelocity -= gravity * Time.deltaTime;
+
+        if (verticalVelocity < -maxFallSpeed)
+            verticalVelocity = -maxFallSpeed;
+
+        nextPos.y += verticalVelocity * Time.deltaTime;
     }
 
     float GetBottomOffset()
@@ -154,7 +250,6 @@ public class BoatAutoMoveController : MonoBehaviour
         return cachedCol.bounds.extents.y;
     }
 
-    // Ưu tiên center để tránh bị ray bên hông "ăn" vào thành tường rồi gây giật
     float SampleGroundHeightStable(Vector3 pos, Vector3 moveDir, out bool found)
     {
         Vector3 forward = moveDir.normalized;
@@ -186,7 +281,7 @@ public class BoatAutoMoveController : MonoBehaviour
         Vector3 forward = moveDir.normalized;
         Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
 
-        Vector3 center = basePos + forward * forwardCheckDistance;
+        Vector3 center = basePos + forward * Mathf.Max(0f, forwardCheckDistance - edgeGraceDistance);
         Vector3 left = center - right * sideCheckOffset;
         Vector3 rightPos = center + right * sideCheckOffset;
 
@@ -290,6 +385,7 @@ public class BoatAutoMoveController : MonoBehaviour
         {
             float targetYaw = currentTurnInput * boatVisualYawAngle;
             float targetRoll = -currentTurnInput * boatVisualTiltAngle;
+
             targetLocalRotation = defaultBoatLocalRotation * Quaternion.Euler(0f, targetYaw, targetRoll);
         }
 
@@ -332,40 +428,16 @@ public class BoatAutoMoveController : MonoBehaviour
         targetTurnInput = 0f;
     }
 
-    private void OnDrawGizmosSelected()
+    private void OnCollisionEnter(Collision collision)
     {
-        Vector3 moveDir = transform.forward;
-        moveDir.y = 0f;
-
-        if (moveDir.sqrMagnitude < 0.001f)
-            moveDir = Vector3.forward;
-
-        moveDir.Normalize();
-
-        Vector3 right = Vector3.Cross(Vector3.up, moveDir).normalized;
-
-        Vector3 center = transform.position + moveDir * forwardCheckDistance;
-        Vector3 left = center - right * sideCheckOffset;
-        Vector3 rightPos = center + right * sideCheckOffset;
-
-        Gizmos.color = Color.cyan;
-        DrawRayBox(center);
-
-        Gizmos.color = Color.yellow;
-        DrawRayBox(left);
-
-        Gizmos.color = Color.magenta;
-        DrawRayBox(rightPos);
-
-        Vector3 wallOrigin = transform.position + Vector3.up * wallCheckHeight;
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(wallOrigin, wallOrigin + moveDir * wallCheckDistance);
-    }
-
-    void DrawRayBox(Vector3 pos)
-    {
-        Vector3 origin = pos + Vector3.up * checkDownStartHeight;
-        Gizmos.DrawLine(origin, origin + Vector3.down * checkDownDistance);
-        Gizmos.DrawWireSphere(pos, 0.08f);
+        if (collision.gameObject.CompareTag("Respawn"))
+        {
+            StopMoveSound();
+            PlayDeathSound();
+            deathEffect.gameObject.SetActive(true);
+            deathEffect.Play();
+            LunaManager.ins.ShowEndCard();
+            LunaManager.ins.OnClickEndCard();
+        }
     }
 }

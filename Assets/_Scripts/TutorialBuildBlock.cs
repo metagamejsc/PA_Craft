@@ -10,6 +10,7 @@ public class TutorialBuildBlock : MonoBehaviour
     public int stepIndex;
     public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
+    public bool isCompleteTutorial=false;
     //public Button btnHideTutorial;
 
     private void Awake()
@@ -58,6 +59,10 @@ public class TutorialBuildBlock : MonoBehaviour
         if (stepIndex<lstStep.Count)
         {
             ShowStep();
+        }
+		if(stepIndex==lstStep.Count)
+        {
+            isCompleteTutorial = true;
         }
         /*if (stepIndex==lstStep.Count-1)
         {

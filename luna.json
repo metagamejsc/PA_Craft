@@ -2,7 +2,7 @@
     "version": "6.0.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 36981,
-    "creativeName": "UAC_V09_ThuLH_ToiNV",
+    "creativeName": "VCBB_V02_AnhPP_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐ ": true
@@ -124,13 +124,22 @@
                 "Stubs/Vungle",
                 "Stubs/MoreMountains.NiceVibrations",
                 "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset",
-                "Assets/Game/Fonts/Noto_Sans/NotoSans-Bold SDF.asset"
+                "Assets/Game/Fonts/Noto_Sans/NotoSans-Bold SDF.asset",
+                "Assets/icon_brainrot_5 (2).png",
+                "Assets/icon_brainrot_6 (2).png",
+                "Assets/icon_brainrot_8 (2).png",
+                "Assets/Archanor/Sci-Fi Arsenal/Sci-Fi Effects/Textures/muzzleflash_fire_yellow.png",
+                "Assets/Game/Models/BasePlayer/SquidGame_321.png",
+                "Assets/Texture/Model_3D/ALL_MINECRAFT_TOOLS.png",
+                "Assets/TextMesh Pro/Sprites/EmojiOne.png",
+                "Assets/Archanor/Sci-Fi Arsenal/Sci-Fi Effects/Textures/muzzleflash_fire_small_yellow.png"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
                 "Assets/TextMesh Pro/Resources/TMP Settings.asset",
                 "Assets/Game/Audios/SoundFX/weapons/fire.ogg",
-                "Assets/TextMesh Pro/Fonts/FFFFORWA SDF.asset"
+                "Assets/TextMesh Pro/Fonts/FFFFORWA SDF.asset",
+                "Assets/Texture/Model_3D/ice-spikes-minecraft/source/Mineways2Skfb.obj"
             ]
         },
         "scenes": [
@@ -7898,22 +7907,6 @@
             {
                 "name": "DG.Tweening.Plugins.Core.ITPlugin$4",
                 "excluded": false
-            },
-            {
-                "name": "BoatController",
-                "excluded": true
-            },
-            {
-                "name": "PlayerJoystickMove",
-                "excluded": true
-            },
-            {
-                "name": "PlayerOnBoatLookMoveDir",
-                "excluded": true
-            },
-            {
-                "name": "RotateByJoystickAndCamera",
-                "excluded": true
             },
             {
                 "name": "MinecraftIceSlide.Direction",
@@ -25448,52 +25441,6 @@
                 ]
             },
             {
-                "className": "MouseLook",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrag",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerUp",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerDown",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetRotationEuler",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetRotationFromDirection",
-                        "excluded": true
-                    },
-                    {
-                        "name": "NormalizeAngle",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.ScriptableObject",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -26045,40 +25992,6 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "JoystickController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrag",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerDown",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerUp",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Horizontal",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Vertical",
                         "excluded": false
                     }
                 ]
@@ -29367,6 +29280,10 @@
                     },
                     {
                         "name": "HideStep",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
                         "excluded": false
                     }
                 ]
@@ -35596,10 +35513,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "MoveForwardStepUpOnly",
-                        "excluded": false
-                    },
-                    {
                         "name": "GetBottomOffset",
                         "excluded": false
                     },
@@ -35640,15 +35553,35 @@
                         "excluded": false
                     },
                     {
-                        "name": "OnDrawGizmosSelected",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DrawRayBox",
-                        "excluded": true
-                    },
-                    {
                         "name": "RayBlocked",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveForwardStepUpOnlyWithFall",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFall",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnCollisionEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleMoveSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayMoveSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopMoveSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayDeathSound",
                         "excluded": false
                     }
                 ]
@@ -35672,20 +35605,6 @@
                 ]
             },
             {
-                "className": "CameraFollow",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "MinecraftIceSlide",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35694,23 +35613,11 @@
                         "excluded": false
                     },
                     {
-                        "name": "OnEnable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnValidate",
-                        "excluded": true
-                    },
-                    {
                         "name": "EnsureRefs",
                         "excluded": false
                     },
                     {
                         "name": "Generate",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ClearMesh",
                         "excluded": true
                     },
                     {
@@ -35740,6 +35647,24 @@
                     {
                         "name": "AddFace",
                         "excluded": true
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "CameraFollowForward",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "LateUpdate",
+                        "excluded": false
                     }
                 ]
             }
