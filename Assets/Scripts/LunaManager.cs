@@ -14,6 +14,7 @@ public class LunaManager : MonoBehaviour
     public GameObject btnEnd;
     [LunaPlaygroundField("Hiện Btn EndCard")] public bool isBtnEnd = false;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
+    [LunaPlaygroundField("Time Climb")] public int timeClimb = 5;
     [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay = 0;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed = 1.5f;
     [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce = 40f;
