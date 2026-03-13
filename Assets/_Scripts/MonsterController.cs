@@ -42,6 +42,7 @@ public class MonsterController : MonoBehaviour
     public bool allowRandomMove = true;
     public float wanderRadius = 3f;
     public float wanderInterval = 3f;
+    public DOTweenAnimation wanderTween;
 
     [Header("Sound")]
     public AudioSource audioSource;
@@ -177,6 +178,7 @@ public class MonsterController : MonoBehaviour
         modelRenderer.material.color = originalColor;
     }
 
+    
     void Die()
     {
         if (isDead) return;
@@ -193,12 +195,13 @@ public class MonsterController : MonoBehaviour
         {
             audioSource.PlayOneShot(deadSound);
         }
-
+		wanderTween.DOKill();
         // Ngã ngửa
-        Quaternion fallRotation = Quaternion.Euler(90f, transform.eulerAngles.y, 0f);
-        transform.DORotateQuaternion(fallRotation, 0.5f).SetEase(Ease.InBack);
+        //Quaternion fallRotation = Quaternion.Euler(90f, transform.eulerAngles.y, 0f);
+        //transform.DORotateQuaternion(fallRotation, 0.5f).SetEase(Ease.InBack);
 
         // Đổi màu
+        
         modelRenderer.material.color = Color.gray;
 
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -220,6 +223,7 @@ public class MonsterController : MonoBehaviour
     public void StopMoving()
     {
         isMoving = false;
+        wanderTween.DOKill();
         animator?.Play(idleAnimName);
     }
 

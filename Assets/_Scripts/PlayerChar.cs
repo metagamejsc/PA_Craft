@@ -24,7 +24,10 @@ public class PlayerChar : BaseCharacter
     public GameObject bulletPrefab;
     public Transform shootPoint;
     public float bulletSpeed = 20f;
+    public int countShoot = 0;
     public ParticleSystem shootEffect;
+    public GameObject shoot1ObjectShow, shoot2ObjectShow;
+
 
     private IEnumerator MoveAndIdle()
     {
@@ -101,7 +104,7 @@ public class PlayerChar : BaseCharacter
             return;
         }
 
-        float moveX = 0, moveZ = 0;
+        /*float moveX = 0, moveZ = 0;
 #if UNITY_EDITOR
         moveX = Input.GetAxis("Horizontal");
         moveZ = Input.GetAxis("Vertical");
@@ -136,7 +139,7 @@ public class PlayerChar : BaseCharacter
             //model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
 
-        animator.SetBool("isMoving", isMoving);
+        animator.SetBool("isMoving", isMoving);*/
     }
 
     public void Jump()
@@ -155,6 +158,16 @@ public class PlayerChar : BaseCharacter
         Debug.Log("Shoot");
         LunaManager.ins.CheckClickShowEndCard();
         shootEffect.Play();
+        countShoot++;
+        if (countShoot == 1)
+        {
+            shoot1ObjectShow.SetActive(true);
+        }
+        else if (countShoot == 2)
+        {
+            shoot2ObjectShow.SetActive(true);
+            LunaManager.ins.ShowEndCard();
+        }
         Camera cam = Camera.main;
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 targetPoint;

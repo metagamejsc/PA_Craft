@@ -13,13 +13,13 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Số lần bắn ra Store")]public int countDropFinal;
     [LunaPlaygroundField("Số Enemy chết ra Store")]public int countEnemyDeadFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
-    [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
+     public int canReplay=0;
+    public float playerSpeed=1.5f;
     public float playerJumpForce=40f;
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
-    [LunaPlaygroundField("Speed Bird")]public float speedMonster=5f;
+    public float speedMonster=5f;
     public float timeSpawn=3f;
     public float starterGold=500;
     public Light directionalLight;

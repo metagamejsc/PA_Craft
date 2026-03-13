@@ -17,4 +17,5 @@ public class FaceCamera : MonoBehaviour
             transform.LookAt(transform.position + mainCamera.transform.forward);
         }
     }
+	
 }
