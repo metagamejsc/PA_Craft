@@ -31,16 +31,6 @@ public class BaseCharacter : MonoBehaviour
         get => isFindingEnemy;
         set => isFindingEnemy = value;
     }
-    private void OnTriggerEnter(Collider other)
-    {
-        /*if (other.CompareTag("Weapon"))
-        {
-            if (WeaponObject!=null)
-            {
-                WeaponObject.SetActive(true);
-            }
-        }*/
-    }
 
     protected virtual void Update()
     {

@@ -23,7 +23,7 @@ public class GameController : MonoBehaviour
     
     public void StartGame()
     {
-        playerChar.OnStartRespawn();
+        //playerChar.OnStartRespawn();
         playerChar.transform.position = posSpawnPlayer.position;
     }
     public void RestartGame()
