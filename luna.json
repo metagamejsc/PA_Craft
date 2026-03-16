@@ -98,8 +98,8 @@
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.12",
-            "monoVersion": "8.0.14",
+            "msbuildVersion": "17.14",
+            "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
         "assets": {
@@ -149,7 +149,7 @@
             ]
         },
         "scenes": [
-            "Assets/Scenes/Game.unity"
+            "Assets/Scenes/SampleScene.unity"
         ],
         "disabledScenes": [],
         "startupScene": 0,
@@ -2639,10 +2639,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEditor.Animations.AnimatorCondition",
-                "excluded": true
-            },
-            {
                 "name": "UnityEditor.Animations.ChildMotion",
                 "excluded": true
             },
@@ -2880,10 +2876,6 @@
             },
             {
                 "name": "UnityEngine.PropertyName",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.Random",
                 "excluded": true
             },
             {
@@ -3792,7 +3784,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorCondition",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorControllerLayer",
@@ -3800,7 +3792,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorControllerParameter",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorState",
@@ -3812,7 +3804,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorTransitionBase",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.Motion",
@@ -4160,7 +4152,7 @@
             },
             {
                 "name": "UnityEditor.Animations.AnimatorConditionMode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEditor.Animations.AnimatorLayerBlendingMode",
@@ -4284,7 +4276,7 @@
             },
             {
                 "name": "UnityEngine.AnimationEvent",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.AnimationEventSource",
@@ -4320,7 +4312,7 @@
             },
             {
                 "name": "UnityEngine.AnimatorControllerParameterType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.AnimatorCullingMode",
@@ -6736,7 +6728,7 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorStateTransition",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Animation.Mecanim.AnimatorTransition",
@@ -17106,7 +17098,7 @@
                     },
                     {
                         "name": "material#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sharedMaterial#get",
@@ -17146,7 +17138,7 @@
                     },
                     {
                         "name": "materials#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "bounds#get",
@@ -32776,7 +32768,7 @@
                 "instanceMethods": [
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -32806,7 +32798,7 @@
                 "instanceMethods": [
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -32984,11 +32976,11 @@
                 "instanceMethods": [
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CheckTransitionConditions",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CheckTransitionExitTimeCondition",
@@ -33068,7 +33060,7 @@
                     },
                     {
                         "name": "StringToHash",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "HashToString",
@@ -33515,6 +33507,226 @@
                     {
                         "name": "AdjustFOV",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEditor.Animations.AnimatorCondition",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryMatchingParameters",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.Random",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "value#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "onUnitSphere#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "insideUnitSphere#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "state#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "state#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "insideUnitCircle#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "rotation#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SpherePoint",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Range$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Range",
+                        "excluded": false
+                    },
+                    {
+                        "name": "InitState",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Anim3D",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnAnimationEvent",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventAtk",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventAtkComplete",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventIdle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EventDead",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EventMove",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "BaseCharacter",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsFindingEnemy#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsFindingEnemy#set",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AtkCompleted",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SearchForEnemy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleMovement",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleMovementByPoint",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetIdle",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TakeDamage",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleDeath",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Die",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "SoundChar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "PlayIdleSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayAttackSound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayTakeDameSound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayDeadSound",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayMoveSound",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "ZombieChar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SearchForEnemy",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TakeDamage",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateHealthUI",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IeNhapNhay",
+                        "excluded": true
                     }
                 ]
             }
