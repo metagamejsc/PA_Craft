@@ -120,19 +120,36 @@ public class PlayerChar : BaseCharacter
         if (health <= 0)
         {
             LunaManager.ins.ShowEndCard();
-            isDead = true;
+            //isDead = true;
             Die();
         }
     }
     public override void Die()
     {
-        isDead = true;
-        animator.SetTrigger("Dead");
+        if (!isDead)
+        {
+            //animator.SetTrigger("Dead");
+            animator.Play("metarig|Fall");
+            animator.speed = 1f;
+            isDead = true;
+        }
+
+
+
         //animator.SetBool("Dead1",true);
-        //animator.Play("metarig|Fall");
+
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
         //animator.transform.parent = null;
         //Destroy(gameObject);
+    }
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            print("TAKEG");
+            TakeDamage(1000);
+            LunaManager.ins.isLava = false;
+        }
     }
 }

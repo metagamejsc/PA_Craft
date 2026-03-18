@@ -15,6 +15,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Hiện Btn EndCard")] public bool isBtnEnd = false;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
     [LunaPlaygroundField("Time Climb")] public int timeClimb = 5;
+    [LunaPlaygroundField("Time Lava")] public float timeLava = 0.5f;
     [LunaPlaygroundField("Speed Climb")] public int climbSpeed = 5;
     [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay = 0;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed = 1.5f;
@@ -32,6 +33,8 @@ public class LunaManager : MonoBehaviour
     public GameObject EndCard;
     public GameObject WinCard;
     public GameObject btnBuild;
+    public bool isLava = false;
+    public GameObject LavaGO;
 
 
 
@@ -56,6 +59,13 @@ public class LunaManager : MonoBehaviour
         else
         {
             btnEnd.SetActive(false);
+        }
+    }
+    void Update()
+    {
+        if (isLava)
+        {
+            LavaGO.gameObject.transform.position += Vector3.up * timeLava * Time.deltaTime;
         }
     }
     public void ReplayGame()

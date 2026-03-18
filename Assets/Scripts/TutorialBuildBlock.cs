@@ -11,6 +11,7 @@ public class TutorialBuildBlock : MonoBehaviour
     public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
     //public Button btnHideTutorial;
+    public GameObject ShowGO;
 
     private void Awake()
     {
@@ -20,11 +21,12 @@ public class TutorialBuildBlock : MonoBehaviour
     public IEnumerator IeSpawnStep()
     {
         yield return new WaitForSeconds(1f);
-        
+
     }
 
     private void Start()
     {
+        ShowGO.SetActive(false);
         foreach (var VARIABLE in lstStep)
         {
             VARIABLE.SetActive(false);
@@ -50,9 +52,15 @@ public class TutorialBuildBlock : MonoBehaviour
         GameController.ins.isPauseGame = false;
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
-        if (stepIndex<lstStep.Count)
+        if (stepIndex < lstStep.Count)
         {
             ShowStep();
+        }
+        else
+        {
+            print("DONE TUTORIAL");
+            ShowGO.SetActive(true);
+            LunaManager.ins.isLava = true;
         }
         /*if (stepIndex==lstStep.Count-1)
         {
