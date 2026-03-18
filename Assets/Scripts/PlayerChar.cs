@@ -5,19 +5,20 @@ using UnityEngine;
 [RequireComponent(typeof(CapsuleCollider))]
 public class PlayerChar : BaseCharacter
 {
+    public LevelProgressUI progressUI;
     public GameObject swordFake;
     public Transform swordFakePos;
     public Transform swordPos;
 
     [Header("Movement")]
-    public float moveSpeed = 5f;
+   
     public float jumpForce = 5f;
 
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
-    public Animator animator;
+
     public GameObject model;
 
     Rigidbody rb;
@@ -74,6 +75,10 @@ public class PlayerChar : BaseCharacter
 
         if (isMoving)
         {
+            if (progressUI != null)
+            {
+                progressUI.SendMessage("UpdateProgress");
+            }
             Transform cam = Camera.main.transform;
 
             Vector3 camForward = Vector3.Scale(cam.forward, new Vector3(1, 0, 1)).normalized;
