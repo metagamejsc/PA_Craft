@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class HandPointerController : MonoBehaviour
 {
+    
     public RectTransform handPointer; // Đối tượng hình bàn tay
     public Transform inventoryPanel;  // Panel chứa các ô inventory
     public float moveDuration = 0.5f; // Thời gian di chuyển giữa các ô
