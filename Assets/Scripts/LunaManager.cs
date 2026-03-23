@@ -15,6 +15,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundAsset("Video")]          public VideoClip videoClip;
     [LunaPlaygroundField("Text")]           public string stringEndCreative;
     [LunaPlaygroundField("Text Color")]     public Color colorTextEndCreative;
+    [LunaPlaygroundField("Text Position")]     public Vector2 positionTextEndCreative;
     [LunaPlaygroundField("Text Size")]      public float sizeTextEndCreative;
     [LunaPlaygroundField("Text Style")]     public FontStyles fontStyleTextEndCreative;
     [LunaPlaygroundField("Time Show Select Weapon")]     public float timeShowSelectWeapon=2f;
@@ -46,6 +47,7 @@ public class LunaManager : MonoBehaviour
         txtEndCreative.color = colorTextEndCreative;
         txtEndCreative.fontSize = sizeTextEndCreative;
         txtEndCreative.fontStyle = fontStyleTextEndCreative;
+        txtEndCreative.rectTransform.anchoredPosition = positionTextEndCreative;
     }
     
     // Update is called once per frame
