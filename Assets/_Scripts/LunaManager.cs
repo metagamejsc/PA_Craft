@@ -9,17 +9,18 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số lần bắn ra Store")]public int countDropFinal;
-    [LunaPlaygroundField("Hp Enemy")]public int enemyHp=10;
-    [LunaPlaygroundField("Speed Enemy")]public float speedMonster=5f;
+    public int countDropFinal;
+    public int enemyHp=10;
+    public float speedMonster=5f;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
+    public int canReplay=0;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
     public float playerJumpForce=40f;
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
-    
+    [LunaPlaygroundAsset("Tinh Tinh")]public AudioClip getCoinSound;
+    [LunaPlaygroundAsset("Select item")]public AudioClip buySound;
     public float timeSpawn=3f;
     public float starterGold=500;
     public Light directionalLight;
@@ -92,7 +93,7 @@ public class LunaManager : MonoBehaviour
     {
         if (isCretivePause) return;
         isCretivePause = true;
-        AudioManager.ins.PlayMusicLose();
+        //AudioManager.ins.PlayMusicLose();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
@@ -110,7 +111,7 @@ public class LunaManager : MonoBehaviour
     {
         if (isCretivePause) return;
         isCretivePause = true;
-        AudioManager.ins.PlayMusicWin();
+        //AudioManager.ins.PlayMusicWin();
         WinCard.SetActive(true);
         Debug.Log("Show win card");
         Luna.Unity.LifeCycle.GameEnded();

@@ -31,6 +31,8 @@ public class AudioManager : MonoBehaviour
     private void Start()
     {
         bgSound=LunaManager.ins.bgMusic;
+        getCoinSound=LunaManager.ins.getCoinSound;
+        buySound=LunaManager.ins.buySound;
         PlayMusic();
     }
 
