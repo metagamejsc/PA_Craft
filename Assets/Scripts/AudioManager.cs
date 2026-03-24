@@ -34,7 +34,7 @@ public class AudioManager : MonoBehaviour
 
     public void PlaySoundClick()
     {
-        sound.PlayOneShot(lstMoveSound[Random.Range(0,soundClick.Count)],1);
+        sound.PlayOneShot(soundClick[Random.Range(0,soundClick.Count)],1);
     }
     public void PlaySound(AudioClip audioClip)
     {

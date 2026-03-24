@@ -41,7 +41,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     public void OnDrag(PointerEventData eventData)
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        /*float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         if (Mathf.Abs(mouseX) > 20 || Mathf.Abs(mouseY) > 20)
@@ -56,7 +56,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         //mx = Input.GetAxis("Mouse X");
 
         //player body's y rotation (turn left and right)
-        playerBody.Rotate(Vector3.up * mouseX);
+        playerBody.Rotate(Vector3.up * mouseX);*/
     }
 
     public void OnPointerUp(PointerEventData eventData)

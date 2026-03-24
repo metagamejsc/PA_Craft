@@ -13,15 +13,18 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Số lần đặt block ra store")]public int countDropFinal;
      public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Độ đa dạng địa hình")]public float noiseIntensity=10;
-    [LunaPlaygroundField("Độ cao mặt đất")]public float landNoiseScale=0.8f;
-    [LunaPlaygroundField("Số lượng cây")] public int treeCount=20;
+    [LunaPlaygroundField("Range Light")] public float rangeLight;
+    [LunaPlaygroundField("intensity Light")] public float intensityLight;
+    public List<Light> lstLight;
+    public List<Light> lstLight2;
+   public float noiseIntensity=10;
+    public float landNoiseScale=0.8f;
+    public int treeCount=20;
     
-    [LunaPlaygroundField("Độ dày của tường")] public int wallThickness=5;
-    [LunaPlaygroundField("Khoảng cách giữa 2 đảo")] public int rangeBetweenIsland=10;
-    [LunaPlaygroundField("bán kính đảo")] public int isLandRadius=5;
+    public int wallThickness=5;
+    public int rangeBetweenIsland=10;
+    public int isLandRadius=5;
     public bool isCretivePause;
-    public TextMeshProUGUI txtTime;
     private void Awake()
     {
         ins = this;
@@ -45,6 +48,14 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
+        for (int i = 0; i < lstLight.Count; i++)
+        {
+            lstLight[i].range = rangeLight;
+        }
+        for (int i = 0; i < lstLight2.Count; i++)
+        {
+            lstLight2[i].intensity = intensityLight;
+        }
     }
 
     private void Update()
@@ -53,7 +64,7 @@ public class LunaManager : MonoBehaviour
         {
             return;
         }
-        txtTime.text= $"Time Left: {Mathf.CeilToInt(timeEndCreative - Time.timeSinceLevelLoad)}";
+        //txtTime.text= $"Time Left: {Mathf.CeilToInt(timeEndCreative - Time.timeSinceLevelLoad)}";
     }
 
     public void CheckClickShowEndCard()

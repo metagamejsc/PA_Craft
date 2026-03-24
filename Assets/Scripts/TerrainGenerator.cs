@@ -48,9 +48,7 @@ public class TerrainGenerator : MonoBehaviour
         noiseIntensity = LunaManager.ins.noiseIntensity;
         LoadChunks(true);
         Invoke(nameof(UpdateWallCollider), 1f);
-        Invoke(nameof(CreateIslandTriggerCollider), 1.5f);
-        OnPlayerEnterIsland2 += PlayerEnteredIsland2;
-        
+
         Invoke(nameof(SpawnSpecialTreeOnIsland2), 0.5f); // Chờ chút để chunk được sinh
     }
 
@@ -252,99 +250,28 @@ void SpawnTreeAtPosition(int x, int z)
 
     BlockType GetBlockType(int x, int y, int z)
     {
-        // --- Cấu hình vị trí hai hòn đảo ---
-        // Vị trí trung tâm của hòn đảo 1 (gần vị trí người chơi bắt đầu)
-        Vector2Int island1Center = new Vector2Int(Mathf.RoundToInt(player.position.x), Mathf.RoundToInt(player.position.z)); // Vị trí trung tâm của hòn đảo 1
+        // Noise địa hình nhẹ để tạo đồng cỏ hơi nhấp nhô
+        float terrainNoise = noise.GetSimplex(x * 0.03f, z * 0.03f) * 4f;
+        float detailNoise = noise.GetSimplex(x * 0.08f, z * 0.08f) * 2f;
 
-        // Vị trí trung tâm của hòn đảo 2, cách hòn đảo 1 khoảng 10 ô (theo trục X)
-        island2Center = new Vector2Int(island1Center.x + LunaManager.ins.rangeBetweenIsland, island1Center.y);
-        // Nếu muốn cách theo trục Z: new Vector2Int(island1Center.x, island1Center.y + 10);
+        int baseHeight = Mathf.RoundToInt(TerrainChunk.chunkHeight * 0.35f + terrainNoise + detailNoise);
 
-        // --- Kiểm tra xem điểm (x, z) có nằm trong vùng tạo đảo không ---
-        float distanceToIsland1 = Vector2.Distance(new Vector2(x, z), island1Center);
-        float distanceToIsland2 = Vector2.Distance(new Vector2(x, z), island2Center);
+        // Không cho quá thấp hoặc quá cao
+        baseHeight = Mathf.Clamp(baseHeight, 8, TerrainChunk.chunkHeight - 10);
 
-        // Nếu không nằm trong bất kỳ hòn đảo nào, trả về Air
-        if (distanceToIsland1 > islandRadius && distanceToIsland2 > islandRadius)
-        {
+        if (y > baseHeight)
             return BlockType.Air;
-        }
 
-        // --- Logic tạo terrain bên trong vùng đảo (giữ nguyên) ---
-        float simplex1 = noise.GetSimplex(x * landNoiseScale, z * landNoiseScale) * noiseIntensity;
-        float simplex2 = noise.GetSimplex(x * 3f, z * 3f) * noiseIntensity *
-                         (noise.GetSimplex(x * 0.3f, z * 0.3f) + 0.5f);
-        float heightMap = simplex1 + simplex2;
-        float baseLandHeight = TerrainChunk.chunkHeight * 0.5f + heightMap;
+        // Lớp mặt cỏ
+        if (y == baseHeight)
+            return BlockType.Grass;
 
-        float caveNoise1 = noise.GetPerlinFractal(x * caveNoiseScale, y * caveNoiseScale * 2, z * caveNoiseScale);
-        float caveMask = noise.GetSimplex(x * 0.3f, z * 0.3f) + 0.3f;
+        // Lớp đất phía dưới
+        if (y >= baseHeight - 3)
+            return BlockType.Dirt;
 
-        float stoneNoise1 = noise.GetSimplex(x * stoneNoiseScale, z * stoneNoiseScale) * noiseIntensity;
-        float stoneNoise2 = (noise.GetSimplex(x * 5f, z * 5f) + 0.5f) * 20 *
-                            (noise.GetSimplex(x * 0.3f, z * 0.3f) + 0.5f);
-        float stoneHeightMap = stoneNoise1 + stoneNoise2;
-        float baseStoneHeight = TerrainChunk.chunkHeight * 0.25f + stoneHeightMap;
-
-        BlockType blockType = BlockType.Air;
-
-        if (distanceToIsland1 <= islandRadius || distanceToIsland2 <= islandRadius)
-        {
-            if (y <= baseLandHeight)
-            {
-                blockType = BlockType.Dirt;
-                if (y > baseLandHeight - 1 && y > WaterChunk.waterHeight - 2)
-                    blockType = BlockType.Grass;
-                if (y <= baseStoneHeight)
-                    blockType = BlockType.Stone;
-            }
-
-            if (caveNoise1 > Mathf.Max(caveMask, 0.2f))
-                blockType = BlockType.Air;
-        }
-
-        return blockType;
-    }
-
-    // --- Hàm tạo Island Trigger Collider ---
-    public void CreateIslandTriggerCollider()
-    {
-        if (!enableIslandTrigger) return;
-
-        // Hủy collider cũ nếu có
-        if (islandTriggerObject != null)
-        {
-            Destroy(islandTriggerObject);
-        }
-
-        // Tạo GameObject mới cho collider
-        islandTriggerObject = new GameObject("Island2Trigger");
-        islandTriggerObject.transform.SetParent(this.transform); // Đặt làm con của TerrainGenerator
-        islandTriggerCollider = islandTriggerObject.AddComponent<BoxCollider>();
-
-        // Cấu hình BoxCollider
-        islandTriggerCollider.isTrigger = true; // Đặt là trigger để detect va chạm mà không block
-        // Đặt vị trí ở tâm đảo 2
-        islandTriggerCollider.center = new Vector3(island2Center.x, TerrainChunk.chunkHeight / 2f, island2Center.y);
-        
-        islandTriggerCollider.size = new Vector3(islandRadius * 2-4, TerrainChunk.chunkHeight, islandRadius * 2 -4);
-        
-        if (islandTriggerObject.GetComponent<IslandTriggerDetector>() == null)
-        {
-            IslandTriggerDetector detector = islandTriggerObject.AddComponent<IslandTriggerDetector>();
-            detector.particleSystem= particleSystem; // Gán hệ thống hạt
-            detector.terrainGenerator = this; // Gán tham chiếu
-        }
-
-        Debug.Log(
-            $"Island 2 Trigger Collider created at {islandTriggerCollider.center} with size {islandTriggerCollider.size}");
-    }
-
-
-    // --- Ví dụ về hành động khi player vào đảo 2 ---
-    public void PlayerEnteredIsland2()
-    {
-        LunaManager.ins.ShowEndCard();
+        // Sâu hơn là đá
+        return BlockType.Stone;
     }
 
     ChunkPos curChunk = new ChunkPos(-1, -1);
