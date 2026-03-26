@@ -133,19 +133,4 @@ public class PlayerChar : BaseCharacter
         //animator.transform.parent = null;
         //Destroy(gameObject);
     }
-    // private void OnCollisionEnter(Collision collision)
-    // {
-    //     if (collision.gameObject.CompareTag("Enemy"))
-    //     {
-    //         TakeDamage(1000);
-    //         print("COLOSSOPM0");
-    //     }
-    // }
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Enemy"))
-        {
-            TakeDamage(1000);
-        }
-    }
 }
