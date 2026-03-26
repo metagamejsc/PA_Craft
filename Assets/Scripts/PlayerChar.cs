@@ -14,7 +14,7 @@ public class PlayerChar : BaseCharacter
         rigidbody.isKinematic = false;
         animator.Play(idleAnimationClip);
     }
-   
+
     protected override void Update()
     {
 
@@ -55,17 +55,17 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-        if (isFindingEnemy==false)
+        if (isFindingEnemy == false)
         {
             return;
         }
         Camera cam = Camera.main;
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, detectionRadiusMax, LayerMask.GetMask("Enemy"))) 
+        if (Physics.Raycast(ray, out hit, detectionRadiusMax, LayerMask.GetMask("Enemy")))
         {
             GameObject hitObj = hit.transform.gameObject;
-            
+
             if (hitObj.CompareTag("Enemy"))
             {
                 target = hitObj.transform;
@@ -101,8 +101,8 @@ public class PlayerChar : BaseCharacter
             SwordObject.transform.parent = swordPos;
             SwordObject.transform.localPosition = Vector3.zero;
             SwordObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
-            attackCooldown = atkAnimationClip.length/ attackSpeed;
-            animator.SetFloat("AttackSpeed", attackCooldown>attackSpeed?1:attackSpeed);  
+            attackCooldown = atkAnimationClip.length / attackSpeed;
+            animator.SetFloat("AttackSpeed", attackCooldown > attackSpeed ? 1 : attackSpeed);
             animator.SetTrigger("Attack");
             // Reset thời gian hồi chiêu
         }
@@ -132,5 +132,20 @@ public class PlayerChar : BaseCharacter
         capsuleCollider.enabled = false;
         //animator.transform.parent = null;
         //Destroy(gameObject);
+    }
+    // private void OnCollisionEnter(Collision collision)
+    // {
+    //     if (collision.gameObject.CompareTag("Enemy"))
+    //     {
+    //         TakeDamage(1000);
+    //         print("COLOSSOPM0");
+    //     }
+    // }
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+            TakeDamage(1000);
+        }
     }
 }
