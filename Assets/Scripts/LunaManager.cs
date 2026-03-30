@@ -18,7 +18,6 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     public Light directionalLight;
     public bool isCretivePause;
-    public GameObject btnRestart;
     private void Awake()
     {
         ins = this;
@@ -43,14 +42,14 @@ public class LunaManager : MonoBehaviour
         }
         EndCard.SetActive(false);
         WinCard.SetActive(false);
-        btnRestart.SetActive(canReplay>=1);
+        //btnRestart.SetActive(canReplay>=1);
         //SetupField();
         Invoke(nameof(ShowEndCardEmpty),timeEndCreative);
     }
     public void ReplayGame()
     {
         canReplay--;
-        btnRestart.SetActive(canReplay>=1);
+        //btnRestart.SetActive(canReplay>=1);
         isCretivePause = false;
         EndCard.SetActive(false);
         var timeEndCreativeRemaining = timeEndCreative - Time.realtimeSinceStartup;
@@ -95,6 +94,7 @@ public class LunaManager : MonoBehaviour
     public void ShowEndCardEmpty()
         {
             if (isCretivePause) return;
+            TutorialBuildBlock.ins.HideAllTut();
             isCretivePause = true;
             EndCardEmpty.SetActive(true);
             Debug.Log("Show end card");

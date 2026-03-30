@@ -10,7 +10,6 @@ public class TutorialBuildBlock : MonoBehaviour
     public int stepIndex;
     public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
-    //public Button btnHideTutorial;
 
     private void Awake()
     {
@@ -20,44 +19,59 @@ public class TutorialBuildBlock : MonoBehaviour
     public IEnumerator IeSpawnStep()
     {
         yield return new WaitForSeconds(1f);
-        
     }
 
     private void Start()
     {
-        foreach (var VARIABLE in lstStep)
+        HideAllTut();
+
+        foreach (var button in lstButtonHideStep)
         {
-            VARIABLE.SetActive(false);
-        }
-        foreach (var VARIABLE in lstButtonHideStep)
-        {
-            VARIABLE.onClick.AddListener(() =>
+            button.onClick.AddListener(() =>
             {
                 HideStep();
             });
         }
+
+        stepIndex = 0;
         ShowStep();
-        //StartCoroutine(IeSpawnStep());
     }
 
     public void ShowStep()
     {
+        if (stepIndex < 0 || stepIndex >= lstStep.Count)
+            return;
+
         GameController.ins.isPauseGame = true;
         lstStep[stepIndex].SetActive(true);
     }
+
     public void HideStep()
     {
-        GameController.ins.isPauseGame = false;
+        if (stepIndex < 0 || stepIndex >= lstStep.Count)
+            return;
+
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
-        if (stepIndex<lstStep.Count)
+
+        if (stepIndex < lstStep.Count)
         {
             ShowStep();
         }
-        /*if (stepIndex==lstStep.Count-1)
+        else
         {
-           GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
-           ShowStep();
-        }*/
+            GameController.ins.isPauseGame = false;
+        }
+    }
+
+    public void HideAllTut()
+    {
+        foreach (var step in lstStep)
+        {
+            if (step != null)
+                step.SetActive(false);
+        }
+
+        GameController.ins.isPauseGame = false;
     }
 }
