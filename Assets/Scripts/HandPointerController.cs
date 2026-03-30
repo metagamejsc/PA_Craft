@@ -25,6 +25,10 @@ public class HandPointerController : MonoBehaviour
             slots[0].localScale = Vector3.one * 1.2f;
         }
 
+        foreach (var t in slots)
+        {
+            t.GetComponent<Button>().onClick.AddListener(StopTutorial);
+        }
         StartCoroutine(MoveHandToSlots());
     }
 
@@ -71,5 +75,18 @@ public class HandPointerController : MonoBehaviour
         }
 
         handPointer.position = endPosition;
+    }
+
+    public void StopTutorial()
+    {
+        StopAllCoroutines();
+        if (enableSlotScaling)
+        {
+            foreach (var slot in slots)
+            {
+                slot.localScale = Vector3.one;
+            }
+        }
+        handPointer.gameObject.SetActive(false);
     }
 }

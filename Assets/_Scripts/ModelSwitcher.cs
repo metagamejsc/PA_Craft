@@ -29,7 +29,7 @@ public GameObject handPointer; // Đối tượng hình bàn tay
     public void CheckClick()
     {
         handPointer.SetActive(false);
-        AudioManager.ins.PlaySoundBuy();
-        LunaManager.ins.CheckClickShowEndCard();
+        /*AudioManager.ins.PlaySoundBuy();
+        LunaManager.ins.CheckClickShowEndCard();*/
     }
 }

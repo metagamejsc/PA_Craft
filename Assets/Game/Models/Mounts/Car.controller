@@ -73,8 +73,33 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -6625678934487244784, guid: 6abaa4a7b82c3b34c9b2d1cc3abe2ce7,
-    type: 3}
+  m_Motion: {fileID: 7400000, guid: 88ae5599ce26a634aa751f0450f3cf5c, type: 2}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
+--- !u!1102 &-4392132807398004177
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: carIdle
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: 88ae5599ce26a634aa751f0450f3cf5c, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -108,7 +133,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Dragon
+  m_Name: Car
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: Jump
@@ -151,6 +176,9 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_State: {fileID: -6483612773435202834}
     m_Position: {x: 230, y: 440, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: -4392132807398004177}
+    m_Position: {x: 265, y: 505, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: -6860542544569448693}
