@@ -7,8 +7,7 @@ using Random = UnityEngine.Random;
 public class SpawnCreeper : MonoBehaviour
 {
     public static List<ZombieChar> zombieChars = new List<ZombieChar>();
-    [SerializeField]GameObject creeperPrefab;
-    [SerializeField]int numberOfCreepers = 5;
+    public List<ZombieChar> zombieCharsDrag = new List<ZombieChar>();
     public Bounds terrainBounds;
     public Vector3 center;
 
@@ -19,18 +18,9 @@ public class SpawnCreeper : MonoBehaviour
 
     public void SpawnEnemy()
     {
-        if (creeperPrefab == null)
+        for (int i = 0; i < zombieCharsDrag.Count; i++)
         {
-            Debug.LogError("Creeper prefab is not assigned!");
-            return;
-        }
-
-        for (int i = 0; i < numberOfCreepers; i++)
-        {
-            Vector3 randomPosition = new Vector3(0,0.5f,0)+new Vector3(0,0.2f,0)+new Vector3(Random.Range(-0.5f,0.5f), 0, Random.Range(-0.5f, 0.5f));
-            GameObject creeper = Instantiate(creeperPrefab, randomPosition, Quaternion.identity);
-            creeper.transform.SetParent(transform); // Set parent to this object
-            zombieChars.Add(creeper.GetComponent<ZombieChar>());
+            zombieChars.Add(zombieCharsDrag[i]);
         }
     }
 public static void KillEnemy(ZombieChar zombieChar)

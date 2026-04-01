@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 
@@ -9,16 +10,18 @@ public class TNTObject : MonoBehaviour
     public Renderer renderer;
     public LayerMask enemyLayerMask;
     public Rigidbody rigidbody;
+    public float rangExplore = 1;
 
     private void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
+        //StartCoroutine(Xixi());
     }
 
     public void Explore()
     {
         // Tạo hiệu ứng nổ
-        var enemys=Physics.OverlapSphere(transform.position, 0.2f, enemyLayerMask);
+        var enemys=Physics.OverlapSphere(transform.position, rangExplore, enemyLayerMask);
         if (enemys.Length > 0)
         {
             foreach (var enemy in enemys)
@@ -34,6 +37,7 @@ public class TNTObject : MonoBehaviour
     }
     public void AnimExplore()
     {
+        StopAllCoroutines();
         AudioManager.ins.PlaySoundXixi();
         renderer.material.DOColor(Color.red, 0.3f).SetLoops(-1, LoopType.Yoyo);
         Sequence s = DOTween.Sequence();
@@ -41,12 +45,15 @@ public class TNTObject : MonoBehaviour
             .Append(transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack))
          .OnComplete(Explore);
     }
-    
-    /*public void OnTriggerEnter(Collider other)
+
+    IEnumerator Xixi()
     {
-        if (other.CompareTag("Ground"))
+        renderer.material.DOColor(Color.red, 0.5f).SetLoops(-1, LoopType.Yoyo);
+        while (true)
         {
-            AnimExplore();
+            yield return new WaitForSeconds(2f);
+            AudioManager.ins.PlaySoundXixi();
         }
-    }*/
+        
+    }
 }

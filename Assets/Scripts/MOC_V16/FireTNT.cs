@@ -33,22 +33,26 @@ public class FireTNT : MonoBehaviour
         {
             return;
         }
-        LunaManager.ins.CheckClickShowEndCard();
-        var enemy = SpawnCreeper.zombieChars[UnityEngine.Random.Range(0, SpawnCreeper.zombieChars.Count)];
-        var tntClone= Instantiate(tntInstance, transform);
+        if (SpawnCreeper.zombieChars.Count>0)
+        {
+            AudioManager.ins.PlaySoundBuild();
+            LunaManager.ins.CheckClickShowEndCard();
+            var enemy = SpawnCreeper.zombieChars[UnityEngine.Random.Range(0, SpawnCreeper.zombieChars.Count)];
+            var tntClone= Instantiate(tntInstance, transform);
         
-        tntClone.transform.DOMoveX(enemy.transform.position.x, timeFire)
-            .SetEase(Ease.Linear);
-        tntClone.transform.DOMoveZ(enemy.transform.position.z, timeFire)
-            .SetEase(Ease.Linear);
-        tntClone.transform.DOMoveY(enemy.transform.position.y, timeFire*0.8f)
-            .SetEase(fireCurve).OnComplete(() =>
-            {
-                tntClone.rigidbody.isKinematic = false;
-                tntClone.AnimExplore();
-            });
-        Destroy(tntInstance.gameObject);
-        tntInstance = null;
-        _fireRateCurrent= fireRate;
+            tntClone.transform.DOMoveX(enemy.transform.position.x, timeFire)
+                .SetEase(Ease.Linear);
+            tntClone.transform.DOMoveZ(enemy.transform.position.z, timeFire)
+                .SetEase(Ease.Linear);
+            tntClone.transform.DOMoveY(enemy.transform.position.y, timeFire*0.8f)
+                .SetEase(fireCurve).OnComplete(() =>
+                {
+                    tntClone.rigidbody.isKinematic = false;
+                    tntClone.AnimExplore();
+                });
+            Destroy(tntInstance.gameObject);
+            tntInstance = null;
+            _fireRateCurrent= fireRate;
+        }
     }
 }

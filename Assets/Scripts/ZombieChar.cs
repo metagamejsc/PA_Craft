@@ -64,7 +64,7 @@ public class ZombieChar : BaseCharacter
     protected override void HandleMovement()
     {
         if (isDead) return;
-        RandomWander();
+        //RandomWander();
         // Nếu có target và đủ gần → đuổi theo
         /*if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMax)
         {
