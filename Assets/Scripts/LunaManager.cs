@@ -8,14 +8,14 @@ using Random = UnityEngine.Random;
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    public int countDrop=0;
+    public int countDrop = 0;
     public int countDropFinal;
-    [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
-    [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
-    [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce=40f;
-    [LunaPlaygroundField("Lightning")] public float Lightning=5;
-    [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
+    [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
+    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay = 0;
+    [LunaPlaygroundField("Player Speed")] public float playerSpeed = 1.5f;
+    [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce = 40f;
+    [LunaPlaygroundField("Lightning")] public float Lightning = 5;
+    [LunaPlaygroundField("Color Light")] public Color colorLight = Color.black;
     public Light directionalLight;
     public bool isCretivePause;
     private void Awake()
@@ -26,7 +26,7 @@ public class LunaManager : MonoBehaviour
     public GameObject EndCard;
     public GameObject EndCardEmpty;
     public GameObject WinCard;
-    
+
 
 
     // Start is called before the first frame update
@@ -44,7 +44,7 @@ public class LunaManager : MonoBehaviour
         WinCard.SetActive(false);
         //btnRestart.SetActive(canReplay>=1);
         //SetupField();
-        Invoke(nameof(ShowEndCardEmpty),timeEndCreative);
+        Invoke(nameof(ShowEndCardEmpty), timeEndCreative);
     }
     public void ReplayGame()
     {
@@ -53,17 +53,17 @@ public class LunaManager : MonoBehaviour
         isCretivePause = false;
         EndCard.SetActive(false);
         var timeEndCreativeRemaining = timeEndCreative - Time.realtimeSinceStartup;
-        if (timeEndCreativeRemaining<0)
+        if (timeEndCreativeRemaining < 0)
         {
             timeEndCreativeRemaining = 5f;
         }
         Invoke(nameof(ShowEndCard), timeEndCreativeRemaining);
     }
-   
+
     public void CheckClickShowEndCard()
     {
         countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
+        if (countDrop >= countDropFinal && isCretivePause == false)
         {
             isCretivePause = true;
             ShowEndCard();
@@ -92,14 +92,14 @@ public class LunaManager : MonoBehaviour
         Luna.Unity.LifeCycle.GameEnded();
     }
     public void ShowEndCardEmpty()
-        {
-            if (isCretivePause) return;
-            TutorialBuildBlock.ins.HideAllTut();
-            isCretivePause = true;
-            EndCardEmpty.SetActive(true);
-            Debug.Log("Show end card");
-            Luna.Unity.LifeCycle.GameEnded();
-        }
+    {
+        if (isCretivePause) return;
+        TutorialBuildBlock.ins.HideAllTut();
+        isCretivePause = true;
+        EndCardEmpty.SetActive(true);
+        Debug.Log("Show end card");
+        Luna.Unity.LifeCycle.GameEnded();
+    }
     public void ShowWinCard()
     {
         if (isCretivePause) return;
