@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 public class ItemButtonManager : MonoBehaviour
 {
@@ -9,6 +9,7 @@ public class ItemButtonManager : MonoBehaviour
     {
         public Button button;
         public GameObject itemObject;
+        public GameObject objectToHideAfterShow;
     }
 
     [Header("Tutorial")]
@@ -17,69 +18,111 @@ public class ItemButtonManager : MonoBehaviour
     [Header("Items")]
     public List<ItemButton> itemButtons;
 
-    private int currentSelectedIndex = -1;
+    [Header("Player Build")]
+    public Transform player;
+    public Animator playerAnimator;
+    public string buildAnim = "Build";
 
-    // Lưu các button đã từng được click ít nhất 1 lần
-    private HashSet<int> clickedOnce = new HashSet<int>();
+    private int currentSelectedIndex = -1;
+    private readonly HashSet<int> builtIndexes = new HashSet<int>();
 
     void Start()
     {
+        if (playerAnimator == null && player != null)
+        {
+            playerAnimator = player.GetComponent<Animator>();
+        }
+
         for (int i = 0; i < itemButtons.Count; i++)
         {
             int index = i;
             itemButtons[i].button.onClick.AddListener(() => OnItemButtonClick(index));
             itemButtons[i].itemObject.SetActive(false);
+            SetOptionalObjectVisible(itemButtons[i].objectToHideAfterShow, true);
         }
     }
 
     void OnItemButtonClick(int index)
     {
-        // Tắt tutorial khi user click
         if (handPointer != null)
-            handPointer.SetActive(false);
-
-        // Ẩn object cũ nếu click sang button khác
-        if (currentSelectedIndex != index && currentSelectedIndex >= 0)
         {
-            itemButtons[currentSelectedIndex].itemObject.SetActive(false);
+            handPointer.SetActive(false);
         }
 
         currentSelectedIndex = index;
+        SetButtonChildImageVisible(itemButtons[index].button, false);
+        itemButtons[index].itemObject.SetActive(true);
 
-        // ❗ QUAN TRỌNG: kiểm tra đã click lần đầu chưa
-        if (!clickedOnce.Contains(index))
+        if (builtIndexes.Add(index))
         {
-            // LẦN ĐẦU TIÊN click button này (dù trước đó click button khác)
-            clickedOnce.Add(index);
-            itemButtons[index].itemObject.SetActive(true);
-            Debug.Log("First time click: " + index);
-        }
-        else
-        {
-            // TỪ LẦN THỨ 2 TRỞ ĐI (không cần liên tiếp)
-            Debug.Log("Second or later click: " + index);
-            DoSecondClickAction(index);
+            SetOptionalObjectVisible(itemButtons[index].objectToHideAfterShow, false);
+            PlayBuildFeedback();
+            NotifyBuildCompleted();
         }
     }
 
-    /// <summary>
-    /// Dùng cho tutorial / hand pointer
-    /// Chỉ hiển thị object, KHÔNG tính là click
-    /// </summary>
     public void ShowItemWithoutSecondClick(int index)
     {
         if (currentSelectedIndex != index && currentSelectedIndex >= 0)
         {
-            itemButtons[currentSelectedIndex].itemObject.SetActive(false);
+            ItemButton previousItem = itemButtons[currentSelectedIndex];
+            if (!builtIndexes.Contains(currentSelectedIndex))
+            {
+                previousItem.itemObject.SetActive(false);
+                SetOptionalObjectVisible(previousItem.objectToHideAfterShow, true);
+            }
         }
 
         currentSelectedIndex = index;
-        itemButtons[index].itemObject.SetActive(true);
+        ItemButton currentItem = itemButtons[index];
+        currentItem.itemObject.SetActive(true);
+
+        if (!builtIndexes.Contains(index))
+        {
+            SetOptionalObjectVisible(currentItem.objectToHideAfterShow, false);
+        }
     }
 
-    void DoSecondClickAction(int index)
+    void NotifyBuildCompleted()
     {
-        Debug.Log("DoSecondClickAction for item: " + index);
-        LunaManager.ins.OnClickEndCard();
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.CheckClickShowEndCard();
+        }
+    }
+
+    void PlayBuildFeedback()
+    {
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlaySoundBuild();
+        }
+
+        if (playerAnimator != null && !string.IsNullOrEmpty(buildAnim))
+        {
+            playerAnimator.Play(buildAnim);
+        }
+    }
+
+    void SetButtonChildImageVisible(Button button, bool visible)
+    {
+        if (button == null || button.transform.childCount == 0)
+        {
+            return;
+        }
+
+        Image childImage = button.transform.GetChild(0).GetComponent<Image>();
+        if (childImage != null)
+        {
+            childImage.gameObject.SetActive(visible);
+        }
+    }
+
+    void SetOptionalObjectVisible(GameObject target, bool visible)
+    {
+        if (target != null)
+        {
+            target.SetActive(visible);
+        }
     }
 }

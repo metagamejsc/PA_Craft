@@ -4,48 +4,39 @@ using UnityEngine.UI;
 
 public class HandPointerController : MonoBehaviour
 {
-    public RectTransform handPointer; // Đối tượng hình bàn tay
-    public Transform inventoryPanel;  // Panel chứa các ô inventory
-    public float moveDuration = 0.5f; // Thời gian di chuyển giữa các ô
-    public float delayBetweenMoves = 1f; // Khoảng cách giữa các lần di chuyển
-    public ItemButtonManager itemButtonManager; // Kéo thả từ Editor
+    public RectTransform handPointer;
+    public Transform inventoryPanel;
+    public float moveDuration = 0.5f;
+    public float delayBetweenMoves = 1f;
+    public ItemButtonManager itemButtonManager;
 
-    public RectTransform[] slots; // Mảng các ô inventory
+    public RectTransform[] slots;
 
     void Start()
     {
-        //CollectSlots();
-        handPointer.position = slots[0].anchoredPosition; // Bắt đầu từ ô đầu tiên
+        handPointer.position = slots[0].position;
+        itemButtonManager.ShowItemWithoutSecondClick(0);
         StartCoroutine(MoveHandToSlots());
-        
     }
 
     void CollectSlots()
     {
-        //slots = new RectTransform[inventoryPanel.childCount];
-        /*for (int i = 0; i < inventoryPanel.childCount; i++)
-        {
-            slots[i] = inventoryPanel.GetChild(i) as RectTransform;
-        }*/
     }
 
     private IEnumerator MoveHandToSlots()
     {
-        handPointer.gameObject.SetActive(true); // Bật bàn tay lên
+        handPointer.gameObject.SetActive(true);
         yield return new WaitForSeconds(delayBetweenMoves);
 
         for (int i = 0; i < slots.Length; i++)
         {
             yield return MoveHandToPoint(slots[i]);
-            yield return new WaitForSeconds(delayBetweenMoves);
-
-            // Gọi ItemButtonManager để hiển thị item tương ứng
             itemButtonManager.ShowItemWithoutSecondClick(i);
+            yield return new WaitForSeconds(delayBetweenMoves);
         }
 
         StartCoroutine(MoveHandToSlots());
     }
-
 
     IEnumerator MoveHandToPoint(RectTransform target)
     {
