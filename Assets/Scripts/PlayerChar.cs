@@ -11,7 +11,7 @@ public class PlayerChar : BaseCharacter
     public Transform swordPos;
 
     [Header("Movement")]
-   
+
     public float jumpForce = 5f;
 
     public Transform groundCheck;
@@ -32,7 +32,7 @@ public class PlayerChar : BaseCharacter
 
         moveSpeed = LunaManager.ins.playerSpeed;
         jumpForce = LunaManager.ins.playerJumpForce;
-        
+
         IsFindingEnemy = true;
     }
 
@@ -233,5 +233,14 @@ public class PlayerChar : BaseCharacter
             LunaManager.ins.ShowEndCard();
             LunaManager.ins.OnClickEndCard();
         }
+    }
+    public override void Replay()
+    {
+        // animator.SetBool("isMoving", true);
+        isDead = false;
+        animator.ResetTrigger("Dead");
+        rb.isKinematic = false;
+        GetComponent<CapsuleCollider>().enabled = true;
+        animator.Play("metarig|Character_Idle");
     }
 }

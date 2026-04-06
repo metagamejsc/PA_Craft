@@ -2,7 +2,7 @@
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 35701,
-    "creativeName": "PEOP_V28_DungNV_AnhPD",
+    "creativeName": "PEOP_V29_DungNV_AnhPD",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -18830,7 +18830,7 @@
                     },
                     {
                         "name": "fillAmount#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "preserveAspect#get",
@@ -30209,10 +30209,6 @@
                     {
                         "name": "ShowWinCard",
                         "excluded": false
-                    },
-                    {
-                        "name": "ShowEndCardEmpty",
-                        "excluded": false
                     }
                 ]
             },
@@ -35233,6 +35229,10 @@
                     {
                         "name": "HandleDeath",
                         "excluded": true
+                    },
+                    {
+                        "name": "Replay",
+                        "excluded": true
                     }
                 ]
             },
@@ -35325,6 +35325,10 @@
                     {
                         "name": "OnCollisionEnter",
                         "excluded": false
+                    },
+                    {
+                        "name": "Replay",
+                        "excluded": true
                     }
                 ]
             },
@@ -37108,14 +37112,54 @@
                 "instanceMethods": [
                     {
                         "name": "Start",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Update",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "UpdateProgress",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "ToggleByTime",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartToggle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopToggle",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ToggleRoutine",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "TriggerEffect",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTriggerEnter",
                         "excluded": true
                     }
                 ]

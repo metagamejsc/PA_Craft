@@ -17,20 +17,21 @@ public class GameController : MonoBehaviour
     public int countEnemyDefeat = 0;
 
     public Transform posSpawnPlayer;
-    public int countPlayerDie=0;
+    public int countPlayerDie = 0;
     public bool canRestart;
     public Button btnRestart;
-    
+
     public void StartGame()
     {
         //playerChar.OnStartRespawn();
         playerChar.transform.position = posSpawnPlayer.position;
+        playerChar.Replay();
     }
     public void RestartGame()
     {
         if (canRestart)
         {
-            if (countPlayerDie>=1)
+            if (countPlayerDie >= 1)
             {
                 LunaManager.ins.OnClickEndCard();
                 return;
@@ -41,7 +42,7 @@ public class GameController : MonoBehaviour
             LunaManager.ins.OnClickEndCard();
             return;
         }
-       
+
         LunaManager.ins.ReplayGame();
         StartGame();
         countPlayerDie++;
@@ -49,7 +50,7 @@ public class GameController : MonoBehaviour
     public void EnemyDead()
     {
         countEnemyDefeat++;
-        if (countEnemyDefeat>=LunaManager.ins.countDropFinal)
+        if (countEnemyDefeat >= LunaManager.ins.countDropFinal)
         {
             LunaManager.ins.ShowEndCard();
         }
@@ -61,7 +62,7 @@ public class GameController : MonoBehaviour
     public void Start()
     {
         btnRestart.onClick.AddListener(RestartGame);
-        canRestart= LunaManager.ins.canReplay >= 1;
+        canRestart = LunaManager.ins.canReplay >= 1;
     }
-    
+
 }

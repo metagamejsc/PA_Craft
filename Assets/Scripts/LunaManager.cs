@@ -12,19 +12,21 @@ public class LunaManager : MonoBehaviour
     public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
     [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay = 0;
+    [LunaPlaygroundField("Show End Card")] public bool isEndCard = true;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed = 1.5f;
     [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce = 40f;
     [LunaPlaygroundField("Lightning")] public float Lightning = 5;
     [LunaPlaygroundField("Color Light")] public Color colorLight = Color.black;
     public Light directionalLight;
     public bool isCretivePause;
+    public GameObject showEndCard;
     private void Awake()
     {
         ins = this;
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
-    public GameObject EndCardEmpty;
+    //public GameObject EndCardEmpty;
     public GameObject WinCard;
 
 
@@ -44,7 +46,8 @@ public class LunaManager : MonoBehaviour
         WinCard.SetActive(false);
         //btnRestart.SetActive(canReplay>=1);
         //SetupField();
-        Invoke(nameof(ShowEndCardEmpty), timeEndCreative);
+        Invoke(nameof(ShowEndCard), timeEndCreative);
+        showEndCard.SetActive(isEndCard);
     }
     public void ReplayGame()
     {
@@ -91,15 +94,15 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
-    public void ShowEndCardEmpty()
-    {
-        if (isCretivePause) return;
-        TutorialBuildBlock.ins.HideAllTut();
-        isCretivePause = true;
-        EndCardEmpty.SetActive(true);
-        Debug.Log("Show end card");
-        Luna.Unity.LifeCycle.GameEnded();
-    }
+    // public void ShowEndCardEmpty()
+    // {
+    //     if (isCretivePause) return;
+    //     TutorialBuildBlock.ins.HideAllTut();
+    //     isCretivePause = true;
+    //     // EndCardEmpty.SetActive(true);
+    //     Debug.Log("Show end card");
+    //     Luna.Unity.LifeCycle.GameEnded();
+    // }
     public void ShowWinCard()
     {
         if (isCretivePause) return;
