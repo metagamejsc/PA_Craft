@@ -10,9 +10,11 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số lần đặt bắn TNT ra store")]public int countDropFinal;
+    public int countDropFinal;
      public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
+    [LunaPlaygroundField("Light Ins")] public float lightIns;
+    public List<Light> light;
     public bool isCretivePause;
     public TextMeshProUGUI txtTime;
     private void Awake()
@@ -37,6 +39,10 @@ public class LunaManager : MonoBehaviour
         }
         EndCard.SetActive(false);
         //SetupField();
+        foreach (var VARIABLE in light)
+        {
+            VARIABLE.intensity = lightIns;
+        }
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
 
@@ -46,7 +52,7 @@ public class LunaManager : MonoBehaviour
         {
             return;
         }
-        txtTime.text= $"Time Left: {Mathf.CeilToInt(timeEndCreative - Time.timeSinceLevelLoad)}";
+        //txtTime.text= $"Time Left: {Mathf.CeilToInt(timeEndCreative - Time.timeSinceLevelLoad)}";
     }
 
     public void CheckClickShowEndCard()

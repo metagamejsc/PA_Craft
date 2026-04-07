@@ -10,11 +10,25 @@ public class TutorialBuildBlock : MonoBehaviour
     public int stepIndex;
     public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
-    //public Button btnHideTutorial;
+
+    [Header("Auto Fight")]
+    [SerializeField] private AutoFightInventoryRandomizer autoFightInventoryRandomizer;
+    [SerializeField] private AutoFightArenaManager autoFightArenaManager;
+    [SerializeField] private bool startAutoFightAfterTutorial = true;
+
+    private bool tutorialCompleted;
 
     private void Awake()
     {
         ins = this;
+
+        if (!startAutoFightAfterTutorial)
+        {
+            return;
+        }
+
+        autoFightInventoryRandomizer?.HoldUntilManualStart();
+        autoFightArenaManager?.SetStartLocked(true);
     }
 
     public IEnumerator IeSpawnStep()
@@ -25,40 +39,109 @@ public class TutorialBuildBlock : MonoBehaviour
 
     private void Start()
     {
-        foreach (var VARIABLE in lstStep)
+        if (lstStep != null)
         {
-            VARIABLE.SetActive(false);
-        }
-        foreach (var VARIABLE in lstButtonHideStep)
-        {
-            VARIABLE.onClick.AddListener(() =>
+            foreach (var step in lstStep)
             {
-                HideStep();
-            });
+                if (step != null)
+                {
+                    step.SetActive(false);
+                }
+            }
         }
+
+        if (lstButtonHideStep != null)
+        {
+            foreach (var button in lstButtonHideStep)
+            {
+                if (button == null)
+                {
+                    continue;
+                }
+
+                button.onClick.AddListener(HideStep);
+            }
+        }
+
+        if (lstStep == null || lstStep.Count == 0)
+        {
+            OnTutorialCompleted();
+            return;
+        }
+
+        stepIndex = Mathf.Clamp(stepIndex, 0, lstStep.Count - 1);
         ShowStep();
-        //StartCoroutine(IeSpawnStep());
     }
 
     public void ShowStep()
     {
-        GameController.ins.isPauseGame = false;
-        lstStep[stepIndex].SetActive(true);
+        if (tutorialCompleted || lstStep == null || stepIndex < 0 || stepIndex >= lstStep.Count)
+        {
+            return;
+        }
+
+        var step = lstStep[stepIndex];
+        if (step != null)
+        {
+            step.SetActive(true);
+        }
     }
+
     public void HideStep()
     {
-        GameController.ins.isPauseGame = false;
-        lstStep[stepIndex].SetActive(false);
+        if (tutorialCompleted)
+        {
+            return;
+        }
+
+        if (lstStep == null || lstStep.Count == 0)
+        {
+            OnTutorialCompleted();
+            return;
+        }
+
+        if (stepIndex >= 0 && stepIndex < lstStep.Count)
+        {
+            var currentStep = lstStep[stepIndex];
+            if (currentStep != null)
+            {
+                currentStep.SetActive(false);
+            }
+        }
+
         stepIndex++;
         if (stepIndex < lstStep.Count)
         {
             ShowStep();
+            return;
         }
-        ShowStep();
-        /*if (stepIndex==lstStep.Count-1)
+
+        OnTutorialCompleted();
+    }
+
+    private void OnTutorialCompleted()
+    {
+        if (tutorialCompleted)
         {
-           GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
-           ShowStep();
-        }*/
+            return;
+        }
+
+        tutorialCompleted = true;
+        if (!startAutoFightAfterTutorial)
+        {
+            return;
+        }
+
+        if (autoFightInventoryRandomizer != null)
+        {
+            autoFightInventoryRandomizer.StartRandomRoll();
+            return;
+        }
+
+        if (autoFightArenaManager != null)
+        {
+            autoFightArenaManager.SetStartLocked(false);
+            autoFightArenaManager.BeginBattle();
+        }
     }
 }

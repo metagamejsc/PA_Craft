@@ -13,12 +13,12 @@ public class SoundChar : MonoBehaviour
     
     public void PlayIdleSound()
     {
-        if (idleSounds.Length==0)
+        if (sound == null || idleSounds == null || idleSounds.Length == 0)
         {
             return;
         }
         var a = Random.Range(0, 30);
-        if (a<5)
+        if (a < 5)
         {
             sound.clip = idleSounds[Random.Range(0, idleSounds.Length)];
             sound.Play();
@@ -26,7 +26,7 @@ public class SoundChar : MonoBehaviour
     }
     public void PlayAttackSound()
     {
-        if (atkSounds.Length==0)
+        if (sound == null || atkSounds == null || atkSounds.Length == 0)
         {
             return;
         }
@@ -35,7 +35,7 @@ public class SoundChar : MonoBehaviour
     }
     public void PlayTakeDameSound()
     {
-        if (takeDameSounds.Length==0)
+        if (sound == null || takeDameSounds == null || takeDameSounds.Length == 0)
         {
             return;
         }
@@ -44,7 +44,7 @@ public class SoundChar : MonoBehaviour
     }
     public void PlayDeadSound()
     {
-        if (deadSounds.Length==0)
+        if (sound == null || deadSounds == null || deadSounds.Length == 0)
         {
             return;
         }
@@ -53,7 +53,7 @@ public class SoundChar : MonoBehaviour
     }
     public void PlayMoveSound()
     {
-        if (moveSounds.Length==0)
+        if (sound == null || moveSounds == null || moveSounds.Length == 0)
         {
             return;
         }
