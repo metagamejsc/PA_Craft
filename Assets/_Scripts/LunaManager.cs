@@ -9,19 +9,14 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số lần bắn ra Store")]public int countDropFinal;
-    [LunaPlaygroundField("Hp Enemy")]public int enemyHp=10;
-    [LunaPlaygroundField("Speed Enemy")]public float speedMonster=5f;
+    public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay=0;
     [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
     public float playerJumpForce=40f;
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
     
-    public float timeSpawn=3f;
-    public float starterGold=500;
     public Light directionalLight;
     public bool isCretivePause;
     public GameObject btnRestart;
@@ -49,24 +44,9 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         EndCardEmpty.SetActive(false);
         WinCard.SetActive(false);
-        btnRestart.SetActive(canReplay>=1);
-        //SetupField();
+      
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
-    public void ReplayGame()
-    {
-        canReplay--;
-        btnRestart.SetActive(canReplay>=1);
-        isCretivePause = false;
-        EndCard.SetActive(false);
-        var timeEndCreativeRemaining = timeEndCreative - Time.realtimeSinceStartup;
-        if (timeEndCreativeRemaining<0)
-        {
-            timeEndCreativeRemaining = 5f;
-        }
-        Invoke(nameof(ShowEndCard), timeEndCreativeRemaining);
-    }
-   
     public void CheckClickShowEndCard()
     {
         countDrop++;

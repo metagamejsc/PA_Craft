@@ -19,10 +19,6 @@ public class ZombieChar : BaseCharacter
     }
     protected override void Update()
     {
-        if (GameController.ins.isPauseGame)
-        {
-            return;
-        }
         base.Update();
     }
 

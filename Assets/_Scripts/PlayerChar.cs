@@ -1,10 +1,19 @@
 using System.Collections;
+using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 public class PlayerChar : BaseCharacter
 {
+    private static readonly int IsMovingParam = Animator.StringToHash("isMoving");
+    private static readonly int IsJumpingParam = Animator.StringToHash("isJumping");
+    private static readonly int ShootParam = Animator.StringToHash("Shoot");
+    private static readonly int DeadParam = Animator.StringToHash("Dead");
+    private const float JumpGroundIgnoreDuration = 0.12f;
+
     [Header("Movement")]
     public float jumpHeight = 5f;
     public float slopeForce = 5f;
@@ -15,10 +24,12 @@ public class PlayerChar : BaseCharacter
     public LayerMask groundMask;
     public GameObject model;
     public ParticleSystem endEffect;
+    public List<Image> hpObject;
 
-    private float xRotation = 0f;
     public bool isGrounded;
     private bool stopCoutine;
+    private bool jumpQueued;
+    private float jumpGroundIgnoreTimer;
 
     [Header("Shooting")]
     public GameObject bulletPrefab;
@@ -30,9 +41,9 @@ public class PlayerChar : BaseCharacter
     {
         while (!stopCoutine)
         {
-            animator.SetBool("isMoving", true);
+            animator.SetBool(IsMovingParam, true);
             yield return new WaitForSeconds(2f);
-            animator.SetBool("isMoving", false);
+            animator.SetBool(IsMovingParam, false);
             yield return new WaitForSeconds(1f);
         }
     }
@@ -46,6 +57,7 @@ public class PlayerChar : BaseCharacter
         //StartCoroutine(MoveAndIdle());
         MouseLook.ins.onMouseUpShoot += OnMouseUpShoot;
     }
+
     private void OnDestroy()
     {
         if (MouseLook.ins != null)
@@ -55,39 +67,39 @@ public class PlayerChar : BaseCharacter
     void OnMouseUpShoot()
     {
         if (isDead) return;
-        if (GameController.ins.isPauseGame) return;
         if (!MouseLook.ins.allowInput) return;
 
         Shoot();
     }
+
     public void OnStartRespawn()
     {
         isDead = false;
         health = 1f;
         capsuleCollider.enabled = true;
         rigidbody.isKinematic = false;
-        animator.Play(idleAnimationClip);
+        jumpQueued = false;
+        jumpGroundIgnoreTimer = 0f;
+        isGrounded = true;
+        animator.Rebind();
+        animator.Update(0f);
+        animator.SetBool(IsMovingParam, false);
+        animator.SetBool(IsJumpingParam, false);
     }
     
     void Update()
     {
-        /*if (isDead)
+        if (isDead)
         {
-            animator.SetBool("isJumping", false);
-            animator.Play("metarig|Fall");
+            animator.SetBool(IsMovingParam, false);
+            animator.SetBool(IsJumpingParam, false);
             return;
         }
-
-        if (GameController.ins.isPauseGame)
-            return;
-
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        animator.SetBool("isJumping", !isGrounded);*/
 
         if (Input.GetKeyDown(KeyCode.Space))
             Jump();
 
-        /*if (Input.GetMouseButtonDown(0))  // Chuột trái bắn
+        /*if (Input.GetMouseButtonDown(0))
             Shoot();*/
 
         SearchForEnemy();
@@ -95,11 +107,14 @@ public class PlayerChar : BaseCharacter
 
     void FixedUpdate()
     {
-        if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
+        if (LunaManager.ins.isCretivePause)
         {
             rigidbody.velocity = Vector3.zero;
             return;
         }
+
+        UpdateGroundedState();
+        ConsumeJump();
 
         float moveX = 0, moveZ = 0;
 #if UNITY_EDITOR
@@ -130,25 +145,22 @@ public class PlayerChar : BaseCharacter
 
         if (isMoving)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDir);
-            model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * 10f);
+            //RotateModelToDirection(moveDir);
         }
 
-        animator.SetBool("isMoving", isMoving);
+        animator.SetBool(IsMovingParam, isMoving);
     }
 
     public void Jump()
     {
-        if (isGrounded)
-        {
-            animator.SetBool("isJumping", true);
-            rigidbody.AddForce(new Vector3(0, jumpHeight, 0), ForceMode.Impulse);
-        }
+        if (isDead) return;
+
+        jumpQueued = true;
     }
 
     public void Shoot()
     {
-        animator.SetTrigger("Shoot");
+        animator.SetTrigger(ShootParam);
         //AudioManager.ins.PlaySoundFire();
         LunaManager.ins.CheckClickShowEndCard();
         shootEffect.Play();
@@ -166,14 +178,7 @@ public class PlayerChar : BaseCharacter
         }
 
         Vector3 shootDirection = (targetPoint - shootPoint.position).normalized;
-
-        // ✅ Quay nhân vật về hướng bắn (chỉ xoay theo trục Y)
-        Vector3 flatDirection = new Vector3(shootDirection.x, 0, shootDirection.z);
-        if (flatDirection.sqrMagnitude > 0.001f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(flatDirection);
-            model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRot, 1f); // tức thì
-        }
+        RotateModelToDirection(shootDirection, 1000f);
 
         GameObject bullet = Instantiate(bulletPrefab);
         bullet.transform.position = shootPoint.position;
@@ -182,6 +187,17 @@ public class PlayerChar : BaseCharacter
         rbBullet.velocity = shootDirection * bulletSpeed;
 
         Destroy(bullet, 5f);
+    }
+
+    public void RotateModelToDirection(Vector3 direction, float rotateSpeed = 10f)
+    {
+        if (model == null) return;
+
+        Vector3 flatDirection = new Vector3(direction.x, 0f, direction.z);
+        if (flatDirection.sqrMagnitude <= 0.001f) return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(flatDirection.normalized);
+        model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * rotateSpeed);
     }
     
     protected override void SearchForEnemy()
@@ -213,16 +229,23 @@ public class PlayerChar : BaseCharacter
     public override void Die()
     {
         isDead = true;
-        animator.SetTrigger("Dead");
+        foreach (var VARIABLE in hpObject)
+        {
+            VARIABLE.DOColor(Color.black, 0.1f).SetLoops(5, LoopType.Yoyo);
+        }
+        animator.SetBool(IsMovingParam, false);
+        animator.SetBool(IsJumpingParam, false);
+        animator.SetTrigger(DeadParam);
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
+        
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Finish") && !LunaManager.ins.isCretivePause)
         {
-            animator.SetBool("isMoving", false);
+            animator.SetBool(IsMovingParam, false);
             rigidbody.velocity = Vector3.zero;
             LunaManager.ins.ShowWinCard();
         }
@@ -243,5 +266,71 @@ public class PlayerChar : BaseCharacter
             TakeDamage(999);
             LunaManager.ins.ShowEndCard();
         }
+    }
+
+    private void ConsumeJump()
+    {
+        if (!jumpQueued)
+            return;
+
+        jumpQueued = false;
+
+        if (!isGrounded)
+            return;
+
+        jumpGroundIgnoreTimer = JumpGroundIgnoreDuration;
+        isGrounded = false;
+        animator.SetBool(IsJumpingParam, true);
+
+        Vector3 currentVelocity = rigidbody.velocity;
+        if (currentVelocity.y < 0f)
+            currentVelocity.y = 0f;
+
+        rigidbody.velocity = currentVelocity;
+        rigidbody.AddForce(Vector3.up * jumpHeight, ForceMode.Impulse);
+    }
+
+    private void UpdateGroundedState()
+    {
+        bool wasGrounded = isGrounded;
+
+        if (jumpGroundIgnoreTimer > 0f)
+        {
+            jumpGroundIgnoreTimer -= Time.fixedDeltaTime;
+            isGrounded = false;
+        }
+        else
+        {
+            isGrounded = CheckGrounded();
+        }
+
+        if (isGrounded != wasGrounded)
+        {
+            animator.SetBool(IsJumpingParam, !isGrounded);
+        }
+    }
+
+    private bool CheckGrounded()
+    {
+        bool groundedByCheckPoint = false;
+        if (groundCheck != null)
+        {
+            groundedByCheckPoint = Physics.CheckSphere(
+                groundCheck.position,
+                groundDistance,
+                groundMask,
+                QueryTriggerInteraction.Ignore);
+        }
+
+        Bounds capsuleBounds = capsuleCollider.bounds;
+        float sphereRadius = Mathf.Max(0.05f, capsuleCollider.radius * 0.9f);
+        Vector3 capsuleGroundPoint = capsuleBounds.center + Vector3.down * (capsuleBounds.extents.y - sphereRadius + 0.02f);
+        bool groundedByCapsule = Physics.CheckSphere(
+            capsuleGroundPoint,
+            sphereRadius,
+            groundMask,
+            QueryTriggerInteraction.Ignore);
+
+        return groundedByCheckPoint || groundedByCapsule;
     }
 }

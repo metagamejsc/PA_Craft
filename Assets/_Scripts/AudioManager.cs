@@ -90,8 +90,12 @@ public class AudioManager : MonoBehaviour
     {
         music.Stop();
         music.loop = false;
-        music.clip = winSound;
-        music.Play();
+        if (winSound != null)
+        {
+            music.clip = winSound;
+            music.Play();
+        }
+        
     }
     public void PlayMusic()
     {

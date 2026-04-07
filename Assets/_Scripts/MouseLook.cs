@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,28 +8,15 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
     public static MouseLook ins;
 
     public Transform target;
-    public Camera cameraMain;
-    public LayerMask collisionMask;
-
-    public float distance = 5f;
-    public float minDistance = 1.2f;
-    public float maxDistance = 5f;
-    public float heightOffset = 1.5f;
-    public float collisionBuffer = 0.2f;
+    public Transform cameraPivot;
     public bool allowInput = true;
     public Action onMouseUpShoot;
-
     public float rotationSpeed = 0.2f;
-    public float yMinLimit = -30f;
-    public float yMaxLimit = 80f;
+    public List<GameObject> tutorialUI;
 
-    [Header("Start Rotation (Euler)")]
-    public Vector3 startEuler = new Vector3(20f, 0f, 0f);
-    public bool applyStartEulerOnStart = true;
-    public GameObject tutorialUI;
-
-    private float xRotation = 20f; // pitch
-    private float yRotation = 0f;  // yaw
+    private PlayerChar playerChar;
+    private Quaternion startCameraLocalRotation;
+    private float pitchAngle;
 
     private void Awake()
     {
@@ -37,34 +25,70 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     private void Start()
     {
-        if (applyStartEulerOnStart)
-            SetRotationEuler(startEuler);
+        if (target != null)
+        {
+            playerChar = target.GetComponent<PlayerChar>();
+        }
+
+        if (cameraPivot == null && Camera.main != null)
+        {
+            cameraPivot = Camera.main.transform;
+        }
+
+        if (cameraPivot != null)
+        {
+            startCameraLocalRotation = cameraPivot.localRotation;
+            pitchAngle = NormalizeAngle(cameraPivot.localEulerAngles.x);
+        }
     }
 
-    // Gọi từ ngoài vào: MouseLook.ins.SetRotationEuler(new Vector3(pitch, yaw, 0));
-    public void SetRotationEuler(Vector3 euler)
+    public void SnapToDirection(Vector3 direction)
     {
-        float pitch = NormalizeAngle(euler.x);
-        float yaw = NormalizeAngle(euler.y);
+        if (target == null) return;
 
-        xRotation = Mathf.Clamp(pitch, yMinLimit, yMaxLimit);
-        yRotation = yaw;
+        Vector3 flatDirection = new Vector3(direction.x, 0f, direction.z);
+        if (flatDirection.sqrMagnitude <= 0.001f) return;
+
+        target.rotation = Quaternion.LookRotation(flatDirection.normalized, Vector3.up);
+        playerChar?.RotateModelToDirection(flatDirection, 1000f);
     }
 
-    // Nếu bạn muốn truyền vào 1 vector hướng (direction) thay vì Euler:
-    // direction: hướng từ target ra phía camera (ví dụ Vector3.back là camera ở sau lưng)
-    public void SetRotationFromDirection(Vector3 directionFromTargetToCamera)
+    public void OnDrag(PointerEventData eventData)
     {
-        if (directionFromTargetToCamera.sqrMagnitude < 0.0001f) return;
+        if (!allowInput || target == null) return;
 
-        // rotation dùng trong LateUpdate: rotation * Vector3.forward là hướng nhìn ra trước camera
-        // CameraPos = targetPos - (rotation * forward * distance)
-        // => (rotation*forward) chính là hướng từ camera -> target (ngược với direction từ target -> camera)
-        Vector3 camToTargetDir = -directionFromTargetToCamera.normalized;
-        Quaternion rot = Quaternion.LookRotation(camToTargetDir, Vector3.up);
+        float deltaX = eventData.delta.x * rotationSpeed;
+        float deltaY = eventData.delta.y * rotationSpeed;
 
-        Vector3 euler = rot.eulerAngles;
-        SetRotationEuler(euler);
+        target.Rotate(Vector3.up, deltaX, Space.World);
+        playerChar?.RotateModelToDirection(target.forward, 20f);
+
+        if (cameraPivot != null)
+        {
+            pitchAngle = Mathf.Clamp(pitchAngle - deltaY, -80f, 80f);
+            cameraPivot.localRotation = Quaternion.Euler(
+                pitchAngle,
+                startCameraLocalRotation.eulerAngles.y,
+                startCameraLocalRotation.eulerAngles.z);
+        }
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (!allowInput) return;
+        foreach (var VARIABLE in tutorialUI)
+        {
+            if (VARIABLE != null)
+            {
+                VARIABLE.SetActive(false);
+            }
+        }
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (!allowInput) return;
+        //onMouseUpShoot?.Invoke();
     }
 
     private float NormalizeAngle(float angle)
@@ -72,58 +96,5 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         angle %= 360f;
         if (angle > 180f) angle -= 360f;
         return angle;
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (!allowInput) return;
-
-        float deltaX = eventData.delta.x * rotationSpeed;
-        float deltaY = eventData.delta.y * rotationSpeed;
-
-        yRotation += deltaX;
-        xRotation -= deltaY;
-        xRotation = Mathf.Clamp(xRotation, yMinLimit, yMaxLimit);
-    }
-
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (!allowInput) return;
-        tutorialUI.SetActive(false);
-    }
-
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        if (!allowInput) return;
-
-        onMouseUpShoot?.Invoke();
-    }
-
-
-    private void LateUpdate()
-    {
-        if (target == null || cameraMain == null) return;
-
-        Quaternion rotation = Quaternion.Euler(xRotation, yRotation, 0f);
-        Vector3 targetPosition = target.position + Vector3.up * heightOffset;
-
-        Vector3 desiredCameraPos = targetPosition - (rotation * Vector3.forward * distance);
-
-        RaycastHit hit;
-        float correctedDistance = distance;
-
-        if (Physics.Raycast(targetPosition, desiredCameraPos - targetPosition, out hit, distance + collisionBuffer, collisionMask))
-        {
-            correctedDistance = Mathf.Clamp(hit.distance - collisionBuffer, minDistance, maxDistance);
-        }
-
-        Vector3 finalCameraPos = targetPosition - (rotation * Vector3.forward * correctedDistance);
-
-        float minY = target.position.y + 0.3f;
-        finalCameraPos.y = Mathf.Max(finalCameraPos.y, minY);
-
-        cameraMain.transform.position = finalCameraPos;
-        cameraMain.transform.LookAt(targetPosition);
     }
 }
