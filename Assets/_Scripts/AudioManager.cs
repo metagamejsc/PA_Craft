@@ -21,6 +21,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip noCoinSound;
     public AudioClip getCoinSound;
     public AudioClip fireSound;
+    public AudioClip openBlockSelectSound;
+    public AudioClip selectBlockItemSound;
     public List<AudioClip> lstMoveSound;
 
     private void Awake()
@@ -36,6 +38,11 @@ public class AudioManager : MonoBehaviour
 
     public void PlaySound(AudioClip audioClip)
     {
+        if (audioClip == null || sound == null)
+        {
+            return;
+        }
+
         sound.PlayOneShot(audioClip,1);
     }
 
@@ -79,6 +86,17 @@ public class AudioManager : MonoBehaviour
     {
         sound.PlayOneShot(miningSound,1);
     }
+
+    public void PlayOpenBlockSelectSound()
+    {
+        PlaySound(openBlockSelectSound);
+    }
+
+    public void PlaySelectBlockItemSound()
+    {
+        PlaySound(selectBlockItemSound);
+    }
+
     public void PlayMusicLose()
     {
         music.Stop();

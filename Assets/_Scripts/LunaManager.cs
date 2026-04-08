@@ -72,7 +72,7 @@ public class LunaManager : MonoBehaviour
     {
         if (isCretivePause) return;
         isCretivePause = true;
-        AudioManager.ins.PlayMusicLose();
+        //AudioManager.ins.PlayMusicLose();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
@@ -90,7 +90,7 @@ public class LunaManager : MonoBehaviour
     {
         if (isCretivePause) return;
         isCretivePause = true;
-        AudioManager.ins.PlayMusicWin();
+        //AudioManager.ins.PlayMusicWin();
         WinCard.SetActive(true);
         Debug.Log("Show win card");
         Luna.Unity.LifeCycle.GameEnded();
