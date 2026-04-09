@@ -442,8 +442,8 @@ public class BlockSelectLoginFlow : MonoBehaviour
 
         while (isFlowActive && target != null)
         {
-            float bob = Mathf.Sin(Time.unscaledTime * 8f) * 12f;
-            handPointer.position = endPosition + Vector3.up * bob;
+            //float bob = Mathf.Sin(Time.unscaledTime * 8f) * 12f;
+            //handPointer.position = endPosition + Vector3.up * bob;
             yield return null;
         }
     }
