@@ -16,6 +16,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip bgSound;
     public AudioClip buildSound;
     public AudioClip clickSound;
+    public AudioClip fireSound;
+    public AudioClip enemyDeathSound;
 
     private void Awake()
     {
@@ -50,6 +52,25 @@ public class AudioManager : MonoBehaviour
     public void PlaySoundBuild()
     {
         sound.PlayOneShot(buildSound,1);
+    }
+    public void PlaySoundFire()
+    {
+        AudioClip clipToPlay = fireSound != null ? fireSound : buildSound;
+        if (clipToPlay == null)
+        {
+            return;
+        }
+
+        sound.PlayOneShot(clipToPlay,1);
+    }
+    public void PlaySoundEnemyDeath()
+    {
+        if (enemyDeathSound == null)
+        {
+            return;
+        }
+
+        sound.PlayOneShot(enemyDeathSound,1);
     }
     public void PlayMusicLose()
     {

@@ -10,7 +10,7 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    /*[LunaPlaygroundField("CountDrop")] */public int countDropFinal;
+    [LunaPlaygroundField("Số lần bắn ra store")] public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     /*[LunaPlaygroundField("NoiseIntensity")] */public float noiseIntensity=10;
     /*[LunaPlaygroundField("LandNoiseScale")] */public float landNoiseScale=0.8f;
@@ -24,6 +24,7 @@ public class LunaManager : MonoBehaviour
     }
     public Button[] lstBtnInstall;
     public GameObject EndCard;
+    private bool endCardShown;
     
 
 
@@ -49,6 +50,11 @@ public class LunaManager : MonoBehaviour
 
     public void CheckClickShowEndCard()
     {
+        if (endCardShown)
+        {
+            return;
+        }
+
         countDrop++;
         if (countDrop>=countDropFinal && isCretivePause==false)
         {
@@ -95,8 +101,25 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
-        AudioManager.ins.PlaySoundReward();
-        EndCard.SetActive(true);
+        if (endCardShown)
+        {
+            return;
+        }
+
+        endCardShown = true;
+        isCretivePause = true;
+        CancelInvoke(nameof(ShowEndCard));
+
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlaySoundReward();
+        }
+
+        if (EndCard != null)
+        {
+            EndCard.SetActive(true);
+        }
+
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
