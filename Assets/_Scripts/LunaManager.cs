@@ -9,7 +9,7 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số lần bắn ra Store")]public int countDropFinal;
+    public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;

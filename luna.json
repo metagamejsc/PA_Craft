@@ -1,8 +1,8 @@
 {
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 32131,
-    "creativeName": "UAC_V14_ThuLH_ToiNV",
+    "applicationID": 29023,
+    "creativeName": "UAC_V30_ThuLH_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -3581,10 +3581,6 @@
             },
             {
                 "name": "UnityEngine.U2D.SpriteAtlas",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.WaitForSecondsRealtime",
                 "excluded": true
             },
             {
@@ -8270,6 +8266,10 @@
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.Shader",
                 "excluded": false
+            },
+            {
+                "name": "CraftTutorialSequence.RuntimeItem",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -12157,7 +12157,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$IEnumerator$reset",
@@ -12173,7 +12173,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -14665,7 +14665,7 @@
                     },
                     {
                         "name": "UnsafeRemoveListener",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetPersistentEventCount",
@@ -26917,7 +26917,7 @@
                     },
                     {
                         "name": "RemoveListener",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -35758,32 +35758,6 @@
                 ]
             },
             {
-                "className": "SetupMaterialTiling",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyMaterialAndTiling",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetupTextureWrapMode",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "System.Collections.Generic.KeyNotFoundException",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -36682,28 +36656,6 @@
                 ]
             },
             {
-                "className": "HandPointerController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "MoveHandToSlots",
-                        "excluded": false
-                    },
-                    {
-                        "name": "MoveHandToPoint",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "Luna.Unity.Engine.ParticleSystemLowLevelApi",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -37327,6 +37279,102 @@
                     },
                     {
                         "name": "CheckClick",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.WaitForSecondsRealtime",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "keepWaiting#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "CraftTutorialSequence",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "StartSequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HideTutorialUi",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BeginSequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BuildRuntimeItems",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ClearRuntimeListeners",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyHiddenState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveGraphic",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleItemClicked",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveToNextItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveHandToCurrentItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FinishSequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopActiveCoroutines",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopMoveHandCoroutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayClip",
                         "excluded": false
                     }
                 ]
