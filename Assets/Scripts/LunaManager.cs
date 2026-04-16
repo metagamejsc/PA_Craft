@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class LunaManager : MonoBehaviour
 {
@@ -16,11 +17,12 @@ public class LunaManager : MonoBehaviour
     //---------------------------------
     [LunaPlaygroundField("ColorBG")] public Color colorBG;
     [LunaPlaygroundAsset("BG")] public Texture2D texture2D;
-    [LunaPlaygroundAsset("IMG1")] public Texture2D img1;
+    // [LunaPlaygroundAsset("IMG1")] public Texture2D img1;
+    [LunaPlaygroundAsset("Video")] public VideoClip videoClip;
     [LunaPlaygroundAsset("IMG2")] public Texture2D img2;
     //[LunaPlaygroundField("ColorText")] public Color colorText;
     public RawImage rawImageBG;
-    public RawImage rawImg1;
+    // public RawImage rawImg1;
     public RawImage rawImg2;
     //public TextMeshProUGUI textTap;
     //---------------------------------
@@ -28,6 +30,7 @@ public class LunaManager : MonoBehaviour
     // [LunaPlaygroundAsset("LogoGame")] public Texture2D logoGame;
     // public RawImage imgRawLogoGame;
     //---------------------------------
+    public VideoPlayer video;
     public TextMeshProUGUI txtEndCreative;
     public Transform handTrans;
     [LunaPlaygroundField("Text")] public string stringEndCreative;
@@ -62,7 +65,7 @@ public class LunaManager : MonoBehaviour
     {
         rawImageBG.texture = texture2D;
         rawImageBG.color = colorBG;
-        rawImg1.texture = img1;
+        //        rawImg1.texture = img1;
         rawImg2.texture = img2;
         // rawImageTable.texture = textureTable;
         // rawImageTable.color = colorTable;
@@ -73,6 +76,7 @@ public class LunaManager : MonoBehaviour
         txtEndCreative.fontStyle = fontStyleTextEndCreative;
         txtEndCreative.rectTransform.anchoredPosition = positionTextEndCreative;
         handTrans.transform.localPosition = handPos;
+        video.clip = videoClip;
     }
     public void CountPlay()
     {
