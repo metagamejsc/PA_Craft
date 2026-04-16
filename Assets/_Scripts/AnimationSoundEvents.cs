@@ -9,6 +9,7 @@ public class AnimationSoundEvents : MonoBehaviour
     {
         public string eventName;
         public AudioClip[] clip;
+        public float ratio=1;
     }
 
     public SoundEvent[] soundEvents;
@@ -26,8 +27,12 @@ public class AnimationSoundEvents : MonoBehaviour
             {
                 if (audioSource && sEvent.clip.Length > 0)
                 {
-                    int index = Random.Range(0, sEvent.clip.Length);
-                    audioSource.PlayOneShot(sEvent.clip[index]);
+                    float randomRatio=Random.Range(0f, 1f);
+                    if (sEvent.ratio>=randomRatio)
+                    {
+                        int index = Random.Range(0, sEvent.clip.Length);
+                        audioSource.PlayOneShot(sEvent.clip[index]);
+                    }
                 }
                 return;
             }

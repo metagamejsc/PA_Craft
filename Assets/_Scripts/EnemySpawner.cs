@@ -1,44 +1,52 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [Header("Enemy Setup")]
     public GameObject[] enemyPrefab;
     public Transform[] spawnPoints;
-    
-    private float spawnInterval;
-    private float enemySpeed;
+    [SerializeField] private int enemyIndex = 0;
+    [SerializeField] private bool spawnOnStart = true;
 
-    private void Start()
+    void Start()
     {
-        StartCoroutine(SpawnLoop());
+        if (!spawnOnStart)
+        {
+            return;
+        }
+
+        if (FindObjectOfType<EnemyController>() != null)
+        {
+            return;
+        }
+
+        GameObject prefabToSpawn = GetEnemyPrefab();
+        Transform spawnPoint = GetSpawnPoint();
+        if (prefabToSpawn == null || spawnPoint == null)
+        {
+            return;
+        }
+
+        Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
     }
 
-    IEnumerator SpawnLoop()
+    GameObject GetEnemyPrefab()
     {
-        while (!LunaManager.ins.isCretivePause)
+        if (enemyPrefab == null || enemyPrefab.Length == 0)
         {
-            spawnInterval = Random.Range(LunaManager.ins.rangeTimeSpawn.x, LunaManager.ins.rangeTimeSpawn.y);
-            yield return new WaitForSeconds(spawnInterval);
-            SpawnEnemy();
+            return null;
         }
+
+        int clampedIndex = Mathf.Clamp(enemyIndex, 0, enemyPrefab.Length - 1);
+        return enemyPrefab[clampedIndex];
     }
 
-    void SpawnEnemy()
+    Transform GetSpawnPoint()
     {
-        if (enemyPrefab.Length==0 || spawnPoints.Length == 0) return;
-
-        Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        GameObject enemyGO = this.enemyPrefab[Random.Range(0, this.enemyPrefab.Length)];
-        GameObject enemy = Instantiate(enemyGO, spawnPoint.position, spawnPoint.rotation);
-
-        // Gán tốc độ cho enemy
-        EnemyController ec = enemy.GetComponent<EnemyController>();
-        if (ec != null)
+        if (spawnPoints != null && spawnPoints.Length > 0 && spawnPoints[0] != null)
         {
-            ec.moveSpeed = Random.Range(LunaManager.ins.rangeSpeedMonster.x, LunaManager.ins.rangeSpeedMonster.y);
+            return spawnPoints[0];
         }
+
+        return transform;
     }
 }

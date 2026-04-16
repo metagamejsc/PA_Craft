@@ -9,6 +9,7 @@ public class AudioManager : MonoBehaviour
     public static AudioManager ins;
     public AudioSource sound;
     public AudioSource music;
+    public AudioSource aimLoopSource;
     public List<AudioClip> lstMergeSound;
     public AudioClip rewardSound;
     public AudioClip bombSound;
@@ -21,11 +22,21 @@ public class AudioManager : MonoBehaviour
     public AudioClip noCoinSound;
     public AudioClip getCoinSound;
     public AudioClip fireSound;
+    public AudioClip aimHoldSound;
     public List<AudioClip> lstMoveSound;
 
     private void Awake()
     {
         ins = this;
+
+        if (aimLoopSource == null)
+        {
+            aimLoopSource = gameObject.AddComponent<AudioSource>();
+            aimLoopSource.playOnAwake = false;
+            aimLoopSource.loop = true;
+            aimLoopSource.spatialBlend = 0f;
+            aimLoopSource.volume = sound != null ? sound.volume : 1f;
+        }
     }
 
     private void Start()
@@ -45,7 +56,37 @@ public class AudioManager : MonoBehaviour
     }
     public void PlaySoundFire()
     {
+        if (fireSound == null)
+        {
+            return;
+        }
+
         sound.PlayOneShot(fireSound,1);
+    }
+    public void StartAimHold()
+    {
+        if (aimHoldSound == null || aimLoopSource == null)
+        {
+            return;
+        }
+
+        aimLoopSource.clip = aimHoldSound;
+        if (!aimLoopSource.isPlaying)
+        {
+            aimLoopSource.Play();
+        }
+    }
+    public void StopAimHold()
+    {
+        if (aimLoopSource == null)
+        {
+            return;
+        }
+
+        if (aimLoopSource.isPlaying)
+        {
+            aimLoopSource.Stop();
+        }
     }
     public void PlaySoundMove()
     {
