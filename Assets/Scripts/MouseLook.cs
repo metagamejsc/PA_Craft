@@ -77,7 +77,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
     private void LateUpdate()
     {
-        if (target == null || cameraMain == null) return;
+        /*if (target == null || cameraMain == null) return;
 
         // Tính rotation
         Quaternion rotation = Quaternion.Euler(xRotation, yRotation, 0f);
@@ -104,6 +104,6 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
 
         // Áp dụng vị trí và xoay camera nhìn vào player
         cameraMain.transform.position = finalCameraPos;
-        cameraMain.transform.LookAt(targetPosition);
+        cameraMain.transform.LookAt(targetPosition);*/
     }
 }

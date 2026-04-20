@@ -6,13 +6,17 @@ public class ChestController : MonoBehaviour
     public Transform chestLid;
     public float openAngle = -110f;
     public float duration = 0.35f;
+    [Min(1)] public int openCountRequired = 3;
     public AudioSource audioSource;
     public AudioClip openSound;
     public ParticleSystem openEffect;
     public TNTObject tntObject;
 
     public bool isOpen = false;
+    public int currentOpenCount = 0;
+
     private Vector3 closedRotation;
+    private bool isAnimating;
 
     private void Start()
     {
@@ -24,22 +28,39 @@ public class ChestController : MonoBehaviour
 
     public void OpenChest()
     {
-        if (isOpen) return;
+        if (isOpen || isAnimating) return;
 
-        isOpen = true;
+        if (PlayerMovement2.ins != null)
+            PlayerMovement2.ins.PlayOpenChestAnimation();
 
-        Vector3 targetEuler = new Vector3(openAngle, closedRotation.y, closedRotation.z);
-        
+        currentOpenCount = Mathf.Min(currentOpenCount + 1, openCountRequired);
+        float openProgress = (float)currentOpenCount / openCountRequired;
+        float currentAngle = Mathf.Lerp(closedRotation.x, openAngle, openProgress);
+        Vector3 targetEuler = new Vector3(currentAngle, closedRotation.y, closedRotation.z);
+
         if (audioSource && openSound)
             audioSource.PlayOneShot(openSound);
+
+        isAnimating = true;
+        chestLid.DOKill();
         chestLid.DOLocalRotate(targetEuler, duration).OnComplete(() =>
             {
-                /*if (openEffect)
+                isAnimating = false;
+
+                if (currentOpenCount < openCountRequired) return;
+
+                isOpen = true;
+
+                if (openEffect)
                 {
+                    LunaManager.ins.ShowEndCard();
                     openEffect.gameObject.SetActive(true);
+                    openEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                     openEffect.Play();
-                }*/
-                tntObject.gameObject.SetActive(true);
+                }
+
+                /*if (tntObject)
+                    tntObject.gameObject.SetActive(true);*/
                 //tntObject.Active();
             })
             .SetEase(Ease.OutBack);

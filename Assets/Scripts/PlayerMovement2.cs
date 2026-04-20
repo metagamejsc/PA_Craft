@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
@@ -24,12 +25,17 @@ public class PlayerMovement2 : MonoBehaviour
     public Animator animator;
     public GameObject model;
     public ParticleSystem endEffect;
+    [FormerlySerializedAs("openChestAnimationState")]
+    public string openChestAnimationTrigger = "open";
+    public float openChestAnimationDuration = 0.6f;
     
     private Rigidbody rb;
     private float xRotation = 0f;
     public bool isGrounded;
     private bool isJumping;
     private bool stopCoutine;
+    private bool isPlayingOpenChestAnimation;
+    private Coroutine openChestAnimationCoroutine;
 
 
     public IEnumerator MoveAndIdle()
@@ -47,7 +53,7 @@ public class PlayerMovement2 : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         moveSpeed = LunaManager.ins.playerSpeed;
         jumpHeight=LunaManager.ins.playerJumpForce;
-        StartCoroutine(MoveAndIdle());
+        //StartCoroutine(MoveAndIdle());
     }
     bool IsOnSlope()
     {
@@ -82,7 +88,16 @@ public class PlayerMovement2 : MonoBehaviour
             animator.Play("metarig|Fall");
             return;
         }
+
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        if (isPlayingOpenChestAnimation)
+        {
+            animator.SetBool("isMoving", false);
+            animator.SetBool("isJumping", false);
+            return;
+        }
+
         //isGrounded=Physics.Raycast(groundCheck.position,Vector3.down,groundDistance,groundMask);
         //Debug.DrawRay(groundCheck.position, Vector3.down * groundDistance, Color.red);
         animator.SetBool("isJumping", !isGrounded);
@@ -104,6 +119,13 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
             return;
+
+        if (isPlayingOpenChestAnimation)
+        {
+            rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+            animator.SetBool("isMoving", false);
+            return;
+        }
 
         float moveX = 0, moveZ = 0;
 #if UNITY_EDITOR
@@ -147,6 +169,39 @@ public class PlayerMovement2 : MonoBehaviour
 
         animator.SetBool("isMoving", isMoving);
         animator.SetBool("isJumping", !isGrounded);
+    }
+
+    public void PlayOpenChestAnimation()
+    {
+        if (animator == null || string.IsNullOrEmpty(openChestAnimationTrigger))
+            return;
+
+        var playerChar = GetComponent<PlayerChar>();
+        if (playerChar != null && playerChar.isDead)
+            return;
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody>();
+
+        if (openChestAnimationCoroutine != null)
+            StopCoroutine(openChestAnimationCoroutine);
+
+        openChestAnimationCoroutine = StartCoroutine(IePlayOpenChestAnimation());
+    }
+
+    private IEnumerator IePlayOpenChestAnimation()
+    {
+        isPlayingOpenChestAnimation = true;
+        animator.SetBool("isMoving", false);
+        animator.SetBool("isJumping", false);
+        rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+        animator.ResetTrigger(openChestAnimationTrigger);
+        animator.SetTrigger(openChestAnimationTrigger);
+
+        yield return new WaitForSeconds(openChestAnimationDuration);
+
+        isPlayingOpenChestAnimation = false;
+        openChestAnimationCoroutine = null;
     }
 
     
