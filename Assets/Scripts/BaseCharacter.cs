@@ -18,6 +18,9 @@ public class BaseCharacter : MonoBehaviour
     public Animator animator;
     public GameObject SwordObject;
     public AnimationClip atkAnimationClip;
+    [Header("Death")]
+    [SerializeField] protected float deathRotateXAngle = 90f;
+    [SerializeField] protected float deathRotateDuration = 0.15f;
     [SerializeField]
     protected float attackCooldown = 0f;
     public Transform target;
@@ -182,7 +185,6 @@ public class BaseCharacter : MonoBehaviour
         health -= dmg;
         if (health <= 0)
         {
-            animator.SetTrigger("Dead");
             isDead = true;
             Die();
         }
@@ -196,19 +198,85 @@ public class BaseCharacter : MonoBehaviour
         }
         if (health <= 0)    
         {
-            
-            animator.SetTrigger("Dead");
+            isDead = true;
             enabled = false;
+            Die();
         }
     }
 
     protected virtual void Die()
     {
-        animator.SetTrigger("Dead");
-        rigidbody.isKinematic = true;
-        capsuleCollider.enabled = false;
-        animator.transform.parent = null;
+        PrepareForDeath();
+
+        Transform corpseRoot = SpawnDeathCorpse();
+        if (corpseRoot == transform)
+        {
+            enabled = false;
+            return;
+        }
+
         Destroy(gameObject);
+    }
+
+    protected virtual void PrepareForDeath()
+    {
+        target = null;
+        isFindingEnemy = false;
+
+        if (animator != null)
+        {
+            animator.SetBool(IsMoving, false);
+        }
+
+        if (rigidbody != null)
+        {
+            rigidbody.isKinematic = true;
+        }
+
+        if (capsuleCollider != null)
+        {
+            capsuleCollider.enabled = false;
+        }
+    }
+
+    protected Transform SpawnDeathCorpse()
+    {
+        Transform corpseRoot = animator != null ? animator.transform : transform;
+        if (corpseRoot != transform)
+        {
+            corpseRoot.SetParent(null, true);
+        }
+
+        RotateCorpse(corpseRoot);
+        return corpseRoot;
+    }
+
+    protected void RotateCorpse(Transform corpseRoot)
+    {
+        if (corpseRoot == null)
+        {
+            return;
+        }
+
+        Animator corpseAnimator = corpseRoot.GetComponent<Animator>();
+        if (corpseAnimator != null)
+        {
+            corpseAnimator.enabled = false;
+        }
+
+        SoundChar corpseSound = corpseRoot.GetComponentInChildren<SoundChar>();
+        if (corpseSound != null)
+        {
+            corpseSound.PlayDeadSound();
+        }
+
+        DeathRotateBody deathRotateBody = corpseRoot.GetComponent<DeathRotateBody>();
+        if (deathRotateBody == null)
+        {
+            deathRotateBody = corpseRoot.gameObject.AddComponent<DeathRotateBody>();
+        }
+
+        deathRotateBody.Play(deathRotateXAngle, deathRotateDuration);
     }
 }
 

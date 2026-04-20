@@ -23,12 +23,12 @@ public class SpawnCreeper : MonoBehaviour
             zombieChars.Add(zombieCharsDrag[i]);
         }
     }
-public static void KillEnemy(ZombieChar zombieChar)
+
+    public static void KillEnemy(ZombieChar zombieChar)
     {
         if (zombieChars.Contains(zombieChar))
         {
             zombieChars.Remove(zombieChar);
-            Destroy(zombieChar.gameObject);
         }
         else
         {

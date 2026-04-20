@@ -44,16 +44,11 @@ public class ZombieChar : BaseCharacter
 
     private void InitializeTerrainBounds()
     {
-        
+
     }
 
     protected override void Update()
     {
-        if (GameController.ins.isPauseGame || isDead)
-        {
-            return;
-        }
-
         // Cập nhật bounds định kỳ nếu cần (nếu map sinh thêm)
         // Uncomment nếu bạn sinh chunk động
         // if (Time.frameCount % 300 == 0) UpdateTerrainBounds(); 
@@ -205,8 +200,6 @@ public class ZombieChar : BaseCharacter
 
         if (health <= 0)
         {
-            GameController.ins.EnemyDead();
-            animator.SetTrigger("Dead");
             isDead = true;
             Die();
         }
@@ -214,11 +207,8 @@ public class ZombieChar : BaseCharacter
 
     protected override void Die()
     {
-        animator.SetTrigger("Dead");
-        rigidbody.isKinematic = true;
-        capsuleCollider.enabled = false;
-        animator.transform.parent = null;
         SpawnCreeper.KillEnemy(this);
+        base.Die();
     }
 
     public IEnumerator IeNhapNhay(float time)

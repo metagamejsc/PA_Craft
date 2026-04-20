@@ -11,10 +11,16 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     public int countDrop=0;
     [LunaPlaygroundField("Số lần đặt bắn TNT ra store")]public int countDropFinal;
-     public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
+    [LunaPlaygroundField("Light Intensity")] public float lightIns=1;
+    [LunaPlaygroundField("Color Light")] public Color color=Color.white;
+    [LunaPlaygroundField("Text")] public string text= "";
+    [LunaPlaygroundField("Text color")] public Color colorText=Color.white;
+    [LunaPlaygroundField("Text Size")] public float sizeText=50;
+    public Light light;
     public bool isCretivePause;
     public TextMeshProUGUI txtTime;
+    public TextMeshProUGUI txt;
     private void Awake()
     {
         ins = this;
@@ -37,6 +43,11 @@ public class LunaManager : MonoBehaviour
         }
         EndCard.SetActive(false);
         //SetupField();
+        light.intensity = lightIns;
+        light.color = color;
+        txt.text = text;
+        txt.color = colorText;
+        txt.fontSize = sizeText;
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
 
