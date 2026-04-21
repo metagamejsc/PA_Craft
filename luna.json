@@ -2,7 +2,7 @@
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 36981,
-    "creativeName": "VCBB_V03_AnhPP_ToiNV",
+    "creativeName": "VCBB_V04_AnhPP_AnhPD",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -7614,10 +7614,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.SetPropertyUtility",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.AspectRatioFitter",
                 "excluded": true
             },
@@ -8801,7 +8797,7 @@
                     },
                     {
                         "name": "toString",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "parse",
@@ -12259,7 +12255,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "System$Collections$IEnumerator$reset",
@@ -12275,7 +12271,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -14767,7 +14763,7 @@
                     },
                     {
                         "name": "UnsafeRemoveListener",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetPersistentEventCount",
@@ -18217,7 +18213,7 @@
                     },
                     {
                         "name": "disabledColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "disabledColor#set",
@@ -18405,7 +18401,7 @@
                     },
                     {
                         "name": "disabledSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "disabledSprite#set",
@@ -27019,7 +27015,7 @@
                     },
                     {
                         "name": "RemoveListener",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -27083,7 +27079,7 @@
                     },
                     {
                         "name": "disabledTrigger#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "disabledTrigger#set",
@@ -35312,6 +35308,10 @@
                     {
                         "name": "NotifyBuildCompleted",
                         "excluded": true
+                    },
+                    {
+                        "name": "SetOptionalObjectVisible",
+                        "excluded": true
                     }
                 ]
             },
@@ -35385,6 +35385,114 @@
                     },
                     {
                         "name": "Apply",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "AttackController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnAttackButtonClick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayerAttackSequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAttackPosition",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DamagePlayer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DamageEnemy",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshHp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PrepareHpObjects",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetHpObjects",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CanPlayerAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsBattleEnded",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FinishBattle",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetAttackButtonInteractable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryEnemyAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EndPlayerAttackDelay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartAttackMove",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateAttackMove",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CompleteCurrentMoveStep",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.SetPropertyUtility",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "SetColor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetStruct",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetClass",
                         "excluded": true
                     }
                 ]

@@ -17,6 +17,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip walkSound;
     public AudioClip buildSound;
     public AudioClip clickSound;
+    public AudioClip attackSound;
 
     private void Awake()
     {
@@ -27,34 +28,37 @@ public class AudioManager : MonoBehaviour
     {
         PlayMusic();
     }
-
+    public void PlaySoundAttack()
+    {
+        sound.PlayOneShot(attackSound, 1);
+    }
     public void PlaySound(AudioClip audioClip)
     {
-        sound.PlayOneShot(audioClip,1);
+        sound.PlayOneShot(audioClip, 1);
     }
     public void PlaySoundClick()
     {
-        sound.PlayOneShot(clickSound,1);
+        sound.PlayOneShot(clickSound, 1);
     }
     public void PlaySoundMerge()
     {
-        sound.PlayOneShot(lstMergeSound[Random.Range(0,lstMergeSound.Count)],1);
+        sound.PlayOneShot(lstMergeSound[Random.Range(0, lstMergeSound.Count)], 1);
     }
     public void PlaySoundReward()
     {
-        sound.PlayOneShot(rewardSound,1);
+        sound.PlayOneShot(rewardSound, 1);
     }
     public void PlaySoundBomb()
     {
-        sound.PlayOneShot(bombSound,1);
+        sound.PlayOneShot(bombSound, 1);
     }
     public void PlaySoundBuild()
     {
-        sound.PlayOneShot(buildSound,1);
+        sound.PlayOneShot(buildSound, 1);
     }
     public void PlaySoundWalk()
     {
-        sound.PlayOneShot(walkSound,1);
+        sound.PlayOneShot(walkSound, 1);
     }
     public void PlayMusicLose()
     {
