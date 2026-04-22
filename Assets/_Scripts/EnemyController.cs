@@ -381,6 +381,26 @@ public class EnemyController : MonoBehaviour
         return closestEnemy;
     }
 
+    public static void GetAliveEnemies(List<EnemyController> results)
+    {
+        if (results == null)
+        {
+            return;
+        }
+
+        results.Clear();
+        for (int i = 0; i < ActiveEnemies.Count; i++)
+        {
+            EnemyController enemy = ActiveEnemies[i];
+            if (enemy == null || enemy.isDead)
+            {
+                continue;
+            }
+
+            results.Add(enemy);
+        }
+    }
+
     public static EnemyController GetClosestAliveToRay(Ray ray, float maxDistanceFromRay, float maxDistanceAlongRay)
     {
         EnemyController closestEnemy = null;

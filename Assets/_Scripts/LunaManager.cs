@@ -9,7 +9,7 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop = 0;
-    [LunaPlaygroundField("Shots Before Store")] public int countDropFinal = 20;
+    [LunaPlaygroundField("Shots Before Store")] public int countDropFinal = 3;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
     [LunaPlaygroundField("Time Between Bow Shots")] public float timeDelayAttackPlayer = 0.8f;

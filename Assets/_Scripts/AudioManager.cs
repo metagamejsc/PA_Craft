@@ -56,7 +56,7 @@ public class AudioManager : MonoBehaviour
     }
     public void PlaySoundFire()
     {
-        if (fireSound == null)
+        if (fireSound == null || sound == null)
         {
             return;
         }
