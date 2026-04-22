@@ -16,12 +16,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
-    
-    [LunaPlaygroundField("Độ dài cả đường băng")] public int segementCount=500;
-    [LunaPlaygroundField("Độ dài 1 đoạn đường băng")] public int lenghOneStep=5;
-    [LunaPlaygroundField("Độ rộng đường băng")] public int widthLine=5;
-    [LunaPlaygroundField("Độ cong đường băng")] public int curveStrength=5;
-    [LunaPlaygroundField("Tần suất đường cong")] public float curveFrequency=0.25f;
+
     public Light directionalLight;
     public bool isCretivePause;
     private void Awake()
