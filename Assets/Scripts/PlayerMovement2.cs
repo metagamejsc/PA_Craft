@@ -22,7 +22,7 @@ public class PlayerMovement2 : MonoBehaviour
     public LayerMask groundMask;
     public Animator animator;
     public GameObject model;
-    
+
     private Rigidbody rb;
     private float xRotation = 0f;
     private bool isGrounded;
@@ -53,13 +53,13 @@ public class PlayerMovement2 : MonoBehaviour
         if (Physics.Raycast(lowerStart, transform.forward, out hitLower, 0.5f) &&
             !Physics.Raycast(upperStart, transform.forward, out hitUpper, 0.5f))
         {
-            rb.position += new Vector3(0f, stepSmooth, 0f)+ transform.forward * 0.3f;
+            rb.position += new Vector3(0f, stepSmooth, 0f) + transform.forward * 0.3f;
         }
     }
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        
+
         // Xử lý nhìn xung quanh bằng chuột
         /*float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
@@ -75,15 +75,15 @@ public class PlayerMovement2 : MonoBehaviour
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }*/
-        
-        
+
+
     }
 
     public void Jump()
     {
-        if(isGrounded)
+        if (isGrounded)
         {
-            rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
+            rb.AddForce(new Vector3(0, jumpHeight, 0), ForceMode.Impulse);
         }
     }
     void FixedUpdate()
@@ -99,10 +99,10 @@ public class PlayerMovement2 : MonoBehaviour
         // Lấy input từ bàn phím (WASD)
         float moveX = 0;
         float moveZ = 0;
-        
+
 #if UNITY_EDITOR
-         moveX = Input.GetAxis("Horizontal");
-         moveZ = Input.GetAxis("Vertical");
+        moveX = Input.GetAxis("Horizontal");
+        moveZ = Input.GetAxis("Vertical");
 #else     
         if (JoystickController.ins==null)
         {
@@ -137,10 +137,10 @@ public class PlayerMovement2 : MonoBehaviour
         rb.velocity = velocity;*/
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
         Vector3 angleDirection = new Vector3(moveX, 0, moveZ);
-        
+
         if (angleDirection != Vector3.zero)
         {
-            
+
             //Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
             // Xoay trục Y theo hướng di chuyển
             Quaternion toRotation = Quaternion.LookRotation(angleDirection, Vector3.up);
@@ -157,6 +157,7 @@ public class PlayerMovement2 : MonoBehaviour
             else
                 animator.Play("metarig|Idle");*/
         }
+        if (animator == null) return;
         animator.SetBool("isMoving", isMoving);
         if (IsOnSlope())
         {
@@ -166,7 +167,7 @@ public class PlayerMovement2 : MonoBehaviour
         // Xử lý bước lên dốc (Step Climb)
         StepClimb();
     }
-    
+
     private void OnCollisionStay(Collision collision)
     {
         // Kiểm tra nếu nhân vật đứng trên mặt đất

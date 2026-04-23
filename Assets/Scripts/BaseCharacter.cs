@@ -12,7 +12,7 @@ public class BaseCharacter : MonoBehaviour
     public float attackSpeed = 1f;
     public float detectionRadiusMax = 5f;
     public float detectionRadiusMin = 1.5f;
-    public bool isDead=false;
+    public bool isDead = false;
     public bool isFindingEnemy = false;
 
     public Animator animator;
@@ -50,18 +50,18 @@ public class BaseCharacter : MonoBehaviour
         SearchForEnemy();
         HandleMovement();
         HandleAttack();
-        
+
         //HandleDeath();
     }
 
     protected virtual void Start()
     {
-        rigidbody= GetComponent<Rigidbody>();
+        rigidbody = GetComponent<Rigidbody>();
         capsuleCollider = GetComponent<CapsuleCollider>();
     }
     public virtual void AtkCompleted()
     {
-        
+
     }
     protected virtual void SearchForEnemy()
     {
@@ -73,17 +73,17 @@ public class BaseCharacter : MonoBehaviour
         {
             return;
         }
-      
 
-        if (isFindingEnemy==false)
+
+        if (isFindingEnemy == false)
         {
             return;
         }
         Collider[] hits = Physics.OverlapSphere(transform.position, detectionRadiusMax);
         target = hits
             .Select(h => h.transform)
-            .Where(t => t.CompareTag("Enemy") && 
-                        t.TryGetComponent<BaseCharacter>(out var enemy) && 
+            .Where(t => t.CompareTag("Enemy") &&
+                        t.TryGetComponent<BaseCharacter>(out var enemy) &&
                         !enemy.isDead) // Kiểm tra có component Player và chưa chết
             .OrderBy(t => Vector3.Distance(transform.position, t.position))
             .FirstOrDefault();
@@ -91,38 +91,40 @@ public class BaseCharacter : MonoBehaviour
 
     protected virtual void HandleMovement()
     {
-        if (target==null)
+        if (target == null)
         {
             return;
         }
-        
+
         if (isDead)
         {
             return;
         }
 
-        if (isFindingEnemy==false)
+        if (isFindingEnemy == false)
         {
             return;
         }
 
         Vector3 move = Vector3.zero;
 
-        if (target != null&& Vector3.Distance(transform.position, target.position) >= detectionRadiusMin)
+        if (target != null && Vector3.Distance(transform.position, target.position) >= detectionRadiusMin)
         {
             move = (target.position - transform.position).normalized;
             transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
         }
-        if (move != Vector3.zero)
-        {
-            Vector3 direction = new Vector3(move.x, 0, move.z);
-            transform.rotation = Quaternion.LookRotation(direction);
-            animator.SetBool(IsMoving, true);
-        }
-        else
-        {
-            animator.SetBool(IsMoving, false);
-        }
+        // if (move != Vector3.zero)
+        // {
+        //     Vector3 direction = new Vector3(move.x, 0, move.z);
+        //     transform.rotation = Quaternion.LookRotation(direction);
+        //     if (animator == null) return;
+        //     animator.SetBool(IsMoving, true);
+        // }
+        // else
+        // {
+        //     if (animator == null) return;
+        //     animator.SetBool(IsMoving, false);
+        // }
     }
     public virtual void HandleMovementByPoint(Transform point, Action callback = null)
     {
@@ -132,9 +134,9 @@ public class BaseCharacter : MonoBehaviour
         }
         Vector3 move = Vector3.zero;
         move = (point.position - transform.position).normalized;
-        
+
         transform.position = Vector3.MoveTowards(transform.position, point.position, moveSpeed * Time.deltaTime);
-        
+
         if (move != Vector3.zero)
         {
             Vector3 direction = new Vector3(move.x, 0, move.z);
@@ -154,7 +156,7 @@ public class BaseCharacter : MonoBehaviour
 
     public virtual void HandleAttack()
     {
-        if (target==null)
+        if (target == null)
         {
             return;
         }
@@ -165,11 +167,11 @@ public class BaseCharacter : MonoBehaviour
         attackCooldown -= Time.deltaTime;
         if (target != null && Vector3.Distance(transform.position, target.position) <= detectionRadiusMin && attackCooldown <= 0)
         {
-            attackCooldown = atkAnimationClip.length/ attackSpeed;
-            animator.SetFloat("AttackSpeed", attackCooldown>attackSpeed?1:attackSpeed);  
+            attackCooldown = atkAnimationClip.length / attackSpeed;
+            animator.SetFloat("AttackSpeed", attackCooldown > attackSpeed ? 1 : attackSpeed);
             animator.SetTrigger("Attack");
             // Reset thời gian hồi chiêu
-            
+
         }
     }
 
@@ -194,9 +196,9 @@ public class BaseCharacter : MonoBehaviour
         {
             return;
         }
-        if (health <= 0)    
+        if (health <= 0)
         {
-            
+
             animator.SetTrigger("Dead");
             enabled = false;
         }
@@ -205,11 +207,12 @@ public class BaseCharacter : MonoBehaviour
     protected virtual void Die()
     {
         GameController.ins.EnemyDead(this.gameObject);
+        GameController.ins.playerChar.SearchForEnemy();
         animator.SetTrigger("Dead");
         rigidbody.isKinematic = true;
         capsuleCollider.enabled = false;
         //animator.transform.parent = null;
-        Destroy(gameObject,1f);
+        Destroy(gameObject, 0f);
     }
 }
 

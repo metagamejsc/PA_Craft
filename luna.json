@@ -1,8 +1,8 @@
 {
     "version": "6.3.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 35701,
-    "creativeName": "PEOP_V24_DungNV_AnhPD",
+    "applicationID": 38393,
+    "creativeName": "MCS_V03_DungNV_AnhPD",
     "pgServer": "EU",
     "window": {
         "‐″": true
@@ -135,7 +135,23 @@
                 "Assets/Game/Models/MC_10009/MC_T_10009.png",
                 "Assets/Game/Models/Player/BaseCharacter/S2_gun.fbx",
                 "Assets/TextMesh Pro/Sprites/EmojiOne.png",
-                "Assets/Texture/Model_3D/base_Character_Final_Final.png"
+                "Assets/Texture/Model_3D/base_Character_Final_Final.png",
+                "Assets/Sound/Player/sweep7.ogg",
+                "Assets/Sound/Player/sweep5.ogg",
+                "Assets/Sound/Player/sweep3.ogg",
+                "Assets/Sound/Player/sweep6.ogg",
+                "Assets/Sound/Player/sweep4.ogg",
+                "Assets/Sound/Player/sweep1.ogg",
+                "Assets/Sound/Player/sweep2.ogg",
+                "Assets/Sound/Player/grass2.ogg",
+                "Assets/Sound/Player/grass6.ogg",
+                "Assets/Sound/Player/grass5.ogg",
+                "Assets/Sound/Player/grass4.ogg",
+                "Assets/Sound/Zombie/say1.ogg",
+                "Assets/Sound/Zombie/say2.ogg",
+                "Assets/Sound/Zombie/hurt2.ogg",
+                "Assets/Sound/Zombie/hurt1.ogg",
+                "Assets/Sound/laser-gun-112767 (mp3cut.net).mp3"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
@@ -26109,7 +26125,7 @@
                     },
                     {
                         "name": "RestoreWordWrappingState",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SaveSpriteVertexInfo",
@@ -26259,14 +26275,6 @@
                     },
                     {
                         "name": "OnDrag",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerUp",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerDown",
                         "excluded": false
                     },
                     {
@@ -35268,6 +35276,26 @@
                     {
                         "name": "CancleFire",
                         "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetupButtonEvents",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetHoldingShot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SearchEnemyByButton",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetRandomEnemy",
+                        "excluded": false
                     }
                 ]
             },
@@ -35426,6 +35454,38 @@
                     {
                         "name": "StopSpawn",
                         "excluded": true
+                    },
+                    {
+                        "name": "SetupWeapons",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddWeaponProgress",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ChangeNextWeapon",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateWeaponProgressUI",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartBossCountdown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BossCountdownRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateBossCountdownUI",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnBoss",
+                        "excluded": false
                     }
                 ]
             },
@@ -36477,7 +36537,7 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -37266,6 +37326,24 @@
                         "excluded": true
                     }
                 ]
+            },
+            {
+                "className": "PlayerChar.ButtonHoldHandler",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "OnPointerDown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerUp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerExit",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -37492,6 +37570,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Texture/Model_3D/GunGold/new/textures/TommyStock2Mtl_baseColor.png"
+                    },
+                    {
+                        "maxWidth": 256,
+                        "maxHeight": 256,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Texture/MCS_v03/Gun3/textures/skin10_454.png_diffuse.png"
                     }
                 ]
             },
@@ -37509,9 +37597,9 @@
                     {
                         "channels": 1,
                         "startTime": "00:00.000",
-                        "endTime": "00:30.000",
-                        "lengthInSeconds": 30.0,
-                        "bitrate": 32,
+                        "endTime": "00:18.076",
+                        "lengthInSeconds": 18.076000213623048,
+                        "bitrate": 16,
                         "script": "",
                         "ext": "",
                         "name": "Assets/SoundFX/an_ordinary_day (mp3cut.net).mp3"
@@ -37535,6 +37623,76 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Sound/ice-cracking-field-recording-06-139709.mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/Zombie/say3.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/ak47-reload.mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/Zombie/say2.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/laser-gun-112767 (mp3cut.net).mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/Player/sweep4.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/Player/Player_hurt2.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:00.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/Player/sweep1.ogg"
                     }
                 ]
             },

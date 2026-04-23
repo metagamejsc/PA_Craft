@@ -133,7 +133,7 @@ public class IceGun : MonoBehaviour
         Quaternion rotation = Quaternion.LookRotation(shootDir);
         muzzleFlash.Play();
         muzzleFlashTween.DORestart();
-        AudioManager.ins.PlaySoundFire();
+        //AudioManager.ins.PlaySoundFire();
         Instantiate(iceProjectilePrefab, firePoint.position, rotation);
         LunaManager.ins.CountFire();
     }

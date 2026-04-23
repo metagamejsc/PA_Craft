@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,IDragHandler
+public class MouseLook : MonoBehaviour, IDragHandler
 {
     public static MouseLook ins;
     public float timeHoldFire = 0f;
@@ -88,40 +88,40 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
             UpdateCameraLookAt(target);
             isMouseDown = false;
         }
-        
-        if (!isMouseDown)
-        {
-            return;
-        }
-        playerBody.GetComponent<PlayerChar>().HandleAttack();
-        timeHoldFire += Time.deltaTime;
-        if (timeHoldFire>=LunaManager.ins.timeHoldStore)
-        {
-            LunaManager.ins.DelayCallEndCard(2f);
-        }
     }
 
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        if (GameController.ins.isEndGame)
-        {
-            return;
-        }
-        isMouseDown = false;
-        StopAllCoroutines();
-        playerBody.GetComponent<PlayerChar>().CancleFire();
-        
-    }
+    //     if (!isMouseDown)
+    //     {
+    //         return;
+    //     }
+    //     playerBody.GetComponent<PlayerChar>().HandleAttack();
+    //     timeHoldFire += Time.deltaTime;
+    //     if (timeHoldFire>=LunaManager.ins.timeHoldStore)
+    //     {
+    //         LunaManager.ins.DelayCallEndCard(2f);
+    //     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (GameController.ins.isEndGame)
-        {
-            return;
-        }
-        isMouseDown = true;
-        //playerBody.GetComponent<PlayerChar>().HandleAttack();
-    }
+    // public void OnPointerUp(PointerEventData eventData)
+    // {
+    //     if (GameController.ins.isEndGame)
+    //     {
+    //         return;
+    //     }
+    //     isMouseDown = false;
+    //     StopAllCoroutines();
+    //     playerBody.GetComponent<PlayerChar>().CancleFire();
+
+    // }
+
+    // public void OnPointerDown(PointerEventData eventData)
+    // {
+    //     if (GameController.ins.isEndGame)
+    //     {
+    //         return;
+    //     }
+    //     isMouseDown = true;
+    //     //playerBody.GetComponent<PlayerChar>().HandleAttack();
+    // }
 
     public void UpdateCameraLookAt(Transform target)
     {

@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class PlayerChar : BaseCharacter
 {
@@ -9,6 +11,11 @@ public class PlayerChar : BaseCharacter
     public Action fire;
     public Action canleFire;
     public GameObject[] lstWeapons;
+    [Header("UI Buttons")]
+    public Button btnShot;
+    public Button btnSearchEnemy;
+    public bool isHoldingShot;
+
     protected override void Update()
     {
 
@@ -17,7 +24,11 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-        SearchForEnemy();
+        //SearchForEnemy();
+        if (isHoldingShot)
+        {
+            HandleAttack();
+        }
         attackCooldown -= Time.deltaTime;
     }
 
@@ -30,6 +41,46 @@ public class PlayerChar : BaseCharacter
         }*/
         //SwordObject.SetActive(false);
         IsFindingEnemy = true;
+        SetupButtonEvents();
+    }
+
+    private void OnDisable()
+    {
+        SetHoldingShot(false);
+    }
+
+    private void SetupButtonEvents()
+    {
+        if (btnShot != null)
+        {
+            ButtonHoldHandler holdHandler = btnShot.GetComponent<ButtonHoldHandler>();
+            if (holdHandler == null)
+            {
+                holdHandler = btnShot.gameObject.AddComponent<ButtonHoldHandler>();
+            }
+
+            holdHandler.onPointerDown = () => SetHoldingShot(true);
+            holdHandler.onPointerUp = () => SetHoldingShot(false);
+        }
+
+        if (btnSearchEnemy != null)
+        {
+            btnSearchEnemy.onClick.AddListener(SearchEnemyByButton);
+        }
+    }
+
+    private void SetHoldingShot(bool value)
+    {
+        isHoldingShot = value;
+        if (!isHoldingShot)
+        {
+            CancleFire();
+        }
+    }
+
+    public void SearchEnemyByButton()
+    {
+        SearchForEnemy();
     }
 
     protected override void SearchForEnemy()
@@ -38,17 +89,44 @@ public class PlayerChar : BaseCharacter
         {
             return;
         }
-        if (isFindingEnemy==false)
+        if (isFindingEnemy == false)
         {
             return;
         }
+
+        if (GameController.ins == null || GameController.ins.enemyList == null)
+        {
+            return;
+        }
+
+        GameObject currentEnemy = target != null ? target.gameObject : null;
+        GameObject selectedEnemy = GetRandomEnemy(currentEnemy);
+
+        if (selectedEnemy == null)
+        {
+            selectedEnemy = GetRandomEnemy(null);
+        }
+
+        target = selectedEnemy != null ? selectedEnemy.transform : null;
+
+        if (target != null && MouseLook.ins != null)
+        {
+            MouseLook.ins.target = target;
+            MouseLook.ins.UpdateCameraLookAt(target);
+        }
+        else if (MouseLook.ins != null)
+        {
+            MouseLook.ins.target = null;
+        }
+
+        /*
         Camera cam = Camera.main;
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, detectionRadiusMax, LayerMask.GetMask("Enemy"))) 
+        if (Physics.Raycast(ray, out hit, detectionRadiusMax, LayerMask.GetMask("Enemy")))
         {
             GameObject hitObj = hit.transform.gameObject;
-            
+
             if (hitObj.CompareTag("Enemy"))
             {
                 target = hitObj.transform;
@@ -58,6 +136,34 @@ public class PlayerChar : BaseCharacter
                 target = null;
             }
         }
+        */
+    }
+
+    private GameObject GetRandomEnemy(GameObject excludedEnemy)
+    {
+        GameObject selectedEnemy = null;
+        int validEnemyCount = 0;
+
+        foreach (GameObject enemy in GameController.ins.enemyList)
+        {
+            if (enemy == null || enemy == excludedEnemy || !enemy.CompareTag("Enemy"))
+            {
+                continue;
+            }
+
+            if (enemy.TryGetComponent<BaseCharacter>(out BaseCharacter enemyCharacter) && enemyCharacter.isDead)
+            {
+                continue;
+            }
+
+            validEnemyCount++;
+            if (UnityEngine.Random.Range(0, validEnemyCount) == 0)
+            {
+                selectedEnemy = enemy;
+            }
+        }
+
+        return selectedEnemy;
     }
 
     public void CraftWeapon(int weaponId = 0)
@@ -91,6 +197,7 @@ public class PlayerChar : BaseCharacter
             // Reset thời gian hồi chiêu
         }*/
     }
+
     public void CancleFire()
     {
         canleFire?.Invoke();
@@ -117,5 +224,26 @@ public class PlayerChar : BaseCharacter
         capsuleCollider.enabled = false;
         animator.transform.parent = null;
         //Destroy(gameObject);
+    }
+
+    private class ButtonHoldHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    {
+        public Action onPointerDown;
+        public Action onPointerUp;
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            onPointerDown?.Invoke();
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            onPointerUp?.Invoke();
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            onPointerUp?.Invoke();
+        }
     }
 }
