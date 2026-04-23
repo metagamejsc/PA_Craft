@@ -22,6 +22,7 @@ public class EnemyController : MonoBehaviour
     public bool isDead = false;
     public bool isAttacking = false;
     public bool canAttack = true;
+    public bool waitForTutorialComplete = true;
 
     [Header("Health Settings")]
     public float maxHealth = 3f;
@@ -83,6 +84,12 @@ public class EnemyController : MonoBehaviour
 
         ResolvePlayer();
         UpdateHealthBarTransform();
+
+        if (ShouldWaitForTutorial())
+        {
+            SetMovingAnimation(false);
+            return;
+        }
 
         if (player == null || (playerController != null && playerController.IsDead()))
         {
@@ -320,6 +327,24 @@ public class EnemyController : MonoBehaviour
         return isDead;
     }
 
+    public static int AliveCount
+    {
+        get
+        {
+            int aliveCount = 0;
+            for (int i = 0; i < ActiveEnemies.Count; i++)
+            {
+                EnemyController enemy = ActiveEnemies[i];
+                if (enemy != null && !enemy.isDead)
+                {
+                    aliveCount++;
+                }
+            }
+
+            return aliveCount;
+        }
+    }
+
     public void Die()
     {
         if (isDead)
@@ -348,9 +373,9 @@ public class EnemyController : MonoBehaviour
         animator.Play("metarig|Fall");
         if (LunaManager.ins != null)
         {
-            if (!HasOtherAliveEnemies(this))
+            if (!HasOtherAliveEnemies(this) && !EnemySpawner.HasPendingSpawns())
             {
-                LunaManager.ins.ShowWinCard();
+                LunaManager.ins.CheckClickShowEndCard();
             }
         }
 
@@ -464,6 +489,11 @@ public class EnemyController : MonoBehaviour
         }
 
         animator.SetBool(IsMovingBoolHash, isMoving);
+    }
+
+    bool ShouldWaitForTutorial()
+    {
+        return waitForTutorialComplete && !TutorialBuildBlock.IsComplete;
     }
 
     Vector3 GetAttackDirection()

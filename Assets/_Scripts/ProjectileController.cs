@@ -16,7 +16,7 @@ public class ProjectileController : MonoBehaviour
         public float delay;
     }
 
-    public UnityEngine.Object hitEffect;
+    public GameObject hitEffect;
     public float hitEffectLifetime = 1f;
     public ProjectileSoundData hitSound;
     public float defaultSpeed = 35f;
@@ -136,7 +136,7 @@ public class ProjectileController : MonoBehaviour
             Quaternion effectRotation = hit.normal.sqrMagnitude > 0.001f
                 ? Quaternion.LookRotation(hit.normal)
                 : Quaternion.identity;
-            UnityEngine.Object effectInstance = Instantiate(hitEffect, hit.point, effectRotation);
+            GameObject effectInstance = Instantiate(hitEffect, hit.point, effectRotation);
             DestroySpawnedHitEffect(effectInstance);
         }
 
@@ -246,22 +246,10 @@ public class ProjectileController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    void DestroySpawnedHitEffect(UnityEngine.Object effectInstance)
+    void DestroySpawnedHitEffect(GameObject effectInstance)
     {
         if (effectInstance == null)
         {
-            return;
-        }
-
-        if (effectInstance is Component component)
-        {
-            Destroy(component.gameObject, hitEffectLifetime);
-            return;
-        }
-
-        if (effectInstance is GameObject gameObjectInstance)
-        {
-            Destroy(gameObjectInstance, hitEffectLifetime);
             return;
         }
 
