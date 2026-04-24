@@ -10,6 +10,15 @@ public class TutorialBuildBlock : MonoBehaviour
     public int stepIndex;
     public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
+    public bool IsTutorialComplete { get; private set; }
+
+    public static bool IsComplete
+    {
+        get
+        {
+            return ins == null || ins.IsTutorialComplete;
+        }
+    }
     //public Button btnHideTutorial;
 
     private void Awake()
@@ -25,40 +34,95 @@ public class TutorialBuildBlock : MonoBehaviour
 
     private void Start()
     {
+        if (lstStep == null || lstStep.Count == 0)
+        {
+            CompleteTutorial();
+            return;
+        }
+
         foreach (var VARIABLE in lstStep)
         {
-            VARIABLE.SetActive(false);
-        }
-        foreach (var VARIABLE in lstButtonHideStep)
-        {
-            VARIABLE.onClick.AddListener(() =>
+            if (VARIABLE != null)
             {
-                HideStep();
-            });
+                VARIABLE.SetActive(false);
+            }
         }
+
+        if (lstButtonHideStep != null)
+        {
+            foreach (var VARIABLE in lstButtonHideStep)
+            {
+                if (VARIABLE != null)
+                {
+                    VARIABLE.onClick.AddListener(() =>
+                    {
+                        HideStep();
+                    });
+                }
+            }
+        }
+
+        if (stepIndex < 0)
+        {
+            stepIndex = 0;
+        }
+
+        if (stepIndex >= lstStep.Count)
+        {
+            CompleteTutorial();
+            return;
+        }
+
         ShowStep();
         //StartCoroutine(IeSpawnStep());
     }
 
     public void ShowStep()
     {
-        
-        lstStep[stepIndex].SetActive(true);
+        if (IsTutorialComplete || lstStep == null || stepIndex < 0 || stepIndex >= lstStep.Count)
+        {
+            return;
+        }
+
+        GameObject step = lstStep[stepIndex];
+        if (step != null)
+        {
+            step.SetActive(true);
+        }
     }
     public void HideStep()
     {
-        
-        lstStep[stepIndex].SetActive(false);
+        if (IsTutorialComplete || lstStep == null || stepIndex < 0 || stepIndex >= lstStep.Count)
+        {
+            return;
+        }
+
+        GameObject step = lstStep[stepIndex];
+        if (step != null)
+        {
+            step.SetActive(false);
+        }
         stepIndex++;
-        if (stepIndex < lstStep.Count)
+        
+        if (stepIndex<lstStep.Count)
         {
             ShowStep();
+            return;
         }
-        ShowStep();
-        /*if (stepIndex==lstStep.Count-1)
+
+        CompleteTutorial();
+    }
+
+    void CompleteTutorial()
+    {
+        IsTutorialComplete = true;
+    }
+
+    private void OnDestroy()
+    {
+        if (ins == this)
         {
-           GameController.ins.SpawnEnemy(GameController.ins.playerChar.transform.position+Camera.main.transform.forward*8f+new Vector3(0,10,0));
-           ShowStep();
-        }*/
+            ins = null;
+        }
     }
 }
