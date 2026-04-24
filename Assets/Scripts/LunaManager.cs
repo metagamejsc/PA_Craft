@@ -11,14 +11,14 @@ public class LunaManager : MonoBehaviour
     public int countDrop = 0;
     public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
-    [LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay = 0;
+    //[LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay = 0;
     [LunaPlaygroundField("Show End Card")] public bool isEndCard = true;
-    [LunaPlaygroundField("Player Speed")] public float playerSpeed = 1.5f;
-    [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce = 40f;
-    [LunaPlaygroundField("Lightning")] public float Lightning = 5;
-    [LunaPlaygroundField("Color Light")] public Color colorLight = Color.black;
-    public Light directionalLight;
-    public bool isCretivePause;
+    // [LunaPlaygroundField("Player Speed")] public float playerSpeed = 1.5f;
+    // [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce = 40f;
+    // [LunaPlaygroundField("Lightning")] public float Lightning = 5;
+    // [LunaPlaygroundField("Color Light")] public Color colorLight = Color.black;
+    // public Light directionalLight;
+    // public bool isCretivePause;
     public GameObject showEndCard;
     private void Awake()
     {
@@ -34,8 +34,8 @@ public class LunaManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        directionalLight.intensity = Lightning;
-        directionalLight.color = colorLight;
+        // directionalLight.intensity = Lightning;
+        // directionalLight.color = colorLight;
         Luna.Unity.LifeCycle.OnPause += PauseGameplay;
         Luna.Unity.LifeCycle.OnResume += ResumeGameplay;
         foreach (var VARIABLE in lstBtnInstall)
@@ -51,9 +51,9 @@ public class LunaManager : MonoBehaviour
     }
     public void ReplayGame()
     {
-        canReplay--;
+        //canReplay--;
         //btnRestart.SetActive(canReplay>=1);
-        isCretivePause = false;
+        //isCretivePause = false;
         EndCard.SetActive(false);
         var timeEndCreativeRemaining = timeEndCreative - Time.realtimeSinceStartup;
         if (timeEndCreativeRemaining < 0)
@@ -66,11 +66,11 @@ public class LunaManager : MonoBehaviour
     public void CheckClickShowEndCard()
     {
         countDrop++;
-        if (countDrop >= countDropFinal && isCretivePause == false)
-        {
-            isCretivePause = true;
-            ShowEndCard();
-        }
+        // if (countDrop >= countDropFinal && isCretivePause == false)
+        // {
+        //     isCretivePause = true;
+        //     ShowEndCard();
+        // }
     }
     // Update is called once per frame
     public void PauseGameplay()
@@ -87,8 +87,8 @@ public class LunaManager : MonoBehaviour
 
     public void ShowEndCard()
     {
-        if (isCretivePause) return;
-        isCretivePause = true;
+        // if (isCretivePause) return;
+        // isCretivePause = true;
         AudioManager.ins.PlayMusicLose();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
@@ -105,8 +105,8 @@ public class LunaManager : MonoBehaviour
     // }
     public void ShowWinCard()
     {
-        if (isCretivePause) return;
-        isCretivePause = true;
+        // if (isCretivePause) return;
+        // isCretivePause = true;
         AudioManager.ins.PlayMusicWin();
         WinCard.SetActive(true);
         Debug.Log("Show win card");

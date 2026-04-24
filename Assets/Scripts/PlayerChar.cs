@@ -30,8 +30,8 @@ public class PlayerChar : BaseCharacter
 
         rb = GetComponent<Rigidbody>();
 
-        moveSpeed = LunaManager.ins.playerSpeed;
-        jumpForce = LunaManager.ins.playerJumpForce;
+        //moveSpeed = LunaManager.ins.playerSpeed;
+        //jumpForce = LunaManager.ins.playerJumpForce;
 
         IsFindingEnemy = true;
     }
@@ -49,8 +49,8 @@ public class PlayerChar : BaseCharacter
 
     void FixedUpdate()
     {
-        if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
-            return;
+        // if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
+        //     return;
 
         Move();
     }

@@ -34,10 +34,10 @@ public class BaseCharacter : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (LunaManager.ins.isCretivePause)
-        {
-            return;
-        }
+        // if (LunaManager.ins.isCretivePause)
+        // {
+        //     return;
+        // }
         SearchForEnemy();
         HandleMovement();
         HandleAttack();

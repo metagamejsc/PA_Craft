@@ -62,7 +62,7 @@ public class GameController : MonoBehaviour
     public void Start()
     {
         btnRestart.onClick.AddListener(RestartGame);
-        canRestart = LunaManager.ins.canReplay >= 1;
+        //canRestart = LunaManager.ins.canReplay >= 1;
     }
 
 }

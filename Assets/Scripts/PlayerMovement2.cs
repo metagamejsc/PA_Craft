@@ -23,7 +23,7 @@ public class PlayerMovement2 : MonoBehaviour
     public Animator animator;
     public GameObject model;
     public ParticleSystem endEffect;
-    
+
     private Rigidbody rb;
     private float xRotation = 0f;
     public bool isGrounded;
@@ -44,8 +44,8 @@ public class PlayerMovement2 : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        moveSpeed = LunaManager.ins.playerSpeed;
-        jumpHeight=LunaManager.ins.playerJumpForce;
+        // moveSpeed = LunaManager.ins.playerSpeed;
+        //jumpHeight=LunaManager.ins.playerJumpForce;
         StartCoroutine(MoveAndIdle());
     }
     bool IsOnSlope()
@@ -70,7 +70,7 @@ public class PlayerMovement2 : MonoBehaviour
         if (Physics.Raycast(lowerStart, transform.forward, out hitLower, 0.5f) &&
             !Physics.Raycast(upperStart, transform.forward, out hitUpper, 0.5f))
         {
-            rb.position += new Vector3(0f, stepSmooth, 0f)+ transform.forward * 0.3f;
+            rb.position += new Vector3(0f, stepSmooth, 0f) + transform.forward * 0.3f;
         }
     }
     void Update()
@@ -92,17 +92,17 @@ public class PlayerMovement2 : MonoBehaviour
     }
     public void Jump()
     {
-        if(isGrounded)
+        if (isGrounded)
         {
             animator.SetBool("isJumping", !isGrounded);
             //animator.Play("metarig|Character_Jump");
-            rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
+            rb.AddForce(new Vector3(0, jumpHeight, 0), ForceMode.Impulse);
         }
     }
     void FixedUpdate()
     {
-        if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
-            return;
+        // if (GameController.ins.isPauseGame || LunaManager.ins.isCretivePause)
+        //     return;
 
         float moveX = 0, moveZ = 0;
 #if UNITY_EDITOR
@@ -148,21 +148,21 @@ public class PlayerMovement2 : MonoBehaviour
         animator.SetBool("isJumping", !isGrounded);
     }
 
-    
+
     private void OnCollisionStay(Collision collision)
     {
-        
+
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Respawn"))
         {
-            if (!LunaManager.ins.isCretivePause)
-            {
-                GetComponent<PlayerChar>().TakeDamage(999);
-                LunaManager.ins.ShowEndCard();
-            }
+            // if (!LunaManager.ins.isCretivePause)
+            // {
+            //     GetComponent<PlayerChar>().TakeDamage(999);
+            //     LunaManager.ins.ShowEndCard();
+            // }
         }
     }
 
@@ -170,24 +170,24 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if (other.CompareTag("Finish"))
         {
-            if (!LunaManager.ins.isCretivePause)
-            {
-                //var effect= Instantiate(endEffect);
-                //effect.transform.position = transform.position + new Vector3(0, 0, 2);
-                animator.SetBool("isMoving", false);
-                rb.velocity = Vector3.zero;
-                LunaManager.ins.ShowWinCard();
-            }
+            // if (!LunaManager.ins.isCretivePause)
+            // {
+            //     //var effect= Instantiate(endEffect);
+            //     //effect.transform.position = transform.position + new Vector3(0, 0, 2);
+            //     animator.SetBool("isMoving", false);
+            //     rb.velocity = Vector3.zero;
+            //     LunaManager.ins.ShowWinCard();
+            // }
         }
         if (other.CompareTag("Enemy"))
         {
-            if (!LunaManager.ins.isCretivePause)
-            {
-                other.GetComponent<BoxCollider>().enabled = false;
-                AudioManager.ins.PlaySoundReward();
-                var effect= Instantiate(endEffect);
-                effect.transform.position = transform.position + new Vector3(0, 0, 2);
-            }
+            // if (!LunaManager.ins.isCretivePause)
+            // {
+            //     other.GetComponent<BoxCollider>().enabled = false;
+            //     AudioManager.ins.PlaySoundReward();
+            //     var effect = Instantiate(endEffect);
+            //     effect.transform.position = transform.position + new Vector3(0, 0, 2);
+            // }
         }
     }
 }

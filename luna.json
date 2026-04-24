@@ -153,15 +153,17 @@
                 "Assets/Game/Assets/Characters/Imports/Model2/W.base_character.fbx",
                 "Assets/Texture/Model_3D/Character.fbx",
                 "Assets/Obby_Prison_Escape_Game_LevelPack/Texture/Obby_Prison_Escape_BaseMap_8.png",
-                "Assets/Font/Electronic Highway Sign SDF.asset"
+                "Assets/Font/Electronic Highway Sign SDF.asset",
+                "Assets/Scenes/SampleScene.unity"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
-                "Assets/TextMesh Pro/Resources/TMP Settings.asset"
+                "Assets/TextMesh Pro/Resources/TMP Settings.asset",
+                "Assets/Scenes/Game.unity"
             ]
         },
         "scenes": [
-            "Assets/Scenes/SampleScene.unity"
+            "Assets/Scenes/Game.unity"
         ],
         "disabledScenes": [],
         "startupScene": 0,
@@ -186,7 +188,7 @@
             "logo": ""
         },
         "enableRealtimeShadows": true,
-        "enableLunaCompilerV2": false,
+        "enableLunaCompilerV2": true,
         "optimiseShaderVariantsExport": true,
         "enableMecanimWASM": true,
         "minify": true,
@@ -3727,10 +3729,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.Video.VideoClip",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.WaitForNextFrame",
                 "excluded": true
             },
@@ -7032,11 +7030,11 @@
             },
             {
                 "name": "UnityEngine.Video.VideoRenderMode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.Video.VideoSource",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.Video.VideoTimeReference",
@@ -8287,10 +8285,6 @@
                 "excluded": true
             },
             {
-                "name": "IAmAnEmptyScriptJustToMakeCodelessProjectsCompileProperty",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.Experimental.Rendering.GraphicsFormat",
                 "excluded": false
             },
@@ -8321,6 +8315,34 @@
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.Shader",
                 "excluded": false
+            },
+            {
+                "name": "ChooseOptionVideo.ChoiceStep",
+                "excluded": false
+            },
+            {
+                "name": "ScrollingUVs_Layers",
+                "excluded": true
+            },
+            {
+                "name": "SetupMaterialTiling",
+                "excluded": true
+            },
+            {
+                "name": "ThirdPersonCamera",
+                "excluded": true
+            },
+            {
+                "name": "ToggleByTime",
+                "excluded": true
+            },
+            {
+                "name": "TriggerEffect",
+                "excluded": true
+            },
+            {
+                "name": "UIManager",
+                "excluded": true
             }
         ],
         "unusedMethods": [
@@ -22878,11 +22900,11 @@
                     },
                     {
                         "name": "source#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "source#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "time#get",
@@ -22902,7 +22924,7 @@
                     },
                     {
                         "name": "url#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "currentClip#get",
@@ -22914,15 +22936,15 @@
                     },
                     {
                         "name": "clip#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "targetMaterialRenderer#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "targetMaterialRenderer#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "targetMaterialProperty#get",
@@ -22930,7 +22952,7 @@
                     },
                     {
                         "name": "targetMaterialProperty#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "playOnAwake#get",
@@ -22938,7 +22960,7 @@
                     },
                     {
                         "name": "playOnAwake#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isLooping#get",
@@ -22946,7 +22968,7 @@
                     },
                     {
                         "name": "isLooping#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isPlaying#get",
@@ -22982,7 +23004,7 @@
                     },
                     {
                         "name": "playbackSpeed#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "canSetDirectAudioVolume#get",
@@ -23082,11 +23104,11 @@
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CreateVideoElement",
@@ -23114,7 +23136,7 @@
                     },
                     {
                         "name": "UpdateTexture",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetDirectAudioMute",
@@ -23138,7 +23160,7 @@
                     },
                     {
                         "name": "OnEnable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDisable",
@@ -23182,7 +23204,7 @@
                     },
                     {
                         "name": "Stop",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "EnableAudioTrack",
@@ -28182,10 +28204,6 @@
                     },
                     {
                         "name": "Tick",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Tick\",this)}this.c$-=t;if(this.c$<=0){pc.Application.getApplication().events.off(\"update",
                         "excluded": false
                     },
                     {
@@ -37125,11 +37143,85 @@
                 ]
             },
             {
-                "className": "ToggleByTime",
+                "className": "UnityEngine.Video.VideoClip",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "name#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "name#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "width#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "height#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "frameRate#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "frameCount#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "length#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "audioTrackCount#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "originalPath#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "pixelAspectRatioDenominator#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "pixelAspectRatioNumerator#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sRGB#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAudioChannelCount",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetAudioSampleRate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetAudioLanguage",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "ChooseOptionVideo",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
                         "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
                         "excluded": false
                     },
                     {
@@ -37137,29 +37229,31 @@
                         "excluded": false
                     },
                     {
-                        "name": "StartToggle",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StopToggle",
+                        "name": "OnDestroy",
                         "excluded": true
                     },
                     {
-                        "name": "ToggleRoutine",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "TriggerEffect",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
+                        "name": "PlayOption",
                         "excluded": false
                     },
                     {
-                        "name": "OnTriggerEnter",
+                        "name": "PlayVideo",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnVideoFinished",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EndCardStep",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ShowCurrentStep",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HideAllSteps",
                         "excluded": true
                     }
                 ]
