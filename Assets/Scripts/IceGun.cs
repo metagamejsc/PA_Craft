@@ -1,50 +1,51 @@
-using System;
 using System.Collections;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
-using TMPro;              // TextMeshPro
-using UnityEngine.UI;     // Image cho vòng tròn reload
+using UnityEngine.UI;
 
 public class IceGun : MonoBehaviour
 {
-    [Header("Bắn")]
+    [Header("Fire")]
     public GameObject iceProjectilePrefab;
     public Transform firePoint;
-    public float fireRate = 0.2f;  // Thời gian giữa 2 viên (ví dụ 0.2s)
+    public float fireRate = 0.2f;
     public float timeCanFire;
 
-    [Header("Đạn")]
-    public int clipSize = 30;      // Số đạn / 1 băng
-    public int totalAmmo = 300;    // Tổng cả game (bao gồm cả băng đang gắn)
-    private int currentAmmoInClip; // Đạn trong băng hiện tại
-    private int ammoReserve;       // Đạn còn lại trong kho (ngoài băng)
+    [Header("Ammo")]
+    public int clipSize = 30;
+    public int totalAmmo = 300;
+    private int currentAmmoInClip;
+    private int ammoReserve;
 
     [Header("Reload")]
-    public float reloadTime = 2f;  // Thời gian reload 1 băng
-    private bool isReloading = false;
+    public float reloadTime = 2f;
+    private bool isReloading;
 
     [Header("UI")]
-    public TextMeshProUGUI ammoText;   // Text hiển thị đạn
-    public Image reloadCircle;         // Vòng tròn reload (Image với Fill Method = Radial360)
+    public TextMeshProUGUI ammoText;
+    public Image reloadCircle;
 
     [Header("Player & Sound")]
-    public PlayerChar playerCharacter; 
+    public PlayerChar playerCharacter;
     public AudioClip fireSound;
     public AudioClip reloadSound;
     public ParticleSystem muzzleFlash;
     public DOTweenAnimation muzzleFlashTween;
 
-    void Awake()
-    {
-        if (playerCharacter == null)
-            playerCharacter = FindObjectOfType<PlayerChar>();
+    private AudioManager audioManager;
+    private float baseFireRate;
 
-        // Thiết lập đạn ban đầu:
+    private void Awake()
+    {
+        ResolveRuntimeReferences();
+        baseFireRate = fireRate;
+
         currentAmmoInClip = clipSize;
-        ammoReserve = totalAmmo - currentAmmoInClip; // ví dụ: 300 tổng => 30 / 270
+        ammoReserve = Mathf.Max(0, totalAmmo - currentAmmoInClip);
     }
 
-    void Start()
+    private void Start()
     {
         timeCanFire = 0f;
         UpdateAmmoUI();
@@ -56,11 +57,10 @@ public class IceGun : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
     {
         timeCanFire -= Time.deltaTime;
 
-        // Nhấn R để reload chủ động
         if (Input.GetKeyDown(KeyCode.R))
         {
             TryStartReload();
@@ -69,90 +69,93 @@ public class IceGun : MonoBehaviour
 
     private void OnEnable()
     {
-        if (playerCharacter == null)
-            playerCharacter = FindObjectOfType<PlayerChar>();
+        ResolveRuntimeReferences();
 
         if (playerCharacter != null)
+        {
             playerCharacter.fire += ShootTowardCenter;
+        }
     }
 
     private void OnDisable()
     {
         if (playerCharacter != null)
+        {
             playerCharacter.fire -= ShootTowardCenter;
+        }
     }
 
-    /// <summary>
-    /// Gọi khi nhấn nút bắn (từ PlayerChar.fire event)
-    /// </summary>
-    void ShootTowardCenter()
+    private void ShootTowardCenter()
     {
-        // Không bắn được nếu đang reload
-        if (isReloading)
-            return;
+        ResolveRuntimeReferences();
 
-        // Chưa đủ thời gian giữa 2 viên
-        if (timeCanFire > 0)
+        if (isReloading || timeCanFire > 0f)
+        {
             return;
+        }
 
-        // Hết đạn trong băng
         if (currentAmmoInClip <= 0)
         {
-            // Nếu còn đạn trong kho thì tự reload, nếu không thì thôi
             TryStartReload();
             return;
         }
 
-        // Bắn
-        if (fireSound)
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null || firePoint == null || iceProjectilePrefab == null)
         {
-            AudioManager.ins.PlaySound(fireSound);
+            return;
+        }
+
+        if (fireSound != null)
+        {
+            audioManager?.PlaySound(fireSound);
         }
 
         timeCanFire = fireRate;
         currentAmmoInClip--;
         UpdateAmmoUI();
 
-        // Ray từ tâm màn hình
-        Ray ray = Camera.main.ScreenPointToRay(
-            new Vector3(Screen.width / 2f, Screen.height / 2f)
-        );
-        Vector3 targetPoint;
+        Ray ray = mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
+        Vector3 targetPoint = ray.origin + ray.direction * 100f;
 
         if (Physics.Raycast(ray, out RaycastHit hit, 100f))
         {
             targetPoint = hit.point;
         }
-        else
+
+        Vector3 shootDirection = (targetPoint - firePoint.position).normalized;
+        Quaternion rotation = Quaternion.LookRotation(shootDirection);
+
+        if (muzzleFlash != null)
         {
-            targetPoint = ray.origin + ray.direction * 100f;
+            muzzleFlash.Play();
         }
 
-        // Tính hướng & quay đạn
-        Vector3 shootDir = (targetPoint - firePoint.position).normalized;
-        Quaternion rotation = Quaternion.LookRotation(shootDir);
-        muzzleFlash.Play();
-        muzzleFlashTween.DORestart();
-        AudioManager.ins.PlaySoundFire();
+        if (muzzleFlashTween != null)
+        {
+            muzzleFlashTween.DORestart();
+        }
+
+        audioManager?.PlaySoundFire();
         Instantiate(iceProjectilePrefab, firePoint.position, rotation);
     }
 
-    /// <summary>
-    /// Thử bắt đầu reload (chỉ nếu cần và có đạn)
-    /// </summary>
-    void TryStartReload()
+    private void TryStartReload()
     {
-        if (isReloading) return;
-        if (currentAmmoInClip >= clipSize) return; // băng đã đầy
-        if (ammoReserve <= 0) return;             // hết đạn trong kho
+        if (isReloading || currentAmmoInClip >= clipSize || ammoReserve <= 0)
+        {
+            return;
+        }
 
         StartCoroutine(ReloadCoroutine());
     }
 
-    IEnumerator ReloadCoroutine()
+    private IEnumerator ReloadCoroutine()
     {
         isReloading = true;
-        AudioManager.ins.PlaySound(reloadSound);
+        ResolveRuntimeReferences();
+        audioManager?.PlaySound(reloadSound);
+
         if (reloadCircle != null)
         {
             reloadCircle.gameObject.SetActive(true);
@@ -160,24 +163,22 @@ public class IceGun : MonoBehaviour
         }
 
         float elapsed = 0f;
-
         while (elapsed < reloadTime)
         {
             elapsed += Time.deltaTime;
             if (reloadCircle != null)
             {
-                reloadCircle.fillAmount = Mathf.Clamp01((reloadTime-elapsed) / reloadTime);
+                reloadCircle.fillAmount = Mathf.Clamp01((reloadTime - elapsed) / reloadTime);
             }
+
             yield return null;
         }
 
-        // Tính lượng đạn cần nạp
         int needed = clipSize - currentAmmoInClip;
         int toLoad = Mathf.Min(needed, ammoReserve);
 
         currentAmmoInClip += toLoad;
         ammoReserve -= toLoad;
-
         isReloading = false;
 
         if (reloadCircle != null)
@@ -189,12 +190,62 @@ public class IceGun : MonoBehaviour
         UpdateAmmoUI();
     }
 
-    void UpdateAmmoUI()
+    private void UpdateAmmoUI()
     {
         if (ammoText != null)
         {
-            // Ví dụ hiển thị: "30 / 270"
             ammoText.text = $"{currentAmmoInClip} / {ammoReserve}";
         }
+    }
+
+    private void ResolveRuntimeReferences()
+    {
+        if (playerCharacter == null)
+        {
+            playerCharacter = FindObjectOfType<PlayerChar>();
+        }
+
+        if (audioManager == null)
+        {
+            audioManager = AudioManager.ins != null ? AudioManager.ins : FindObjectOfType<AudioManager>();
+        }
+
+        if (firePoint == null)
+        {
+            firePoint = transform;
+        }
+
+        if (muzzleFlash == null)
+        {
+            muzzleFlash = GetComponentInChildren<ParticleSystem>(true);
+        }
+
+        if (muzzleFlashTween == null)
+        {
+            muzzleFlashTween = GetComponent<DOTweenAnimation>();
+            if (muzzleFlashTween == null)
+            {
+                muzzleFlashTween = GetComponentInChildren<DOTweenAnimation>(true);
+            }
+        }
+    }
+
+    public void ApplyFireSpeedMultiplier(float multiplier)
+    {
+        if (baseFireRate <= 0f)
+        {
+            baseFireRate = fireRate;
+        }
+
+        float safeMultiplier = Mathf.Max(0.01f, multiplier);
+        fireRate = baseFireRate / safeMultiplier;
+    }
+
+    public void SetInitialShotsPerSecond(float shotsPerSecond)
+    {
+        float safeShotsPerSecond = Mathf.Max(0.01f, shotsPerSecond);
+        float cooldownBetweenShots = 1f / safeShotsPerSecond;
+        baseFireRate = cooldownBetweenShots;
+        fireRate = cooldownBetweenShots;
     }
 }

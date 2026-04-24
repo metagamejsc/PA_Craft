@@ -86,7 +86,14 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
         if (target)
         {
             UpdateCameraLookAt(target);
-            isMouseDown = false;
+            StopHoldingFire();
+            return;
+        }
+
+        if (GameController.ins != null && GameController.ins.isEndGame)
+        {
+            StopHoldingFire();
+            return;
         }
         
         if (!isMouseDown)
@@ -95,22 +102,12 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
         }
         playerBody.GetComponent<PlayerChar>().HandleAttack();
         timeHoldFire += Time.deltaTime;
-        if (timeHoldFire>=LunaManager.ins.timeHoldStore)
-        {
-            LunaManager.ins.DelayCallEndCard(2f);
-        }
+        
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (GameController.ins.isEndGame)
-        {
-            return;
-        }
-        isMouseDown = false;
-        StopAllCoroutines();
-        playerBody.GetComponent<PlayerChar>().CancleFire();
-        
+        StopHoldingFire();
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -121,6 +118,11 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
         }
         isMouseDown = true;
         //playerBody.GetComponent<PlayerChar>().HandleAttack();
+    }
+
+    private void OnDisable()
+    {
+        StopHoldingFire();
     }
 
     public void UpdateCameraLookAt(Transform target)
@@ -152,5 +154,23 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
         // áp dụng rotation
         cameraMain.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         playerBody.rotation = Quaternion.Euler(0f, yRotation, 0f);
+    }
+
+    private void StopHoldingFire()
+    {
+        isMouseDown = false;
+        timeHoldFire = 0f;
+        StopAllCoroutines();
+
+        if (playerBody == null)
+        {
+            return;
+        }
+
+        PlayerChar playerChar = playerBody.GetComponent<PlayerChar>();
+        if (playerChar != null)
+        {
+            playerChar.CancleFire();
+        }
     }
 }

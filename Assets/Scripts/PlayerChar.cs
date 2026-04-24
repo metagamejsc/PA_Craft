@@ -9,6 +9,7 @@ public class PlayerChar : BaseCharacter
     public Action fire;
     public Action canleFire;
     public GameObject[] lstWeapons;
+    public int currentWeaponId = -1;
     protected override void Update()
     {
 
@@ -24,11 +25,23 @@ public class PlayerChar : BaseCharacter
     protected override void Start()
     {
         base.Start();
-        /*for (int i = 0; i < lstWeapons.Length; i++)
+        for (int i = 0; i < lstWeapons.Length; i++)
         {
-            lstWeapons[i].SetActive(false);
-        }*/
-        //SwordObject.SetActive(false);
+            if (lstWeapons[i] == null)
+            {
+                continue;
+            }
+
+            if (currentWeaponId < 0 && lstWeapons[i].activeSelf)
+            {
+                currentWeaponId = i;
+            }
+            else if (currentWeaponId >= 0 && i != currentWeaponId)
+            {
+                lstWeapons[i].SetActive(false);
+            }
+        }
+
         IsFindingEnemy = true;
     }
 
@@ -62,8 +75,22 @@ public class PlayerChar : BaseCharacter
 
     public void CraftWeapon(int weaponId = 0)
     {
-        lstWeapons[weaponId].SetActive(true);
-        //SwordObject.SetActive(true);
+        if (weaponId < 0 || weaponId >= lstWeapons.Length)
+        {
+            return;
+        }
+
+        for (int i = 0; i < lstWeapons.Length; i++)
+        {
+            if (lstWeapons[i] == null)
+            {
+                continue;
+            }
+
+            lstWeapons[i].SetActive(i == weaponId);
+        }
+
+        currentWeaponId = weaponId;
     }
     public override void AtkCompleted()
     {
@@ -102,6 +129,7 @@ public class PlayerChar : BaseCharacter
             return;
         }
         health -= dmg;
+        UIManager.ins?.ShowPlayerDamageFlash();
         if (health <= 0)
         {
             LunaManager.ins.ShowEndCard();

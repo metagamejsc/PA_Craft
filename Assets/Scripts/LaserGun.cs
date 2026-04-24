@@ -26,9 +26,15 @@ public class LaserGun : MonoBehaviour
         Ray screenRay = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
         Vector3 endPosition = firePoint.position + screenRay.direction * range;
 
-        if (Physics.Raycast(screenRay, out hit, range, hitLayers))
+        if (Physics.Raycast(screenRay, out hit, range))
         {
             endPosition = hit.point;
+
+            RocketPickup pickup = hit.collider.GetComponentInParent<RocketPickup>();
+            if (pickup != null)
+            {
+                pickup.TakeHit(damagePerSecond * Time.deltaTime);
+            }
 
             BaseCharacter target = hit.collider.GetComponent<BaseCharacter>();
             if (target != null)
@@ -87,9 +93,15 @@ public class LaserGun : MonoBehaviour
         Ray screenRay = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
         Vector3 endPosition = firePoint.position + screenRay.direction * range;
 
-        if (Physics.Raycast(screenRay, out hit, range, hitLayers))
+        if (Physics.Raycast(screenRay, out hit, range))
         {
             endPosition = hit.point;
+
+            RocketPickup pickup = hit.collider.GetComponentInParent<RocketPickup>();
+            if (pickup != null)
+            {
+                pickup.TakeHit(damagePerSecond * Time.deltaTime);
+            }
 
             BaseCharacter target = hit.collider.GetComponent<BaseCharacter>();
             if (target != null)

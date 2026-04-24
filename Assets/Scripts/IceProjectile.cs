@@ -8,7 +8,7 @@ public class IceProjectile : MonoBehaviour
     public float lifeTime = 5f;
     public float spikeDuration = 7f;
 
-    public LayerMask triggerLayers; // thêm LayerMask để xác định va chạm
+    public LayerMask triggerLayers;
 
     private Rigidbody rb;
 
@@ -21,16 +21,25 @@ public class IceProjectile : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // Kiểm tra layer nằm trong triggerLayers
-        if (((1 << other.gameObject.layer) & triggerLayers) != 0)
+        RocketPickup pickup = other.GetComponentInParent<RocketPickup>();
+        if (pickup != null)
         {
-            BaseCharacter target = other.GetComponent<BaseCharacter>();
-            if (target != null)
-            {
-                target.TakeDamage(1);
-            }
-            //var a=Instantiate(iceSpikePrefab, transform.position, Quaternion.identity);
+            pickup.TakeHit(1f);
             Destroy(gameObject);
+            return;
         }
+
+        if (((1 << other.gameObject.layer) & triggerLayers) == 0)
+        {
+            return;
+        }
+
+        BaseCharacter target = other.GetComponent<BaseCharacter>();
+        if (target != null)
+        {
+            target.TakeDamage(1);
+        }
+
+        Destroy(gameObject);
     }
 }

@@ -8,6 +8,7 @@ public class ZombieChar : BaseCharacter
 {
     public Material material;
     public SkinnedMeshRenderer[] lstMaterials;
+    public bool useLunaEnemySpeed = true;
 
     [Header("UI máu Enemy")]
     public Image imageFill;
@@ -17,7 +18,11 @@ public class ZombieChar : BaseCharacter
     protected override void Start()
     {
         base.Start();
-        moveSpeed = LunaManager.ins.enemySpeed;
+        if (useLunaEnemySpeed)
+        {
+            moveSpeed = LunaManager.ins.enemySpeed;
+        }
+
         IsFindingEnemy = true;
 
         maxHealth = health;

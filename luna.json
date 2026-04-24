@@ -1,8 +1,8 @@
 {
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29023,
-    "creativeName": "WML_V37_DungNV_ToiNV",
+    "applicationID": 35802,
+    "creativeName": "GCWB_V12_DungNV_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -132,7 +132,8 @@
                 "Assets/Sound/wind-128967 (mp3cut.net).mp3",
                 "Assets/Sound/long-whoosh-194554.mp3",
                 "Assets/Sound/ice-cracking-field-recording-06-139709.mp3",
-                "Assets/Game/Models/MC_10009/MC_T_10009.png"
+                "Assets/Game/Models/MC_10009/MC_T_10009.png",
+                "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/abadoned.fbx"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
@@ -8083,10 +8084,6 @@
             },
             {
                 "name": "DG.Tweening.Plugins.Color2Plugin",
-                "excluded": true
-            },
-            {
-                "name": "DG.Tweening.Plugins.ColorPlugin",
                 "excluded": true
             },
             {
@@ -16589,7 +16586,7 @@
                     },
                     {
                         "name": "Rotate$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RotateAround",
@@ -17153,7 +17150,7 @@
                     },
                     {
                         "name": "depth#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "depth#set",
@@ -26296,6 +26293,14 @@
                     {
                         "name": "UpdateCameraLookAt",
                         "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "StopHoldingFire",
+                        "excluded": false
                     }
                 ]
             },
@@ -27767,15 +27772,15 @@
                 "instanceMethods": [
                     {
                         "name": "getDefaultValue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Reset",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getHashCode",
@@ -27787,7 +27792,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -29980,6 +29985,18 @@
                     {
                         "name": "PlayMusicLose",
                         "excluded": true
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsureAudioSources",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetMusicVolume",
+                        "excluded": true
                     }
                 ]
             },
@@ -30195,6 +30212,10 @@
                     },
                     {
                         "name": "DelayCallEndCard",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyTunableValues",
                         "excluded": false
                     }
                 ]
@@ -31797,7 +31818,7 @@
                     },
                     {
                         "name": "To$8",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "To$10",
@@ -34679,11 +34700,11 @@
                     },
                     {
                         "name": "minValue#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "maxValue#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "wholeNumbers#set",
@@ -35280,6 +35301,10 @@
                     {
                         "name": "CancleFire",
                         "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
                     }
                 ]
             },
@@ -35305,6 +35330,14 @@
                     },
                     {
                         "name": "IeNhapNhay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateHealthUI",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
                         "excluded": false
                     }
                 ]
@@ -35421,7 +35454,7 @@
                     },
                     {
                         "name": "StopSpawn",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SpawnEnemyRoutine",
@@ -35434,6 +35467,74 @@
                     {
                         "name": "SpawnEnemy",
                         "excluded": false
+                    },
+                    {
+                        "name": "GetEnemySpawnPosition",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetRandomTransform",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveGroundPosition",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UnlockRocketWeapon",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetupRuntimeReferences",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetEnemyPrefab",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnRocketPickup",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnBoss",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyRocketUpgrade",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyRocketVisualState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshBossSpawnProgressUi",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ClearAliveEnemies",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAvailableSpawnPoint",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsSpawnPositionAvailable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplySpawnedEnemyStats",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetConfiguredEnemyHealth",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetConfiguredBossHealth",
+                        "excluded": true
                     }
                 ]
             },
@@ -35705,7 +35806,7 @@
                     },
                     {
                         "name": "DOColor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOColor$1",
@@ -36494,6 +36595,18 @@
                     {
                         "name": "UpdateAmmoUI",
                         "excluded": false
+                    },
+                    {
+                        "name": "ResolveRuntimeReferences",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFireSpeedMultiplier",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetInitialShotsPerSecond",
+                        "excluded": false
                     }
                 ]
             },
@@ -37246,6 +37359,212 @@
                         "excluded": false
                     }
                 ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.ColorPlugin",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFrom$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFrom",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ConvertToStartValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetRelativeEndValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetChangeValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetSpeedBasedDuration",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EvaluateAndApply",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "RocketPickup",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PrepareForSpawn",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TakeHit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HidePickup",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UIManager",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowBossUI",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HideBossUI",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateBossSpawnProgress",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HideBossSpawnProgress",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBossUiRoot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBossHpFill",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetBossSpawnProgressRoot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBossSpawnProgressSlider",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBossSpawnProgressText",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetBossName",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasAssignedBossUi",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasAssignedBossSpawnProgressUi",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowPlayerDamageFlash",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdatePlayerHpUi",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IePlayerDamageFlash",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HidePlayerDamageFlashImmediate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetPlayerDamageFlashAlpha",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolvePlayerReference",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetScreenCanvas",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetPlayerDamageFlashRoot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetPlayerDamageFlashCanvasGroup",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetPlayerDamageFlashImage",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetPlayerHpRoot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetPlayerHpSlider",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetPlayerHpText",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasAssignedPlayerHpUi",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasAssignedPlayerDamageFlashUi",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -37433,6 +37752,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Texture/Model_3D/postwar_city_-_exterior_scene/textures/wall_diffuse.png"
+                    },
+                    {
+                        "maxWidth": 1024,
+                        "maxHeight": 1024,
+                        "format": "png32",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/skyboxtest11@2x.png"
                     }
                 ]
             },

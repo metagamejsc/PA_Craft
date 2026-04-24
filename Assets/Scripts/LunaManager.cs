@@ -1,60 +1,66 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
-    public int countDrop=0;
-    [LunaPlaygroundField("Số enemy giết để bay ra store")] public int countDropFinal;
+
+    public int countDrop = 0;
+
+    [LunaPlaygroundField("Count enemy to store")] public int countDropFinal;
     [LunaPlaygroundField("CountDrop")] public int count;
-    [LunaPlaygroundField("Enemy Speed")] public float enemySpeed=2f;
-    [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Time hold to Store")] public int timeHoldStore=10;
+    [LunaPlaygroundField("Player HP")] public float playerHealth = 100f;
+    [LunaPlaygroundField("Enemy HP")] public float enemyHealth = 10f;
+    [LunaPlaygroundField("Boss HP")] public float bossHealth = 30f;
+    [LunaPlaygroundField("Enemy Speed")] public float enemySpeed = 2f;
+    [LunaPlaygroundField("Initial Fire Speed")] public float initialShotsPerSecond = 5f;
+    [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
+    [LunaPlaygroundField("Time hold to Store")] public int timeHoldStore = 10;
     [LunaPlaygroundField("lightIntensity")] public float lightIntensity;
     [LunaPlaygroundField("Color light")] public Color lightColor;
+
     public Light directionalLight;
     public bool isCretivePause;
-    public Transform objectEndGame;
+    public Button[] lstBtnInstall;
+    public GameObject EndCard;
+
     private void Awake()
     {
         ins = this;
-
     }
-    public Button[] lstBtnInstall;
-    public GameObject EndCard;
-    
 
-
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         Luna.Unity.LifeCycle.OnPause += PauseGameplay;
         Luna.Unity.LifeCycle.OnResume += ResumeGameplay;
-        foreach (var VARIABLE in lstBtnInstall)
+
+        foreach (Button button in lstBtnInstall)
         {
-            VARIABLE.onClick.AddListener(OnClickEndCard);
+            if (button != null)
+            {
+                button.onClick.AddListener(OnClickEndCard);
+            }
         }
-        EndCard.SetActive(false);
-        directionalLight.intensity = lightIntensity;
-        directionalLight.color = lightColor;
-        //SetupField();
-        Invoke(nameof(ShowEndCard),timeEndCreative);
+
+        if (EndCard != null)
+        {
+            EndCard.SetActive(false);
+        }
+
+        ApplyTunableValues();
+        Invoke(nameof(ShowEndCard), timeEndCreative);
     }
 
     public void CheckClickShowEndCard()
     {
         countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
+        if (countDrop >= countDropFinal && !isCretivePause)
         {
             isCretivePause = true;
             ShowEndCard();
         }
     }
-    // Update is called once per frame
+
     public void PauseGameplay()
     {
         Debug.Log("Pause game");
@@ -70,8 +76,13 @@ public class LunaManager : MonoBehaviour
     public void ShowEndCard()
     {
         isCretivePause = true;
-        AudioManager.ins.PlaySoundReward();
-        EndCard.SetActive(true);
+        AudioManager.ins?.PlaySoundReward();
+
+        if (EndCard != null)
+        {
+            EndCard.SetActive(true);
+        }
+
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
     }
@@ -81,16 +92,51 @@ public class LunaManager : MonoBehaviour
         Debug.Log("Click end card");
         Luna.Unity.Playable.InstallFullGame();
     }
+
     public void DelayCallEndCard(float time)
     {
-        if (GameController.ins.isEndGame)
+        if (GameController.ins != null && GameController.ins.isEndGame)
         {
             return;
         }
-        objectEndGame.gameObject.SetActive(true);
-        MouseLook.ins.target = objectEndGame;
-        GameController.ins.isEndGame = true;
-        Invoke(nameof(OnClickEndCard),time);
-        Invoke(nameof(ShowEndCard),time);
+
+        if (GameController.ins != null)
+        {
+            GameController.ins.isEndGame = true;
+        }
+
+        Invoke(nameof(OnClickEndCard), time);
+        Invoke(nameof(ShowEndCard), time);
+    }
+
+    private void ApplyTunableValues()
+    {
+        if (directionalLight != null)
+        {
+            directionalLight.intensity = lightIntensity;
+            directionalLight.color = lightColor;
+        }
+
+        GameController gameController = GameController.ins != null ? GameController.ins : FindObjectOfType<GameController>();
+        if (gameController != null)
+        {
+            gameController.bossHealth = bossHealth;
+        }
+
+        PlayerChar playerChar = gameController != null && gameController.playerChar != null
+            ? gameController.playerChar
+            : FindObjectOfType<PlayerChar>();
+        if (playerChar != null && playerHealth > 0f)
+        {
+            playerChar.health = playerHealth;
+        }
+
+        IceGun iceGun = gameController != null && gameController.playerGun != null
+            ? gameController.playerGun
+            : FindObjectOfType<IceGun>();
+        if (iceGun != null)
+        {
+            iceGun.SetInitialShotsPerSecond(initialShotsPerSecond);
+        }
     }
 }
