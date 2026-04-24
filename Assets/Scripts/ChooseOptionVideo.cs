@@ -1,171 +1,126 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Video;
 
 public class ChooseOptionVideo : MonoBehaviour
 {
     [Serializable]
-    private class ChoiceStep
+    private class ChoiceScene
     {
-        public GameObject stepRoot;
+        public GameObject sceneRoot;
         public Button optionButton1;
         public Button optionButton2;
-        public VideoClip option1Clip;
-        public VideoClip option2Clip;
+        public GameObject option1Object;
+        public GameObject option2Object;
     }
 
-    [Header("Steps")]
-    [SerializeField] private ChoiceStep[] steps;
+    [Header("Scenes")]
+    [SerializeField] private ChoiceScene[] scenes;
 
-    [Header("Video UI")]
-    [SerializeField] private GameObject videoRoot;
+    [Header("Timing")]
+    [SerializeField] private float nextSceneDelay = 3f;
 
-    [Header("Video")]
-    [SerializeField] private VideoPlayer videoPlayer;
-    [SerializeField] private RawImage videoOutput;
-    [SerializeField] private RenderTexture renderTexture;
-
-    private int currentStepIndex;
-    private int currentOptionIndex = -1;
+    private int currentSceneIndex;
+    private Coroutine nextSceneRoutine;
 
     private void Awake()
     {
-        for (int i = 0; i < steps.Length; i++)
+        for (int i = 0; i < scenes.Length; i++)
         {
-            int stepIndex = i;
+            int sceneIndex = i;
 
-            if (steps[i].optionButton1 != null)
-            {
-                steps[i].optionButton1.onClick.AddListener(() => PlayOption(stepIndex, 0));
-            }
+            if (scenes[i].optionButton1 != null)
+                scenes[i].optionButton1.onClick.AddListener(() => ChooseOption(sceneIndex, 0));
 
-            if (steps[i].optionButton2 != null)
-            {
-                steps[i].optionButton2.onClick.AddListener(() => PlayOption(stepIndex, 1));
-            }
-        }
-
-        if (videoPlayer != null)
-        {
-            videoPlayer.playOnAwake = false;
-            videoPlayer.isLooping = false;
-            videoPlayer.loopPointReached += OnVideoFinished;
+            if (scenes[i].optionButton2 != null)
+                scenes[i].optionButton2.onClick.AddListener(() => ChooseOption(sceneIndex, 1));
         }
     }
 
     private void Start()
     {
-        currentStepIndex = 0;
-        ShowCurrentStep();
+        currentSceneIndex = 0;
+        OpenScene(currentSceneIndex);
     }
 
-    private void OnDestroy()
+    public void ChooseOption(int sceneIndex, int optionIndex)
     {
-        if (videoPlayer != null)
+        if (sceneIndex != currentSceneIndex) return;
+        if (sceneIndex < 0 || sceneIndex >= scenes.Length) return;
+
+        SetButtonsInteractable(scenes[sceneIndex], false);
+
+        if (optionIndex == 0)
         {
-            videoPlayer.loopPointReached -= OnVideoFinished;
+            SetActiveSafe(scenes[sceneIndex].option1Object, true);
+            SetActiveSafe(scenes[sceneIndex].option2Object, false);
         }
+        else
+        {
+            SetActiveSafe(scenes[sceneIndex].option1Object, false);
+            SetActiveSafe(scenes[sceneIndex].option2Object, true);
+        }
+
+        if (nextSceneRoutine != null)
+            StopCoroutine(nextSceneRoutine);
+
+        nextSceneRoutine = StartCoroutine(OpenNextSceneAfterDelay());
     }
 
-    public void PlayOption(int stepIndex, int optionIndex)
+    private IEnumerator OpenNextSceneAfterDelay()
     {
-        if (stepIndex != currentStepIndex)
-        {
+        yield return new WaitForSeconds(nextSceneDelay);
+
+        nextSceneRoutine = null;
+
+        if (currentSceneIndex >= scenes.Length - 1)
+            yield break;
+
+        currentSceneIndex++;
+        OpenScene(currentSceneIndex);
+    }
+
+    private void OpenScene(int sceneIndex)
+    {
+        HideAllScenes();
+
+        if (sceneIndex < 0 || sceneIndex >= scenes.Length)
             return;
-        }
 
-        if (stepIndex < 0 || stepIndex >= steps.Length)
-        {
-            Debug.LogWarning("ChooseOptionVideo: Invalid step index.");
-            return;
-        }
+        ChoiceScene scene = scenes[sceneIndex];
 
-        VideoClip clip = optionIndex == 0 ? steps[stepIndex].option1Clip : steps[stepIndex].option2Clip;
-        currentOptionIndex = optionIndex;
-        PlayVideo(clip);
+        SetActiveSafe(scene.sceneRoot, true);
+        SetActiveSafe(scene.option1Object, false);
+        SetActiveSafe(scene.option2Object, false);
+        SetButtonsInteractable(scene, true);
+
+        Debug.Log($"done - scene {sceneIndex + 1}");
+        LunaManager.ins.CheckShowEndCard(sceneIndex);
     }
 
-    private void PlayVideo(VideoClip clip)
+    private void HideAllScenes()
     {
-        if (videoPlayer == null)
+        for (int i = 0; i < scenes.Length; i++)
         {
-            Debug.LogWarning("ChooseOptionVideo: Missing VideoPlayer.");
-            return;
-        }
-
-        if (clip == null)
-        {
-            Debug.LogWarning("ChooseOptionVideo: Missing VideoClip.");
-            return;
-        }
-
-        if (videoOutput != null && renderTexture != null)
-        {
-            videoOutput.texture = renderTexture;
-        }
-
-        videoPlayer.Stop();
-        videoPlayer.clip = clip;
-        videoPlayer.targetTexture = renderTexture;
-        videoPlayer.isLooping = currentStepIndex >= steps.Length - 1;
-
-        HideAllSteps();
-
-        if (videoRoot != null)
-        {
-            videoRoot.SetActive(true);
-        }
-
-        videoPlayer.Play();
-    }
-
-    private void OnVideoFinished(VideoPlayer source)
-    {
-        Debug.Log($"done - step {currentStepIndex + 1} - option {currentOptionIndex + 1}");
-
-        if (currentStepIndex >= steps.Length - 1)
-        {
-            return;
-        }
-
-        currentStepIndex++;
-        ShowCurrentStep();
-    }
-    public void EndCardStep()
-    {
-
-    }
-
-    private void ShowCurrentStep()
-    {
-        if (videoPlayer != null)
-        {
-            videoPlayer.Stop();
-            videoPlayer.isLooping = false;
-        }
-
-        HideAllSteps();
-
-        if (currentStepIndex >= 0 && currentStepIndex < steps.Length && steps[currentStepIndex].stepRoot != null)
-        {
-            steps[currentStepIndex].stepRoot.SetActive(true);
-        }
-
-        if (videoRoot != null)
-        {
-            videoRoot.SetActive(false);
+            SetActiveSafe(scenes[i].sceneRoot, false);
+            SetActiveSafe(scenes[i].option1Object, false);
+            SetActiveSafe(scenes[i].option2Object, false);
         }
     }
 
-    private void HideAllSteps()
+    private void SetButtonsInteractable(ChoiceScene scene, bool interactable)
     {
-        for (int i = 0; i < steps.Length; i++)
-        {
-            if (steps[i].stepRoot != null)
-            {
-                steps[i].stepRoot.SetActive(false);
-            }
-        }
+        if (scene.optionButton1 != null)
+            scene.optionButton1.interactable = interactable;
+
+        if (scene.optionButton2 != null)
+            scene.optionButton2.interactable = interactable;
+    }
+
+    private void SetActiveSafe(GameObject target, bool active)
+    {
+        if (target != null)
+            target.SetActive(active);
     }
 }

@@ -2,7 +2,7 @@
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 35701,
-    "creativeName": "PEOP_V29_DungNV_AnhPD",
+    "creativeName": "PEOP_V30_DungNV_AnhPD",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -73,7 +73,25 @@
                 "Stubs/Sirenix/Odin Inspector/",
                 "Stubs/MeshCombiner/",
                 "Stubs/AnimationBaker/",
-                "Stubs/SupersonicWisdom/"
+                "Stubs/SupersonicWisdom/",
+                "Assets/Scripts/PlayerMovement.cs",
+                "Assets/Scripts/MouseLook.cs",
+                "Assets/Scripts/Anim3D.cs",
+                "Assets/Scripts/WeaponObject.cs",
+                "Assets/Scripts/AudioManager.cs",
+                "Assets/Scripts/TutorialBuildBlock.cs",
+                "Assets/Scripts/LevelProgressUI.cs",
+                "Assets/Scripts/PlayerMovement2.cs",
+                "Assets/Scripts/UIManager.cs",
+                "Assets/Scripts/SoundChar.cs",
+                "Assets/Scripts/ThirdPersonCamera.cs",
+                "Assets/Scripts/JoystickController.cs",
+                "Assets/Scripts/PlayerChar.cs",
+                "Assets/Scripts/GameController.cs",
+                "Assets/Scripts/BaseCharacter.cs",
+                "Assets/Scripts/ToggleByTime.cs",
+                "Assets/Scripts/ZombieChar.cs",
+                "Assets/Scripts/TriggerEffect.cs"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
             "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
@@ -187,16 +205,16 @@
         "preloader": {
             "logo": ""
         },
-        "enableRealtimeShadows": true,
+        "enableRealtimeShadows": false,
         "enableLunaCompilerV2": true,
         "optimiseShaderVariantsExport": true,
         "enableMecanimWASM": true,
         "minify": true,
         "forceUncompressed": false,
-        "forceBase64": true,
+        "forceBase64": false,
         "graphicsConstraint": 28,
         "genericCheck": true,
-        "disableAntiAliasing": true,
+        "disableAntiAliasing": false,
         "forceStableRandomSeed": false,
         "unusedModules": [
             {
@@ -8317,7 +8335,7 @@
                 "excluded": false
             },
             {
-                "name": "ChooseOptionVideo.ChoiceStep",
+                "name": "ChooseOptionVideo.ChoiceScene",
                 "excluded": false
             },
             {
@@ -8326,22 +8344,6 @@
             },
             {
                 "name": "SetupMaterialTiling",
-                "excluded": true
-            },
-            {
-                "name": "ThirdPersonCamera",
-                "excluded": true
-            },
-            {
-                "name": "ToggleByTime",
-                "excluded": true
-            },
-            {
-                "name": "TriggerEffect",
-                "excluded": true
-            },
-            {
-                "name": "UIManager",
                 "excluded": true
             }
         ],
@@ -18982,7 +18984,7 @@
                     },
                     {
                         "name": "texture#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "uvRect#get",
@@ -22956,7 +22958,7 @@
                     },
                     {
                         "name": "playOnAwake#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "playOnAwake#set",
@@ -22964,7 +22966,7 @@
                     },
                     {
                         "name": "isLooping#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isLooping#set",
@@ -22972,7 +22974,7 @@
                     },
                     {
                         "name": "isPlaying#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isPaused#get",
@@ -23116,15 +23118,15 @@
                     },
                     {
                         "name": "InvokePlayEvent",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "InvokeEndEvent",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddVideoListeners",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RemoveVideoListeners",
@@ -23132,7 +23134,7 @@
                     },
                     {
                         "name": "OnInteraction",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "UpdateTexture",
@@ -23140,19 +23142,19 @@
                     },
                     {
                         "name": "SetDirectAudioMute",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Play",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TryPlay",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnVideoPlay",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Pause",
@@ -23164,7 +23166,7 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDestroy",
@@ -23172,7 +23174,7 @@
                     },
                     {
                         "name": "OnMasterVolumeChanged",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetAudioChannelCount",
@@ -26293,54 +26295,6 @@
                 ]
             },
             {
-                "className": "MouseLook",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrag",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerUp",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerDown",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "PlayerMovement",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.ScriptableObject",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -26897,40 +26851,6 @@
                 ]
             },
             {
-                "className": "JoystickController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrag",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerDown",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnPointerUp",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Horizontal",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Vertical",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.CustomYieldInstruction",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -26962,60 +26882,6 @@
                     },
                     {
                         "name": "Reset",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerMovement2",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FixedUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnCollisionStay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsOnSlope",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StepClimb",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Jump",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnCollisionEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "MoveAndIdle",
                         "excluded": false
                     }
                 ]
@@ -28209,6 +28075,10 @@
                     {
                         "name": "Stop",
                         "excluded": true
+                    },
+                    {
+                        "name": "Tick\",this)}this.c$-=t;if(this.c$<=0){pc.Application.getApplication().events.off(\"update",
+                        "excluded": false
                     }
                 ]
             },
@@ -29957,60 +29827,6 @@
                 ]
             },
             {
-                "className": "AudioManager",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlaySoundReward",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlaySoundBuild",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayMusicLose",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayMusic",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlaySoundMove",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayMiningSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlaySound",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlaySoundMerge",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlaySoundBomb",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlayMusicWin",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
                 "className": "DG.Tweening.DOTweenAnimation",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -30227,35 +30043,9 @@
                     {
                         "name": "ShowWinCard",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "TutorialBuildBlock",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "IeSpawnStep",
-                        "excluded": false
                     },
                     {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowStep",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideStep",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideAllTut",
+                        "name": "CheckShowEndCard",
                         "excluded": false
                     }
                 ]
@@ -35151,232 +34941,6 @@
                 ]
             },
             {
-                "className": "Anim3D",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventAtk",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventIdle",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventDead",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventMove",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventAtkComplete",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EventJump",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnAnimationEvent",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "BaseCharacter",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsFindingEnemy#set",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SearchForEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleMovement",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleAttack",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Die",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AtkCompleted",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsFindingEnemy#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HandleMovementByPoint",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetIdle",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HandleDeath",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Replay",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "SoundChar",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "PlayIdleSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayAttackSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayTakeDameSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayDeadSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayMoveSound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayJumpSound",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerChar",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Die",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SearchForEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleAttack",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AtkCompleted",
-                        "excluded": false
-                    },
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FixedUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Move",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleJump",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Jump",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnTriggerEnter",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnCollisionEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Replay",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "ZombieChar",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SearchForEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IeNhapNhay",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.UI.GridLayoutGroup",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -35451,36 +35015,6 @@
                     {
                         "name": "constraintCount#set",
                         "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "GameController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EnemyDead",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StartGame",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RestartGame",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
                     }
                 ]
             },
@@ -35893,16 +35427,6 @@
                     {
                         "name": "DOShapeCircle",
                         "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "WeaponObject",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
                     }
                 ]
             },
@@ -37125,24 +36649,6 @@
                 ]
             },
             {
-                "className": "LevelProgressUI",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateProgress",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.Video.VideoClip",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -37229,32 +36735,28 @@
                         "excluded": false
                     },
                     {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlayOption",
+                        "name": "ChooseOption",
                         "excluded": false
                     },
                     {
-                        "name": "PlayVideo",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnVideoFinished",
+                        "name": "OpenNextSceneAfterDelay",
                         "excluded": false
                     },
                     {
-                        "name": "EndCardStep",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ShowCurrentStep",
+                        "name": "OpenScene",
                         "excluded": false
                     },
                     {
-                        "name": "HideAllSteps",
-                        "excluded": true
+                        "name": "HideAllScenes",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetButtonsInteractable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetActiveSafe",
+                        "excluded": false
                     }
                 ]
             }
@@ -37464,6 +36966,36 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Obby_Prison_Escape_Game_LevelPack/Texture/Obby_Prison_Escape_BaseMap_19.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Game/Assets/PEOP VIdeo/Frame 1/1.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Game/Assets/PEOP VIdeo/Frame 2/1.png"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "quantQuality",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Game/Assets/PEOP VIdeo/Frame 3/1.png"
                     }
                 ]
             },

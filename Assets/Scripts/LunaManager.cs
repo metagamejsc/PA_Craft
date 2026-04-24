@@ -1,9 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 public class LunaManager : MonoBehaviour
 {
@@ -11,8 +7,12 @@ public class LunaManager : MonoBehaviour
     public int countDrop = 0;
     public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
+    [LunaPlaygroundField("Scene dừng để mở EndCard")] public int sceneEndCard = 1;
+    [LunaPlaygroundField("ColorBG")] public Color colorBG;
+    [LunaPlaygroundAsset("BG")] public Texture2D texture2D;
+    public RawImage rawImageBG;
     //[LunaPlaygroundField("Có thể Replay (>=1 là true, 0 là false)")] public int canReplay = 0;
-    [LunaPlaygroundField("Show End Card")] public bool isEndCard = true;
+    //[LunaPlaygroundField("Show End Card")] public bool isEndCard = true;
     // [LunaPlaygroundField("Player Speed")] public float playerSpeed = 1.5f;
     // [LunaPlaygroundField("Player JumpForce")] public float playerJumpForce = 40f;
     // [LunaPlaygroundField("Lightning")] public float Lightning = 5;
@@ -47,7 +47,9 @@ public class LunaManager : MonoBehaviour
         //btnRestart.SetActive(canReplay>=1);
         //SetupField();
         Invoke(nameof(ShowEndCard), timeEndCreative);
-        showEndCard.SetActive(isEndCard);
+        //showEndCard.SetActive(isEndCard);
+        rawImageBG.texture = texture2D;
+        rawImageBG.color = colorBG;
     }
     public void ReplayGame()
     {
@@ -89,7 +91,7 @@ public class LunaManager : MonoBehaviour
     {
         // if (isCretivePause) return;
         // isCretivePause = true;
-        AudioManager.ins.PlayMusicLose();
+        //AudioManager.ins.PlayMusicLose();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
@@ -107,7 +109,7 @@ public class LunaManager : MonoBehaviour
     {
         // if (isCretivePause) return;
         // isCretivePause = true;
-        AudioManager.ins.PlayMusicWin();
+        //AudioManager.ins.PlayMusicWin();
         WinCard.SetActive(true);
         Debug.Log("Show win card");
         Luna.Unity.LifeCycle.GameEnded();
@@ -118,4 +120,12 @@ public class LunaManager : MonoBehaviour
         Luna.Unity.Playable.InstallFullGame();
     }
 
+
+    public void CheckShowEndCard(int scene)
+    {
+        if (scene == sceneEndCard)
+        {
+            ShowEndCard();
+        }
+    }
 }
