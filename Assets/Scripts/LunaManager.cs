@@ -14,12 +14,14 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Light Color")] public Color lightColor=Color.white;
     [LunaPlaygroundField("Light Instensity")] public float lightInstensity=1;
+    [LunaPlaygroundAsset("Music")] public AudioClip musicClip;
     public Light mainLight;
     
     /*[LunaPlaygroundField("NoiseIntensity")] */public float noiseIntensity=10;
     /*[LunaPlaygroundField("LandNoiseScale")] */public float landNoiseScale=0.8f;
     public Image[] doTweenAnimations;
     public bool isCretivePause;
+    public AudioSource musicSource;
     public float timeActive = 0;
     public int numberActive = 0;
     private void Awake()
@@ -45,7 +47,9 @@ public class LunaManager : MonoBehaviour
         Invoke(nameof(ShowEndCard),timeEndCreative);
         mainLight.color=lightColor;
         mainLight.intensity=lightInstensity;
-        
+        musicSource.Stop();
+        musicSource.clip=musicClip;
+        musicSource.Play();
     }
 
     public void CheckClickShowEndCard()
