@@ -66,6 +66,7 @@ public class ChooseOptionVideo : MonoBehaviour
             StopCoroutine(nextSceneRoutine);
 
         nextSceneRoutine = StartCoroutine(OpenNextSceneAfterDelay());
+        LunaManager.ins.CheckShowEndCard(currentSceneIndex + 1);
     }
 
     private IEnumerator OpenNextSceneAfterDelay()
@@ -79,6 +80,7 @@ public class ChooseOptionVideo : MonoBehaviour
 
         currentSceneIndex++;
         OpenScene(currentSceneIndex);
+
     }
 
     private void OpenScene(int sceneIndex)
@@ -96,7 +98,7 @@ public class ChooseOptionVideo : MonoBehaviour
         SetButtonsInteractable(scene, true);
 
         Debug.Log($"done - scene {sceneIndex + 1}");
-        LunaManager.ins.CheckShowEndCard(sceneIndex);
+
     }
 
     private void HideAllScenes()
