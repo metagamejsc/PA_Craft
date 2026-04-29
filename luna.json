@@ -1,8 +1,8 @@
 {
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29023,
-    "creativeName": "UAC_V26_ThuLH_ToiNV",
+    "applicationID": 38471,
+    "creativeName": "CBBW_V02_NgocBTU_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -76,18 +76,16 @@
                 "Stubs/SupersonicWisdom/"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
-            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
+            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.14",
+            "msbuildVersion": "18.5",
             "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
         "assets": {
-            "export": [
-                "resources"
-            ],
+            "export": [],
             "excludes": [
                 "**/Editor/",
                 "**/FacebookSDK/",
@@ -157,7 +155,7 @@
         "preloader": {
             "logo": ""
         },
-        "enableRealtimeShadows": false,
+        "enableRealtimeShadows": true,
         "enableLunaCompilerV2": false,
         "optimiseShaderVariantsExport": true,
         "enableMecanimWASM": true,
@@ -14590,7 +14588,7 @@
                     },
                     {
                         "name": "Reset",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -16470,7 +16468,7 @@
                     },
                     {
                         "name": "childCount#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "name#get",
@@ -17274,7 +17272,7 @@
                     },
                     {
                         "name": "color#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "intensity#get",
@@ -20968,7 +20966,7 @@
                     },
                     {
                         "name": "HandleEndOfFrame",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -30079,6 +30077,14 @@
                     {
                         "name": "HideStep",
                         "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTutorialCompleted",
+                        "excluded": false
                     }
                 ]
             },
@@ -36641,6 +36647,34 @@
                     {
                         "name": "OnCharacterDied",
                         "excluded": false
+                    },
+                    {
+                        "name": "Player#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Enemy#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasAssignedCharacters#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AssignCharacters",
+                        "excluded": true
+                    },
+                    {
+                        "name": "InitializeCharacters",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SubscribeCharacterEvents",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UnsubscribeCharacterEvents",
+                        "excluded": true
                     }
                 ]
             },
@@ -36783,6 +36817,34 @@
                     {
                         "name": "GetTriggerHash",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetAnimator",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayDamageFlash",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DamageFlashCoroutine",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FadeDamageFlash",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetDamageFlash",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetDamageFlashAlpha",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyAnimatorSettings",
+                        "excluded": false
                     }
                 ]
             },
@@ -36850,7 +36912,7 @@
                     },
                     {
                         "name": "StartRandomRoll",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RollRoutine",
@@ -36871,6 +36933,14 @@
                     {
                         "name": "SetInteractable",
                         "excluded": false
+                    },
+                    {
+                        "name": "HoldUntilManualStart",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetControlledPlayer",
+                        "excluded": true
                     }
                 ]
             },
@@ -36888,6 +36958,132 @@
                     },
                     {
                         "name": "ResolveCamera",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "AutoFightCharacterSelectionPanel",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SelectCharacter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetSelection",
+                        "excluded": true
+                    },
+                    {
+                        "name": "StartBattle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetFirstAnchor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetSecondAnchor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasModelAlreadySelected",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ClearExistingChildren",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AssignAnimatorToCharacter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetStartButtonInteractable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetOptionVisuals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlaySelectSound",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "AutoFightCharacterSelectionPanel.CharacterOption",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Button#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ModelPrefab#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheVisualState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetSelectedVisual",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "HandPointerController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BeginAfterLayoutReady",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveHandToSlots",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveHandToPoint",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopHandPointer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetSlotVisuals",
                         "excluded": false
                     }
                 ]

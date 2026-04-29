@@ -14,9 +14,12 @@ public class LunaManager : MonoBehaviour
      public int count;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Light Ins")] public float lightIns;
+    [LunaPlaygroundField("Light Color")] public Color lightColor=Color.white;
+    [LunaPlaygroundField("Camera Position")] public Vector3 cameraPosition;
     public List<Light> light;
     public bool isCretivePause;
     public TextMeshProUGUI txtTime;
+    public Camera camera;
     private void Awake()
     {
         ins = this;
@@ -42,7 +45,9 @@ public class LunaManager : MonoBehaviour
         foreach (var VARIABLE in light)
         {
             VARIABLE.intensity = lightIns;
+            VARIABLE.color=lightColor;
         }
+        camera.transform.position = cameraPosition;
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
 

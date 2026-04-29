@@ -11,22 +11,19 @@ public class AutoFightArenaManager : MonoBehaviour
     private bool battleEnded;
     private bool startLocked;
 
+    public AutoFightCharacter Player => player;
+    public AutoFightCharacter Enemy => enemy;
+    public bool HasAssignedCharacters => player != null && enemy != null;
+
     private void Start()
     {
-        if (player == null || enemy == null)
+        InitializeCharacters();
+
+        if (!HasAssignedCharacters)
         {
             Debug.LogWarning("AutoFightArenaManager is missing player or enemy reference.");
             return;
         }
-
-        player.SetupTarget(enemy);
-        enemy.SetupTarget(player);
-
-        player.Died += OnCharacterDied;
-        enemy.Died += OnCharacterDied;
-
-        player.ResetCharacter();
-        enemy.ResetCharacter();
 
         if (autoStartOnPlay && !startLocked)
         {
@@ -52,6 +49,17 @@ public class AutoFightArenaManager : MonoBehaviour
         CancelInvoke(nameof(BeginBattle));
     }
 
+    public void AssignCharacters(AutoFightCharacter newPlayer, AutoFightCharacter newEnemy)
+    {
+        CancelAutoStart();
+        UnsubscribeCharacterEvents();
+
+        player = newPlayer;
+        enemy = newEnemy;
+
+        InitializeCharacters();
+    }
+
     public void SetStartLocked(bool isLocked)
     {
         startLocked = isLocked;
@@ -63,7 +71,7 @@ public class AutoFightArenaManager : MonoBehaviour
 
     public void BeginBattle()
     {
-        if (player == null || enemy == null || startLocked)
+        if (!HasAssignedCharacters || startLocked)
         {
             return;
         }
@@ -89,6 +97,20 @@ public class AutoFightArenaManager : MonoBehaviour
         }
     }
 
+    private void InitializeCharacters()
+    {
+        if (!HasAssignedCharacters)
+        {
+            return;
+        }
+
+        player.SetupTarget(enemy);
+        enemy.SetupTarget(player);
+
+        SubscribeCharacterEvents();
+        ResetBattle();
+    }
+
     private void OnCharacterDied(AutoFightCharacter deadCharacter)
     {
         if (battleEnded)
@@ -99,5 +121,33 @@ public class AutoFightArenaManager : MonoBehaviour
         battleEnded = true;
         player.StopBattle();
         enemy.StopBattle();
+    }
+
+    private void SubscribeCharacterEvents()
+    {
+        if (player != null)
+        {
+            player.Died -= OnCharacterDied;
+            player.Died += OnCharacterDied;
+        }
+
+        if (enemy != null)
+        {
+            enemy.Died -= OnCharacterDied;
+            enemy.Died += OnCharacterDied;
+        }
+    }
+
+    private void UnsubscribeCharacterEvents()
+    {
+        if (player != null)
+        {
+            player.Died -= OnCharacterDied;
+        }
+
+        if (enemy != null)
+        {
+            enemy.Died -= OnCharacterDied;
+        }
     }
 }

@@ -100,13 +100,7 @@ public class AutoFightCharacter : MonoBehaviour
         }
 
         CacheAnimatorParameters();
-
-        if (animator != null && forceStableAnimatorSettings)
-        {
-            animator.applyRootMotion = false;
-            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
-            animator.updateMode = AnimatorUpdateMode.Normal;
-        }
+        ApplyAnimatorSettings();
 
         currentHp = maxHp;
         UpdateHpUi();
@@ -156,6 +150,13 @@ public class AutoFightCharacter : MonoBehaviour
     public void SetupTarget(AutoFightCharacter newTarget)
     {
         target = newTarget;
+    }
+
+    public void SetAnimator(Animator newAnimator)
+    {
+        animator = newAnimator;
+        ApplyAnimatorSettings();
+        SetIdleAnimation(true);
     }
 
     public void StartBattle()
@@ -254,6 +255,7 @@ public class AutoFightCharacter : MonoBehaviour
         {
             PlayDamageFlash();
         }
+
         HpChanged?.Invoke(this);
 
         if (currentHp > 0f)
@@ -320,7 +322,7 @@ public class AutoFightCharacter : MonoBehaviour
         {
             animator.applyRootMotion = false;
         }
-        
+
         SetDeadAnimation(true);
         Died?.Invoke(this);
         LunaManager.ins.ShowEndCard();
@@ -571,6 +573,18 @@ public class AutoFightCharacter : MonoBehaviour
         idleTriggerHash = string.IsNullOrEmpty(idleTriggerName) ? 0 : Animator.StringToHash(idleTriggerName);
         attackTriggerHash = string.IsNullOrEmpty(attackTriggerName) ? 0 : Animator.StringToHash(attackTriggerName);
         deadTriggerHash = string.IsNullOrEmpty(deadTriggerName) ? 0 : Animator.StringToHash(deadTriggerName);
+    }
+
+    private void ApplyAnimatorSettings()
+    {
+        if (animator == null || !forceStableAnimatorSettings)
+        {
+            return;
+        }
+
+        animator.applyRootMotion = false;
+        animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        animator.updateMode = AnimatorUpdateMode.Normal;
     }
 
     private int GetTriggerHash(string triggerName)

@@ -27,8 +27,8 @@ public class TutorialBuildBlock : MonoBehaviour
             return;
         }
 
-        autoFightInventoryRandomizer?.HoldUntilManualStart();
-        autoFightArenaManager?.SetStartLocked(true);
+        //autoFightInventoryRandomizer?.HoldUntilManualStart();
+        //autoFightArenaManager?.SetStartLocked(true);
     }
 
     public IEnumerator IeSpawnStep()

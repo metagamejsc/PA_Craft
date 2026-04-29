@@ -30,7 +30,7 @@ public class AutoFightInventoryRandomizer : MonoBehaviour
 
     private void Start()
     {
-        if (arenaManager == null || player == null || inventoryItems.Count == 0)
+        if (arenaManager == null || inventoryItems.Count == 0)
         {
             Debug.LogWarning("AutoFightInventoryRandomizer is missing references.");
             return;
@@ -66,7 +66,7 @@ public class AutoFightInventoryRandomizer : MonoBehaviour
 
     public void StartRandomRoll()
     {
-        if (arenaManager == null || player == null || inventoryItems.Count == 0)
+        if (arenaManager == null || inventoryItems.Count == 0)
         {
             Debug.LogWarning("AutoFightInventoryRandomizer is missing references.");
             return;
@@ -116,18 +116,35 @@ public class AutoFightInventoryRandomizer : MonoBehaviour
 
     private void EquipSelectedItem(int itemIndex)
     {
+        var targetPlayer = GetControlledPlayer();
+        if (targetPlayer == null)
+        {
+            Debug.LogWarning("AutoFightInventoryRandomizer could not find a player character to equip.");
+            return;
+        }
+
         if (itemIndex < 0 || itemIndex >= inventoryItems.Count)
         {
             return;
         }
 
         var selectedItem = inventoryItems[itemIndex];
-        player.SetWeaponDamageBonus(selectedItem.DamageBonus);
-        player.EquipWeapon(
+        targetPlayer.SetWeaponDamageBonus(selectedItem.DamageBonus);
+        targetPlayer.EquipWeapon(
             selectedItem.WeaponPrefab,
             selectedItem.EquipLocalPosition,
             selectedItem.EquipLocalEulerAngles,
             selectedItem.EquipLocalScale);
+    }
+
+    private AutoFightCharacter GetControlledPlayer()
+    {
+        if (arenaManager != null && arenaManager.Player != null)
+        {
+            return arenaManager.Player;
+        }
+
+        return player;
     }
 
     private int GetRandomIndex(int previousIndex)
