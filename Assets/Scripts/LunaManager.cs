@@ -13,6 +13,8 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     [LunaPlaygroundField("Time")]           public int timeEndCreative=30;
     [LunaPlaygroundAsset("Video")]          public VideoClip videoClip;
+    [LunaPlaygroundAsset("Background")]     public Texture2D backgroundTexture;
+    [LunaPlaygroundField("Background Color")]     public Color bgColor=Color.white;
     [LunaPlaygroundField("Text")]           public string stringEndCreative;
     [LunaPlaygroundField("Text Color")]     public Color colorTextEndCreative;
     [LunaPlaygroundField("Text Position")]     public Vector2 positionTextEndCreative;
@@ -20,6 +22,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Text Style")]     public FontStyles fontStyleTextEndCreative;
     [LunaPlaygroundField("Time Show Select Weapon")]     public float timeShowSelectWeapon=2f;
     public TextMeshProUGUI txtEndCreative;
+    public RawImage backgroundRawImage;
 
     public bool isCretivePause;
     public VideoPlayer video;
@@ -48,6 +51,7 @@ public class LunaManager : MonoBehaviour
         txtEndCreative.fontSize = sizeTextEndCreative;
         txtEndCreative.fontStyle = fontStyleTextEndCreative;
         txtEndCreative.rectTransform.anchoredPosition = positionTextEndCreative;
+        ApplyBackgroundTexture();
     }
     
     // Update is called once per frame
@@ -75,5 +79,52 @@ public class LunaManager : MonoBehaviour
     {
         Debug.Log("Click end card");
         Luna.Unity.Playable.InstallFullGame();
+    }
+
+    private void ApplyBackgroundTexture()
+    {
+        if (backgroundRawImage == null)
+        {
+            return;
+        }
+
+        if (backgroundTexture != null)
+        {
+            backgroundRawImage.texture = backgroundTexture;
+            backgroundRawImage.color =bgColor;
+        }
+
+        ApplyBackgroundAspectRatio();
+    }
+
+    private void ApplyBackgroundAspectRatio()
+    {
+        if (backgroundRawImage == null || backgroundRawImage.texture == null)
+        {
+            return;
+        }
+
+        RectTransform rawRect = backgroundRawImage.rectTransform;
+        float textureWidth = backgroundRawImage.texture.width;
+        float textureHeight = backgroundRawImage.texture.height;
+
+        if (textureWidth <= 0 || textureHeight <= 0)
+        {
+            return;
+        }
+
+        rawRect.anchorMin = new Vector2(0.5f, 0.5f);
+        rawRect.anchorMax = new Vector2(0.5f, 0.5f);
+        rawRect.pivot = new Vector2(0.5f, 0.5f);
+        rawRect.anchoredPosition = Vector2.zero;
+
+        AspectRatioFitter aspectRatioFitter = backgroundRawImage.GetComponent<AspectRatioFitter>();
+        if (aspectRatioFitter == null)
+        {
+            aspectRatioFitter = backgroundRawImage.gameObject.AddComponent<AspectRatioFitter>();
+        }
+
+        aspectRatioFitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+        aspectRatioFitter.aspectRatio = textureWidth / textureHeight;
     }
 }
