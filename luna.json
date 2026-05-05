@@ -2,7 +2,7 @@
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29023,
-    "creativeName": "UAC_V34_ThuLH_ToiNV",
+    "creativeName": "UAC_V36_ThuLH_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -112,11 +112,11 @@
                 "Assets/_Scripts/TriggerEffect.cs"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
-            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
+            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.14",
+            "msbuildVersion": "18.5",
             "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
@@ -35138,6 +35138,30 @@
                     {
                         "name": "GetAliveEnemies",
                         "excluded": false
+                    },
+                    {
+                        "name": "UpdatePatrol",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BeginPatrolIdle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ChooseNextPatrolDestination",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CanTriggerZoom",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveAnimator",
+                        "excluded": false
                     }
                 ]
             },
@@ -35282,31 +35306,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "UpdateAutoTargeting",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RefreshAutoTargets",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SelectNextAutoTarget",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AimCameraAtTarget",
-                        "excluded": false
-                    },
-                    {
                         "name": "UpdateScopeReticle",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryGetReticleAnchoredPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ResetAutoTargeting",
                         "excluded": false
                     },
                     {
@@ -35322,15 +35322,23 @@
                         "excluded": false
                     },
                     {
-                        "name": "ClearAutoTargetLoopState",
-                        "excluded": false
-                    },
-                    {
                         "name": "GetAimDeltaTime",
                         "excluded": false
                     },
                     {
-                        "name": "ShouldKeepAimVisualAfterGameEnd",
+                        "name": "UpdateZoomState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetZoomState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindZoomEnemyFromAimRay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsAimHittingZoomEnemy",
                         "excluded": false
                     }
                 ]
@@ -35421,7 +35429,7 @@
                     },
                     {
                         "name": "insideUnitCircle#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "rotation#get",

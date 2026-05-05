@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -24,7 +22,6 @@ public class PlayerController : MonoBehaviour
     public float shotDamage = 1f;
     public float shotDelay = 0.12f;
     public LayerMask shotMask = ~0;
-    public float aimAssistRadius = 0.9f;
 
     [Header("Aim Camera")]
     public Vector3 cameraPivotOffset = new Vector3(0f, 1.35f, 0f);
@@ -34,11 +31,7 @@ public class PlayerController : MonoBehaviour
     public float touchOrbitSensitivity = 0.08f;
     public float orbitSmoothSpeed = 12f;
     public Vector2 pitchClamp = new Vector2(8f, 45f);
-
-    [Header("Auto Target")]
-    public int autoTargetCount = 3;
-    public float autoTargetSwitchInterval = 0.7f;
-    public float autoReticleFollowSpeed = 18f;
+    public bool onlyZoomWhenAimHitsEnemy = true;
 
     [Header("Recoil")]
     public float recoilPitch = 1.5f;
@@ -49,6 +42,7 @@ public class PlayerController : MonoBehaviour
     private bool isDead;
     private bool canAttack = true;
     private bool isPointerTracking;
+    private bool isZoomActive;
     private bool hasLastMousePosition;
     private Camera gameplayCamera;
     private float defaultCameraFieldOfView;
@@ -64,16 +58,7 @@ public class PlayerController : MonoBehaviour
     private float recoilYawOffset;
     private float recoilPitchOffset;
     private Vector2 lastMousePosition;
-    private readonly List<EnemyController> autoTargets = new List<EnemyController>();
-    private RectTransform aimReticleParent;
-    private Canvas aimReticleCanvas;
     private Vector2 defaultReticleAnchoredPosition;
-    private Vector2 currentReticleAnchoredPosition;
-    private EnemyController currentAutoTarget;
-    private EnemyController lastAutoTarget;
-    private int autoTargetIndex = -1;
-    private float autoTargetTimer;
-    private bool isAutoTargetLoopRunning;
 
     void Start()
     {
@@ -91,7 +76,8 @@ public class PlayerController : MonoBehaviour
 
         CacheCameraState();
         CacheReticleState();
-        ResetAutoTargeting();
+        SetZoomState(false);
+        ResetReticlePosition();
         SetScopeVisible(false);
 
         if (animator != null)
@@ -107,9 +93,9 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        bool isCreativePaused = LunaManager.ins != null && LunaManager.ins.isCretivePause;
-        if (isCreativePaused && !isAutoTargetLoopRunning)
+        if (LunaManager.ins != null && LunaManager.ins.isCretivePause)
         {
+            StopAimTracking();
             return;
         }
 
@@ -118,15 +104,8 @@ public class PlayerController : MonoBehaviour
             CacheCameraState();
         }
 
-        if (!isCreativePaused)
-        {
-            HandleAimInput();
-        }
-        else if (isPointerTracking)
-        {
-            UpdateAutoTargeting();
-        }
-
+        HandleAimInput();
+        UpdateZoomState();
         UpdateAimCamera();
         UpdateScopeReticle();
     }
@@ -143,7 +122,7 @@ public class PlayerController : MonoBehaviour
 
         Ray aimRay = GetAimRay();
         EnemyController lockedEnemy = enemy;
-        FaceTarget(lockedEnemy);
+        FaceTarget(lockedEnemy, aimRay.direction);
 
         if (animator != null)
         {
@@ -211,6 +190,7 @@ public class PlayerController : MonoBehaviour
         }
 
         isDead = true;
+        StopAimTracking();
         if (LunaManager.ins != null)
         {
             LunaManager.ins.ShowEndCard();
@@ -248,25 +228,19 @@ public class PlayerController : MonoBehaviour
             StartAimTracking();
         }
 
-        if (isPointerTracking)
+        if (isPointerTracking && IsPrimaryInputHeld())
         {
-            if (!UpdateAutoTargeting() && isPointerTracking)
-            {
-                ApplyOrbitInput(GetPrimaryLookDelta());
-            }
+            ApplyOrbitInput(GetPrimaryLookDelta());
         }
 
-        if (IsPrimaryInputReleased())
+        if (isPointerTracking && IsPrimaryInputReleased())
         {
             if (canAttack)
             {
                 StartCoroutine(AttackEnemy(GetAttackTarget()));
             }
-        }
 
-        if (!isPointerTracking)
-        {
-            return;
+            StopAimTracking();
         }
     }
 
@@ -281,7 +255,7 @@ public class PlayerController : MonoBehaviour
         recoilPitchOffset = Mathf.Lerp(recoilPitchOffset, 0f, recoilRecoverSpeed * deltaTime);
         recoilYawOffset = Mathf.Lerp(recoilYawOffset, 0f, recoilRecoverSpeed * deltaTime);
 
-        float targetFieldOfView = isPointerTracking ? zoomFieldOfView : defaultCameraFieldOfView;
+        float targetFieldOfView = isZoomActive ? zoomFieldOfView : defaultCameraFieldOfView;
         gameplayCamera.fieldOfView = Mathf.Lerp(
             gameplayCamera.fieldOfView,
             targetFieldOfView,
@@ -335,10 +309,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        aimReticleParent = aimReticle.parent as RectTransform;
-        aimReticleCanvas = aimReticle.GetComponentInParent<Canvas>();
         defaultReticleAnchoredPosition = aimReticle.anchoredPosition;
-        currentReticleAnchoredPosition = defaultReticleAnchoredPosition;
     }
 
     void RestoreDefaultView()
@@ -349,10 +320,11 @@ public class PlayerController : MonoBehaviour
         }
 
         isPointerTracking = false;
+        isZoomActive = false;
         hasLastMousePosition = false;
         recoilPitchOffset = 0f;
         recoilYawOffset = 0f;
-        ResetAutoTargeting();
+        ResetReticlePosition();
         SetScopeVisible(false);
         targetYaw = defaultYaw;
         currentYaw = defaultYaw;
@@ -380,52 +352,29 @@ public class PlayerController : MonoBehaviour
 
     void StartAimTracking()
     {
-        if (isAutoTargetLoopRunning)
+        if (isPointerTracking)
         {
             return;
         }
 
-        ResetAutoTargeting();
         isPointerTracking = true;
-        isAutoTargetLoopRunning = true;
         hasLastMousePosition = false;
-        autoTargetTimer = autoTargetSwitchInterval;
-        RefreshAutoTargets();
+        ResetReticlePosition();
         SetScopeVisible(true);
-
-        if (AudioManager.ins != null)
-        {
-            AudioManager.ins.StartAimHold();
-        }
+        UpdateZoomState();
     }
 
     void StopAimTracking()
     {
-        EnemyController completedTarget = currentAutoTarget;
-        bool keepAimVisual = ShouldKeepAimVisualAfterGameEnd();
-
-        if (AudioManager.ins != null)
+        if (!isPointerTracking)
         {
-            AudioManager.ins.StopAimHold();
-        }
-
-        isAutoTargetLoopRunning = false;
-        hasLastMousePosition = false;
-        lastAutoTarget = completedTarget;
-
-        if (keepAimVisual)
-        {
-            isPointerTracking = true;
-            currentAutoTarget = completedTarget;
-            ClearAutoTargetLoopState(false);
-            SetScopeVisible(true);
             return;
         }
 
         isPointerTracking = false;
-        ResetAutoTargeting();
-        lastAutoTarget = completedTarget;
+        hasLastMousePosition = false;
         SetScopeVisible(false);
+        SetZoomState(false);
     }
 
     void ApplyOrbitInput(Vector2 lookDelta)
@@ -439,125 +388,42 @@ public class PlayerController : MonoBehaviour
         targetPitch = Mathf.Clamp(targetPitch - lookDelta.y, pitchClamp.x, pitchClamp.y);
     }
 
-    bool UpdateAutoTargeting()
+    void UpdateZoomState()
     {
-        if (!isAutoTargetLoopRunning)
+        bool shouldZoom = isPointerTracking;
+        if (shouldZoom && onlyZoomWhenAimHitsEnemy)
         {
-            return false;
+            shouldZoom = IsAimHittingZoomEnemy();
         }
 
-        bool needsRefresh = currentAutoTarget == null || currentAutoTarget.IsDead() || autoTargetTimer >= autoTargetSwitchInterval;
-        if (needsRefresh)
+        SetZoomState(shouldZoom);
+    }
+
+    void SetZoomState(bool shouldZoom)
+    {
+        if (isZoomActive == shouldZoom)
         {
-            RefreshAutoTargets();
-            if (!SelectNextAutoTarget())
+            return;
+        }
+
+        isZoomActive = shouldZoom;
+
+        if (AudioManager.ins != null)
+        {
+            if (isZoomActive)
             {
-                currentAutoTarget = null;
-                autoTargetTimer = 0f;
-                return true;
+                AudioManager.ins.StartAimHold();
             }
-
-            autoTargetTimer = 0f;
-        }
-        else
-        {
-            autoTargetTimer += GetAimDeltaTime();
-        }
-        if (currentAutoTarget == null)
-        {
-            return false;
-        }
-       
-        AimCameraAtTarget(currentAutoTarget);
-        return true;
-    }
-
-    void RefreshAutoTargets()
-    {
-        EnemyController.GetAliveEnemies(autoTargets);
-        if (autoTargets.Count == 0)
-        {
-            currentAutoTarget = null;
-            autoTargetIndex = -1;
-            return;
-        }
-
-        Vector3 referencePosition = gameplayCamera != null
-            ? gameplayCamera.transform.position
-            : transform.position;
-        autoTargets.Sort((left, right) =>
-        {
-            float leftDistance = (left.GetAimPoint() - referencePosition).sqrMagnitude;
-            float rightDistance = (right.GetAimPoint() - referencePosition).sqrMagnitude;
-            return leftDistance.CompareTo(rightDistance);
-        });
-
-        int clampedTargetCount = Mathf.Max(1, autoTargetCount);
-        if (autoTargets.Count > clampedTargetCount)
-        {
-            autoTargets.RemoveRange(clampedTargetCount, autoTargets.Count - clampedTargetCount);
-        }
-
-        if (gameplayCamera == null || autoTargets.Count <= 1)
-        {
-            return;
-        }
-
-        autoTargets.Sort((left, right) =>
-        {
-            float leftViewportX = gameplayCamera.WorldToViewportPoint(left.GetAimPoint()).x;
-            float rightViewportX = gameplayCamera.WorldToViewportPoint(right.GetAimPoint()).x;
-            return leftViewportX.CompareTo(rightViewportX);
-        });
-    }
-
-    bool SelectNextAutoTarget()
-    {
-        if (autoTargets.Count == 0)
-        {
-            currentAutoTarget = null;
-            autoTargetIndex = -1;
-            return false;
-        }
-
-        int startingIndex = autoTargetIndex;
-        for (int i = 0; i < autoTargets.Count; i++)
-        {
-            int candidateIndex = (startingIndex + 1 + i) % autoTargets.Count;
-            EnemyController candidate = autoTargets[candidateIndex];
-            if (candidate == null || candidate.IsDead())
+            else
             {
-                continue;
+                AudioManager.ins.StopAimHold();
             }
-
-            autoTargetIndex = candidateIndex;
-            currentAutoTarget = candidate;
-            lastAutoTarget = candidate;
-            return true;
         }
 
-        currentAutoTarget = null;
-        autoTargetIndex = -1;
-        return false;
-    }
-
-    void AimCameraAtTarget(EnemyController enemy)
-    {
-        if (enemy == null || gameplayCamera == null)
+        if (!isZoomActive)
         {
-            return;
+            ResetReticlePosition();
         }
-
-        Vector3 lookDirection = enemy.GetAimPoint() - gameplayCamera.transform.position;
-        if (lookDirection.sqrMagnitude <= 0.001f)
-        {
-            return;
-        }
-
-        Quaternion lookRotation = Quaternion.LookRotation(lookDirection.normalized);
-        Vector3 lookEulerAngles = lookRotation.eulerAngles;
-        targetYaw = lookEulerAngles.y;
-        targetPitch = Mathf.Clamp(NormalizeAngle(lookEulerAngles.x), pitchClamp.x, pitchClamp.y);
     }
 
     void UpdateScopeReticle()
@@ -567,82 +433,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (!isPointerTracking || currentAutoTarget == null || currentAutoTarget.IsDead() || gameplayCamera == null)
-        {
-            ResetReticlePosition();
-            return;
-        }
-
-        Vector3 screenPoint = gameplayCamera.WorldToScreenPoint(currentAutoTarget.GetAimPoint());
-        if (screenPoint.z <= 0f)
-        {
-            ResetReticlePosition();
-            return;
-        }
-
-        if (!TryGetReticleAnchoredPosition(screenPoint, out Vector2 targetAnchoredPosition))
-        {
-            return;
-        }
-
-        currentReticleAnchoredPosition = Vector2.Lerp(
-            currentReticleAnchoredPosition,
-            targetAnchoredPosition,
-            autoReticleFollowSpeed * GetAimDeltaTime());
-        aimReticle.anchoredPosition = currentReticleAnchoredPosition;
-    }
-
-    bool TryGetReticleAnchoredPosition(Vector2 screenPoint, out Vector2 anchoredPosition)
-    {
-        anchoredPosition = default;
-        if (aimReticleParent == null)
-        {
-            return false;
-        }
-
-        Camera uiCamera = null;
-        if (aimReticleCanvas != null && aimReticleCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
-        {
-            uiCamera = aimReticleCanvas.worldCamera != null ? aimReticleCanvas.worldCamera : gameplayCamera;
-        }
-
-        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                aimReticleParent,
-                screenPoint,
-                uiCamera,
-                out anchoredPosition))
-        {
-            return false;
-        }
-
-        Rect parentRect = aimReticleParent.rect;
-        Vector2 halfSize = aimReticle.rect.size * 0.5f;
-        anchoredPosition.x = Mathf.Clamp(anchoredPosition.x, parentRect.xMin + halfSize.x, parentRect.xMax - halfSize.x);
-        anchoredPosition.y = Mathf.Clamp(anchoredPosition.y, parentRect.yMin + halfSize.y, parentRect.yMax - halfSize.y);
-        return true;
-    }
-
-    void ResetAutoTargeting()
-    {
-        ClearAutoTargetLoopState(true);
-    }
-
-    void ClearAutoTargetLoopState(bool resetReticle)
-    {
-        autoTargets.Clear();
-        if (resetReticle)
-        {
-            currentAutoTarget = null;
-            lastAutoTarget = null;
-        }
-
-        autoTargetIndex = -1;
-        autoTargetTimer = 0f;
-        isAutoTargetLoopRunning = false;
-        if (resetReticle)
-        {
-            ResetReticlePosition();
-        }
+        aimReticle.anchoredPosition = defaultReticleAnchoredPosition;
     }
 
     void ResetReticlePosition()
@@ -652,7 +443,6 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        currentReticleAnchoredPosition = defaultReticleAnchoredPosition;
         aimReticle.anchoredPosition = defaultReticleAnchoredPosition;
     }
 
@@ -738,53 +528,50 @@ public class PlayerController : MonoBehaviour
             return null;
         }
 
-        RaycastHit[] hits = Physics.RaycastAll(ray, shotRange, shotMask, QueryTriggerInteraction.Ignore);
-        if (hits.Length > 0)
+        if (Physics.Raycast(ray, out RaycastHit hit, shotRange, shotMask, QueryTriggerInteraction.Ignore))
         {
-            Array.Sort(hits, (left, right) => left.distance.CompareTo(right.distance));
-
-            for (int i = 0; i < hits.Length; i++)
+            EnemyController enemy = hit.collider.GetComponentInParent<EnemyController>();
+            if (enemy != null && !enemy.IsDead())
             {
-                EnemyController enemy = hits[i].collider.GetComponentInParent<EnemyController>();
-                if (enemy != null && !enemy.IsDead())
-                {
-                    return enemy;
-                }
+                return enemy;
             }
         }
 
-        return EnemyController.GetClosestAliveToRay(ray, aimAssistRadius, shotRange);
+        return null;
+    }
+
+    EnemyController FindZoomEnemyFromAimRay(Ray ray)
+    {
+        EnemyController enemy = FindEnemyFromAimRay(ray);
+        if (enemy == null || !enemy.CanTriggerZoom())
+        {
+            return null;
+        }
+
+        return enemy;
+    }
+
+    bool IsAimHittingZoomEnemy()
+    {
+        return FindZoomEnemyFromAimRay(GetAimRay()) != null;
     }
 
     EnemyController GetAttackTarget()
     {
-        if (currentAutoTarget != null && !currentAutoTarget.IsDead())
-        {
-            return currentAutoTarget;
-        }
-
-        if (lastAutoTarget != null && !lastAutoTarget.IsDead())
-        {
-            return lastAutoTarget;
-        }
-
         return FindEnemyFromAimRay(GetAimRay());
     }
 
-    void FaceTarget(EnemyController enemy)
+    void FaceTarget(EnemyController enemy, Vector3 aimDirection)
     {
-        if (enemy == null)
-        {
-            return;
-        }
-
         if (IsAttachedToGameplayCamera())
         {
             transform.localRotation = defaultLocalRotation;
             return;
         }
 
-        Vector3 lookDirection = enemy.GetAimPoint() - GetShotOrigin();
+        Vector3 lookDirection = enemy != null
+            ? enemy.GetAimPoint() - GetShotOrigin()
+            : aimDirection;
         lookDirection.y = 0f;
         if (lookDirection.sqrMagnitude < 0.001f)
         {
@@ -916,14 +703,9 @@ public class PlayerController : MonoBehaviour
             : Time.deltaTime;
     }
 
-    bool ShouldKeepAimVisualAfterGameEnd()
-    {
-        return LunaManager.ins != null && LunaManager.ins.isCretivePause;
-    }
-
     void OnDisable()
     {
-        //RestoreDefaultView();
+        StopAimTracking();
     }
 
     void OnDrawGizmosSelected()

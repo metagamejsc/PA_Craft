@@ -15,6 +15,7 @@ public class EnemyController : MonoBehaviour
     public float attackCooldown = 1.5f;
     public float attackHitDelay = 0.3f;
     public int attackDamage = 1;
+    public bool canTriggerZoom = true;
     public Animator animator;
 
     public Transform player;
@@ -36,6 +37,13 @@ public class EnemyController : MonoBehaviour
     public float hitJumpDuration = 0.3f;
     public float hitPushbackDistance = 1.1f;
 
+    [Header("Patrol Settings")]
+    public float patrolRadius = 4f;
+    public float minPatrolDistance = 1.2f;
+    public float patrolIdleTimeMin = 0.8f;
+    public float patrolIdleTimeMax = 1.6f;
+    public float patrolArrivalDistance = 0.15f;
+
     private float currentHealth;
     private Camera gameplayCamera;
     private Canvas healthCanvas;
@@ -45,6 +53,16 @@ public class EnemyController : MonoBehaviour
     private bool hasAttackTrigger;
     private bool hasDeadTrigger;
     private bool hasIsMovingBool;
+    private bool animatorParametersCached;
+    private Vector3 patrolCenter;
+    private Vector3 patrolDestination;
+    private float patrolIdleTimer;
+    private bool isPatrolWaiting;
+
+    void Awake()
+    {
+        ResolveAnimator();
+    }
 
     void OnEnable()
     {
@@ -67,6 +85,8 @@ public class EnemyController : MonoBehaviour
         ApplyLunaSettings();
         CacheAnimatorParameters();
         CreateHealthBar();
+        patrolCenter = transform.position;
+        ChooseNextPatrolDestination();
     }
 
     void Update()
@@ -78,6 +98,7 @@ public class EnemyController : MonoBehaviour
 
         if (LunaManager.ins != null && LunaManager.ins.isCretivePause)
         {
+            SetMovingAnimation(false);
             return;
         }
 
@@ -86,7 +107,7 @@ public class EnemyController : MonoBehaviour
 
         if (player == null || (playerController != null && playerController.IsDead()))
         {
-            SetMovingAnimation(false);
+            SetMovingAnimation(UpdatePatrol());
             return;
         }
 
@@ -96,14 +117,12 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        Vector3 targetPosition = playerController != null
-            ? playerController.GetCombatTargetPosition()
-            : player.position;
-        Vector3 moveDirection = targetPosition - transform.position;
-        moveDirection.y = 0f;
-        if (moveDirection.sqrMagnitude <= attackDistance * attackDistance)
+        Vector3 attackDirection = GetAttackDirection();
+        attackDirection.y = 0f;
+        if (attackDirection.sqrMagnitude <= attackDistance * attackDistance)
         {
             SetMovingAnimation(false);
+            RotateTowards(attackDirection);
 
             if (canAttack)
             {
@@ -113,9 +132,7 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        SetMovingAnimation(true);
-        RotateTowards(moveDirection);
-        transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
+        SetMovingAnimation(UpdatePatrol());
     }
 
     System.Collections.IEnumerator AttackPlayer()
@@ -267,6 +284,76 @@ public class EnemyController : MonoBehaviour
         healthBarFillRect.localScale = new Vector3(normalizedHealth, 1f, 1f);
     }
 
+    bool UpdatePatrol()
+    {
+        if (patrolRadius <= 0.01f)
+        {
+            return false;
+        }
+
+        if (isPatrolWaiting)
+        {
+            patrolIdleTimer -= Time.deltaTime;
+            if (patrolIdleTimer <= 0f)
+            {
+                ChooseNextPatrolDestination();
+            }
+
+            return false;
+        }
+
+        Vector3 targetPosition = patrolDestination;
+        targetPosition.y = transform.position.y;
+
+        Vector3 moveDirection = targetPosition - transform.position;
+        moveDirection.y = 0f;
+        if (moveDirection.sqrMagnitude <= patrolArrivalDistance * patrolArrivalDistance)
+        {
+            transform.position = targetPosition;
+            BeginPatrolIdle();
+            return false;
+        }
+
+        RotateTowards(moveDirection);
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        return true;
+    }
+
+    void BeginPatrolIdle()
+    {
+        isPatrolWaiting = true;
+
+        float minIdleTime = Mathf.Min(patrolIdleTimeMin, patrolIdleTimeMax);
+        float maxIdleTime = Mathf.Max(patrolIdleTimeMin, patrolIdleTimeMax);
+        patrolIdleTimer = Random.Range(minIdleTime, maxIdleTime);
+    }
+
+    void ChooseNextPatrolDestination()
+    {
+        isPatrolWaiting = false;
+
+        Vector3 fallbackDestination = patrolCenter;
+        fallbackDestination.y = transform.position.y;
+        patrolDestination = fallbackDestination;
+
+        float desiredMinDistance = Mathf.Clamp(minPatrolDistance, 0f, patrolRadius);
+        float minDistanceSqr = desiredMinDistance * desiredMinDistance;
+
+        for (int i = 0; i < 8; i++)
+        {
+            Vector2 randomOffset = Random.insideUnitCircle * patrolRadius;
+            Vector3 candidate = patrolCenter + new Vector3(randomOffset.x, 0f, randomOffset.y);
+            if ((candidate - transform.position).sqrMagnitude < minDistanceSqr)
+            {
+                continue;
+            }
+
+            patrolDestination = candidate;
+            patrolDestination.y = transform.position.y;
+            return;
+        }
+    }
+
     void PlayHitReaction(Vector3 hitDirection)
     {
         hitTween?.Kill();
@@ -320,6 +407,11 @@ public class EnemyController : MonoBehaviour
         return isDead;
     }
 
+    public bool CanTriggerZoom()
+    {
+        return canTriggerZoom && !isDead;
+    }
+
     public void Die()
     {
         if (isDead)
@@ -333,7 +425,7 @@ public class EnemyController : MonoBehaviour
         isHitReacting = false;
         isAttacking = false;
         canAttack = false;
-        //SetMovingAnimation(false);
+        SetMovingAnimation(false);
 
         if (healthCanvas != null)
         {
@@ -452,9 +544,37 @@ public class EnemyController : MonoBehaviour
 
     void CacheAnimatorParameters()
     {
+        ResolveAnimator();
+        if (animator == null)
+        {
+            animatorParametersCached = false;
+            return;
+        }
+
         hasAttackTrigger = HasAnimatorParameter(AttackTriggerHash, AnimatorControllerParameterType.Trigger);
         hasDeadTrigger = HasAnimatorParameter(DeadTriggerHash, AnimatorControllerParameterType.Trigger);
         hasIsMovingBool = HasAnimatorParameter(IsMovingBoolHash, AnimatorControllerParameterType.Bool);
+        animatorParametersCached = true;
+    }
+
+    void ResolveAnimator()
+    {
+        if (animator != null)
+        {
+            return;
+        }
+
+        Animator resolvedAnimator = GetComponent<Animator>();
+        if (resolvedAnimator == null)
+        {
+            resolvedAnimator = GetComponentInChildren<Animator>();
+        }
+
+        if (resolvedAnimator != null)
+        {
+            animator = resolvedAnimator;
+            animatorParametersCached = false;
+        }
     }
 
     bool HasAnimatorParameter(int parameterHash, AnimatorControllerParameterType parameterType)
@@ -478,6 +598,16 @@ public class EnemyController : MonoBehaviour
 
     void SetMovingAnimation(bool isMoving)
     {
+        if (animator == null)
+        {
+            ResolveAnimator();
+        }
+
+        if (!animatorParametersCached)
+        {
+            CacheAnimatorParameters();
+        }
+
         if (animator == null || !hasIsMovingBool)
         {
             return;
@@ -488,11 +618,6 @@ public class EnemyController : MonoBehaviour
 
     Vector3 GetAttackDirection()
     {
-        if (playerController != null)
-        {
-            return playerController.GetCombatTargetPosition() - transform.position;
-        }
-
         if (player != null)
         {
             return player.position - transform.position;
