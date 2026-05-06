@@ -2,7 +2,7 @@
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29023,
-    "creativeName": "UAC_V31_ChiTM_ToiNV",
+    "creativeName": "UAC_V38_ThuLH_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -112,11 +112,11 @@
                 "Assets/_Scripts/TriggerEffect.cs"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
-            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
+            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.14",
+            "msbuildVersion": "18.5",
             "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
@@ -3601,10 +3601,6 @@
             },
             {
                 "name": "UnityEngine.U2D.SpriteAtlas",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.WaitForSecondsRealtime",
                 "excluded": true
             },
             {
@@ -24005,7 +24001,7 @@
                     },
                     {
                         "name": "alpha#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "alpha#set",
@@ -24021,7 +24017,7 @@
                     },
                     {
                         "name": "blocksRaycasts#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "blocksRaycasts#set",
@@ -24029,7 +24025,7 @@
                     },
                     {
                         "name": "ignoreParentGroups#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ignoreParentGroups#set",
@@ -24037,27 +24033,27 @@
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Awake",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnEnable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddCanvasGroup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RemoveCanvasGroup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDidApplyAnimationProperties",
@@ -34249,7 +34245,7 @@
                     },
                     {
                         "name": "Update",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDisable",
@@ -35134,6 +35130,26 @@
                     {
                         "name": "RotateTowards",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetCinematicLocked",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ForceDeadVisual",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayDeadAnimation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ActivateBloodParticles",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBloodParticleObject",
+                        "excluded": false
                     }
                 ]
             },
@@ -35255,7 +35271,7 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDrawGizmosSelected",
@@ -37942,6 +37958,172 @@
                     {
                         "name": "DelayedCall",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "ArrowAmbushSequenceController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshSpawnedArrows",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ClearSpawnedArrows",
+                        "excluded": true
+                    },
+                    {
+                        "name": "StartSequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PrepareScene",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FadeTo",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnKillState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnSurroundingArrows",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnAttachedArrows",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnArrow",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ConfigureSpawnedArrow",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetArrowTargetPoint",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetEnemyRootTransform",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetEnemyRootPosition",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveCamera",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolvePlayerController",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyCameraStart",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyEnemyStartPositions",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetEnemiesLocked",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PrepareFade",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CreateRuntimeFadeGraphic",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFadeAlpha",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RestorePlayerControllerState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsPrimaryInputStarted",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasArrowPrefab",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetRandomArrowPrefab",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayClickSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayOneShot",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "ArrowAmbushSequenceController.EnemySlot",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.WaitForSecondsRealtime",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "keepWaiting#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": false
                     }
                 ]
             }

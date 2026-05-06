@@ -8,6 +8,7 @@ public class EnemyController : MonoBehaviour
     private static readonly List<EnemyController> ActiveEnemies = new List<EnemyController>();
     private static readonly int AttackTriggerHash = Animator.StringToHash("Attack");
     private static readonly int DeadTriggerHash = Animator.StringToHash("Dead");
+    private static readonly int IdleTriggerHash = Animator.StringToHash("Idle");
     private static readonly int IsMovingBoolHash = Animator.StringToHash("isMoving");
 
     public float moveSpeed = 2f;
@@ -22,6 +23,7 @@ public class EnemyController : MonoBehaviour
     public bool isDead = false;
     public bool isAttacking = false;
     public bool canAttack = true;
+    public bool isCinematicLocked = false;
 
     [Header("Health Settings")]
     public float maxHealth = 3f;
@@ -36,6 +38,12 @@ public class EnemyController : MonoBehaviour
     public float hitJumpDuration = 0.3f;
     public float hitPushbackDistance = 1.1f;
 
+    [Header("Death VFX")]
+    public GameObject bloodParticleObject;
+    public bool autoFindBloodParticleObject = true;
+    public string bloodParticleChildName = "blood";
+    public bool playBloodParticlesOnDeath = true;
+
     private float currentHealth;
     private Camera gameplayCamera;
     private Canvas healthCanvas;
@@ -44,6 +52,7 @@ public class EnemyController : MonoBehaviour
     private bool isHitReacting;
     private bool hasAttackTrigger;
     private bool hasDeadTrigger;
+    private bool hasIdleTrigger;
     private bool hasIsMovingBool;
 
     void OnEnable()
@@ -66,7 +75,10 @@ public class EnemyController : MonoBehaviour
         gameplayCamera = Camera.main;
         ApplyLunaSettings();
         CacheAnimatorParameters();
-        CreateHealthBar();
+        if (!isDead)
+        {
+            CreateHealthBar();
+        }
     }
 
     void Update()
@@ -83,6 +95,12 @@ public class EnemyController : MonoBehaviour
 
         ResolvePlayer();
         UpdateHealthBarTransform();
+
+        if (isCinematicLocked)
+        {
+            SetMovingAnimation(false);
+            return;
+        }
 
         if (player == null || (playerController != null && playerController.IsDead()))
         {
@@ -327,25 +345,7 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        isDead = true;
-        StopAllCoroutines();
-        hitTween?.Kill();
-        isHitReacting = false;
-        isAttacking = false;
-        canAttack = false;
-        //SetMovingAnimation(false);
-
-        if (healthCanvas != null)
-        {
-            healthCanvas.gameObject.SetActive(false);
-        }
-
-        /*if (animator != null && hasDeadTrigger)
-        {
-            //animator.SetTrigger(DeadTriggerHash);
-            animator.Play("metarig|Fall");
-        }*/
-        animator.Play("metarig|Fall");
+        ForceDeadVisual("metarig|Fall");
         if (LunaManager.ins != null)
         {
             if (!HasOtherAliveEnemies(this))
@@ -355,6 +355,48 @@ public class EnemyController : MonoBehaviour
         }
 
         Destroy(gameObject, 2f);
+    }
+
+    public void SetCinematicLocked(bool locked)
+    {
+        isCinematicLocked = locked;
+        if (!locked)
+        {
+            canAttack = true;
+            return;
+        }
+
+        StopAllCoroutines();
+        hitTween?.Kill();
+        isHitReacting = false;
+        isAttacking = false;
+        canAttack = false;
+        SetMovingAnimation(false);
+
+        if (animator != null && hasIdleTrigger)
+        {
+            animator.SetTrigger(IdleTriggerHash);
+        }
+    }
+
+    public void ForceDeadVisual(string deadAnimationStateName = "metarig|Fall")
+    {
+        isDead = true;
+        isCinematicLocked = false;
+        StopAllCoroutines();
+        hitTween?.Kill();
+        isHitReacting = false;
+        isAttacking = false;
+        canAttack = false;
+        SetMovingAnimation(false);
+
+        if (healthCanvas != null)
+        {
+            healthCanvas.gameObject.SetActive(false);
+        }
+
+        ActivateBloodParticles();
+        PlayDeadAnimation(deadAnimationStateName);
     }
 
     public static EnemyController GetClosestAlive(Vector3 fromPosition)
@@ -434,6 +476,7 @@ public class EnemyController : MonoBehaviour
     {
         hasAttackTrigger = HasAnimatorParameter(AttackTriggerHash, AnimatorControllerParameterType.Trigger);
         hasDeadTrigger = HasAnimatorParameter(DeadTriggerHash, AnimatorControllerParameterType.Trigger);
+        hasIdleTrigger = HasAnimatorParameter(IdleTriggerHash, AnimatorControllerParameterType.Trigger);
         hasIsMovingBool = HasAnimatorParameter(IsMovingBoolHash, AnimatorControllerParameterType.Bool);
     }
 
@@ -463,7 +506,82 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        animator.SetBool(IsMovingBoolHash, isMoving);
+        //animator.SetBool(IsMovingBoolHash, isMoving);
+    }
+
+    void PlayDeadAnimation(string deadAnimationStateName)
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(deadAnimationStateName))
+        {
+            animator.Play(deadAnimationStateName);
+            return;
+        }
+
+        if (hasDeadTrigger)
+        {
+            animator.SetTrigger(DeadTriggerHash);
+        }
+    }
+
+    void ActivateBloodParticles()
+    {
+        GameObject bloodObject = GetBloodParticleObject();
+        if (bloodObject == null)
+        {
+            return;
+        }
+
+        bloodObject.SetActive(true);
+
+        if (!playBloodParticlesOnDeath)
+        {
+            return;
+        }
+
+        ParticleSystem[] particles = bloodObject.GetComponentsInChildren<ParticleSystem>(true);
+        for (int i = 0; i < particles.Length; i++)
+        {
+            if (particles[i] != null)
+            {
+                particles[i].Play(true);
+            }
+        }
+    }
+
+    GameObject GetBloodParticleObject()
+    {
+        if (bloodParticleObject != null)
+        {
+            return bloodParticleObject;
+        }
+
+        if (!autoFindBloodParticleObject || string.IsNullOrEmpty(bloodParticleChildName))
+        {
+            return null;
+        }
+
+        Transform[] childTransforms = GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < childTransforms.Length; i++)
+        {
+            Transform child = childTransforms[i];
+            if (child == null || child == transform)
+            {
+                continue;
+            }
+
+            if (child.name.IndexOf(bloodParticleChildName, System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                bloodParticleObject = child.gameObject;
+                return bloodParticleObject;
+            }
+        }
+
+        return null;
     }
 
     Vector3 GetAttackDirection()
