@@ -1,21 +1,43 @@
-using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
     public GameObject[] enemyPrefab;
     public Transform[] spawnPoints;
+
+    [Header("Camera Move")]
+    public Transform cameraPathStartPoint;
+    public Transform cameraPathEndPoint;
+    public Transform cameraTransform;
+    public PlayerController playerController;
+    public GameObject finishParticleEffect;
+    public Renderer finishColorRenderer;
+    [SerializeField] private float cameraMoveDuration = 0.8f;
+    [SerializeField] private Ease cameraMoveEase = Ease.InOutSine;
+    [SerializeField] private bool snapCameraToPathStart = true;
+    [SerializeField] private bool deactivateFinishEffectOnStart = true;
+    [SerializeField] private int finishColorMaterialIndex = 0;
+    [SerializeField] private Color finishMaterialColor = Color.white;
+    [SerializeField] private string finishColorProperty = "_Color";
+
+    [Header("Spawn Settings")]
     [SerializeField] private int enemyIndex = 0;
     [SerializeField] private bool spawnOnStart = true;
-    [SerializeField] private float spawnInterval = 2f;
-    [SerializeField] private int maxAliveEnemies = 3;
     [SerializeField] private int maxTotalEnemies = 5;
 
     private int spawnedCount;
-    private int nextSpawnPointIndex;
+    private int currentSegmentIndex;
+    private bool isMovingToNextSegment;
+    private EnemyController currentEnemy;
+    private Tween cameraMoveTween;
 
     void Start()
     {
+        ResolveReferences();
+        PrepareFinishEffect();
+        SnapCameraToPathStart();
+
         if (!spawnOnStart)
         {
             return;
@@ -24,53 +46,133 @@ public class EnemySpawner : MonoBehaviour
         EnemyController existingEnemy = FindObjectOfType<EnemyController>();
         if (existingEnemy != null)
         {
-            spawnedCount = EnemyController.AliveCount;
-        }
-        else
-        {
-            if (!SpawnEnemy())
-            {
-                return;
-            }
+            currentEnemy = existingEnemy;
+            spawnedCount = Mathf.Max(1, EnemyController.AliveCount);
+            currentSegmentIndex = Mathf.Clamp(spawnedCount - 1, 0, GetMaxTotalEnemies() - 1);
+            return;
         }
 
-        StartCoroutine(SpawnLoop());
+        SpawnEnemyForSegment(0);
     }
 
-    IEnumerator SpawnLoop()
+    void OnDisable()
     {
-        while (!HasReachedMaxTotal())
-        {
-            while (!TutorialBuildBlock.IsComplete || EnemyController.AliveCount >= GetMaxAliveEnemies())
-            {
-                yield return null;
-            }
-
-            yield return new WaitForSeconds(GetSpawnInterval());
-
-            if (TutorialBuildBlock.IsComplete &&
-                EnemyController.AliveCount < GetMaxAliveEnemies() &&
-                !HasReachedMaxTotal())
-            {
-                if (!SpawnEnemy()|| LunaManager.ins.isCretivePause)
-                {
-                    yield break;
-                }
-            }
-        }
+        cameraMoveTween?.Kill();
     }
 
-    bool SpawnEnemy()
+    public static bool NotifyEnemyKilled(EnemyController enemy)
     {
-        GameObject prefabToSpawn = GetEnemyPrefab();
-        Transform spawnPoint = GetSpawnPoint();
-        if (prefabToSpawn == null || spawnPoint == null)
+        EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>();
+        bool handled = false;
+        for (int i = 0; i < spawners.Length; i++)
+        {
+            EnemySpawner spawner = spawners[i];
+            if (spawner == null || !spawner.isActiveAndEnabled)
+            {
+                continue;
+            }
+
+            if (spawner.HandleEnemyKilled(enemy))
+            {
+                handled = true;
+            }
+        }
+
+        return handled;
+    }
+
+    bool HandleEnemyKilled(EnemyController enemy)
+    {
+        if (isMovingToNextSegment)
         {
             return false;
         }
 
-        Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
+        if (currentEnemy == null || enemy != currentEnemy)
+        {
+            return false;
+        }
+
+        currentEnemy = null;
+        int completedSegmentIndex = currentSegmentIndex;
+        currentSegmentIndex++;
+
+        MoveCameraThenSpawnNext(completedSegmentIndex);
+        return true;
+    }
+
+    void MoveCameraThenSpawnNext(int completedSegmentIndex)
+    {
+        if (!TryGetCameraPathStep(completedSegmentIndex, out Vector3 targetPosition, out Quaternion targetRotation))
+        {
+            FinishCameraMove();
+            return;
+        }
+
+        ResolveReferences();
+        isMovingToNextSegment = true;
+
+        if (playerController != null)
+        {
+            cameraMoveTween = playerController.MoveGameplayCameraTo(
+                targetPosition,
+                targetRotation,
+                cameraMoveDuration,
+                cameraMoveEase,
+                FinishCameraMove);
+        }
+        else
+        {
+            Transform targetCamera = cameraTransform != null ? cameraTransform : Camera.main?.transform;
+            if (targetCamera != null)
+            {
+                float moveDuration = Mathf.Max(0f, cameraMoveDuration);
+                cameraMoveTween = DOTween.Sequence()
+                    .Join(targetCamera.DOMove(targetPosition, moveDuration).SetEase(cameraMoveEase))
+                    .Join(targetCamera.DORotateQuaternion(targetRotation, moveDuration).SetEase(cameraMoveEase))
+                    .SetLink(targetCamera.gameObject);
+            }
+        }
+
+        if (cameraMoveTween == null)
+        {
+            FinishCameraMove();
+            return;
+        }
+
+        if (playerController == null)
+        {
+            cameraMoveTween.OnComplete(FinishCameraMove);
+        }
+    }
+
+    void FinishCameraMove()
+    {
+        isMovingToNextSegment = false;
+        if (spawnedCount >= GetMaxTotalEnemies())
+        {
+            ActivateFinishEffect();
+            ApplyFinishMaterialColor();
+            ShowEndCardIfNeeded();
+            return;
+        }
+
+        SpawnEnemyForSegment(currentSegmentIndex);
+    }
+
+    bool SpawnEnemyForSegment(int segmentIndex)
+    {
+        GameObject prefabToSpawn = GetEnemyPrefab();
+        Transform spawnPoint = GetSpawnPoint(segmentIndex);
+        if (prefabToSpawn == null || spawnPoint == null || spawnedCount >= GetMaxTotalEnemies())
+        {
+            return false;
+        }
+
+        GameObject enemyObject = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
+        currentEnemy = enemyObject.GetComponentInChildren<EnemyController>();
         spawnedCount++;
+        currentSegmentIndex = segmentIndex;
         return true;
     }
 
@@ -85,15 +187,13 @@ public class EnemySpawner : MonoBehaviour
         return enemyPrefab[clampedIndex];
     }
 
-    Transform GetSpawnPoint()
+    Transform GetSpawnPoint(int segmentIndex)
     {
         if (spawnPoints != null && spawnPoints.Length > 0)
         {
             for (int i = 0; i < spawnPoints.Length; i++)
             {
-                int spawnPointIndex = nextSpawnPointIndex % spawnPoints.Length;
-                nextSpawnPointIndex++;
-
+                int spawnPointIndex = (segmentIndex + i) % spawnPoints.Length;
                 if (spawnPoints[spawnPointIndex] != null)
                 {
                     return spawnPoints[spawnPointIndex];
@@ -104,24 +204,130 @@ public class EnemySpawner : MonoBehaviour
         return transform;
     }
 
-    float GetSpawnInterval()
+    int GetMaxTotalEnemies()
     {
-        return Mathf.Max(0.1f, spawnInterval);
-    }
-
-    int GetMaxAliveEnemies()
-    {
-        return Mathf.Max(1, maxAliveEnemies);
-    }
-
-    bool HasReachedMaxTotal()
-    {
-        return spawnedCount >= Mathf.Max(1, maxTotalEnemies);
+        return Mathf.Max(1, maxTotalEnemies);
     }
 
     bool HasPendingSpawn()
     {
-        return spawnOnStart && isActiveAndEnabled && GetEnemyPrefab() != null && !HasReachedMaxTotal();
+        return spawnOnStart &&
+            isActiveAndEnabled &&
+            GetEnemyPrefab() != null &&
+            spawnedCount < GetMaxTotalEnemies();
+    }
+
+    void ResolveReferences()
+    {
+        if (cameraTransform == null && Camera.main != null)
+        {
+            cameraTransform = Camera.main.transform;
+        }
+
+        if (playerController == null)
+        {
+            playerController = FindObjectOfType<PlayerController>();
+        }
+    }
+
+    void PrepareFinishEffect()
+    {
+        if (finishParticleEffect != null && deactivateFinishEffectOnStart)
+        {
+            finishParticleEffect.SetActive(true);
+        }
+    }
+
+    void SnapCameraToPathStart()
+    {
+        if (!snapCameraToPathStart || cameraPathStartPoint == null)
+        {
+            return;
+        }
+
+        if (playerController != null)
+        {
+            playerController.SetGameplayCameraTo(cameraPathStartPoint);
+            return;
+        }
+
+        Transform targetCamera = cameraTransform != null ? cameraTransform : Camera.main?.transform;
+        if (targetCamera != null)
+        {
+            targetCamera.SetPositionAndRotation(cameraPathStartPoint.position, cameraPathStartPoint.rotation);
+        }
+    }
+
+    bool TryGetCameraPathStep(int segmentIndex, out Vector3 targetPosition, out Quaternion targetRotation)
+    {
+        targetPosition = Vector3.zero;
+        targetRotation = Quaternion.identity;
+
+        if (cameraPathStartPoint == null || cameraPathEndPoint == null)
+        {
+            return false;
+        }
+
+        float step = Mathf.Clamp01((segmentIndex + 1f) / GetMaxTotalEnemies());
+        targetPosition = Vector3.Lerp(cameraPathStartPoint.position, cameraPathEndPoint.position, step);
+        targetRotation = Quaternion.Slerp(cameraPathStartPoint.rotation, cameraPathEndPoint.rotation, step);
+        return true;
+    }
+
+    void ActivateFinishEffect()
+    {
+        if (finishParticleEffect != null)
+        {
+            if (AudioManager.ins != null)
+            {
+                AudioManager.ins.PlaySoundBomb();
+            }
+
+            finishParticleEffect.SetActive(false);
+        }
+    }
+
+    void ApplyFinishMaterialColor()
+    {
+        if (finishColorRenderer == null)
+        {
+            return;
+        }
+
+        Material[] materials = finishColorRenderer.materials;
+        if (materials == null || materials.Length == 0)
+        {
+            return;
+        }
+
+        int materialIndex = Mathf.Clamp(finishColorMaterialIndex, 0, materials.Length - 1);
+        Material targetMaterial = materials[materialIndex];
+        if (targetMaterial == null)
+        {
+            return;
+        }
+
+        if (targetMaterial.HasProperty(finishColorProperty))
+        {
+            targetMaterial.SetColor(finishColorProperty, finishMaterialColor);
+            return;
+        }
+
+        if (targetMaterial.HasProperty("_BaseColor"))
+        {
+            targetMaterial.SetColor("_BaseColor", finishMaterialColor);
+            return;
+        }
+
+        targetMaterial.color = finishMaterialColor;
+    }
+
+    void ShowEndCardIfNeeded()
+    {
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.ShowEndCard();
+        }
     }
 
     public static bool HasPendingSpawns()
@@ -130,7 +336,7 @@ public class EnemySpawner : MonoBehaviour
         for (int i = 0; i < spawners.Length; i++)
         {
             EnemySpawner spawner = spawners[i];
-            if (spawner != null && spawner.HasPendingSpawn())
+            if (spawner != null && (spawner.HasPendingSpawn() || spawner.isMovingToNextSegment))
             {
                 return true;
             }

@@ -43,6 +43,7 @@ public class PlayerController : MonoBehaviour
     private bool canAttack = true;
     private bool isPointerTracking;
     private bool hasLastMousePosition;
+    private bool isCameraPathMoving;
     private Camera gameplayCamera;
     private float defaultCameraFieldOfView;
     private Quaternion defaultCameraRotation;
@@ -57,6 +58,7 @@ public class PlayerController : MonoBehaviour
     private float recoilYawOffset;
     private float recoilPitchOffset;
     private Vector2 lastMousePosition;
+    private Tween cameraPathTween;
 
     void Start()
     {
@@ -95,6 +97,11 @@ public class PlayerController : MonoBehaviour
         if (gameplayCamera == null)
         {
             CacheCameraState();
+        }
+
+        if (isCameraPathMoving)
+        {
+            return;
         }
 
         HandleAimInput();
@@ -212,6 +219,104 @@ public class PlayerController : MonoBehaviour
         }
 
         return transform.position;
+    }
+
+    public Tween MoveGameplayCameraTo(Transform targetPoint, float duration, Ease ease, Action onComplete = null)
+    {
+        if (targetPoint == null)
+        {
+            return null;
+        }
+
+        return MoveGameplayCameraTo(targetPoint.position, targetPoint.rotation, duration, ease, onComplete);
+    }
+
+    public void SetGameplayCameraTo(Transform targetPoint)
+    {
+        if (targetPoint == null)
+        {
+            return;
+        }
+
+        if (gameplayCamera == null)
+        {
+            CacheCameraState();
+        }
+
+        if (gameplayCamera == null)
+        {
+            return;
+        }
+
+        cameraPathTween?.Kill();
+        isCameraPathMoving = false;
+        isPointerTracking = false;
+        hasLastMousePosition = false;
+        gameplayCamera.transform.SetPositionAndRotation(targetPoint.position, targetPoint.rotation);
+        CacheCameraState();
+    }
+
+    public Tween MoveGameplayCameraTo(
+        Vector3 targetPosition,
+        Quaternion targetRotation,
+        float duration,
+        Ease ease,
+        Action onComplete = null)
+    {
+        if (gameplayCamera == null)
+        {
+            CacheCameraState();
+        }
+
+        if (gameplayCamera == null)
+        {
+            return null;
+        }
+
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.StopAimHold();
+        }
+
+        cameraPathTween?.Kill();
+        isPointerTracking = false;
+        hasLastMousePosition = false;
+        recoilPitchOffset = 0f;
+        recoilYawOffset = 0f;
+        isCameraPathMoving = true;
+
+        float moveDuration = Mathf.Max(0f, duration);
+        Tween moveTween = gameplayCamera.transform
+            .DOMove(targetPosition, moveDuration)
+            .SetEase(ease);
+        Tween rotateTween = gameplayCamera.transform
+            .DORotateQuaternion(targetRotation, moveDuration)
+            .SetEase(ease);
+
+        cameraPathTween = DOTween.Sequence()
+            .Join(moveTween)
+            .Join(rotateTween)
+            .SetLink(gameplayCamera.gameObject)
+            .OnComplete(() =>
+            {
+                FinishCameraPathMove();
+                onComplete?.Invoke();
+            })
+            .OnKill(() =>
+            {
+                if (isCameraPathMoving)
+                {
+                    FinishCameraPathMove();
+                }
+            });
+
+        return cameraPathTween;
+    }
+
+    void FinishCameraPathMove()
+    {
+        isCameraPathMoving = false;
+        CacheCameraState();
     }
 
     void HandleAimInput()
@@ -583,6 +688,8 @@ public class PlayerController : MonoBehaviour
 
     void OnDisable()
     {
+        cameraPathTween?.Kill();
+
         if (gameplayCamera != null)
         {
             RestoreDefaultView();

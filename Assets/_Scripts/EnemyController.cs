@@ -371,7 +371,8 @@ public class EnemyController : MonoBehaviour
             animator.Play("metarig|Fall");
         }*/
         animator.Play("metarig|Fall");
-        if (LunaManager.ins != null)
+        bool deathHandledBySpawner = EnemySpawner.NotifyEnemyKilled(this);
+        if (LunaManager.ins != null && !deathHandledBySpawner)
         {
             if (!HasOtherAliveEnemies(this) && !EnemySpawner.HasPendingSpawns())
             {

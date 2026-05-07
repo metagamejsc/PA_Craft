@@ -2,7 +2,7 @@
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 35800,
-    "creativeName": "CEBB_V09_NgocNDL_ToiNV",
+    "creativeName": "CEBB_V10_NgocNDL_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -111,11 +111,11 @@
                 "Assets/_Scripts/TriggerEffect.cs"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
-            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
+            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.14",
+            "msbuildVersion": "18.5",
             "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
@@ -169,7 +169,8 @@
                 "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Drop Shadow.mat",
                 "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset",
                 "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Outline.mat",
-                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset"
+                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset",
+                "Assets/Game/Audios/SoundFX/weapons/fire.ogg"
             ]
         },
         "scenes": [
@@ -8084,10 +8085,6 @@
             },
             {
                 "name": "DG.Tweening.Plugins.Vector4Plugin",
-                "excluded": true
-            },
-            {
-                "name": "DG.Tweening.CustomPlugins.PureQuaternionPlugin",
                 "excluded": true
             },
             {
@@ -16590,7 +16587,7 @@
                     },
                     {
                         "name": "SetPositionAndRotation",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -17436,7 +17433,7 @@
                     },
                     {
                         "name": "materials#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "materials#set",
@@ -21056,7 +21053,7 @@
                     },
                     {
                         "name": "name#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "mainTexture#set",
@@ -21096,7 +21093,7 @@
                     },
                     {
                         "name": "$ctor1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CopyPropertiesFromMaterial",
@@ -27546,19 +27543,19 @@
                 "instanceMethods": [
                     {
                         "name": "getDefaultValue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Reset",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -31504,7 +31501,7 @@
                     },
                     {
                         "name": "To",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "To$15",
@@ -31928,7 +31925,7 @@
                     },
                     {
                         "name": "DOMove",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOMoveX",
@@ -31956,7 +31953,7 @@
                     },
                     {
                         "name": "DORotateQuaternion",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOLocalRotate",
@@ -35271,6 +35268,22 @@
                     {
                         "name": "OnDrawGizmosSelected",
                         "excluded": true
+                    },
+                    {
+                        "name": "MoveGameplayCameraTo",
+                        "excluded": true
+                    },
+                    {
+                        "name": "MoveGameplayCameraTo$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetGameplayCameraTo",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FinishCameraPathMove",
+                        "excluded": false
                     }
                 ]
             },
@@ -35411,27 +35424,63 @@
                         "excluded": false
                     },
                     {
-                        "name": "SpawnLoop",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SpawnEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetSpawnInterval",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetMaxAliveEnemies",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HasReachedMaxTotal",
-                        "excluded": false
-                    },
-                    {
                         "name": "HasPendingSpawn",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NotifyEnemyKilled",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleEnemyKilled",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveCameraThenSpawnNext",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FinishCameraMove",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnEnemyForSegment",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetMaxTotalEnemies",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveReferences",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PrepareFinishEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SnapCameraToPathStart",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryGetCameraPathStep",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ActivateFinishEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFinishMaterialColor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowEndCardIfNeeded",
                         "excluded": false
                     }
                 ]
@@ -37636,7 +37685,7 @@
                     },
                     {
                         "name": "PlaySoundBomb",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlaySoundBuild",
@@ -38015,6 +38064,48 @@
                     {
                         "name": "OnDestroy",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.CustomPlugins.PureQuaternionPlugin",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Plug",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetFrom$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFrom",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ConvertToStartValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetRelativeEndValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetChangeValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetSpeedBasedDuration",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EvaluateAndApply",
+                        "excluded": false
                     }
                 ]
             }
