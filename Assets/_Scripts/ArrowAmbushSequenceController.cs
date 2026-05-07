@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -34,7 +35,24 @@ public class ArrowAmbushSequenceController : MonoBehaviour
     public bool disablePlayerControllerDuringSequence = true;
     public bool reenablePlayerControllerAfterSequence = false;
 
+    [Header("Bow Shot")]
+    public Animator bowAnimator;
+    public Transform bowArrowSpawnPoint;
+    public GameObject[] bowStateObjects = new GameObject[4];
+    public bool useBowStateObjects = true;
+    public float bowStateFrameDuration = 0.12f;
+    public bool resetBowStateAfterSequence = true;
+    public string bowFireBool = "isFire";
+    public string bowAttackTrigger = "Attack";
+    public float arrowReleaseDelay = 0f;
+    public float bowFireStateDuration = 0.45f;
+    public bool spawnBowArrowVisual = true;
+    public int bowArrowTargetEnemyIndex = 0;
+    public float bowArrowFlightDuration = 0.22f;
+    public Vector3 bowArrowRotationOffset;
+
     [Header("Fade")]
+    public bool useFadeTransition = false;
     public Graphic fadeGraphic;
     public Color fadeColor = Color.black;
     [Range(0f, 1f)] public float fadeTargetAlpha = 1f;
@@ -50,6 +68,14 @@ public class ArrowAmbushSequenceController : MonoBehaviour
     public AudioClip clickSoundOverride;
     public AudioSource clickAudioSource;
     [Range(0f, 1f)] public float clickSoundVolume = 1f;
+    public bool repeatClickSoundDuringArrows = true;
+    public float clickSoundRepeatInterval = 0f;
+
+    [Header("Bow Draw Sound")]
+    public bool playDrawSoundOnBowFrame = true;
+    public AudioClip bowDrawSound;
+    public AudioSource bowDrawAudioSource;
+    [Range(0f, 1f)] public float bowDrawSoundVolume = 1f;
 
     [Header("Enemy Dead")]
     public string deadAnimationStateName = "metarig|Fall";
@@ -63,6 +89,14 @@ public class ArrowAmbushSequenceController : MonoBehaviour
     public bool disableArrowPhysics = true;
     public bool disableArrowColliders = true;
     public bool disableArrowTrails = true;
+
+    [Header("Incoming Arrow Motion")]
+    public bool animateArrowsFromDistance = true;
+    public float incomingArrowDistance = 18f;
+    public Vector2 incomingArrowSpread = new Vector2(2f, 4f);
+    public float incomingArrowFlightDuration = 0.35f;
+    public float incomingArrowStagger = 0.015f;
+    public Ease incomingArrowEase = Ease.InCubic;
 
     [Header("Surrounding Arrows")]
     public int surroundingArrowCount = 24;
@@ -85,6 +119,8 @@ public class ArrowAmbushSequenceController : MonoBehaviour
     private bool hasSpawnedKillState;
     private bool playerControllerWasEnabled;
     private bool refreshArrowsRequested;
+    private float lastSpawnedArrowFlightTime;
+    private Coroutine arrowSpawnSoundCoroutine;
 
     void Start()
     {
@@ -172,7 +208,6 @@ public class ArrowAmbushSequenceController : MonoBehaviour
             return;
         }
 
-        PlayClickSound();
         StartCoroutine(PlaySequence());
     }
 
@@ -180,7 +215,9 @@ public class ArrowAmbushSequenceController : MonoBehaviour
     {
         ResolveCamera();
         ResolvePlayerController();
+        ResolveBowAnimator();
         ApplyCameraStart();
+        SetBowStateObject(0);
         PrepareFade();
         ApplyEnemyStartPositions();
         SetEnemiesLocked(lockEnemiesBeforeClick);
@@ -197,9 +234,34 @@ public class ArrowAmbushSequenceController : MonoBehaviour
             playerController.enabled = false;
         }
 
+        yield return PlayBowShotAnimation();
+        StartArrowSpawnSoundLoop();
+        yield return SpawnBowArrowVisual();
+
+        if (arrowReleaseDelay > 0f)
+        {
+            yield return new WaitForSeconds(arrowReleaseDelay);
+        }
+
+        if (!useFadeTransition)
+        {
+            SpawnKillState();
+            if (lastSpawnedArrowFlightTime > 0f)
+            {
+                yield return new WaitForSeconds(lastSpawnedArrowFlightTime);
+            }
+
+            StopArrowSpawnSoundLoop();
+            ResetBowStateObjects();
+            RestorePlayerControllerState();
+            yield break;
+        }
+
         if (fadeGraphic == null)
         {
             SpawnKillState();
+            StopArrowSpawnSoundLoop();
+            ResetBowStateObjects();
             RestorePlayerControllerState();
             yield break;
         }
@@ -248,6 +310,8 @@ public class ArrowAmbushSequenceController : MonoBehaviour
             fadeGraphic.gameObject.SetActive(false);
         }
 
+        StopArrowSpawnSoundLoop();
+        ResetBowStateObjects();
         RestorePlayerControllerState();
     }
 
@@ -286,6 +350,7 @@ public class ArrowAmbushSequenceController : MonoBehaviour
         }
 
         hasSpawnedKillState = true;
+        lastSpawnedArrowFlightTime = 0f;
 
         for (int i = 0; i < enemies.Length; i++)
         {
@@ -327,7 +392,7 @@ public class ArrowAmbushSequenceController : MonoBehaviour
             Vector3 spawnPosition = enemyBasePosition + horizontalDirection * radius + Vector3.up * height;
             Vector3 arrowDirection = targetPoint - spawnPosition;
 
-            SpawnArrow(spawnPosition, arrowDirection, surroundingArrowRotationOffset, spawnedArrowParent);
+            SpawnArrow(spawnPosition, arrowDirection, surroundingArrowRotationOffset, spawnedArrowParent, true);
         }
     }
 
@@ -358,11 +423,11 @@ public class ArrowAmbushSequenceController : MonoBehaviour
             }
 
             Vector3 spawnPosition = hitPoint - arrowDirection * attachedPivotBackOffset;
-            SpawnArrow(spawnPosition, arrowDirection, attachedArrowRotationOffset, parent);
+            SpawnArrow(spawnPosition, arrowDirection, attachedArrowRotationOffset, parent, true);
         }
     }
 
-    GameObject SpawnArrow(Vector3 position, Vector3 direction, Vector3 rotationOffset, Transform parent)
+    GameObject SpawnArrow(Vector3 position, Vector3 direction, Vector3 rotationOffset, Transform parent, bool animateFromDistance)
     {
         GameObject prefab = GetRandomArrowPrefab();
         if (prefab == null)
@@ -388,8 +453,152 @@ public class ArrowAmbushSequenceController : MonoBehaviour
         }
 
         ConfigureSpawnedArrow(arrow);
+        if (animateFromDistance)
+        {
+            AnimateArrowFromDistance(arrow, position, direction);
+        }
+
         spawnedArrows.Add(arrow);
         return arrow;
+    }
+
+    IEnumerator SpawnBowArrowVisual()
+    {
+        if (!spawnBowArrowVisual || !HasArrowPrefab())
+        {
+            yield break;
+        }
+
+        Vector3 spawnPosition = GetBowArrowSpawnPosition();
+        Vector3 targetPosition = GetBowArrowTargetPosition();
+        Vector3 direction = targetPosition - spawnPosition;
+        if (direction.sqrMagnitude <= 0.001f)
+        {
+            direction = bowArrowSpawnPoint != null ? bowArrowSpawnPoint.forward : transform.forward;
+            targetPosition = spawnPosition + direction.normalized;
+        }
+
+        GameObject arrow = SpawnArrow(spawnPosition, direction, bowArrowRotationOffset, spawnedArrowParent, false);
+        if (arrow == null)
+        {
+            ResetBowStateObjects();
+            yield break;
+        }
+
+        float duration = Mathf.Max(0.01f, bowArrowFlightDuration);
+        arrow.transform
+            .DOMove(targetPosition, duration)
+            .SetEase(Ease.Linear)
+            .SetLink(arrow)
+            .OnComplete(() =>
+            {
+                if (arrow != null)
+                {
+                    arrow.transform.position = targetPosition;
+                    Destroy(arrow);
+                    spawnedArrows.Remove(arrow);
+                }
+            });
+
+        yield return new WaitForSeconds(duration);
+        ResetBowStateObjects();
+    }
+
+    void AnimateArrowFromDistance(GameObject arrow, Vector3 targetPosition, Vector3 direction)
+    {
+        if (!Application.isPlaying || !hasStarted || !animateArrowsFromDistance || arrow == null)
+        {
+            return;
+        }
+
+        Vector3 safeDirection = direction.sqrMagnitude > 0.001f ? direction.normalized : transform.forward;
+        Vector3 right = Vector3.Cross(Vector3.up, safeDirection);
+        if (right.sqrMagnitude <= 0.001f)
+        {
+            right = transform.right;
+        }
+
+        right.Normalize();
+        Vector3 up = Vector3.Cross(safeDirection, right).normalized;
+        Vector3 spreadOffset =
+            right * Random.Range(-incomingArrowSpread.x, incomingArrowSpread.x) +
+            up * Random.Range(-incomingArrowSpread.y, incomingArrowSpread.y);
+        Vector3 startPosition = targetPosition - safeDirection * incomingArrowDistance + spreadOffset;
+        float delay = incomingArrowStagger > 0f ? spawnedArrows.Count * incomingArrowStagger : 0f;
+        float duration = Mathf.Max(0.01f, incomingArrowFlightDuration);
+
+        arrow.transform.position = startPosition;
+        arrow.transform
+            .DOMove(targetPosition, duration)
+            .SetDelay(delay)
+            .SetEase(incomingArrowEase)
+            .SetLink(arrow)
+            .OnComplete(() =>
+            {
+                if (arrow != null)
+                {
+                    arrow.transform.position = targetPosition;
+                }
+            });
+
+        lastSpawnedArrowFlightTime = Mathf.Max(lastSpawnedArrowFlightTime, delay + duration);
+    }
+
+    Vector3 GetBowArrowSpawnPosition()
+    {
+        if (bowArrowSpawnPoint != null)
+        {
+            return bowArrowSpawnPoint.position;
+        }
+
+        if (playerController != null && playerController.projectileSpawnPoint != null)
+        {
+            return playerController.projectileSpawnPoint.position;
+        }
+
+        if (playerController != null)
+        {
+            return playerController.transform.position + Vector3.up * 1.2f + playerController.transform.forward * 0.6f;
+        }
+
+        return gameplayCamera != null ? gameplayCamera.transform.position : transform.position;
+    }
+
+    Vector3 GetBowArrowTargetPosition()
+    {
+        EnemySlot slot = GetBowArrowTargetSlot();
+        if (slot != null && slot.enemy != null)
+        {
+            return GetArrowTargetPoint(slot);
+        }
+
+        return GetBowArrowSpawnPosition() + transform.forward * Mathf.Max(1f, incomingArrowDistance);
+    }
+
+    EnemySlot GetBowArrowTargetSlot()
+    {
+        if (enemies == null || enemies.Length <= 0)
+        {
+            return null;
+        }
+
+        int clampedIndex = Mathf.Clamp(bowArrowTargetEnemyIndex, 0, enemies.Length - 1);
+        EnemySlot indexedSlot = enemies[clampedIndex];
+        if (indexedSlot != null && indexedSlot.enemy != null)
+        {
+            return indexedSlot;
+        }
+
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            EnemySlot slot = enemies[i];
+            if (slot != null && slot.enemy != null)
+            {
+                return slot;
+            }
+        }
+
+        return null;
     }
 
     bool HasArrowPrefab()
@@ -535,6 +744,19 @@ public class ArrowAmbushSequenceController : MonoBehaviour
         }
     }
 
+    void ResolveBowAnimator()
+    {
+        if (bowAnimator != null)
+        {
+            return;
+        }
+
+        if (playerController != null)
+        {
+            bowAnimator = playerController.animator;
+        }
+    }
+
     void ApplyCameraStart()
     {
         if (!applyCameraStartPoint || gameplayCamera == null || cameraStartPoint == null)
@@ -575,6 +797,17 @@ public class ArrowAmbushSequenceController : MonoBehaviour
 
     void PrepareFade()
     {
+        if (!useFadeTransition)
+        {
+            if (fadeGraphic != null)
+            {
+                SetFadeAlpha(0f);
+                fadeGraphic.gameObject.SetActive(false);
+            }
+
+            return;
+        }
+
         if (fadeGraphic == null)
         {
             fadeGraphic = CreateRuntimeFadeGraphic();
@@ -659,7 +892,75 @@ public class ArrowAmbushSequenceController : MonoBehaviour
         }
     }
 
+    void StartArrowSpawnSoundLoop()
+    {
+        if (!playClickSound)
+        {
+            return;
+        }
+
+        if (arrowSpawnSoundCoroutine != null)
+        {
+            StopCoroutine(arrowSpawnSoundCoroutine);
+        }
+
+        arrowSpawnSoundCoroutine = StartCoroutine(PlayArrowSpawnSoundLoop());
+    }
+
+    void StopArrowSpawnSoundLoop()
+    {
+        if (arrowSpawnSoundCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(arrowSpawnSoundCoroutine);
+        arrowSpawnSoundCoroutine = null;
+    }
+
+    IEnumerator PlayArrowSpawnSoundLoop()
+    {
+        PlayClickSound();
+
+        if (!repeatClickSoundDuringArrows)
+        {
+            arrowSpawnSoundCoroutine = null;
+            yield break;
+        }
+
+        while (true)
+        {
+            yield return new WaitForSeconds(GetClickSoundRepeatInterval());
+            PlayClickSound();
+        }
+    }
+
+    float GetClickSoundRepeatInterval()
+    {
+        if (clickSoundRepeatInterval > 0f)
+        {
+            return clickSoundRepeatInterval;
+        }
+
+        if (clickSoundOverride != null && clickSoundOverride.length > 0f)
+        {
+            return clickSoundOverride.length;
+        }
+
+        if (AudioManager.ins != null && AudioManager.ins.fireSound != null && AudioManager.ins.fireSound.length > 0f)
+        {
+            return AudioManager.ins.fireSound.length;
+        }
+
+        return 0.1f;
+    }
+
     void PlayOneShot(AudioClip clip, float volume)
+    {
+        PlayOneShot(clip, volume, clickAudioSource);
+    }
+
+    void PlayOneShot(AudioClip clip, float volume, AudioSource audioSource)
     {
         if (clip == null)
         {
@@ -667,9 +968,9 @@ public class ArrowAmbushSequenceController : MonoBehaviour
         }
 
         float safeVolume = Mathf.Clamp01(volume);
-        if (clickAudioSource != null)
+        if (audioSource != null)
         {
-            clickAudioSource.PlayOneShot(clip, safeVolume);
+            audioSource.PlayOneShot(clip, safeVolume);
             return;
         }
 
@@ -681,6 +982,147 @@ public class ArrowAmbushSequenceController : MonoBehaviour
 
         Vector3 soundPosition = gameplayCamera != null ? gameplayCamera.transform.position : transform.position;
         AudioSource.PlayClipAtPoint(clip, soundPosition, safeVolume);
+    }
+
+    IEnumerator PlayBowShotAnimation()
+    {
+        if (useBowStateObjects && HasBowStateObjects())
+        {
+            int stateCount = bowStateObjects.Length;
+            float frameDuration = Mathf.Max(0.01f, bowStateFrameDuration);
+            for (int i = 0; i < stateCount; i++)
+            {
+                if (bowStateObjects[i] == null)
+                {
+                    continue;
+                }
+
+                SetBowStateObject(i);
+                PlayBowDrawFrameSound();
+                yield return new WaitForSeconds(frameDuration);
+            }
+
+            yield break;
+        }
+
+        PlayAnimatorBowShotAnimation();
+
+        if (bowFireStateDuration > 0f)
+        {
+            float frameDuration = Mathf.Max(0.01f, bowStateFrameDuration);
+            float elapsed = 0f;
+            while (elapsed < bowFireStateDuration)
+            {
+                PlayBowDrawFrameSound();
+                yield return new WaitForSeconds(frameDuration);
+                elapsed += frameDuration;
+            }
+        }
+
+        SetBowFireState(false);
+    }
+
+    void PlayBowDrawFrameSound()
+    {
+        if (!playDrawSoundOnBowFrame)
+        {
+            return;
+        }
+
+        PlayOneShot(bowDrawSound, bowDrawSoundVolume, bowDrawAudioSource);
+    }
+
+    void PlayAnimatorBowShotAnimation()
+    {
+        ResolveBowAnimator();
+        if (bowAnimator == null)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(bowFireBool) &&
+            HasAnimatorParameter(bowAnimator, bowFireBool, AnimatorControllerParameterType.Bool))
+        {
+            SetBowFireState(true);
+        }
+
+        if (!string.IsNullOrEmpty(bowAttackTrigger) &&
+            HasAnimatorParameter(bowAnimator, bowAttackTrigger, AnimatorControllerParameterType.Trigger))
+        {
+            bowAnimator.SetTrigger(bowAttackTrigger);
+        }
+    }
+
+    bool HasBowStateObjects()
+    {
+        if (bowStateObjects == null || bowStateObjects.Length <= 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < bowStateObjects.Length; i++)
+        {
+            if (bowStateObjects[i] != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void SetBowStateObject(int activeIndex)
+    {
+        if (!useBowStateObjects || bowStateObjects == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < bowStateObjects.Length; i++)
+        {
+            if (bowStateObjects[i] != null)
+            {
+                bowStateObjects[i].SetActive(i == activeIndex);
+            }
+        }
+    }
+
+    void ResetBowStateObjects()
+    {
+        if (resetBowStateAfterSequence)
+        {
+            SetBowStateObject(0);
+        }
+    }
+
+    void SetBowFireState(bool isFire)
+    {
+        if (bowAnimator != null &&
+            !string.IsNullOrEmpty(bowFireBool) &&
+            HasAnimatorParameter(bowAnimator, bowFireBool, AnimatorControllerParameterType.Bool))
+        {
+            bowAnimator.SetBool(bowFireBool, isFire);
+        }
+    }
+
+    bool HasAnimatorParameter(Animator targetAnimator, string parameterName, AnimatorControllerParameterType parameterType)
+    {
+        if (targetAnimator == null || string.IsNullOrEmpty(parameterName))
+        {
+            return false;
+        }
+
+        int parameterHash = Animator.StringToHash(parameterName);
+        AnimatorControllerParameter[] parameters = targetAnimator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            if (parameters[i].nameHash == parameterHash && parameters[i].type == parameterType)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool IsPrimaryInputStarted()
@@ -705,6 +1147,17 @@ public class ArrowAmbushSequenceController : MonoBehaviour
         fadeOutDuration = Mathf.Max(0f, fadeOutDuration);
         fadeHoldDuration = Mathf.Max(0f, fadeHoldDuration);
         fadeInDuration = Mathf.Max(0f, fadeInDuration);
+        clickSoundRepeatInterval = Mathf.Max(0f, clickSoundRepeatInterval);
+        arrowReleaseDelay = Mathf.Max(0f, arrowReleaseDelay);
+        bowStateFrameDuration = Mathf.Max(0.01f, bowStateFrameDuration);
+        bowFireStateDuration = Mathf.Max(0f, bowFireStateDuration);
+        bowArrowTargetEnemyIndex = Mathf.Max(0, bowArrowTargetEnemyIndex);
+        bowArrowFlightDuration = Mathf.Max(0.01f, bowArrowFlightDuration);
+        incomingArrowDistance = Mathf.Max(0f, incomingArrowDistance);
+        incomingArrowSpread.x = Mathf.Max(0f, incomingArrowSpread.x);
+        incomingArrowSpread.y = Mathf.Max(0f, incomingArrowSpread.y);
+        incomingArrowFlightDuration = Mathf.Max(0.01f, incomingArrowFlightDuration);
+        incomingArrowStagger = Mathf.Max(0f, incomingArrowStagger);
 
         if (Application.isPlaying && hasSpawnedKillState)
         {
