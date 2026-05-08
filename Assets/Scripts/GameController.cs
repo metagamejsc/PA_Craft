@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class GameController : MonoBehaviour
 {
@@ -38,37 +37,11 @@ public class GameController : MonoBehaviour
 
     [Header("Player")]
     public PlayerChar playerChar;
-
-    [Header("Rocket Unlock Flow")]
-    public GameObject rocketPickupObject;
-    public int killsToSpawnRocket = 5;
-    public GameObject currentWeaponModel;
-    public GameObject rocketWeaponModel;
-    public bool hideCurrentWeaponModelOnRocketUnlock = true;
     public IceGun playerGun;
-    public float rocketFireSpeedMultiplier = 2f;
-
-    [Header("Boss Flow")]
-    public GameObject bossPrefab;
-    public Transform bossSpawnPoint;
-    [FormerlySerializedAs("killsAfterRocketEquippedToSpawnBoss")]
-    public int killsToSpawnBoss = 4;
-    public float bossHealth = 30f;
-    public float bossDamage = 2f;
-    public float bossMoveSpeed = 1.3f;
-    public float bossAttackSpeed = 1.1f;
-    public float bossScaleMultiplier = 1.8f;
-    public string bossDisplayName = "Boss";
-    public bool clearAliveEnemiesWhenBossSpawns = true;
 
     public int countEnemyDefeat = 0;
 
     private Coroutine spawnCoroutine;
-    private RocketPickup rocketPickup;
-    private bool rocketSpawned;
-    private bool rocketUnlocked;
-    private bool bossSpawned;
-    private GameObject bossInstance;
 
     private void Awake()
     {
@@ -78,7 +51,7 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         SetupRuntimeReferences();
-        RefreshBossSpawnProgressUi();
+        RefreshGunUpgradeProgressUi();
 
         if (autoSpawnOnStart)
         {
@@ -93,29 +66,13 @@ public class GameController : MonoBehaviour
             enemyList.Remove(enemy);
         }
 
-        if (enemy != null && bossInstance == enemy)
-        {
-            bossInstance = null;
-            UIManager.ins?.HideBossUI();
-            LunaManager.ins.DelayCallEndCard(1.5f);
-            return;
-        }
-
         countEnemyDefeat++;
-        RefreshBossSpawnProgressUi();
-
-        if (!rocketSpawned && countEnemyDefeat >= killsToSpawnRocket)
+        if (playerGun == null)
         {
-            SpawnRocketPickup();
+            playerGun = FindObjectOfType<IceGun>();
         }
 
-        if (rocketUnlocked && !bossSpawned)
-        {
-            if (countEnemyDefeat >= killsToSpawnBoss)
-            {
-                SpawnBoss();
-            }
-        }
+        playerGun?.AddUpgradeProgress(1);
     }
 
     [ContextMenu("Camera")]
@@ -149,7 +106,7 @@ public class GameController : MonoBehaviour
 
         while (!isEndGame)
         {
-            if (isStartGame && !isPauseGame && !bossSpawned && enemyList.Count < maxEnemyOnScene)
+            if (isStartGame && !isPauseGame && enemyList.Count < maxEnemyOnScene)
             {
                 SpawnEnemy(GetEnemySpawnPosition());
             }
@@ -319,45 +276,6 @@ public class GameController : MonoBehaviour
         enemyList.Add(newEnemy);
     }
 
-    public void SetIdWeapon(int id)
-    {
-        if (playerChar == null)
-        {
-            return;
-        }
-
-        playerChar.CraftWeapon(id);
-    }
-
-    public void UnlockRocketWeapon(RocketPickup pickupSource = null)
-    {
-        if (rocketUnlocked)
-        {
-            return;
-        }
-
-        rocketUnlocked = true;
-
-        if (pickupSource != null)
-        {
-            pickupSource.HidePickup();
-        }
-        else if (rocketPickupObject != null)
-        {
-            rocketPickupObject.SetActive(false);
-        }
-
-        ApplyRocketUpgrade();
-
-        if (!bossSpawned && countEnemyDefeat >= killsToSpawnBoss)
-        {
-            SpawnBoss();
-            return;
-        }
-
-        RefreshBossSpawnProgressUi();
-    }
-
     private void SetupRuntimeReferences()
     {
         if (playerChar == null)
@@ -369,19 +287,8 @@ public class GameController : MonoBehaviour
         {
             playerGun = FindObjectOfType<IceGun>();
         }
-        
-        if (rocketPickupObject != null)
-        {
-            rocketPickup = rocketPickupObject.GetComponent<RocketPickup>();
-            if (rocketPickup == null)
-            {
-                rocketPickup = rocketPickupObject.AddComponent<RocketPickup>();
-            }
 
-            rocketPickupObject.SetActive(false);
-        }
-
-        ApplyRocketVisualState(rocketUnlocked);
+        RefreshGunUpgradeProgressUi();
     }
 
     private GameObject GetEnemyPrefab()
@@ -403,107 +310,14 @@ public class GameController : MonoBehaviour
         return enemyPrefab;
     }
 
-    private void SpawnRocketPickup()
-    {
-        if (rocketPickupObject == null)
-        {
-            Debug.LogWarning("rocketPickupObject chua duoc gan trong GameController!");
-            return;
-        }
-
-        rocketSpawned = true;
-        rocketPickupObject.SetActive(true);
-    }
-
-    private void SpawnBoss()
-    {
-        if (bossSpawned)
-        {
-            return;
-        }
-
-        GameObject prefabToSpawn = bossPrefab != null ? bossPrefab : enemyPrefab;
-        if (prefabToSpawn == null)
-        {
-            return;
-        }
-
-        bossSpawned = true;
-        StopSpawn();
-        UIManager.ins?.HideBossSpawnProgress();
-
-        if (clearAliveEnemiesWhenBossSpawns)
-        {
-            ClearAliveEnemies();
-        }
-
-        Vector3 spawnPosition = bossSpawnPoint != null
-            ? bossSpawnPoint.position
-            : GetEnemySpawnPosition();
-
-        bossInstance = Instantiate(prefabToSpawn, spawnPosition, Quaternion.Euler(0f, 180f, 0f));
-        bossInstance.name = $"{prefabToSpawn.name}_Boss";
-        enemyList.Add(bossInstance);
-
-        BaseCharacter bossCharacter = bossInstance.GetComponent<BaseCharacter>();
-        ZombieChar bossZombie = bossInstance.GetComponent<ZombieChar>();
-        float finalBossHealth = GetConfiguredBossHealth();
-        if (bossZombie != null)
-        {
-            bossZombie.useLunaEnemySpeed = false;
-        }
-
-        if (bossCharacter != null)
-        {
-            bossCharacter.health = finalBossHealth;
-            bossCharacter.damage = bossDamage;
-            bossCharacter.moveSpeed = bossMoveSpeed;
-            bossCharacter.attackSpeed = bossAttackSpeed;
-            bossCharacter.detectionRadiusMax = 100f;
-        }
-
-        bossInstance.transform.localScale *= bossScaleMultiplier;
-
-        UIManager.ins?.ShowBossUI(bossCharacter, bossDisplayName, finalBossHealth);
-    }
-
-    private void ApplyRocketUpgrade()
+    private void RefreshGunUpgradeProgressUi()
     {
         if (playerGun == null)
         {
             playerGun = FindObjectOfType<IceGun>();
         }
 
-        if (playerGun != null)
-        {
-            playerGun.ApplyFireSpeedMultiplier(rocketFireSpeedMultiplier);
-        }
-
-        ApplyRocketVisualState(true);
-    }
-
-    private void ApplyRocketVisualState(bool hasRocketUpgrade)
-    {
-        if (rocketWeaponModel != null)
-        {
-            rocketWeaponModel.SetActive(hasRocketUpgrade);
-        }
-
-        if (currentWeaponModel != null && hideCurrentWeaponModelOnRocketUnlock)
-        {
-            currentWeaponModel.GetComponent<MeshRenderer>().enabled=!hasRocketUpgrade;
-        }
-    }
-
-    private void RefreshBossSpawnProgressUi()
-    {
-        if (bossSpawned)
-        {
-            UIManager.ins?.HideBossSpawnProgress();
-            return;
-        }
-
-        UIManager.ins?.UpdateBossSpawnProgress(countEnemyDefeat, killsToSpawnBoss);
+        playerGun?.RefreshUpgradeProgressUi();
     }
 
     private void ApplySpawnedEnemyStats(GameObject enemyInstance)
@@ -536,27 +350,4 @@ public class GameController : MonoBehaviour
         return 0f;
     }
 
-    private float GetConfiguredBossHealth()
-    {
-        if (LunaManager.ins != null && LunaManager.ins.bossHealth > 0f)
-        {
-            return LunaManager.ins.bossHealth;
-        }
-
-        return bossHealth;
-    }
-
-    private void ClearAliveEnemies()
-    {
-        for (int i = enemyList.Count - 1; i >= 0; i--)
-        {
-            GameObject enemy = enemyList[i];
-            if (enemy != null)
-            {
-                Destroy(enemy);
-            }
-        }
-
-        enemyList.Clear();
-    }
 }

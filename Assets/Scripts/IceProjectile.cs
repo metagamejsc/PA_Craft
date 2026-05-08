@@ -21,14 +21,6 @@ public class IceProjectile : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        RocketPickup pickup = other.GetComponentInParent<RocketPickup>();
-        if (pickup != null)
-        {
-            pickup.TakeHit(1f);
-            Destroy(gameObject);
-            return;
-        }
-
         if (((1 << other.gameObject.layer) & triggerLayers) == 0)
         {
             return;

@@ -34,8 +34,6 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
 
     private float xRotation = 0f;      // pitch
     private float yRotation = 0f;        // yaw
-    private bool isMouseDown = false;
-
     public Action onClick;
 
     void Start()
@@ -86,28 +84,16 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
         if (target)
         {
             UpdateCameraLookAt(target);
-            StopHoldingFire();
-            return;
         }
 
         if (GameController.ins != null && GameController.ins.isEndGame)
         {
-            StopHoldingFire();
             return;
         }
-        
-        if (!isMouseDown)
-        {
-            return;
-        }
-        playerBody.GetComponent<PlayerChar>().HandleAttack();
-        timeHoldFire += Time.deltaTime;
-        
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        StopHoldingFire();
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -116,13 +102,11 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
         {
             return;
         }
-        isMouseDown = true;
-        //playerBody.GetComponent<PlayerChar>().HandleAttack();
     }
 
     private void OnDisable()
     {
-        StopHoldingFire();
+        timeHoldFire = 0f;
     }
 
     public void UpdateCameraLookAt(Transform target)
@@ -156,21 +140,4 @@ public class MouseLook : MonoBehaviour, IPointerUpHandler, IPointerDownHandler,I
         playerBody.rotation = Quaternion.Euler(0f, yRotation, 0f);
     }
 
-    private void StopHoldingFire()
-    {
-        isMouseDown = false;
-        timeHoldFire = 0f;
-        StopAllCoroutines();
-
-        if (playerBody == null)
-        {
-            return;
-        }
-
-        PlayerChar playerChar = playerBody.GetComponent<PlayerChar>();
-        if (playerChar != null)
-        {
-            playerChar.CancleFire();
-        }
-    }
 }

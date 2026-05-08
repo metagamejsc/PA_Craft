@@ -27,6 +27,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject bossSpawnProgressRootOverride;
     [SerializeField] private Slider bossSpawnProgressSliderOverride;
     [SerializeField] private TMP_Text bossSpawnProgressTextOverride;
+    [SerializeField] private Image gunUpgradeImageOverride;
+    [SerializeField] private Image currentGunImageOverride;
     [Header("Boss UI")]
     [SerializeField] private GameObject bossUiRootOverride;
     [SerializeField] private Image bossHpFillOverride;
@@ -110,7 +112,7 @@ public class UIManager : MonoBehaviour
 
         if (GameController.ins != null)
         {
-            UpdateBossSpawnProgress(GameController.ins.countEnemyDefeat, GameController.ins.killsToSpawnBoss);
+            GameController.ins.playerGun?.RefreshUpgradeProgressUi();
         }
 
         UpdatePlayerHpUi();
@@ -179,6 +181,41 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void UpdateGunUpgradeProgress(int currentKills, int killsRequired, string nextGunName, Sprite nextGunIcon)
+    {
+        if (killsRequired <= 0)
+        {
+            HideGunUpgradeProgress();
+            return;
+        }
+
+        GameObject activeProgressRoot = GetBossSpawnProgressRoot();
+        Slider activeProgressSlider = GetBossSpawnProgressSlider();
+        TMP_Text activeProgressText = GetBossSpawnProgressText();
+
+        if (activeProgressRoot == null || activeProgressSlider == null)
+        {
+            return;
+        }
+
+        int clampedKills = Mathf.Clamp(currentKills, 0, killsRequired);
+        activeProgressRoot.SetActive(true);
+        activeProgressSlider.minValue = 0f;
+        activeProgressSlider.maxValue = killsRequired;
+        activeProgressSlider.value = clampedKills;
+
+        if (activeProgressText != null)
+        {
+            activeProgressText.text = $"{nextGunName} {clampedKills}/{killsRequired}";
+        }
+
+        if (gunUpgradeImageOverride != null)
+        {
+            gunUpgradeImageOverride.sprite = nextGunIcon;
+            gunUpgradeImageOverride.enabled = nextGunIcon != null;
+        }
+    }
+
     public void HideBossSpawnProgress()
     {
         GameObject activeProgressRoot = GetBossSpawnProgressRoot();
@@ -186,6 +223,26 @@ public class UIManager : MonoBehaviour
         {
             activeProgressRoot.SetActive(false);
         }
+    }
+
+    public void HideGunUpgradeProgress()
+    {
+        HideBossSpawnProgress();
+        if (gunUpgradeImageOverride != null)
+        {
+            gunUpgradeImageOverride.enabled = false;
+        }
+    }
+
+    public void UpdateCurrentGunImage(Sprite currentGunIcon)
+    {
+        if (currentGunImageOverride == null)
+        {
+            return;
+        }
+
+        currentGunImageOverride.sprite = currentGunIcon;
+        currentGunImageOverride.enabled = currentGunIcon != null;
     }
 
     public void ShowPlayerDamageFlash()

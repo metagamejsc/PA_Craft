@@ -7,15 +7,14 @@ public class LunaManager : MonoBehaviour
 
     public int countDrop = 0;
 
-    [LunaPlaygroundField("Count enemy to store")] public int countDropFinal;
-    [LunaPlaygroundField("CountDrop")] public int count;
+    public int countDropFinal;
+    public int count;
+    [LunaPlaygroundField("GunLevel To Show EndCard")] public int gunLevelToShowEndCard = 3;
     [LunaPlaygroundField("Player HP")] public float playerHealth = 100f;
     [LunaPlaygroundField("Enemy HP")] public float enemyHealth = 10f;
-    [LunaPlaygroundField("Boss HP")] public float bossHealth = 30f;
     [LunaPlaygroundField("Enemy Speed")] public float enemySpeed = 2f;
-    [LunaPlaygroundField("Initial Fire Speed")] public float initialShotsPerSecond = 5f;
+    public float initialShotsPerSecond = 5f;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
-    [LunaPlaygroundField("Time hold to Store")] public int timeHoldStore = 10;
     [LunaPlaygroundField("lightIntensity")] public float lightIntensity;
     [LunaPlaygroundField("Color light")] public Color lightColor;
 
@@ -118,11 +117,6 @@ public class LunaManager : MonoBehaviour
         }
 
         GameController gameController = GameController.ins != null ? GameController.ins : FindObjectOfType<GameController>();
-        if (gameController != null)
-        {
-            gameController.bossHealth = bossHealth;
-        }
-
         PlayerChar playerChar = gameController != null && gameController.playerChar != null
             ? gameController.playerChar
             : FindObjectOfType<PlayerChar>();

@@ -54,8 +54,7 @@ public class RocketPickup : MonoBehaviour
             return;
         }
 
-        isCollected = true;
-        GameController.ins?.UnlockRocketWeapon(this);
+        HidePickup();
     }
 
     public void HidePickup()
