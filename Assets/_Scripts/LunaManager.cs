@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -33,6 +34,12 @@ public class LunaManager : MonoBehaviour
     public Button[] lstBtnInstall;
     public GameObject EndCard, EndCardEmpty;
     public GameObject WinCard;
+    [Header("End Card Camera")]
+    public Transform endCardCameraPoint;
+    public float endCardCameraMoveDuration = 1f;
+    public Ease endCardCameraEase = Ease.InOutSine;
+
+    private Sequence endCardCameraSequence;
 
     void Start()
     {
@@ -49,7 +56,7 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         EndCardEmpty.SetActive(false);
         WinCard.SetActive(false);
-        Invoke(nameof(ShowEndCard), timeEndCreative);
+        Invoke(nameof(ShowEndCardAfterCameraMove), timeEndCreative);
     }
 
     public void SetTexture(RawImage raw, Texture tex)
@@ -83,7 +90,7 @@ public class LunaManager : MonoBehaviour
         TryShowStore();
     }
 
-    public void RegisterEnemyKill()
+    public void RegisterEnemyKill(bool checkStore = true)
     {
         if (isCretivePause)
         {
@@ -91,12 +98,39 @@ public class LunaManager : MonoBehaviour
         }
 
         enemyKillCount++;
-        TryShowStore();
+        if (checkStore)
+        {
+            TryShowStore();
+        }
     }
 
     public void CheckClickShowEndCard()
     {
         RegisterPlayerShot();
+    }
+
+    public void ShowEndCardAfterCameraMove()
+    {
+        if (isCretivePause) return;
+
+        isCretivePause = true;
+        endCardCameraSequence?.Kill();
+
+        Camera gameplayCamera = Camera.main;
+        if (gameplayCamera == null || endCardCameraPoint == null)
+        {
+            ShowEndCardEmptyInternal();
+            return;
+        }
+
+        float moveDuration = Mathf.Max(0.01f, endCardCameraMoveDuration);
+        Transform cameraTransform = gameplayCamera.transform;
+        endCardCameraSequence = DOTween.Sequence()
+            .Append(cameraTransform.DOMove(endCardCameraPoint.position, moveDuration))
+            .Join(cameraTransform.DORotateQuaternion(endCardCameraPoint.rotation, moveDuration))
+            .SetEase(endCardCameraEase)
+            .SetUpdate(true)
+            .OnComplete(ShowEndCardEmptyInternal);
     }
 
     void TryShowStore()
@@ -140,6 +174,11 @@ public class LunaManager : MonoBehaviour
     {
         if (isCretivePause) return;
         isCretivePause = true;
+        ShowEndCardEmptyInternal();
+    }
+
+    void ShowEndCardEmptyInternal()
+    {
         EndCardEmpty.SetActive(true);
         Debug.Log("ShowEndCardEmpty");
         Luna.Unity.LifeCycle.GameEnded();

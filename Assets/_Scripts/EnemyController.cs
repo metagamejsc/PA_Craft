@@ -8,6 +8,8 @@ public class EnemyController : MonoBehaviour
     private static readonly List<EnemyController> ActiveEnemies = new List<EnemyController>();
     private static readonly int AttackTriggerHash = Animator.StringToHash("Attack");
     private static readonly int IsMovingBoolHash = Animator.StringToHash("isMoving");
+    private static readonly int IdleStateHash = Animator.StringToHash("idle");
+    private static readonly int WalkStateHash = Animator.StringToHash("walk");
 
     public float moveSpeed = 2f;
     public float attackDistance = 2f;
@@ -50,6 +52,10 @@ public class EnemyController : MonoBehaviour
     private bool isHitReacting;
     private bool hasAttackTrigger;
     private bool hasIsMovingBool;
+    private bool hasIdleState;
+    private bool hasWalkState;
+    private bool hasMovingAnimationValue;
+    private bool lastMovingAnimation;
 
     void OnEnable()
     {
@@ -57,6 +63,8 @@ public class EnemyController : MonoBehaviour
         {
             ActiveEnemies.Add(this);
         }
+
+        hasMovingAnimationValue = false;
     }
 
     void OnDisable()
@@ -68,6 +76,7 @@ public class EnemyController : MonoBehaviour
 
     void Start()
     {
+        ResolveAnimator();
         ResolvePlayer();
         gameplayCamera = Camera.main;
         ApplyLunaSettings();
@@ -389,11 +398,12 @@ public class EnemyController : MonoBehaviour
 
         if (LunaManager.ins != null)
         {
-            LunaManager.ins.RegisterEnemyKill();
+            bool defeatedAllEnemies = !HasOtherAliveEnemies(this) && !EnemySpawner.HasPendingSpawns();
+            LunaManager.ins.RegisterEnemyKill(!defeatedAllEnemies);
 
-            if (!HasOtherAliveEnemies(this) && !EnemySpawner.HasPendingSpawns())
+            if (defeatedAllEnemies)
             {
-                LunaManager.ins.CheckClickShowEndCard();
+                LunaManager.ins.ShowEndCardAfterCameraMove();
             }
         }
 
@@ -475,8 +485,19 @@ public class EnemyController : MonoBehaviour
 
     void CacheAnimatorParameters()
     {
+        ResolveAnimator();
         hasAttackTrigger = HasAnimatorParameter(AttackTriggerHash, AnimatorControllerParameterType.Trigger);
         hasIsMovingBool = HasAnimatorParameter(IsMovingBoolHash, AnimatorControllerParameterType.Bool);
+        hasIdleState = animator != null && animator.HasState(0, IdleStateHash);
+        hasWalkState = animator != null && animator.HasState(0, WalkStateHash);
+    }
+
+    void ResolveAnimator()
+    {
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>(true);
+        }
     }
 
     bool HasAnimatorParameter(int parameterHash, AnimatorControllerParameterType parameterType)
@@ -500,12 +521,33 @@ public class EnemyController : MonoBehaviour
 
     void SetMovingAnimation(bool isMoving)
     {
-        if (animator == null || !hasIsMovingBool)
+        if (animator == null)
         {
             return;
         }
 
-        animator.SetBool(IsMovingBoolHash, isMoving);
+        if (hasIsMovingBool)
+        {
+            animator.SetBool(IsMovingBoolHash, isMoving);
+        }
+
+        if (hasMovingAnimationValue && lastMovingAnimation == isMoving)
+        {
+            return;
+        }
+
+        hasMovingAnimationValue = true;
+        lastMovingAnimation = isMoving;
+
+        int stateHash = isMoving ? WalkStateHash : IdleStateHash;
+        bool hasState = isMoving ? hasWalkState : hasIdleState;
+        if (!hasState)
+        {
+            return;
+        }
+
+        animator.CrossFadeInFixedTime(stateHash, 0.03f, 0, 0f);
+        animator.Update(0f);
     }
 
     bool ShouldWaitForTutorial()
