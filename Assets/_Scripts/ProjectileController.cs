@@ -34,6 +34,7 @@ public class ProjectileController : MonoBehaviour
     private float damage;
     private float lifetimeRemaining;
     private LayerMask collisionMask;
+    private EnemyController targetEnemy;
     private bool isLaunched;
     private bool hasHit;
 
@@ -44,6 +45,7 @@ public class ProjectileController : MonoBehaviour
         float projectileDamage,
         float lifetime,
         LayerMask mask,
+        EnemyController lockedTarget,
         Transform ownerRoot)
     {
         transform.position = spawnPosition;
@@ -53,6 +55,7 @@ public class ProjectileController : MonoBehaviour
         damage = projectileDamage;
         lifetimeRemaining = lifetime > 0f ? lifetime : defaultLifetime;
         collisionMask = mask.value == 0 ? defaultCollisionMask : mask;
+        targetEnemy = lockedTarget;
         isLaunched = true;
         hasHit = false;
         enabled = true;
@@ -122,14 +125,15 @@ public class ProjectileController : MonoBehaviour
         transform.position = hit.point;
 
         EnemyController enemy = hit.collider.GetComponentInParent<EnemyController>();
-        if (enemy != null && !enemy.IsDead())
+        bool isTargetEnemy = enemy != null && (targetEnemy == null || enemy == targetEnemy);
+        if (isTargetEnemy && !enemy.IsDead())
         {
             enemy.TakeDamage(damage, moveDirection);
         }
 
         bool shouldSpawnHitEffect =
             hitEffect != null &&
-            (!suppressDefaultLayerHitEffect || hit.collider.gameObject.layer != DefaultLayer || enemy != null);
+            (!suppressDefaultLayerHitEffect || hit.collider.gameObject.layer != DefaultLayer || isTargetEnemy);
 
         if (shouldSpawnHitEffect)
         {
@@ -146,7 +150,7 @@ public class ProjectileController : MonoBehaviour
             AudioSource.PlayClipAtPoint(hitSound.clip, hit.point, volume);
         }
 
-        if (enemy != null)
+        if (isTargetEnemy)
         {
             DestroyProjectileRoot();
             return;

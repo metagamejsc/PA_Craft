@@ -17,6 +17,12 @@ public class EnemyController : MonoBehaviour
     public float attackHitDelay = 0.3f;
     public int attackDamage = 1;
     public Animator animator;
+    public bool forceAlwaysAnimate = true;
+    public string moveAnimationStateName = "animation_mpiglin_move";
+    public string attackAnimationStateName = "animation_mpiglin_attack";
+    public string deadAnimationStateName = "animation_mpiglin_death";
+    public string animatorBaseLayerName = "Base Layer";
+    public float deathDestroyDelay = 2f;
 
     public Transform player;
     public PlayerController playerController;
@@ -24,6 +30,7 @@ public class EnemyController : MonoBehaviour
     public bool isAttacking = false;
     public bool canAttack = true;
     public bool isCinematicLocked = false;
+    public bool waitForFirstPlayerInput = true;
 
     [Header("Health Settings")]
     public float maxHealth = 3f;
@@ -31,12 +38,23 @@ public class EnemyController : MonoBehaviour
     public Vector2 healthBarSize = new Vector2(140f, 18f);
     public Color healthBarBackgroundColor = new Color(0.08f, 0.08f, 0.08f, 0.9f);
     public Color healthBarFillColor = new Color(0.27f, 0.85f, 0.16f, 1f);
+    public Slider healthSlider;
+    public bool hideHealthSliderOnDeath = false;
 
     [Header("Hit Reaction")]
     public float rotateSpeed = 8f;
     public float hitJumpHeight = 0.45f;
     public float hitJumpDuration = 0.3f;
     public float hitPushbackDistance = 1.1f;
+
+    [Header("Audio")]
+    public AudioClip attackSound;
+    public AudioClip takeDamageSound;
+    public AudioClip deadSound;
+    public AudioSource audioSource;
+    public float attackSoundVolume = 1f;
+    public float takeDamageSoundVolume = 1f;
+    public float deadSoundVolume = 1f;
 
     [Header("Death VFX")]
     public GameObject bloodParticleObject;
@@ -49,11 +67,14 @@ public class EnemyController : MonoBehaviour
     private Canvas healthCanvas;
     private RectTransform healthBarFillRect;
     private Tween hitTween;
+    private Tween destroyTween;
     private bool isHitReacting;
     private bool hasAttackTrigger;
     private bool hasDeadTrigger;
     private bool hasIdleTrigger;
     private bool hasIsMovingBool;
+    private string currentAnimationStateName;
+    private bool hasGameplayStarted;
 
     void OnEnable()
     {
@@ -67,6 +88,10 @@ public class EnemyController : MonoBehaviour
     {
         ActiveEnemies.Remove(this);
         hitTween?.Kill();
+        if (!isDead)
+        {
+            destroyTween?.Kill();
+        }
     }
 
     void Start()
@@ -74,10 +99,14 @@ public class EnemyController : MonoBehaviour
         ResolvePlayer();
         gameplayCamera = Camera.main;
         ApplyLunaSettings();
+        UpdateHealthSlider();
+        ConfigureAnimatorForRuntime();
         CacheAnimatorParameters();
+        hasGameplayStarted = !waitForFirstPlayerInput;
         if (!isDead)
         {
             CreateHealthBar();
+            PlayMoveAnimation(true);
         }
     }
 
@@ -95,6 +124,13 @@ public class EnemyController : MonoBehaviour
 
         ResolvePlayer();
         UpdateHealthBarTransform();
+
+        if (!hasGameplayStarted)
+        {
+            hasGameplayStarted = HasPrimaryInputStarted();
+            SetMovingAnimation(false);
+            return;
+        }
 
         if (isCinematicLocked)
         {
@@ -153,10 +189,9 @@ public class EnemyController : MonoBehaviour
             RotateTowards(attackDirection);
         }
 
-        if (animator != null && hasAttackTrigger)
-        {
-            animator.SetTrigger(AttackTriggerHash);
-        }
+        PlayAttackAnimation();
+
+        PlayEnemySound(attackSound, attackSoundVolume);
 
         yield return new WaitForSeconds(attackHitDelay);
 
@@ -178,6 +213,10 @@ public class EnemyController : MonoBehaviour
 
         isAttacking = false;
         canAttack = true;
+        if (!isDead)
+        {
+            PlayMoveAnimation();
+        }
     }
 
     void ResolvePlayer()
@@ -240,6 +279,7 @@ public class EnemyController : MonoBehaviour
         fillImage.color = healthBarFillColor;
 
         UpdateHealthBarFill();
+        UpdateHealthSlider();
     }
 
     void ApplyLunaSettings()
@@ -285,6 +325,18 @@ public class EnemyController : MonoBehaviour
         healthBarFillRect.localScale = new Vector3(normalizedHealth, 1f, 1f);
     }
 
+    void UpdateHealthSlider()
+    {
+        if (healthSlider == null)
+        {
+            return;
+        }
+
+        healthSlider.maxValue = maxHealth;
+        healthSlider.minValue = 0f;
+        healthSlider.value = Mathf.Clamp(currentHealth, 0f, maxHealth);
+    }
+
     void PlayHitReaction(Vector3 hitDirection)
     {
         hitTween?.Kill();
@@ -320,12 +372,16 @@ public class EnemyController : MonoBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         UpdateHealthBarFill();
-        PlayHitReaction(hitDirection);
+        UpdateHealthSlider();
 
         if (currentHealth <= 0f)
         {
             Die();
+            return;
         }
+
+        PlayEnemySound(takeDamageSound, takeDamageSoundVolume);
+        PlayHitReaction(hitDirection);
     }
 
     public Vector3 GetAimPoint()
@@ -345,7 +401,7 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        ForceDeadVisual("metarig|Fall");
+        ForceDeadVisual(deadAnimationStateName);
         if (LunaManager.ins != null)
         {
             if (!HasOtherAliveEnemies(this))
@@ -354,7 +410,7 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        Destroy(gameObject, 2f);
+        ScheduleDestroy();
     }
 
     public void SetCinematicLocked(bool locked)
@@ -375,11 +431,11 @@ public class EnemyController : MonoBehaviour
 
         if (animator != null && hasIdleTrigger)
         {
-            animator.SetTrigger(IdleTriggerHash);
+            SetAnimatorTrigger(IdleTriggerHash);
         }
     }
 
-    public void ForceDeadVisual(string deadAnimationStateName = "metarig|Fall")
+    public void ForceDeadVisual(string deadAnimationStateName = "")
     {
         isDead = true;
         isCinematicLocked = false;
@@ -395,8 +451,31 @@ public class EnemyController : MonoBehaviour
             healthCanvas.gameObject.SetActive(false);
         }
 
+        if (healthSlider != null && hideHealthSliderOnDeath)
+        {
+            healthSlider.gameObject.SetActive(false);
+        }
+
+        PlayEnemySound(deadSound, deadSoundVolume);
         ActivateBloodParticles();
         PlayDeadAnimation(deadAnimationStateName);
+    }
+
+    void PlayEnemySound(AudioClip clip, float volume)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        float finalVolume = Mathf.Clamp01(volume);
+        if (audioSource != null)
+        {
+            audioSource.PlayOneShot(clip, finalVolume);
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(clip, transform.position, finalVolume);
     }
 
     public static EnemyController GetClosestAlive(Vector3 fromPosition)
@@ -474,10 +553,36 @@ public class EnemyController : MonoBehaviour
 
     void CacheAnimatorParameters()
     {
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
+
         hasAttackTrigger = HasAnimatorParameter(AttackTriggerHash, AnimatorControllerParameterType.Trigger);
         hasDeadTrigger = HasAnimatorParameter(DeadTriggerHash, AnimatorControllerParameterType.Trigger);
         hasIdleTrigger = HasAnimatorParameter(IdleTriggerHash, AnimatorControllerParameterType.Trigger);
         hasIsMovingBool = HasAnimatorParameter(IsMovingBoolHash, AnimatorControllerParameterType.Bool);
+    }
+
+    void ConfigureAnimatorForRuntime()
+    {
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
+
+        if (animator == null)
+        {
+            return;
+        }
+
+        if (forceAlwaysAnimate)
+        {
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        }
+
+        animator.Rebind();
+        animator.Update(0f);
     }
 
     bool HasAnimatorParameter(int parameterHash, AnimatorControllerParameterType parameterType)
@@ -501,31 +606,119 @@ public class EnemyController : MonoBehaviour
 
     void SetMovingAnimation(bool isMoving)
     {
-        if (animator == null || !hasIsMovingBool)
+        if (animator == null)
         {
             return;
         }
 
-        //animator.SetBool(IsMovingBoolHash, isMoving);
+        if (hasIsMovingBool)
+        {
+            animator.SetBool(IsMovingBoolHash, isMoving);
+            return;
+        }
+
+        if (isMoving)
+        {
+            PlayMoveAnimation();
+        }
     }
 
-    void PlayDeadAnimation(string deadAnimationStateName)
+    void ScheduleDestroy()
+    {
+        float delay = Mathf.Max(0f, deathDestroyDelay);
+        destroyTween?.Kill();
+        destroyTween = DOVirtual.DelayedCall(delay, () =>
+            {
+                if (this != null && gameObject != null)
+                {
+                    Destroy(gameObject);
+                }
+            })
+            .SetUpdate(true);
+    }
+
+    void PlayMoveAnimation(bool restart = false)
+    {
+        PlayAnimationState(moveAnimationStateName, restart);
+    }
+
+    void PlayAttackAnimation()
+    {
+        if (!string.IsNullOrEmpty(attackAnimationStateName))
+        {
+            PlayAnimationState(attackAnimationStateName, true);
+            return;
+        }
+
+        if (hasAttackTrigger)
+        {
+            SetAnimatorTrigger(AttackTriggerHash);
+        }
+    }
+
+    void PlayDeadAnimation(string targetDeadAnimationStateName)
     {
         if (animator == null)
         {
             return;
         }
 
-        if (!string.IsNullOrEmpty(deadAnimationStateName))
+        if (!string.IsNullOrEmpty(targetDeadAnimationStateName))
         {
-            animator.Play(deadAnimationStateName);
+            PlayAnimationState(targetDeadAnimationStateName, true);
             return;
         }
 
         if (hasDeadTrigger)
         {
-            animator.SetTrigger(DeadTriggerHash);
+            SetAnimatorTrigger(DeadTriggerHash);
         }
+    }
+
+    void PlayAnimationState(string stateName, bool restart = false)
+    {
+        if (animator == null || string.IsNullOrEmpty(stateName))
+        {
+            return;
+        }
+
+        if (!restart && currentAnimationStateName == stateName)
+        {
+            return;
+        }
+
+        currentAnimationStateName = stateName;
+        string fullStateName = string.IsNullOrEmpty(animatorBaseLayerName)
+            ? stateName
+            : animatorBaseLayerName + "." + stateName;
+
+        animator.Play(fullStateName, 0, 0f);
+        animator.Update(0f);
+    }
+
+    void SetAnimatorTrigger(int triggerHash)
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        if (hasAttackTrigger)
+        {
+            animator.ResetTrigger(AttackTriggerHash);
+        }
+
+        if (hasDeadTrigger)
+        {
+            animator.ResetTrigger(DeadTriggerHash);
+        }
+
+        if (hasIdleTrigger)
+        {
+            animator.ResetTrigger(IdleTriggerHash);
+        }
+
+        animator.SetTrigger(triggerHash);
     }
 
     void ActivateBloodParticles()
@@ -609,5 +802,16 @@ public class EnemyController : MonoBehaviour
 
         Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+    }
+
+    bool HasPrimaryInputStarted()
+    {
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            return touch.phase == TouchPhase.Began;
+        }
+
+        return Input.GetMouseButtonDown(0);
     }
 }

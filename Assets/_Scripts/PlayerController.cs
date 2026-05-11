@@ -2,12 +2,17 @@ using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     public Animator animator;
     public DOTweenAnimation effectDamageEnemy;
     public RectTransform aimReticle;
+
+    [Header("Bow States")]
+    public GameObject[] bowStateObjects = new GameObject[4];
+    public float bowPullDuration = 0.35f;
 
     [Header("Projectile")]
     public GameObject projectilePrefab;
@@ -17,6 +22,8 @@ public class PlayerController : MonoBehaviour
     public float projectileLifetime = 5f;
 
     [Header("Combat Settings")]
+    public EnemyController targetEnemy;
+    public bool autoLockTargetEnemy = true;
     public float attackCooldown = 1f;
     public float shotRange = 30f;
     public float shotDamage = 1f;
@@ -38,11 +45,20 @@ public class PlayerController : MonoBehaviour
     public float recoilYaw = 0.35f;
     public float recoilRecoverSpeed = 10f;
 
+    [Header("Death VFX")]
+    public GameObject bloodParticleObject;
+    public bool playBloodParticlesOnDeath = true;
+
+    [Header("Health UI")]
+    public Image[] heartImages;
+
     private float currentHealth;
     private bool isDead;
     private bool canAttack = true;
     private bool isPointerTracking;
     private bool hasLastMousePosition;
+    private float bowPullStartTime;
+    private int activeBowStateIndex = -1;
     private Camera gameplayCamera;
     private float defaultCameraFieldOfView;
     private Quaternion defaultCameraRotation;
@@ -78,6 +94,9 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetTrigger("Idle");
         }
+
+        SetBowState(0);
+        UpdateHeartUI();
     }
 
     void Update()
@@ -112,7 +131,7 @@ public class PlayerController : MonoBehaviour
         float timeBetweenShots = GetTimeBetweenShots();
 
         Ray aimRay = GetAimRay();
-        EnemyController lockedEnemy = enemy;
+        EnemyController lockedEnemy = enemy != null && !enemy.IsDead() ? enemy : null;
         FaceTarget(lockedEnemy);
 
         if (animator != null)
@@ -133,10 +152,10 @@ public class PlayerController : MonoBehaviour
         {
             SpawnProjectile(aimRay, lockedEnemy);
         }
-        else if (lockedEnemy != null && !lockedEnemy.IsDead())
+        else
         {
-            float distance = Vector3.Distance(GetShotOrigin(), lockedEnemy.GetAimPoint());
-            if (distance <= shotRange)
+            EnemyController hitEnemy = lockedEnemy != null ? lockedEnemy : FindEnemyFromAimRay(aimRay);
+            if (hitEnemy != null && !hitEnemy.IsDead())
             {
                 if (effectDamageEnemy != null)
                 {
@@ -144,7 +163,7 @@ public class PlayerController : MonoBehaviour
                     effectDamageEnemy.DORestart();
                 }
 
-                lockedEnemy.TakeDamage(shotDamage, aimRay.direction);
+                hitEnemy.TakeDamage(shotDamage, aimRay.direction);
             }
         }
 
@@ -160,6 +179,7 @@ public class PlayerController : MonoBehaviour
         }
 
         canAttack = true;
+        SetBowState(0);
     }
 
     public void TakeDamage(int amount)
@@ -170,6 +190,7 @@ public class PlayerController : MonoBehaviour
         }
 
         currentHealth -= amount;
+        UpdateHeartUI();
         if (currentHealth <= 0f)
         {
             Die();
@@ -184,6 +205,7 @@ public class PlayerController : MonoBehaviour
         }
 
         isDead = true;
+        ActivateBloodParticles();
         if (LunaManager.ins != null)
         {
             LunaManager.ins.ShowEndCard();
@@ -194,6 +216,47 @@ public class PlayerController : MonoBehaviour
         if (animator != null)
         {
             animator.SetTrigger("Dead");
+        }
+    }
+
+    void ActivateBloodParticles()
+    {
+        if (bloodParticleObject == null)
+        {
+            return;
+        }
+
+        bloodParticleObject.SetActive(true);
+
+        if (!playBloodParticlesOnDeath)
+        {
+            return;
+        }
+
+        ParticleSystem[] particles = bloodParticleObject.GetComponentsInChildren<ParticleSystem>(true);
+        for (int i = 0; i < particles.Length; i++)
+        {
+            if (particles[i] != null)
+            {
+                particles[i].Play(true);
+            }
+        }
+    }
+
+    void UpdateHeartUI()
+    {
+        if (heartImages == null || heartImages.Length == 0)
+        {
+            return;
+        }
+
+        int visibleHeartCount = Mathf.Clamp(Mathf.CeilToInt(Mathf.Max(0f, currentHealth)), 0, heartImages.Length);
+        for (int i = 0; i < heartImages.Length; i++)
+        {
+            if (heartImages[i] != null)
+            {
+                heartImages[i].gameObject.SetActive(i < visibleHeartCount);
+            }
         }
     }
 
@@ -220,6 +283,8 @@ public class PlayerController : MonoBehaviour
         {
             isPointerTracking = true;
             hasLastMousePosition = false;
+            bowPullStartTime = Time.time;
+            SetBowState(GetBowPullStateIndex(0f));
 
             if (AudioManager.ins != null)
             {
@@ -230,6 +295,7 @@ public class PlayerController : MonoBehaviour
         if (isPointerTracking && IsPrimaryInputHeld())
         {
             ApplyOrbitInput(GetPrimaryLookDelta());
+            UpdateBowPullState();
         }
 
         if (!isPointerTracking)
@@ -246,7 +312,12 @@ public class PlayerController : MonoBehaviour
 
             if (canAttack)
             {
-                StartCoroutine(AttackEnemy(FindEnemyFromAimRay(GetAimRay())));
+                SetBowState(0);
+                StartCoroutine(AttackEnemy(null));
+            }
+            else
+            {
+                SetBowState(0);
             }
 
             isPointerTracking = false;
@@ -325,6 +396,7 @@ public class PlayerController : MonoBehaviour
 
         isPointerTracking = false;
         hasLastMousePosition = false;
+        SetBowState(0);
         recoilPitchOffset = 0f;
         recoilYawOffset = 0f;
         targetYaw = defaultYaw;
@@ -356,6 +428,59 @@ public class PlayerController : MonoBehaviour
         targetPitch = Mathf.Clamp(targetPitch - lookDelta.y, pitchClamp.x, pitchClamp.y);
     }
 
+    void UpdateBowPullState()
+    {
+        float pullProgress = bowPullDuration <= 0f
+            ? 1f
+            : Mathf.Clamp01((Time.time - bowPullStartTime) / bowPullDuration);
+
+        SetBowState(GetBowPullStateIndex(pullProgress));
+    }
+
+    int GetBowPullStateIndex(float pullProgress)
+    {
+        int lastStateIndex = GetLastBowStateIndex();
+        if (lastStateIndex <= 0)
+        {
+            return 0;
+        }
+
+        return Mathf.Clamp(1 + Mathf.FloorToInt(pullProgress * lastStateIndex), 1, lastStateIndex);
+    }
+
+    int GetLastBowStateIndex()
+    {
+        if (bowStateObjects == null || bowStateObjects.Length == 0)
+        {
+            return 0;
+        }
+
+        return bowStateObjects.Length - 1;
+    }
+
+    void SetBowState(int stateIndex)
+    {
+        if (bowStateObjects == null || bowStateObjects.Length == 0)
+        {
+            return;
+        }
+
+        stateIndex = Mathf.Clamp(stateIndex, 0, bowStateObjects.Length - 1);
+        if (activeBowStateIndex == stateIndex)
+        {
+            return;
+        }
+
+        activeBowStateIndex = stateIndex;
+        for (int i = 0; i < bowStateObjects.Length; i++)
+        {
+            if (bowStateObjects[i] != null)
+            {
+                bowStateObjects[i].SetActive(i == stateIndex);
+            }
+        }
+    }
+
     void ApplyRecoil()
     {
         recoilPitchOffset += recoilPitch;
@@ -366,11 +491,6 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 projectileDirection = aimRay.direction;
         Vector3 spawnPosition = GetProjectileSpawnPosition(projectileDirection);
-
-        if (targetEnemy != null && !targetEnemy.IsDead())
-        {
-            projectileDirection = (targetEnemy.GetAimPoint() - spawnPosition).normalized;
-        }
 
         GameObject projectileObject = Instantiate(
             projectilePrefab,
@@ -387,6 +507,7 @@ public class PlayerController : MonoBehaviour
                 shotDamage,
                 projectileLifetime,
                 shotMask,
+                targetEnemy,
                 transform.root);
         }
     }
@@ -439,8 +560,23 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+        return null;
+    }
 
-        return EnemyController.GetClosestAliveToRay(ray, aimAssistRadius, shotRange);
+    EnemyController GetTargetEnemy()
+    {
+        if (targetEnemy != null && !targetEnemy.IsDead())
+        {
+            return targetEnemy;
+        }
+
+        if (!autoLockTargetEnemy)
+        {
+            return null;
+        }
+
+        targetEnemy = FindEnemyFromAimRay(GetAimRay());
+        return targetEnemy;
     }
 
     void FaceTarget(EnemyController enemy)
