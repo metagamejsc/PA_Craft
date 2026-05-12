@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class BlockSelectLoginFlow : MonoBehaviour
 {
+    public static event System.Action OnFlowCompleted;
+
     [Header("References")]
     [SerializeField] private TutorialBuildBlock legacyTutorial;
     [SerializeField] private GameObject blockSelectPanel;
@@ -23,6 +25,7 @@ public class BlockSelectLoginFlow : MonoBehaviour
     [SerializeField] private int guidedSelectionCount = 3;
     [SerializeField] private Vector2 handOffset = new Vector2(56f, -44f);
     [SerializeField] private float handMoveDuration = 0.25f;
+    [SerializeField] private bool showEndCardOnComplete = false;
 
     [Header("Feedback")]
     [SerializeField] private float wrongFlashDuration = 0.12f;
@@ -367,8 +370,9 @@ public class BlockSelectLoginFlow : MonoBehaviour
     private void CompleteFlow()
     {
         CloseBlockSelect();
+        OnFlowCompleted?.Invoke();
 
-        if (LunaManager.ins != null)
+        if (showEndCardOnComplete && LunaManager.ins != null)
         {
             LunaManager.ins.ShowEndCard();
         }

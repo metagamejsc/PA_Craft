@@ -6,11 +6,16 @@ using UnityEngine.UI;
 
 public class TutorialBuildBlock : MonoBehaviour
 {
+    public static event Action OnTutorialCompleted;
+
     public static TutorialBuildBlock ins;
     public int stepIndex;
     public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
+    public bool IsTutorialCompleted=>stepIndex>=lstStep.Count;
     //public Button btnHideTutorial;
+
+    public bool IsCompleted => lstStep == null || stepIndex >= lstStep.Count;
 
     private void Awake()
     {
@@ -42,8 +47,7 @@ public class TutorialBuildBlock : MonoBehaviour
 
     public void ShowStep()
     {
-        
-        if (lstStep.Count>0)
+        if (!IsCompleted)
         {
             lstStep[stepIndex].SetActive(true);
         }
@@ -51,11 +55,21 @@ public class TutorialBuildBlock : MonoBehaviour
     }
     public void HideStep()
     {
+        if (IsCompleted)
+        {
+            OnTutorialCompleted?.Invoke();
+            return;
+        }
+
         lstStep[stepIndex].SetActive(false);
         stepIndex++;
-        if (stepIndex<lstStep.Count)
+        if (!IsCompleted)
         {
             ShowStep();
+        }
+        else
+        {
+            OnTutorialCompleted?.Invoke();
         }
         /*if (stepIndex==lstStep.Count-1)
         {

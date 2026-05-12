@@ -7,6 +7,8 @@ using Random = UnityEngine.Random;
 
 public class LunaManager : MonoBehaviour
 {
+    public static event Action OnEndCardShown;
+
     public static LunaManager ins;
     public int countDrop=0;
     public int countDropFinal;
@@ -27,7 +29,7 @@ public class LunaManager : MonoBehaviour
     public Button[] lstBtnInstall;
     public GameObject EndCard,EndCardEmpty;
     public GameObject WinCard;
-    
+    [LunaPlaygroundField("Số block TNT kích hoạt để bay ra store")]public int passedTntCount=5;
 
 
     // Start is called before the first frame update
@@ -72,6 +74,7 @@ public class LunaManager : MonoBehaviour
     {
         if (isCretivePause) return;
         isCretivePause = true;
+        OnEndCardShown?.Invoke();
         //AudioManager.ins.PlayMusicLose();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
@@ -81,6 +84,7 @@ public class LunaManager : MonoBehaviour
     {
         if (isCretivePause) return;
         isCretivePause = true;
+        OnEndCardShown?.Invoke();
         //AudioManager.ins.PlayMusicLose();
         EndCardEmpty.SetActive(true);
         Debug.Log("ShowEndCardEmpty");

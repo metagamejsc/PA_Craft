@@ -64,6 +64,16 @@ public class PlayerChar : BaseCharacter
             MouseLook.ins.onMouseUpShoot -= OnMouseUpShoot;
     }
 
+    private void OnEnable()
+    {
+        LunaManager.OnEndCardShown += HandleEndCardShown;
+    }
+
+    private void OnDisable()
+    {
+        LunaManager.OnEndCardShown -= HandleEndCardShown;
+    }
+
     void OnMouseUpShoot()
     {
         if (isDead) return;
@@ -95,9 +105,6 @@ public class PlayerChar : BaseCharacter
             animator.SetBool(IsJumpingParam, false);
             return;
         }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-            Jump();
 
         /*if (Input.GetMouseButtonDown(0))
             Shoot();*/
@@ -268,6 +275,16 @@ public class PlayerChar : BaseCharacter
         }
     }
 
+    private void HandleEndCardShown()
+    {
+        jumpQueued = false;
+        jumpGroundIgnoreTimer = 0f;
+        isGrounded = true;
+        rigidbody.velocity = Vector3.zero;
+        animator.SetBool(IsMovingParam, false);
+        animator.SetBool(IsJumpingParam, false);
+    }
+
     private void ConsumeJump()
     {
         if (!jumpQueued)
@@ -292,8 +309,6 @@ public class PlayerChar : BaseCharacter
 
     private void UpdateGroundedState()
     {
-        bool wasGrounded = isGrounded;
-
         if (jumpGroundIgnoreTimer > 0f)
         {
             jumpGroundIgnoreTimer -= Time.fixedDeltaTime;
@@ -304,10 +319,7 @@ public class PlayerChar : BaseCharacter
             isGrounded = CheckGrounded();
         }
 
-        if (isGrounded != wasGrounded)
-        {
-            animator.SetBool(IsJumpingParam, !isGrounded);
-        }
+        animator.SetBool(IsJumpingParam, !isGrounded);
     }
 
     private bool CheckGrounded()

@@ -78,6 +78,22 @@ public class AudioManager : MonoBehaviour
     {
         sound.PlayOneShot(bombSound,1);
     }
+
+    public void PlaySoundXixi()
+    {
+        PlaySoundBomb();
+    }
+
+    public void PlaySoundXixi(Vector3 position)
+    {
+        if (bombSound == null)
+        {
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(bombSound, position, sound != null ? sound.volume : 1f);
+    }
+
     public void PlaySoundBuild()
     {
         sound.PlayOneShot(buildSound,1);
