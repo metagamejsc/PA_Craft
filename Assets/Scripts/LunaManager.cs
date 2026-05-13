@@ -12,8 +12,11 @@ public class LunaManager : MonoBehaviour
     public int countDrop=0;
     /*[LunaPlaygroundField("CountDrop")] */public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    /*[LunaPlaygroundField("NoiseIntensity")] */public float noiseIntensity=10;
-    /*[LunaPlaygroundField("LandNoiseScale")] */public float landNoiseScale=0.8f;
+
+    [LunaPlaygroundField("Light Intensity")] public float LightIntensity = 1;
+    [LunaPlaygroundField("Light Color")] public Color LightColor = Color.white;
+
+    public Light light;
     public bool isCretivePause;
     public float timeActive = 0;
     public int numberActive = 0;
@@ -44,7 +47,8 @@ public class LunaManager : MonoBehaviour
             doTweenAnimations[i].enabled = false;
         }*/
         //StartCoroutine(IESelectBuilding());
-        
+        light.intensity = LightIntensity;
+        light.color = LightColor;
     }
 
     public void CheckClickShowEndCard()
