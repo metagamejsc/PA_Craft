@@ -19156,6 +19156,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1844688706}
   - component: {fileID: 1844688705}
+  - component: {fileID: 1844688707}
   m_Layer: 0
   m_Name: GameObject (1)
   m_TagString: Untagged
@@ -19184,6 +19185,30 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 100, y: 1, z: 100}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1844688707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1844688704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f0b2d6b2c9f4a5489632a7d8f5a6c31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  areaCollider: {fileID: 1844688705}
+  autoFindVillagers: 1
+  villagerControllerName: Villager
+  villagers: []
+  moveSpeed: 1.2
+  rotationSpeed: 8
+  arriveDistance: 0.1
+  moveTimeRange: {x: 2, y: 4}
+  waitTimeRange: {x: 0.3, y: 1.2}
+  forceAlwaysAnimate: 1
+  movingAnimationSpeed: 1
+  idleAnimationSpeed: 0
 --- !u!4 &1844688706
 Transform:
   m_ObjectHideFlags: 0

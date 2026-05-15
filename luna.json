@@ -2,7 +2,7 @@
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29023,
-    "creativeName": "UAC_V39_ThuLH_ToiNV",
+    "creativeName": "UAC_V41_ThuLH_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -174,9 +174,11 @@
             ]
         },
         "scenes": [
+            "Assets/SampleScene.unity"
+        ],
+        "disabledScenes": [
             "Assets/Scenes/SampleScene.unity"
         ],
-        "disabledScenes": [],
         "startupScene": 0,
         "packages": {
             "default": {
@@ -3289,10 +3291,6 @@
             },
             {
                 "name": "UnityEngine.Profiling.Profiler",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.PropertyHelper",
                 "excluded": true
             },
             {
@@ -8242,6 +8240,10 @@
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.Shader",
                 "excluded": false
+            },
+            {
+                "name": "ButtonObjectRevealGroup.RevealItem",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -11933,11 +11935,11 @@
                     },
                     {
                         "name": "IncreaseCapacity",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetCapacity",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ContainsAllElements",
@@ -12087,7 +12089,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -21851,7 +21853,7 @@
                     },
                     {
                         "name": "bounds#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isTrigger#get",
@@ -24001,11 +24003,11 @@
                     },
                     {
                         "name": "alpha#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "interactable#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "interactable#set",
@@ -33236,6 +33238,14 @@
                     {
                         "name": "MoveHandToPoint",
                         "excluded": false
+                    },
+                    {
+                        "name": "ResetHandPointer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HideHandPointer",
+                        "excluded": false
                     }
                 ]
             },
@@ -33957,7 +33967,7 @@
                     },
                     {
                         "name": "speed#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "angularVelocity#get",
@@ -35024,314 +35034,6 @@
                     {
                         "name": "PlaySoundEvent",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "EnemyController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Die",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetClosestAlive",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetClosestAliveToRay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HasOtherAliveEnemies",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ResolvePlayer",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CreateHealthBar",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateHealthBarTransform",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateHealthBarFill",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayHitReaction",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetAimPoint",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsDead",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AttackPlayer",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyLunaSettings",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CacheAnimatorParameters",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HasAnimatorParameter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetMovingAnimation",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetAttackDirection",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RotateTowards",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetCinematicLocked",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ForceDeadVisual",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayDeadAnimation",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ActivateBloodParticles",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetBloodParticleObject",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateHealthSlider",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayEnemySound",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ConfigureAnimatorForRuntime",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetAnimatorTrigger",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlayMoveAnimation",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayAttackAnimation",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayAnimationState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DestroyAfterDelay",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "PlayerController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AttackEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Die",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsDead",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetCombatTargetPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleAimInput",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateAimCamera",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CacheCameraState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RestoreDefaultView",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyOrbitInput",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyRecoil",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SpawnProjectile",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetAimRay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetAimScreenPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FindEnemyFromAimRay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FaceTarget",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetProjectileSpawnPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetShotOrigin",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetOrbitPivotPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsAttachedToGameplayCamera",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetPrimaryLookDelta",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsPrimaryInputStarted",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsPrimaryInputHeld",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsPrimaryInputReleased",
-                        "excluded": false
-                    },
-                    {
-                        "name": "NormalizeAngle",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDrawGizmosSelected",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetTimeBetweenShots",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ActivateBloodParticles",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateBowPullState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetBowPullStateIndex",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetLastBowStateIndex",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetBowState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetTargetEnemy",
-                        "excluded": true
                     }
                 ]
             },
@@ -37595,7 +37297,7 @@
                     },
                     {
                         "name": "PlaySound",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlaySoundMerge",
@@ -37734,74 +37436,6 @@
                     {
                         "name": "ApplyTween",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "ProjectileController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Launch",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleHit",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CacheOwnedComponents",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetVisualState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DespawnProjectile",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DestroyProjectileRoot",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DestroySpawnedHitEffect",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "ProjectileController.ProjectileSoundData",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "getDefaultValue",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "getHashCode",
-                        "excluded": true
-                    },
-                    {
-                        "name": "equals",
-                        "excluded": true
-                    },
-                    {
-                        "name": "$clone",
-                        "excluded": true
                     }
                 ]
             },
@@ -38015,6 +37649,122 @@
             },
             {
                 "className": "UnityEngine.UI.SetPropertyUtility",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "SetColor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetStruct",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetClass",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "VillagerWanderArea",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindVillagersInScene",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BuildAgents",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateAgent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BeginMoving",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BeginWaiting",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetRandomPointInsideArea",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ClampInsideArea",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetAnimationSpeed",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDrawGizmosSelected",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "VillagerWanderArea.VillagerAgent",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "ButtonObjectRevealGroup",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RevealItemByIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AllItemsClicked",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayClickSound",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.PropertyHelper",
                 "staticMethods": [],
                 "instanceMethods": [
                     {

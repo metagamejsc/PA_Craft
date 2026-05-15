@@ -1,32 +1,75 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class HandPointerController : MonoBehaviour
 {
-    public RectTransform handPointer; // Đối tượng hình bàn tay
-    public Transform inventoryPanel;  // Panel chứa các ô inventory
-    public float moveDuration = 0.5f; // Thời gian di chuyển giữa các ô
-    public float delayBetweenMoves = 1f; // Khoảng cách giữa các lần di chuyển
-    public bool enableSlotScaling = true; // Bật/tắt scale khi di chuyển
+    public RectTransform handPointer;
+    public Transform inventoryPanel;
+    public float moveDuration = 0.5f;
+    public float delayBetweenMoves = 1f;
+    public bool enableSlotScaling = true;
 
-    public RectTransform[] slots; // Mảng các ô inventory
+    public RectTransform[] slots;
     public GameObject[] effect;
-    public float scaleFactor = 1.1f; // Hệ số scale khi di chuyển đến ô
+    public float scaleFactor = 1.1f;
 
-    private int currentSlotIndex = 0; // Theo dõi slot hiện tại
+    private int currentSlotIndex = 0;
+    private Coroutine moveCoroutine;
 
-    void Start()
+    private void Start()
     {
-        // Bắt đầu từ slot đầu tiên
-        handPointer.position = slots[0].position;
+        ResetHandPointer();
+    }
 
-        if (enableSlotScaling)
+    public void ResetHandPointer()
+    {
+        if (moveCoroutine != null)
         {
-            slots[0].localScale = Vector3.one * scaleFactor;
+            StopCoroutine(moveCoroutine);
+            moveCoroutine = null;
         }
 
-        StartCoroutine(MoveHandToSlots());
+        if (handPointer == null || slots == null || slots.Length == 0 || slots[0] == null)
+            return;
+
+        currentSlotIndex = 0;
+        handPointer.gameObject.SetActive(true);
+        handPointer.position = slots[0].position;
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i] != null)
+                slots[i].localScale = enableSlotScaling && i == 0 ? Vector3.one * scaleFactor : Vector3.one;
+
+            if (effect != null && effect.Length > i && effect[i] != null)
+                effect[i].SetActive(i == 0);
+        }
+
+        moveCoroutine = StartCoroutine(MoveHandToSlots());
+    }
+
+    public void HideHandPointer()
+    {
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+            moveCoroutine = null;
+        }
+
+        if (slots != null)
+        {
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (slots[i] != null)
+                    slots[i].localScale = Vector3.one;
+
+                if (effect != null && effect.Length > i && effect[i] != null)
+                    effect[i].SetActive(false);
+            }
+        }
+
+        if (handPointer != null)
+            handPointer.gameObject.SetActive(false);
     }
 
     private IEnumerator MoveHandToSlots()
@@ -38,7 +81,6 @@ public class HandPointerController : MonoBehaviour
         {
             int nextSlotIndex = (currentSlotIndex + 1) % slots.Length;
 
-            // Scale và tắt effect của slot hiện tại
             if (enableSlotScaling)
             {
                 slots[currentSlotIndex].localScale = Vector3.one;
@@ -46,13 +88,11 @@ public class HandPointerController : MonoBehaviour
 
             if (effect != null && effect.Length > currentSlotIndex && effect[currentSlotIndex] != null)
             {
-                effect[currentSlotIndex].SetActive(false); // ❌ Tắt effect cũ
+                effect[currentSlotIndex].SetActive(false);
             }
 
-            // Di chuyển tay tới slot mới
             yield return MoveHandToPoint(slots[nextSlotIndex]);
 
-            // Scale và bật effect cho slot mới
             if (enableSlotScaling)
             {
                 slots[nextSlotIndex].localScale = Vector3.one * scaleFactor;
@@ -60,7 +100,7 @@ public class HandPointerController : MonoBehaviour
 
             if (effect != null && effect.Length > nextSlotIndex && effect[nextSlotIndex] != null)
             {
-                effect[nextSlotIndex].SetActive(true); // ✅ Bật effect mới
+                effect[nextSlotIndex].SetActive(true);
             }
 
             currentSlotIndex = nextSlotIndex;
@@ -69,9 +109,7 @@ public class HandPointerController : MonoBehaviour
         }
     }
 
-
-
-    IEnumerator MoveHandToPoint(RectTransform target)
+    private IEnumerator MoveHandToPoint(RectTransform target)
     {
         Vector3 startPosition = handPointer.position;
         Vector3 endPosition = target.position;

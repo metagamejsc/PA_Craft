@@ -9,15 +9,10 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop = 0;
-    [LunaPlaygroundField("Shots Before Store")] public int countDropFinal = 20;
+    public int countDropFinal = 20;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
-    [LunaPlaygroundField("Time Between Bow Shots")] public float timeDelayAttackPlayer = 0.8f;
-    [LunaPlaygroundField("Player Health")] public int healthPlayer = 1;
-    [LunaPlaygroundField("Enemy Health")] public float enemyHealth = 3f;
-    [LunaPlaygroundField("Enemy Move Speed")] public float enemyMoveSpeed = 2f;
-    [LunaPlaygroundField("Enemy Pushback Distance")] public float enemyPushbackDistance = 1.1f;
-
+   
     [LunaPlaygroundField("Light Intensity")] public float lightIntensity = 1f;
     [LunaPlaygroundField("Light Color")] public Color colorLight = Color.white;
     public Light directionalLight;
