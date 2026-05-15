@@ -37,6 +37,19 @@ public class PlayerChar : BaseCharacter
     public float bulletSpeed = 20f;
     public ParticleSystem shootEffect;
 
+    [Header("Kick Ball")]
+    public Button kickBallButton;
+    public Rigidbody ballRigidbody;
+    public Collider ignoredBallCollider;
+    public string kickAnimationTrigger = "Shoot";
+    public float kickBallForwardForce = 18f;
+    public float kickBallUpForce = 2f;
+    public float kickBallDelay = 0.15f;
+    public AudioClip kickBallSound;
+    public float ballStopSpeedThreshold = 0.15f;
+    public float ballStopDuration = 0.5f;
+    private Coroutine kickBallCoroutine;
+
     private IEnumerator MoveAndIdle()
     {
         while (!stopCoutine)
@@ -56,12 +69,17 @@ public class PlayerChar : BaseCharacter
         jumpHeight = LunaManager.ins.playerJumpForce;
         //StartCoroutine(MoveAndIdle());
         MouseLook.ins.onMouseUpShoot += OnMouseUpShoot;
+        BindKickBallButton();
+        IgnoreConfiguredBallCollider();
     }
 
     private void OnDestroy()
     {
         if (MouseLook.ins != null)
             MouseLook.ins.onMouseUpShoot -= OnMouseUpShoot;
+
+        if (kickBallButton != null)
+            kickBallButton.onClick.RemoveListener(KickBall);
     }
 
     private void OnEnable()
@@ -165,11 +183,23 @@ public class PlayerChar : BaseCharacter
         jumpQueued = true;
     }
 
+    public void KickBall()
+    {
+        if (isDead) return;
+        if (ballRigidbody == null) return;
+
+        if (kickBallCoroutine != null)
+            StopCoroutine(kickBallCoroutine);
+
+        animator.SetTrigger(kickAnimationTrigger);
+        kickBallCoroutine = StartCoroutine(KickBallAfterDelay());
+    }
+
     public void Shoot()
     {
         animator.SetTrigger(ShootParam);
         //AudioManager.ins.PlaySoundFire();
-        LunaManager.ins.CheckClickShowEndCard();
+        ShowEndCardOnClick();
         shootEffect.Play();
         Camera cam = Camera.main;
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
@@ -205,6 +235,94 @@ public class PlayerChar : BaseCharacter
 
         Quaternion targetRotation = Quaternion.LookRotation(flatDirection.normalized);
         model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * rotateSpeed);
+    }
+
+    private IEnumerator KickBallAfterDelay()
+    {
+        if (kickBallDelay > 0f)
+            yield return new WaitForSeconds(kickBallDelay);
+
+        if (ballRigidbody == null)
+        {
+            kickBallCoroutine = null;
+            yield break;
+        }
+
+        Vector3 kickDirection = GetKickDirection();
+        ballRigidbody.isKinematic = false;
+        ballRigidbody.velocity = Vector3.zero;
+        ballRigidbody.angularVelocity = Vector3.zero;
+        ballRigidbody.AddForce(
+            kickDirection * kickBallForwardForce + Vector3.up * kickBallUpForce,
+            ForceMode.Impulse);
+        PlayKickBallSound();
+
+        yield return WaitForBallStopped();
+        ShowEndCardOnClick();
+
+        kickBallCoroutine = null;
+    }
+
+    private IEnumerator WaitForBallStopped()
+    {
+        yield return new WaitForFixedUpdate();
+
+        float stoppedTime = 0f;
+        float stopSpeedSqr = ballStopSpeedThreshold * ballStopSpeedThreshold;
+
+        while (ballRigidbody != null)
+        {
+            bool ballStopped =
+                ballRigidbody.velocity.sqrMagnitude <= stopSpeedSqr &&
+                ballRigidbody.angularVelocity.sqrMagnitude <= stopSpeedSqr;
+
+            stoppedTime = ballStopped ? stoppedTime + Time.fixedDeltaTime : 0f;
+            if (stoppedTime >= ballStopDuration)
+                yield break;
+
+            yield return new WaitForFixedUpdate();
+        }
+    }
+
+    private Vector3 GetKickDirection()
+    {
+        Transform directionSource = model != null ? model.transform : transform;
+        Vector3 direction = Vector3.ProjectOnPlane(directionSource.forward, Vector3.up);
+        return direction.sqrMagnitude > 0.001f ? direction.normalized : transform.forward;
+    }
+
+    private void BindKickBallButton()
+    {
+        if (kickBallButton == null)
+            return;
+
+        kickBallButton.onClick.RemoveListener(KickBall);
+        kickBallButton.onClick.AddListener(KickBall);
+    }
+
+    private void IgnoreConfiguredBallCollider()
+    {
+        if (ballRigidbody == null || ignoredBallCollider == null)
+            return;
+
+        Collider[] ballColliders = ballRigidbody.GetComponentsInChildren<Collider>();
+        foreach (Collider ballCollider in ballColliders)
+        {
+            if (ballCollider != null)
+                Physics.IgnoreCollision(ballCollider, ignoredBallCollider, true);
+        }
+    }
+
+    private void PlayKickBallSound()
+    {
+        if (AudioManager.ins != null)
+            AudioManager.ins.PlaySound(kickBallSound);
+    }
+
+    private void ShowEndCardOnClick()
+    {
+        if (LunaManager.ins != null)
+            LunaManager.ins.ShowEndCard();
     }
     
     protected override void SearchForEnemy()

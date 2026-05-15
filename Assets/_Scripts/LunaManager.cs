@@ -75,7 +75,7 @@ public class LunaManager : MonoBehaviour
         if (isCretivePause) return;
         isCretivePause = true;
         OnEndCardShown?.Invoke();
-        //AudioManager.ins.PlayMusicLose();
+        AudioManager.ins.PlayMusicLose();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
         Luna.Unity.LifeCycle.GameEnded();
