@@ -5,18 +5,52 @@ using UnityEngine.UI;
 public class HandPointerController : MonoBehaviour
 {
     public RectTransform handPointer;
+
+    [Header("Infinity Movement")]
+    public bool playInfinityMovement = true;
+    public Vector2 infinitySize = new Vector2(220f, 110f);
+    public float infinityLoopDuration = 1.8f;
+    public bool useCurrentPositionAsCenter = true;
+    public Vector2 infinityCenter;
+
+    [Header("Slot Movement")]
     public float moveDuration = 0.5f;
     public float delayBetweenMoves = 1f;
-
     public RectTransform[] slots;
 
-    public Color defaultColor = Color.black;      // Màu mặc định
-    public Color highlightColor = Color.cyan;   // Màu khi được chọn
+    public Color defaultColor = Color.black;
+    public Color highlightColor = Color.cyan;
 
-    private RectTransform currentSlot; // Slot hiện tại
+    private RectTransform currentSlot;
+    private Vector2 infinityStartPosition;
 
-    void Start()
+    private void Start()
     {
+        if (handPointer == null)
+        {
+            handPointer = GetComponent<RectTransform>();
+        }
+
+        if (handPointer == null)
+        {
+            Debug.LogWarning($"{nameof(HandPointerController)} needs a RectTransform hand pointer.", this);
+            enabled = false;
+            return;
+        }
+
+        infinityStartPosition = useCurrentPositionAsCenter ? handPointer.anchoredPosition : infinityCenter;
+
+        if (playInfinityMovement)
+        {
+            StartCoroutine(MoveHandInfinity());
+            return;
+        }
+
+        if (slots == null || slots.Length == 0 || slots[0] == null)
+        {
+            return;
+        }
+
         handPointer.position = slots[0].position;
         HighlightSlot(slots[0]);
         currentSlot = slots[0];
@@ -24,22 +58,45 @@ public class HandPointerController : MonoBehaviour
         StartCoroutine(MoveHandToSlots());
     }
 
+    private IEnumerator MoveHandInfinity()
+    {
+        handPointer.gameObject.SetActive(true);
+
+        float duration = Mathf.Max(0.01f, infinityLoopDuration);
+
+        while (true)
+        {
+            float angle = (Time.time / duration) * Mathf.PI * 2f;
+            float x = Mathf.Sin(angle) * infinitySize.x * 0.5f;
+            float y = Mathf.Sin(angle * 2f) * infinitySize.y * 0.5f;
+
+            handPointer.anchoredPosition = infinityStartPosition + new Vector2(x, y);
+            yield return null;
+        }
+    }
+
     private IEnumerator MoveHandToSlots()
     {
         handPointer.gameObject.SetActive(true);
         yield return new WaitForSeconds(delayBetweenMoves);
 
-        foreach (var slot in slots)
+        while (true)
         {
-            ChangeSlotColor(slot);
-            yield return MoveHandToPoint(slot);
-            yield return new WaitForSeconds(delayBetweenMoves);
-        }
+            foreach (RectTransform slot in slots)
+            {
+                if (slot == null)
+                {
+                    continue;
+                }
 
-        StartCoroutine(MoveHandToSlots());
+                ChangeSlotColor(slot);
+                yield return MoveHandToPoint(slot);
+                yield return new WaitForSeconds(delayBetweenMoves);
+            }
+        }
     }
 
-    IEnumerator MoveHandToPoint(RectTransform target)
+    private IEnumerator MoveHandToPoint(RectTransform target)
     {
         Vector3 startPosition = handPointer.position;
         Vector3 endPosition = target.position;
@@ -55,27 +112,25 @@ public class HandPointerController : MonoBehaviour
         handPointer.position = endPosition;
     }
 
-    void ChangeSlotColor(RectTransform newSlot)
+    private void ChangeSlotColor(RectTransform newSlot)
     {
-        // Reset slot cũ
         if (currentSlot != null)
         {
-            currentSlot.localScale=Vector3.one;
+            currentSlot.localScale = Vector3.one;
             SetSlotColor(currentSlot, defaultColor);
         }
 
-        // Highlight slot mới
         HighlightSlot(newSlot);
         currentSlot = newSlot;
     }
 
-    void HighlightSlot(RectTransform slot)
+    private void HighlightSlot(RectTransform slot)
     {
-        slot.localScale=Vector3.one*1.2f;
+        slot.localScale = Vector3.one * 1.2f;
         SetSlotColor(slot, highlightColor);
     }
 
-    void SetSlotColor(RectTransform slot, Color color)
+    private void SetSlotColor(RectTransform slot, Color color)
     {
         Image img = slot.GetComponent<Image>();
         if (img != null)
