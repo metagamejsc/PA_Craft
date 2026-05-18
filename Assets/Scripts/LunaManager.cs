@@ -10,17 +10,13 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    [LunaPlaygroundField("Số lần đặt bắn TNT ra store")]public int countDropFinal;
+    public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Light Intensity")] public float lightIns=1;
     [LunaPlaygroundField("Color Light")] public Color color=Color.white;
-    [LunaPlaygroundField("Text")] public string text= "";
-    [LunaPlaygroundField("Text color")] public Color colorText=Color.white;
-    [LunaPlaygroundField("Text Size")] public float sizeText=50;
+    [LunaPlaygroundField("Speed Enemy")] public float speedEnemy = 1.5f;
     public Light light;
     public bool isCretivePause;
-    public TextMeshProUGUI txtTime;
-    public TextMeshProUGUI txt;
     private void Awake()
     {
         ins = this;
@@ -29,6 +25,7 @@ public class LunaManager : MonoBehaviour
     
     public Button[] lstBtnInstall;
     public GameObject EndCard;
+    public GameObject WindCard;
     
 
 
@@ -45,30 +42,34 @@ public class LunaManager : MonoBehaviour
         //SetupField();
         light.intensity = lightIns;
         light.color = color;
-        txt.text = text;
-        txt.color = colorText;
-        txt.fontSize = sizeText;
+        ApplyEnemySpeed();
         Invoke(nameof(ShowEndCard),timeEndCreative);
     }
 
     private void Update()
     {
-        if (timeEndCreative - Time.timeSinceLevelLoad<=0)
-        {
-            return;
-        }
-        txtTime.text= $"Time Left: {Mathf.CeilToInt(timeEndCreative - Time.timeSinceLevelLoad)}";
+       
     }
 
     public void CheckClickShowEndCard()
     {
-        countDrop++;
+        /*countDrop++;
         if (countDrop>=countDropFinal && isCretivePause==false)
         {
             isCretivePause = true;
             ShowEndCard();
+        }*/
+    }
+
+    private void ApplyEnemySpeed()
+    {
+        DraggableEnemy[] enemies = FindObjectsOfType<DraggableEnemy>();
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            enemies[i].SetApproachSpeed(speedEnemy);
         }
     }
+
     // Update is called once per frame
     public void PauseGameplay()
     {
@@ -88,6 +89,15 @@ public class LunaManager : MonoBehaviour
         AudioManager.ins.PlaySoundReward();
         EndCard.SetActive(true);
         Debug.Log("Show end card");
+        Luna.Unity.LifeCycle.GameEnded();
+    }
+
+    public void ShowWinCard()
+    {
+        isCretivePause = true;
+        //AudioManager.ins.PlaySoundReward();
+        WindCard.SetActive(true);
+        Debug.Log("Show win card");
         Luna.Unity.LifeCycle.GameEnded();
     }
 

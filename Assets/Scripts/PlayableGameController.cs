@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -39,11 +40,26 @@ public class PlayableGameController : MonoBehaviour
     [SerializeField] private int currentPlacedCount;
     [SerializeField] private bool isWin;
 
+    [Header("Win")]
+    [SerializeField] private Transform playerMoveRoot;
+    [SerializeField] private Transform shipMoveTarget;
+    [SerializeField] private float moveToShipDuration = 1f;
+    [SerializeField] private bool rotateToShipTarget = true;
+    [SerializeField] private float showWinCardAfterMoveDelay = 0.15f;
+
+    [Header("Lose")]
+    [SerializeField] private float cameraDeathRollAngle = 90f;
+    [SerializeField] private float cameraDeathRotateDuration = 0.45f;
+    [SerializeField] private float showEndCardAfterDeathDelay = 0.15f;
+
     public event Action<DraggableEnemy> EnemyPlaced;
 
     private DraggableEnemy activeEnemy;
     private Vector2 lastPointerPosition;
     private bool isPointerActive;
+    private bool isGameEnded;
+    private Coroutine winRoutine;
+    private Coroutine loseRoutine;
     private Vector3[] magneticLinePositions;
 
     public int TotalEnemyCount
@@ -87,10 +103,10 @@ public class PlayableGameController : MonoBehaviour
 
     private void Update()
     {
-        if (isWin)
+        if (isGameEnded)
         {
             SetMagneticLineVisible(false);
-            //return;
+            return;
         }
 
         Vector2 pointerPosition;
@@ -143,6 +159,11 @@ public class PlayableGameController : MonoBehaviour
 
     public void NotifyEnemyPlaced(DraggableEnemy enemy)
     {
+        if (isGameEnded)
+        {
+            return;
+        }
+
         currentPlacedCount++;
 
         if (activeEnemy == enemy)
@@ -161,6 +182,16 @@ public class PlayableGameController : MonoBehaviour
         {
             HandleWin();
         }
+    }
+
+    public void NotifyEnemyReachedPlayer(DraggableEnemy enemy)
+    {
+        if (isGameEnded)
+        {
+            return;
+        }
+
+        HandleLose();
     }
 
     private void TryBeginCenterDrag()
@@ -399,15 +430,168 @@ public class PlayableGameController : MonoBehaviour
 
     private void HandleWin()
     {
+        if (isGameEnded)
+        {
+            return;
+        }
+
+        isGameEnded = true;
         isWin = true;
-        LunaManager.ins.ShowEndCard();
+        isPointerActive = false;
+        SetMagneticLineVisible(false);
+        StopGunDragLoop();
+
+        if (winRoutine != null)
+        {
+            StopCoroutine(winRoutine);
+        }
+
+        winRoutine = StartCoroutine(WinRoutine());
         Debug.Log("WIN");
         OnWin();
+    }
+
+    private IEnumerator WinRoutine()
+    {
+        Transform moveRoot = GetPlayerMoveRoot();
+        if (moveRoot != null && shipMoveTarget != null)
+        {
+            Vector3 startPosition = moveRoot.position;
+            Quaternion startRotation = moveRoot.rotation;
+            Vector3 targetPosition = shipMoveTarget.position;
+            Quaternion targetRotation = shipMoveTarget.rotation;
+            float duration = Mathf.Max(0f, moveToShipDuration);
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = EaseOutCubic(Mathf.Clamp01(elapsed / duration));
+                moveRoot.position = Vector3.Lerp(startPosition, targetPosition, t);
+
+                if (rotateToShipTarget)
+                {
+                    moveRoot.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
+                }
+
+                yield return null;
+            }
+
+            moveRoot.position = targetPosition;
+            if (rotateToShipTarget)
+            {
+                moveRoot.rotation = targetRotation;
+            }
+        }
+
+        if (showWinCardAfterMoveDelay > 0f)
+        {
+            yield return new WaitForSeconds(showWinCardAfterMoveDelay);
+        }
+
+        ShowWinCard();
+        winRoutine = null;
+    }
+
+    private Transform GetPlayerMoveRoot()
+    {
+        if (playerMoveRoot != null)
+        {
+            return playerMoveRoot;
+        }
+
+        if (cameraRotatePivot != null)
+        {
+            return cameraRotatePivot;
+        }
+
+        Camera targetCamera = GetGameplayCamera();
+        return targetCamera != null ? targetCamera.transform : null;
+    }
+
+    private void HandleLose()
+    {
+        if (isGameEnded)
+        {
+            return;
+        }
+
+        isGameEnded = true;
+        isPointerActive = false;
+        SetMagneticLineVisible(false);
+        StopGunDragLoop();
+
+        if (activeEnemy != null)
+        {
+            activeEnemy.EndDrag();
+            activeEnemy = null;
+        }
+
+        if (loseRoutine != null)
+        {
+            StopCoroutine(loseRoutine);
+        }
+
+        loseRoutine = StartCoroutine(LoseRoutine());
+    }
+
+    private IEnumerator LoseRoutine()
+    {
+        Camera targetCamera = GetGameplayCamera();
+        if (targetCamera != null)
+        {
+            Transform cameraTransform = targetCamera.transform;
+            Quaternion startRotation = cameraTransform.localRotation;
+            Quaternion targetRotation = startRotation * Quaternion.Euler(0f, 0f, cameraDeathRollAngle);
+            float duration = Mathf.Max(0f, cameraDeathRotateDuration);
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = EaseOutCubic(Mathf.Clamp01(elapsed / duration));
+                cameraTransform.localRotation = Quaternion.Slerp(startRotation, targetRotation, t);
+                yield return null;
+            }
+
+            cameraTransform.localRotation = targetRotation;
+        }
+
+        if (showEndCardAfterDeathDelay > 0f)
+        {
+            yield return new WaitForSeconds(showEndCardAfterDeathDelay);
+        }
+
+        ShowEndCard();
+        Debug.Log("LOSE");
+        loseRoutine = null;
+    }
+
+    private void ShowEndCard()
+    {
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.ShowEndCard();
+        }
+    }
+
+    private void ShowWinCard()
+    {
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.ShowWinCard();
+        }
     }
 
     private void OnWin()
     {
         // Hook CTA / EndCard here when integrating the playable flow.
+    }
+
+    private static float EaseOutCubic(float t)
+    {
+        t = 1f - t;
+        return 1f - (t * t * t);
     }
 
     private static bool TryGetPointerDown(out Vector2 position)

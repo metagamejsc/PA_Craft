@@ -1,10 +1,14 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
-[RequireComponent(typeof(Collider))]
 public class HoleTrigger : MonoBehaviour
 {
-    [SerializeField] private Transform snapPoint;
+    [Header("Black Hole")]
+    [FormerlySerializedAs("snapPoint")]
+    [SerializeField] private Transform attractPoint;
+    [SerializeField] private Transform dropPoint;
+    [SerializeField] private float extraSinkOffset = 0.5f;
 
     private static readonly System.Collections.Generic.List<HoleTrigger> ActiveHoles = new System.Collections.Generic.List<HoleTrigger>(8);
     private Collider cachedCollider;
@@ -12,7 +16,6 @@ public class HoleTrigger : MonoBehaviour
     private void Awake()
     {
         cachedCollider = GetComponent<Collider>();
-        cachedCollider.isTrigger = true;
     }
 
     private void OnEnable()
@@ -30,17 +33,27 @@ public class HoleTrigger : MonoBehaviour
 
     public Vector3 GetSnapPosition()
     {
-        if (snapPoint != null)
+        return attractPoint != null ? attractPoint.position : transform.position;
+    }
+
+    public Vector3 GetDropPosition()
+    {
+        if (dropPoint != null)
         {
-            return snapPoint.position;
+            return dropPoint.position;
         }
 
-        return transform.position;
+        return GetSnapPosition() + (Vector3.up * 6f) + (transform.forward * 3f);
     }
 
     public float GetExtraSinkOffset()
     {
-        return cachedCollider != null ? cachedCollider.bounds.extents.y : 0.5f;
+        if (cachedCollider != null)
+        {
+            return cachedCollider.bounds.extents.y;
+        }
+
+        return extraSinkOffset;
     }
 
     public static HoleTrigger GetClosestHole(Vector3 worldPosition)
@@ -66,33 +79,5 @@ public class HoleTrigger : MonoBehaviour
         }
 
         return closestHole;
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        DraggableEnemy enemy = other.GetComponent<DraggableEnemy>();
-        if (enemy == null)
-        {
-            enemy = other.GetComponentInParent<DraggableEnemy>();
-        }
-
-        if (enemy != null)
-        {
-            enemy.SetCurrentHole(this, true);
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        DraggableEnemy enemy = other.GetComponent<DraggableEnemy>();
-        if (enemy == null)
-        {
-            enemy = other.GetComponentInParent<DraggableEnemy>();
-        }
-
-        if (enemy != null)
-        {
-            enemy.SetCurrentHole(this, false);
-        }
     }
 }

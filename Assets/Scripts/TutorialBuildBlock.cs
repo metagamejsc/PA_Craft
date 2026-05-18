@@ -42,7 +42,6 @@ public class TutorialBuildBlock : MonoBehaviour
 
     public void ShowStep()
     {
-        
         lstStep[stepIndex].SetActive(true);
     }
     public void HideStep()
