@@ -29,7 +29,6 @@ public class LunaManager : MonoBehaviour
     public Button[] lstBtnInstall;
     public GameObject EndCard,EndCardEmpty;
     public GameObject WinCard;
-    [LunaPlaygroundField("Số block TNT kích hoạt để bay ra store")]public int passedTntCount=5;
 
 
     // Start is called before the first frame update
