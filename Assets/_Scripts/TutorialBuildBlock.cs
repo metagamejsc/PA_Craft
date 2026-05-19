@@ -12,7 +12,7 @@ public class TutorialBuildBlock : MonoBehaviour
     public int stepIndex;
     public List<GameObject> lstStep;
     public List<Button> lstButtonHideStep;
-    public bool IsTutorialCompleted=>stepIndex>=lstStep.Count;
+    public bool IsTutorialCompleted => lstStep == null || stepIndex >= lstStep.Count;
     //public Button btnHideTutorial;
 
     public bool IsCompleted => lstStep == null || stepIndex >= lstStep.Count;

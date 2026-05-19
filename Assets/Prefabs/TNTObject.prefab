@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1464862277221585777
 Transform:
   m_ObjectHideFlags: 0
@@ -178,8 +178,8 @@ GameObject:
   - component: {fileID: 7270875986285099379}
   - component: {fileID: 5341226786215599068}
   - component: {fileID: 6318264374117149470}
-  - component: {fileID: 3756730005807106858}
   - component: {fileID: 7601584437921680431}
+  - component: {fileID: 3111820367282632300}
   m_Layer: 8
   m_Name: TNTObject
   m_TagString: Untagged
@@ -270,36 +270,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3756730005807106858
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8593483194247780817}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37fcc1645aa33cb4aaf655bb01e83d87, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  explosionParticleSystem: {fileID: 3280515189913233567}
-  renderer: {fileID: 337906595032129072}
-  enemyLayerMask:
-    serializedVersion: 2
-    m_Bits: 8
-  rigidbody: {fileID: 7601584437921680431}
-  activeFallDelay: 0.75
-  activeExplodeDelay: 1.2
-  pressurePlate: {fileID: 1464862277221585777}
-  pressurePlatePressDistance: -0.04
-  pressurePlatePressDuration: 0.12
-  pressurePlateSound: {fileID: 8300000, guid: 3f0659bdf0d9d6b48a747a3dba8bcb56, type: 3}
 --- !u!54 &7601584437921680431
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -327,6 +303,28 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &3111820367282632300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8593483194247780817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ec1fff4dc3d83f44b6833ecb1562140, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTag: Player
+  triggerOnce: 1
+  destroyAfterTrigger: 1
+  effectPrefab: {fileID: 3280515189897691661}
+  effectSpawnPoint: {fileID: 3280515189898031679}
+  parentEffectToPlayer: 0
+  effectLifetime: 2
+  onTriggered:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &3280515189897887991
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -345,7 +343,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 406216, guid: 673a16924084b404d9070dc7c323284d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.99
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 406216, guid: 673a16924084b404d9070dc7c323284d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -353,7 +351,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 406216, guid: 673a16924084b404d9070dc7c323284d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.96
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 406216, guid: 673a16924084b404d9070dc7c323284d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -388,15 +386,15 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 673a16924084b404d9070dc7c323284d, type: 3}
---- !u!4 &3280515189898031679 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 406216, guid: 673a16924084b404d9070dc7c323284d,
+--- !u!1 &3280515189897691661 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 197370, guid: 673a16924084b404d9070dc7c323284d,
     type: 3}
   m_PrefabInstance: {fileID: 3280515189897887991}
   m_PrefabAsset: {fileID: 0}
---- !u!198 &3280515189913233567 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 19802216, guid: 673a16924084b404d9070dc7c323284d,
+--- !u!4 &3280515189898031679 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 406216, guid: 673a16924084b404d9070dc7c323284d,
     type: 3}
   m_PrefabInstance: {fileID: 3280515189897887991}
   m_PrefabAsset: {fileID: 0}
