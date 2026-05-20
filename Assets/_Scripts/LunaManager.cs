@@ -13,8 +13,6 @@ public class LunaManager : MonoBehaviour
     public int countDrop=0;
     public int countDropFinal;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
-    [LunaPlaygroundField("Player Speed")] public float playerSpeed=1.5f;
-    public float playerJumpForce=40f;
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
