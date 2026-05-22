@@ -10,7 +10,7 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop=0;
-    /*[LunaPlaygroundField("CountDrop")] */public int countDropFinal;
+    [LunaPlaygroundField("Count build to store")] public int countBuildToStore=4;
     [LunaPlaygroundField("Time")] public int timeEndCreative=30;
     [LunaPlaygroundField("Light Color")] public Color lightColor=Color.white;
     [LunaPlaygroundField("Light Instensity")] public float lightInstensity=1;
@@ -51,7 +51,7 @@ public class LunaManager : MonoBehaviour
     public void CheckClickShowEndCard()
     {
         countDrop++;
-        if (countDrop>=countDropFinal && isCretivePause==false)
+        if (countDrop>=countBuildToStore && isCretivePause==false)
         {
             isCretivePause = true;
             ShowEndCard();

@@ -1,348 +1,540 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ConstructionManager : MonoBehaviour
 {
-    public float timeScale = 1;
-
-    [Header("Camera Transition Settings")]
-    public float cameraMoveDuration = 1f;
-    public float cameraRotateDuration = 1f;
     public GameObject UIDaily;
-
-    [System.Serializable]
-    public class BuildOption
-    {
-        public string optionName;
-        public GameObject prefab;
-        public GameObject placementParticle;
-        public Sprite icon;
-    }
-
-    [System.Serializable]
-    public class BuildLocation
-    {
-        public Vector3 playerDestination;
-        public Vector3 buildPosition;
-        public Vector3 cameraPosition;
-        public Vector3 cameraRotation;
-
-        public BuildOption option1;
-        public BuildOption option2;
-    }
-
-    public List<BuildLocation> buildLocations = new List<BuildLocation>();
-
-    public GameObject placementEffectPrefab;
-    public Transform player;
-    public Camera mainCamera;
-
-    public float moveSpeed = 4f;
-    public float reachDistance = 0.3f;
-
-    public Animator playerAnimator;
-    public string welcomeAnim = "Welcome";
-    public string moveAnim = "Move";
-    public string idleAnim = "Idle";
-    public string buildAnim = "Build";
-
-    public GameObject optionPanel;
-    public Button btnMoveLeft, btnMoveRight, btnMoveForward, btnMoveBackward,btnConfirmBuild,btnRotateClockwise;
-    public GameObject objectBuildedPrefab;
     public GameObject UIBuild;
-    public Button optionButton1, optionButton2;
-    public TextMeshProUGUI optionText1, optionText2;
+    public Camera mainCamera;
+    public GameObject placementEffectPrefab;
 
-    private int currentLocationIndex = 0;
-    private GameObject currentEffect;
-    private bool isMoving = false;
+    public Button btnMoveLeft;
+    public Button btnMoveRight;
+    public Button btnMoveForward;
+    public Button btnMoveBackward;
+    public Button btnConfirmBuild;
+    public Button btnRotateClockwise;
+    public Button btnBuild;
+    public Button btnBuildNextPart;
+
+    [Header("Build Object")]
+    public GameObject objectBuildedPrefab;
+    public Transform buildSpawnPoint;
     public Camera buildCamera;
-    void Start()
+    public float moveStep = 1f;
+    public float rotateStep = 15f;
+    public int totalBuildParts = 5;
+
+    [Header("Build Camera")]
+    public Transform buildCameraFollowTarget;
+    public Vector3 buildCameraTargetOffset = Vector3.up;
+    public float buildCameraDistance = 22f;
+    public float buildCameraYaw = 0f;
+    public float buildCameraPitch = 55f;
+    public float buildCameraMinPitch = 20f;
+    public float buildCameraMaxPitch = 75f;
+    public float buildCameraDragSensitivity = 0.15f;
+    public float buildClickMaxDragDistance = 15f;
+
+    private bool isBuildConfirmed;
+    private bool isDraggingBuildCamera;
+    private bool buildPointerStartedOverUi;
+    private Vector3 lastDragPosition;
+    private Vector3 buildPointerDownPosition;
+    private BuildRevealController buildRevealController;
+
+    private void Start()
     {
-        if (optionPanel == null) Debug.LogError("Option Panel chưa được gán!");
-        if (player == null) { Debug.LogError("Player chưa được gán!"); return; }
-        if (mainCamera == null) mainCamera = Camera.main;
-        if (mainCamera == null) { Debug.LogError("Không tìm thấy Camera!"); return; }
-        if (playerAnimator == null) playerAnimator = player.GetComponent<Animator>();
-        if (playerAnimator == null) { Debug.LogError("Animator không được gán!"); return; }
-
-        optionPanel.SetActive(false);
-        playerAnimator.Play(welcomeAnim);
-        //StartCoroutine(StartAfterWelcome(2f));
-        btnMoveLeft.onClick.AddListener(MoveLeft);
-        btnMoveRight.onClick.AddListener(MoveRight);
-        btnMoveForward.onClick.AddListener(MoveForward);
-        btnMoveBackward.onClick.AddListener(MoveBackward);
-        btnRotateClockwise.onClick.AddListener(RotateClockwise);
-        btnConfirmBuild.onClick.AddListener(() =>
+        if (mainCamera == null)
         {
-            UIBuild.SetActive(false);
-            
-            GameObject particle = Instantiate(buildLocations[0].option1.placementParticle, objectBuildedPrefab.transform.position, Quaternion.identity);
-            Destroy(particle, 5f);
-            AudioManager.ins.PlaySoundBuild();
-            LunaManager.ins.OnClickEndCard();
-            LunaManager.ins.ShowEndCard();
-        });
-        
-        BuildLocation loc = buildLocations[currentLocationIndex];
-        optionButton1.onClick.RemoveAllListeners();
-        optionButton1.onClick.AddListener(() => OnOptionSelected(loc.option1));
-
-        optionButton2.onClick.RemoveAllListeners();
-        optionButton2.onClick.AddListener(() => OnOptionSelected(loc.option2));
-    }
-
-    IEnumerator StartAfterWelcome(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        playerAnimator.Play(idleAnim);
-
-        if (buildLocations.Count > 0)
-        {
-            StartMovingToNextLocation();
+            mainCamera = Camera.main;
         }
-        else
+
+        AddButtonListeners();
+        HideBuildUi();
+        SetBuildNextPartButton(false);
+        HideSceneBuildObject();
+
+        if (UIDaily != null)
         {
-            Debug.LogWarning("Không có vị trí xây dựng nào!");
+            UIDaily.SetActive(true);
         }
     }
 
-    void Update()
+    private void Update()
     {
-        if (objectBuildedPrefab != null)
+        if (objectBuildedPrefab == null)
         {
-            // Di chuyển bằng phím mũi tên
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                MoveLeft();
-            }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                MoveRight();
-            }
-            else if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                MoveForward();
-            }
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                MoveBackward();
-            }
-
-            // Snap theo trục Y xuống terrain
-            SnapToTerrain();
-
-            // Camera build follow
-            if (buildCamera != null)
-            {
-                buildCamera.transform.position = objectBuildedPrefab.transform.position + new Vector3(0, 15.75f, -10);
-                buildCamera.transform.LookAt(objectBuildedPrefab.transform.position + Vector3.up );
-            }
-        }
-        
-        /*if (isMoving && currentLocationIndex < buildLocations.Count)
-        {
-            BuildLocation loc = buildLocations[currentLocationIndex];
-            Vector3 targetPos = loc.playerDestination;
-            Vector3 direction = (targetPos - player.position).normalized;
-
-            player.position += direction * moveSpeed * Time.deltaTime;
-            playerAnimator.SetBool("IsMoving", true);
-
-            if (Vector3.Distance(player.position, targetPos) > reachDistance)
-            {
-                if (direction.sqrMagnitude > 0.1f)
-                {
-                    Quaternion targetRot = Quaternion.LookRotation(direction);
-                    player.rotation = Quaternion.Slerp(player.rotation, targetRot, 10f * Time.deltaTime);
-                }
-            }
-            else
-            {
-                player.position = targetPos;
-                isMoving = false;
-                playerAnimator.SetBool("IsMoving", false);
-                ArriveAtLocation();
-            }
-        }*/
-    }
-    void SnapToTerrain()
-    {
-        Ray ray = new Ray(objectBuildedPrefab.transform.position + Vector3.up * 10f, Vector3.down);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, 100f))
-        {
-            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
-            {
-                Vector3 pos = objectBuildedPrefab.transform.position;
-                pos.y = hit.point.y;
-                objectBuildedPrefab.transform.position = pos;
-            }
-        }
-    }
-    void StartMovingToNextLocation()
-    {
-        if (currentLocationIndex >= buildLocations.Count)
-        {
-            Debug.Log("✅ Hoàn thành tất cả các vị trí xây dựng!");
-            optionPanel.SetActive(false);
             return;
         }
 
-        isMoving = true;
-        playerAnimator.SetBool("IsMoving", true);
+        if (!isBuildConfirmed)
+        {
+            HandleKeyboardMove();
+            SnapToTerrain();
+        }
 
-        BuildLocation loc = buildLocations[currentLocationIndex];
-
-        //StartCoroutine(MoveAndRotateCamera(loc.cameraPosition, loc.cameraRotation, currentLocationIndex == 0 ? null : buildLocations[currentLocationIndex - 1]));
+        HandleBuildCameraDrag();
+        FollowBuildCamera();
     }
 
-    IEnumerator MoveAndRotateCamera(Vector3 targetPos, Vector3 targetEulerAngles, BuildLocation lastpos = null)
+    private void AddButtonListeners()
     {
-        Quaternion targetRotation = Quaternion.Euler(targetEulerAngles);
-        Vector3 startPos = mainCamera.transform.position;
-        Quaternion startRot = mainCamera.transform.rotation;
-
-        float elapsed = 0f;
-        while (elapsed < Mathf.Max(cameraMoveDuration, cameraRotateDuration))
+        if (btnBuild!=null)
         {
-            elapsed += Time.deltaTime * timeScale;
+            btnBuild.onClick.AddListener(BuildBuildedPrefab);
+        }
 
-            float moveT = Mathf.Clamp01(elapsed / cameraMoveDuration);
-            float rotateT = Mathf.Clamp01(elapsed / cameraRotateDuration);
+        if (btnBuildNextPart != null)
+        {
+            btnBuildNextPart.onClick.AddListener(BuildNextPart);
+        }
 
-            mainCamera.transform.position = Vector3.Lerp(startPos, targetPos, moveT);
-            mainCamera.transform.rotation = Quaternion.Slerp(startRot, targetRotation, rotateT);
+        if (btnMoveLeft != null) btnMoveLeft.onClick.AddListener(MoveLeft);
+        if (btnMoveRight != null) btnMoveRight.onClick.AddListener(MoveRight);
+        if (btnMoveForward != null) btnMoveForward.onClick.AddListener(MoveForward);
+        if (btnMoveBackward != null) btnMoveBackward.onClick.AddListener(MoveBackward);
+        if (btnRotateClockwise != null) btnRotateClockwise.onClick.AddListener(RotateClockwise);
+        if (btnConfirmBuild != null) btnConfirmBuild.onClick.AddListener(ConfirmBuild);
+    }
 
-            yield return null;
+    public void BuildBuildedPrefab()
+    {
+        if (objectBuildedPrefab != null && objectBuildedPrefab.scene.IsValid())
+        {
+            PrepareBuildObjectForPlacement(objectBuildedPrefab);
+            HideDailyUi();
+            ShowBuildUi();
+            SetBuildNextPartButton(false);
+            return;
+        }
+
+        GameObject prefab = objectBuildedPrefab;
+        if (prefab == null)
+        {
+            HideBuildUi();
+            SetBuildNextPartButton(false);
+            return;
+        }
+
+        Vector3 spawnPosition = buildSpawnPoint != null ? buildSpawnPoint.position : prefab.transform.position;
+        Quaternion spawnRotation = buildSpawnPoint != null ? buildSpawnPoint.rotation : prefab.transform.rotation;
+
+        objectBuildedPrefab = Instantiate(prefab, spawnPosition, spawnRotation);
+        PrepareBuildObjectForPlacement(objectBuildedPrefab);
+        HideDailyUi();
+
+        ShowBuildUi();
+        SetBuildNextPartButton(false);
+    }
+
+    private void HandleKeyboardMove()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            MoveLeft();
+        }
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            MoveRight();
+        }
+        else if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            MoveForward();
+        }
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            MoveBackward();
         }
     }
 
-    void ArriveAtLocation()
+    private void SnapToTerrain()
     {
-        BuildLocation loc = buildLocations[currentLocationIndex];
-        FaceCamera();
-
-        if (currentEffect == null && placementEffectPrefab != null)
+        Ray ray = new Ray(objectBuildedPrefab.transform.position + Vector3.up * 10f, Vector3.down);
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f) && hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
         {
-            currentEffect = Instantiate(placementEffectPrefab, loc.buildPosition, Quaternion.identity);
+            Vector3 pos = objectBuildedPrefab.transform.position;
+            pos.y = hit.point.y;
+            objectBuildedPrefab.transform.position = pos;
         }
-
-        optionText1.text = loc.option1.optionName;
-        optionText2.text = loc.option2.optionName;
-
-        SetButtonIcon(optionButton1, loc.option1.icon);
-        SetButtonIcon(optionButton2, loc.option2.icon);
-        
-        optionButton1.onClick.RemoveAllListeners();
-        optionButton1.onClick.AddListener(() => OnOptionSelected(loc.option1));
-
-        optionButton2.onClick.RemoveAllListeners();
-        optionButton2.onClick.AddListener(() => OnOptionSelected(loc.option2));
-
-        optionPanel.SetActive(true);
     }
 
-    void SetButtonIcon(Button button, Sprite icon)
+    private void FollowBuildCamera()
     {
-        if (icon != null)
+        if (buildCamera == null)
         {
-            Image buttonImage = button.transform.GetChild(0).GetComponent<Image>();
-            if (buttonImage != null)
+            return;
+        }
+
+        Vector3 targetPosition = GetBuildCameraTargetPosition();
+        float clampedPitch = Mathf.Clamp(buildCameraPitch, buildCameraMinPitch, buildCameraMaxPitch);
+        Quaternion cameraRotation = Quaternion.Euler(clampedPitch, buildCameraYaw, 0f);
+        Vector3 cameraOffset = cameraRotation * new Vector3(0f, 0f, -buildCameraDistance);
+
+        buildCamera.transform.position = targetPosition + cameraOffset;
+        buildCamera.transform.LookAt(targetPosition);
+    }
+
+    private Vector3 GetBuildCameraTargetPosition()
+    {
+        Transform target = buildCameraFollowTarget != null ? buildCameraFollowTarget : objectBuildedPrefab.transform;
+        return target.position + buildCameraTargetOffset;
+    }
+
+    private void HandleBuildCameraDrag()
+    {
+        if (buildCamera == null)
+        {
+            return;
+        }
+
+        if (Input.touchSupported && Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            HandleBuildCameraPointer(touch.position, touch.phase == TouchPhase.Began, touch.phase == TouchPhase.Moved, touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled, touch.fingerId);
+            return;
+        }
+
+        HandleBuildCameraPointer(Input.mousePosition, Input.GetMouseButtonDown(0), Input.GetMouseButton(0), Input.GetMouseButtonUp(0), -1);
+    }
+
+    private void HandleBuildCameraPointer(Vector3 pointerPosition, bool began, bool held, bool ended, int pointerId)
+    {
+        if (began)
+        {
+            buildPointerStartedOverUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(pointerId);
+            if (buildPointerStartedOverUi)
             {
-                buttonImage.sprite = icon;
-                buttonImage.preserveAspect = true;
-                buttonImage.color = Color.white;
+                isDraggingBuildCamera = false;
+                return;
+            }
+
+            isDraggingBuildCamera = true;
+            lastDragPosition = pointerPosition;
+            buildPointerDownPosition = pointerPosition;
+            return;
+        }
+
+        if (ended)
+        {
+            TryBuildNextPartFromObjectClick(pointerPosition);
+            isDraggingBuildCamera = false;
+            buildPointerStartedOverUi = false;
+            return;
+        }
+
+        if (!held || !isDraggingBuildCamera)
+        {
+            return;
+        }
+
+        Vector3 dragDelta = pointerPosition - lastDragPosition;
+        lastDragPosition = pointerPosition;
+
+        buildCameraYaw += dragDelta.x * buildCameraDragSensitivity;
+        buildCameraPitch = Mathf.Clamp(buildCameraPitch - dragDelta.y * buildCameraDragSensitivity, buildCameraMinPitch, buildCameraMaxPitch);
+    }
+
+    private void TryBuildNextPartFromObjectClick(Vector3 pointerPosition)
+    {
+        if (!isBuildConfirmed || buildPointerStartedOverUi || buildCamera == null || objectBuildedPrefab == null)
+        {
+            return;
+        }
+
+        if ((pointerPosition - buildPointerDownPosition).sqrMagnitude > buildClickMaxDragDistance * buildClickMaxDragDistance)
+        {
+            return;
+        }
+
+        Ray ray = buildCamera.ScreenPointToRay(pointerPosition);
+        if (!Physics.Raycast(ray, out RaycastHit hit, 1000f))
+        {
+            return;
+        }
+
+        if (hit.transform == objectBuildedPrefab.transform || hit.transform.IsChildOf(objectBuildedPrefab.transform))
+        {
+            BuildNextPart();
+            SetBuildNextPartButton(false);
+        }
+    }
+
+    private void ConfirmBuild()
+    {
+        if (objectBuildedPrefab == null || isBuildConfirmed)
+        {
+            return;
+        }
+
+        isBuildConfirmed = true;
+
+        HideBuildUi();
+        ShowFirstBuildPart();
+        SetBuildNextPartButton(true);
+        SpawnPlacementEffect();
+        PlayBuildSound();
+    }
+
+    public void BuildNextPart()
+    {
+        if (!isBuildConfirmed || objectBuildedPrefab == null)
+        {
+            return;
+        }
+
+        BuildRevealController revealController = GetBuildRevealController();
+        if (revealController == null || revealController.IsComplete)
+        {
+            return;
+        }
+
+        bool isComplete = revealController.RevealNextStep();
+        SpawnPlacementEffect();
+        PlayBuildSound();
+        CheckClickShowEndCard();
+
+        if (isComplete)
+        {
+            SetBuildNextPartButton(false);
+            //ShowEndCard();
+        }
+    }
+
+    private void ShowFirstBuildPart()
+    {
+        BuildRevealController revealController = GetBuildRevealController();
+        if (revealController == null)
+        {
+            return;
+        }
+
+        revealController.Configure(totalBuildParts, 1);
+    }
+
+    private BuildRevealController GetBuildRevealController()
+    {
+        if (objectBuildedPrefab == null)
+        {
+            return null;
+        }
+
+        if (buildRevealController == null)
+        {
+            buildRevealController = objectBuildedPrefab.GetComponent<BuildRevealController>();
+            if (buildRevealController == null)
+            {
+                buildRevealController = objectBuildedPrefab.AddComponent<BuildRevealController>();
             }
         }
+
+        return buildRevealController;
     }
 
-    [ContextMenu("FaceCamera")]
-    void FaceCamera()
+    private void SpawnPlacementEffect()
     {
-        if (mainCamera == null || player == null) return;
-
-        Vector3 toCamera = mainCamera.transform.position - player.position;
-        toCamera.y = 0;
-
-        if (toCamera.sqrMagnitude < 0.01f) return;
-
-        Quaternion targetRotation = Quaternion.LookRotation(toCamera);
-        player.rotation = targetRotation;
-
-        Debug.DrawRay(player.position, toCamera.normalized * 3f, Color.green, 2f);
-    }
-
-    void OnOptionSelected(BuildOption selectedOption)
-    {
-        UIDaily.SetActive(false);
-        AudioManager.ins.PlaySoundBuild();
-        BuildLocation loc = buildLocations[currentLocationIndex];
-        optionPanel.SetActive(false);
-
-        isMoving = false;
-        playerAnimator.SetBool("IsMoving", false);
-
-        StartCoroutine(PerformBuildAction(selectedOption, loc));
-    }
-
-    IEnumerator PerformBuildAction(BuildOption selectedOption, BuildLocation loc)
-    {
-        if (playerAnimator != null && !string.IsNullOrEmpty(buildAnim))
+        if (placementEffectPrefab == null || objectBuildedPrefab == null)
         {
-            playerAnimator.Play(buildAnim);
+            return;
         }
 
-        yield return new WaitForSeconds(0.5f);
+        Transform buildTransform = objectBuildedPrefab.transform;
+        GameObject effect = Instantiate(placementEffectPrefab, buildTransform.position, buildTransform.rotation);
+        Destroy(effect, 5f);
+    }
 
-        if (selectedOption.prefab != null)
+    private void ShowBuildUi()
+    {
+        if (UIBuild != null)
         {
-            objectBuildedPrefab=Instantiate(selectedOption.prefab, loc.buildPosition, Quaternion.identity);
             UIBuild.SetActive(true);
         }
+    }
 
-        if (selectedOption.placementParticle != null)
+    private void HideBuildUi()
+    {
+        if (UIBuild != null)
         {
-            GameObject particle = Instantiate(selectedOption.placementParticle, loc.buildPosition, Quaternion.identity);
-            Destroy(particle, 5f);
+            UIBuild.SetActive(false);
+        }
+    }
+
+    private void HideDailyUi()
+    {
+        if (UIDaily != null)
+        {
+            UIDaily.SetActive(false);
+        }
+    }
+
+    private void HideSceneBuildObject()
+    {
+        /*if (objectBuildedPrefab != null && objectBuildedPrefab.scene.IsValid())
+        {
+            objectBuildedPrefab.SetActive(false);
+        }*/
+    }
+
+    private void PrepareBuildObjectForPlacement(GameObject buildObject)
+    {
+        buildObject.SetActive(true);
+        isBuildConfirmed = false;
+        ResolveBuildCamera(buildObject);
+        EnsureBuildClickCollider(buildObject);
+
+        buildRevealController = buildObject.GetComponent<BuildRevealController>();
+        if (buildRevealController != null)
+        {
+            buildRevealController.Configure(totalBuildParts, totalBuildParts);
+        }
+    }
+
+    private void ResolveBuildCamera(GameObject buildObject)
+    {
+        if (buildCamera == null)
+        {
+            buildCamera = buildObject.GetComponentInChildren<Camera>(true);
+        }
+    }
+
+    private void EnsureBuildClickCollider(GameObject buildObject)
+    {
+        Collider[] colliders = buildObject.GetComponentsInChildren<Collider>(true);
+        foreach (Collider buildCollider in colliders)
+        {
+            if (buildCollider.enabled)
+            {
+                return;
+            }
         }
 
-        if (currentEffect != null)
+        BoxCollider existingBoxCollider = buildObject.GetComponent<BoxCollider>();
+        if (existingBoxCollider != null)
         {
-            Destroy(currentEffect);
-            currentEffect = null;
+            existingBoxCollider.enabled = true;
+            return;
         }
 
-        //LunaManager.ins.ShowEndCard();
+        Renderer[] renderers = buildObject.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+        {
+            return;
+        }
+
+        Bounds localBounds = GetLocalRendererBounds(buildObject.transform, renderers);
+        BoxCollider boxCollider = buildObject.AddComponent<BoxCollider>();
+        boxCollider.center = localBounds.center;
+        boxCollider.size = localBounds.size;
+    }
+
+    private Bounds GetLocalRendererBounds(Transform root, Renderer[] renderers)
+    {
+        Bounds localBounds = new Bounds(root.InverseTransformPoint(renderers[0].bounds.center), Vector3.zero);
+        foreach (Renderer rendererItem in renderers)
+        {
+            Bounds rendererBounds = rendererItem.bounds;
+            Vector3 min = rendererBounds.min;
+            Vector3 max = rendererBounds.max;
+
+            EncapsulateLocalPoint(root, ref localBounds, new Vector3(min.x, min.y, min.z));
+            EncapsulateLocalPoint(root, ref localBounds, new Vector3(min.x, min.y, max.z));
+            EncapsulateLocalPoint(root, ref localBounds, new Vector3(min.x, max.y, min.z));
+            EncapsulateLocalPoint(root, ref localBounds, new Vector3(min.x, max.y, max.z));
+            EncapsulateLocalPoint(root, ref localBounds, new Vector3(max.x, min.y, min.z));
+            EncapsulateLocalPoint(root, ref localBounds, new Vector3(max.x, min.y, max.z));
+            EncapsulateLocalPoint(root, ref localBounds, new Vector3(max.x, max.y, min.z));
+            EncapsulateLocalPoint(root, ref localBounds, new Vector3(max.x, max.y, max.z));
+        }
+
+        return localBounds;
+    }
+
+    private void EncapsulateLocalPoint(Transform root, ref Bounds localBounds, Vector3 worldPoint)
+    {
+        localBounds.Encapsulate(root.InverseTransformPoint(worldPoint));
+    }
+
+    private void SetBuildNextPartButton(bool isActive)
+    {
+        if (btnBuildNextPart != null)
+        {
+            btnBuildNextPart.gameObject.SetActive(isActive);
+        }
+    }
+
+    private void MoveObject(Vector3 direction)
+    {
+        if (objectBuildedPrefab == null || isBuildConfirmed)
+        {
+            return;
+        }
+
+        PlayClickSound();
+        objectBuildedPrefab.transform.position += direction * moveStep;
     }
 
     public void MoveLeft()
     {
-        AudioManager.ins.PlaySoundClick();
-        objectBuildedPrefab.transform.position += Vector3.left;
+        MoveObject(Vector3.left);
     }
+
     public void MoveRight()
     {
-        AudioManager.ins.PlaySoundClick();
-        objectBuildedPrefab.transform.position += Vector3.right;
+        MoveObject(Vector3.right);
     }
+
     public void MoveForward()
     {
-        AudioManager.ins.PlaySoundClick();
-        objectBuildedPrefab.transform.position += Vector3.forward;
+        MoveObject(Vector3.forward);
     }
+
     public void MoveBackward()
     {
-        AudioManager.ins.PlaySoundClick();
-        objectBuildedPrefab.transform.position += Vector3.back;
+        MoveObject(Vector3.back);
     }
+
     public void RotateClockwise()
     {
-        AudioManager.ins.PlaySoundClick();
-        objectBuildedPrefab.transform.Rotate(Vector3.up, 15f);
+        if (objectBuildedPrefab == null || isBuildConfirmed)
+        {
+            return;
+        }
+
+        PlayClickSound();
+        objectBuildedPrefab.transform.Rotate(Vector3.up, rotateStep);
+    }
+
+    private void PlayClickSound()
+    {
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlaySoundClick();
+        }
+    }
+
+    private void PlayBuildSound()
+    {
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlaySoundBuild();
+        }
+    }
+
+    private void CheckClickShowEndCard()
+    {
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.CheckClickShowEndCard();
+        }
+    }
+
+    private void ShowEndCard()
+    {
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.OnClickEndCard();
+            LunaManager.ins.ShowEndCard();
+        }
     }
 }
