@@ -9,10 +9,11 @@ public class LunaManager : MonoBehaviour
 {
     public static LunaManager ins;
     public int countDrop = 0;
+    public int countEnemyDead = 0;
     [LunaPlaygroundField("Shots Before Store")] public int countDropFinal = 20;
+    [LunaPlaygroundField("Enemy Dead Before Store")] public int countEnemyDeadFinal=20;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
-    [LunaPlaygroundField("Time Between Bow Shots")] public float timeDelayAttackPlayer = 0.8f;
     [LunaPlaygroundField("Player Health")] public int healthPlayer = 1;
     [LunaPlaygroundField("Enemy Health")] public float enemyHealth = 3f;
     [LunaPlaygroundField("Enemy Move Speed")] public float enemyMoveSpeed = 2f;
@@ -79,6 +80,15 @@ public class LunaManager : MonoBehaviour
     {
         countDrop++;
         if (countDropFinal > 0 && countDrop >= countDropFinal && isCretivePause == false)
+        {
+            ShowEndCardEmpty();
+        }
+    }
+
+    public void RegisterEnemyKill()
+    {
+        countEnemyDead++;
+        if (countEnemyDeadFinal > 0 && countEnemyDead >= countEnemyDeadFinal && isCretivePause == false)
         {
             ShowEndCardEmpty();
         }

@@ -2,12 +2,17 @@ using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
     public Animator animator;
     public DOTweenAnimation effectDamageEnemy;
+    public DOTweenAnimation effectTakeDamagePlayer;
     public RectTransform aimReticle;
+
+    [Header("UI")]
+    public GameObject weaponGuideUI;
 
     [Header("Projectile")]
     public GameObject projectilePrefab;
@@ -16,6 +21,17 @@ public class PlayerController : MonoBehaviour
     public float projectileSpeed = 35f;
     public float projectileLifetime = 5f;
 
+    [Header("Movement")]
+    public JoystickController joystick;
+    public float moveSpeed = 5f;
+    public string moveSpeedParam = "Speed";
+
+    [Header("Weapon")]
+    public WeaponManager weaponManager;
+    public AudioClip fireSound;
+    public AudioClip deadSound;
+    public string attackAnimTrigger = "Attack";
+
     [Header("Combat Settings")]
     public float attackCooldown = 1f;
     public float shotRange = 30f;
@@ -23,6 +39,7 @@ public class PlayerController : MonoBehaviour
     public float shotDelay = 0.12f;
     public LayerMask shotMask = ~0;
     public float aimAssistRadius = 0.9f;
+    public float aimMissDistance = 100f;
 
     [Header("Aim Camera")]
     public Vector3 cameraPivotOffset = new Vector3(0f, 1.35f, 0f);
@@ -57,12 +74,12 @@ public class PlayerController : MonoBehaviour
     private float recoilYawOffset;
     private float recoilPitchOffset;
     private Vector2 lastMousePosition;
+    private int aimTouchId = -1;
 
     void Start()
     {
         if (LunaManager.ins != null)
         {
-            attackCooldown = LunaManager.ins.timeDelayAttackPlayer;
             currentHealth = LunaManager.ins.healthPlayer;
         }
         else
@@ -97,6 +114,7 @@ public class PlayerController : MonoBehaviour
             CacheCameraState();
         }
 
+        HandleMovement();
         HandleAimInput();
         UpdateAimCamera();
     }
@@ -104,6 +122,11 @@ public class PlayerController : MonoBehaviour
     IEnumerator AttackEnemy(EnemyController enemy)
     {
         if (LunaManager.ins != null && LunaManager.ins.isCretivePause)
+        {
+            yield break;
+        }
+
+        if (weaponManager != null && !weaponManager.UseAmmo())
         {
             yield break;
         }
@@ -117,12 +140,12 @@ public class PlayerController : MonoBehaviour
 
         if (animator != null)
         {
-            animator.SetTrigger("Attack");
+            animator.SetTrigger(attackAnimTrigger);
         }
 
         if (AudioManager.ins != null)
         {
-            AudioManager.ins.PlaySoundFire();
+            AudioManager.ins.PlaySoundFire(fireSound);
         }
 
         ApplyRecoil();
@@ -131,7 +154,7 @@ public class PlayerController : MonoBehaviour
 
         if (projectilePrefab != null)
         {
-            SpawnProjectile(aimRay, lockedEnemy);
+            SpawnProjectile();
         }
         else if (lockedEnemy != null && !lockedEnemy.IsDead())
         {
@@ -169,6 +192,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        PlayTakeDamageWarning();
         currentHealth -= amount;
         if (currentHealth <= 0f)
         {
@@ -189,17 +213,65 @@ public class PlayerController : MonoBehaviour
             LunaManager.ins.ShowEndCard();
         }
 
-        RestoreDefaultView();
+        // Dừng input, giữ nguyên camera tại vị trí lúc chết
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.StopAimHold();
+            if (deadSound != null)
+                AudioManager.ins.PlaySound(deadSound);
+        }
+        isPointerTracking = false;
+        hasLastMousePosition = false;
+        recoilPitchOffset = 0f;
+        recoilYawOffset = 0f;
 
         if (animator != null)
         {
-            animator.SetTrigger("Dead");
+            animator.speed = 0;
         }
+
+        // Ngã nghiêng 90° trên trục Z
+        Transform tiltTarget = animator != null ? animator.transform : transform;
+        Vector3 targetEuler = tiltTarget.eulerAngles;
+        targetEuler.z = 90f;
+        tiltTarget.DORotate(targetEuler, 0.5f, RotateMode.Fast).SetEase(Ease.OutQuad);
     }
 
     public bool IsDead()
     {
         return isDead;
+    }
+
+    public void PlayTakeDamageWarning()
+    {
+        DOTweenAnimation damageEffect = effectTakeDamagePlayer != null ? effectTakeDamagePlayer : effectDamageEnemy;
+        if (damageEffect == null)
+        {
+            return;
+        }
+
+        damageEffect.gameObject.SetActive(true);
+        damageEffect.DORestart();
+    }
+
+    public void HideWeaponGuideUI()
+    {
+        if (weaponGuideUI != null)
+        {
+            weaponGuideUI.SetActive(false);
+        }
+    }
+
+    public void TryShoot()
+    {
+        if (isDead)
+            return;
+        if (LunaManager.ins != null && LunaManager.ins.isCretivePause)
+            return;
+        if (!canAttack)
+            return;
+
+        StartCoroutine(AttackEnemy(FindEnemyFromAimRay(GetAimRay())));
     }
 
     public Vector3 GetCombatTargetPosition()
@@ -214,41 +286,124 @@ public class PlayerController : MonoBehaviour
         return transform.position;
     }
 
-    void HandleAimInput()
+    void HandleMovement()
     {
-        if (IsPrimaryInputStarted())
-        {
-            isPointerTracking = true;
-            hasLastMousePosition = false;
+        Vector2 input = GetMovementInput();
 
-            if (AudioManager.ins != null)
+        if (animator != null)
+            animator.SetFloat(moveSpeedParam, input.magnitude);
+
+        if (gameplayCamera != null)
+        {
+            Vector3 camForward = gameplayCamera.transform.forward;
+            camForward.y = 0f;
+            if (camForward.sqrMagnitude > 0.001f)
             {
-                AudioManager.ins.StartAimHold();
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    Quaternion.LookRotation(camForward.normalized),
+                    10f * Time.deltaTime);
+
+                if (input.sqrMagnitude >= 0.01f)
+                {
+                    Vector3 camRight = gameplayCamera.transform.right;
+                    camRight.y = 0f;
+                    camRight.Normalize();
+                    Vector3 moveDir = camForward.normalized * input.y + camRight * input.x;
+                    transform.position += moveDir * moveSpeed * Time.deltaTime;
+                }
             }
         }
-
-        if (isPointerTracking && IsPrimaryInputHeld())
+        else if (input.sqrMagnitude >= 0.01f)
         {
-            ApplyOrbitInput(GetPrimaryLookDelta());
+            transform.position += new Vector3(input.x, 0f, input.y) * moveSpeed * Time.deltaTime;
         }
+    }
 
-        if (!isPointerTracking)
+    Vector2 GetMovementInput()
+    {
+        Vector2 input = joystick != null ? joystick.Direction : Vector2.zero;
+
+#if UNITY_EDITOR
+        Vector2 keyboardInput = Vector2.zero;
+        if (Input.GetKey(KeyCode.A))
+            keyboardInput.x -= 1f;
+        if (Input.GetKey(KeyCode.D))
+            keyboardInput.x += 1f;
+        if (Input.GetKey(KeyCode.S))
+            keyboardInput.y -= 1f;
+        if (Input.GetKey(KeyCode.W))
+            keyboardInput.y += 1f;
+
+        if (keyboardInput.sqrMagnitude > 1f)
+            keyboardInput.Normalize();
+
+        if (keyboardInput.sqrMagnitude > 0f)
+            input = keyboardInput;
+#endif
+
+        return input;
+    }
+
+    void HandleAimInput()
+    {
+        int joystickTouchId = joystick != null ? joystick.ActiveTouchId : -1;
+
+        if (Input.touchCount > 0)
         {
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                Touch touch = Input.GetTouch(i);
+                if (touch.fingerId == joystickTouchId)
+                    continue;
+
+                if (touch.phase == TouchPhase.Began && !isPointerTracking)
+                {
+                    if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+                        continue;
+
+                    aimTouchId = touch.fingerId;
+                    isPointerTracking = true;
+                    hasLastMousePosition = false;
+                    if (AudioManager.ins != null)
+                        AudioManager.ins.StartAimHold();
+                }
+
+                if (!isPointerTracking || touch.fingerId != aimTouchId)
+                    continue;
+
+                if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+                    ApplyOrbitInput(touch.deltaPosition * touchOrbitSensitivity);
+
+                if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                {
+                    if (AudioManager.ins != null)
+                        AudioManager.ins.StopAimHold();
+                    isPointerTracking = false;
+                    aimTouchId = -1;
+                    hasLastMousePosition = false;
+                }
+            }
             return;
         }
 
-        if (IsPrimaryInputReleased())
+        // Mouse fallback (PC)
+        bool overUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+        if (Input.GetMouseButtonDown(0) && !overUI)
+        {
+            isPointerTracking = true;
+            hasLastMousePosition = false;
+            if (AudioManager.ins != null)
+                AudioManager.ins.StartAimHold();
+        }
+
+        if (isPointerTracking && Input.GetMouseButton(0))
+            ApplyOrbitInput(GetMouseLookDelta());
+
+        if (isPointerTracking && Input.GetMouseButtonUp(0))
         {
             if (AudioManager.ins != null)
-            {
                 AudioManager.ins.StopAimHold();
-            }
-
-            if (canAttack)
-            {
-                StartCoroutine(AttackEnemy(FindEnemyFromAimRay(GetAimRay())));
-            }
-
             isPointerTracking = false;
             hasLastMousePosition = false;
         }
@@ -264,10 +419,9 @@ public class PlayerController : MonoBehaviour
         recoilPitchOffset = Mathf.Lerp(recoilPitchOffset, 0f, recoilRecoverSpeed * Time.deltaTime);
         recoilYawOffset = Mathf.Lerp(recoilYawOffset, 0f, recoilRecoverSpeed * Time.deltaTime);
 
-        float targetFieldOfView = isPointerTracking ? zoomFieldOfView : defaultCameraFieldOfView;
         gameplayCamera.fieldOfView = Mathf.Lerp(
             gameplayCamera.fieldOfView,
-            targetFieldOfView,
+            defaultCameraFieldOfView,
             zoomSpeed * Time.deltaTime);
 
         float finalYaw = targetYaw + recoilYawOffset;
@@ -362,14 +516,18 @@ public class PlayerController : MonoBehaviour
         recoilYawOffset += UnityEngine.Random.Range(-recoilYaw, recoilYaw);
     }
 
-    void SpawnProjectile(Ray aimRay, EnemyController targetEnemy)
+    void SpawnProjectile()
     {
-        Vector3 projectileDirection = aimRay.direction;
-        Vector3 spawnPosition = GetProjectileSpawnPosition(projectileDirection);
-
-        if (targetEnemy != null && !targetEnemy.IsDead())
+        Vector3 spawnPosition = GetProjectileSpawnPosition();
+        Vector3 aimPoint = GetAimPointFromScreenCenter(spawnPosition, out RaycastHit aimHit);
+        Vector3 projectileDirection = aimPoint - spawnPosition;
+        if (projectileDirection.sqrMagnitude <= 0.001f)
         {
-            projectileDirection = (targetEnemy.GetAimPoint() - spawnPosition).normalized;
+            projectileDirection = gameplayCamera != null ? gameplayCamera.transform.forward : transform.forward;
+        }
+        else
+        {
+            projectileDirection.Normalize();
         }
 
         GameObject projectileObject = Instantiate(
@@ -393,12 +551,43 @@ public class PlayerController : MonoBehaviour
 
     Ray GetAimRay()
     {
-        if (gameplayCamera == null)
+        Vector3 shotOrigin = GetShotOrigin();
+        Vector3 aimPoint = GetAimPointFromScreenCenter(shotOrigin, out RaycastHit aimHit);
+        Vector3 aimDirection = aimPoint - shotOrigin;
+        if (aimDirection.sqrMagnitude <= 0.001f)
         {
-            return default;
+            aimDirection = gameplayCamera != null ? gameplayCamera.transform.forward : transform.forward;
         }
 
-        return gameplayCamera.ScreenPointToRay(GetAimScreenPosition());
+        return new Ray(shotOrigin, aimDirection.normalized);
+    }
+
+    Vector3 GetAimPointFromScreenCenter(Vector3 shotOrigin, out RaycastHit validHit)
+    {
+        validHit = default;
+        if (gameplayCamera == null)
+        {
+            return shotOrigin + transform.forward * aimMissDistance;
+        }
+
+        Ray cameraRay = gameplayCamera.ScreenPointToRay(GetAimScreenPosition());
+        RaycastHit[] hits = Physics.RaycastAll(cameraRay, aimMissDistance, shotMask, QueryTriggerInteraction.Ignore);
+        if (hits.Length > 0)
+        {
+            Array.Sort(hits, (left, right) => left.distance.CompareTo(right.distance));
+            for (int i = 0; i < hits.Length; i++)
+            {
+                if (IsOwnedCollider(hits[i].collider))
+                {
+                    continue;
+                }
+
+                validHit = hits[i];
+                return hits[i].point;
+            }
+        }
+
+        return cameraRay.origin + cameraRay.direction * aimMissDistance;
     }
 
     Vector2 GetAimScreenPosition()
@@ -466,14 +655,15 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(lookDirection.normalized);
     }
 
-    Vector3 GetProjectileSpawnPosition(Vector3 projectileDirection)
+    Vector3 GetProjectileSpawnPosition()
     {
         if (projectileSpawnPoint != null)
         {
             return projectileSpawnPoint.position;
         }
 
-        return GetShotOrigin() + (projectileDirection.normalized * projectileSpawnOffset);
+        Vector3 shotDirection = gameplayCamera != null ? gameplayCamera.transform.forward : transform.forward;
+        return GetShotOrigin() + (shotDirection.normalized * projectileSpawnOffset);
     }
 
     Vector3 GetShotOrigin()
@@ -498,7 +688,18 @@ public class PlayerController : MonoBehaviour
             return gameplayCamera.transform.position;
         }
 
-        return transform.position + cameraPivotOffset;
+        return transform.position + Vector3.up * cameraPivotOffset.y;
+    }
+
+    bool IsOwnedCollider(Collider targetCollider)
+    {
+        if (targetCollider == null)
+        {
+            return false;
+        }
+
+        Transform root = transform.root;
+        return targetCollider.transform == root || targetCollider.transform.IsChildOf(root);
     }
 
     bool IsAttachedToGameplayCamera()
@@ -511,13 +712,8 @@ public class PlayerController : MonoBehaviour
         return transform == gameplayCamera.transform || transform.IsChildOf(gameplayCamera.transform);
     }
 
-    Vector2 GetPrimaryLookDelta()
+    Vector2 GetMouseLookDelta()
     {
-        if (Input.touchCount > 0)
-        {
-            return Input.GetTouch(0).deltaPosition * touchOrbitSensitivity;
-        }
-
         Vector2 axisDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
         if (axisDelta.sqrMagnitude > 0.000001f)
         {
@@ -537,38 +733,6 @@ public class PlayerController : MonoBehaviour
         Vector2 pixelDelta = currentMousePosition - lastMousePosition;
         lastMousePosition = currentMousePosition;
         return pixelDelta * (mouseOrbitSensitivity * 0.02f);
-    }
-
-    bool IsPrimaryInputStarted()
-    {
-        if (Input.touchCount > 0)
-        {
-            return Input.GetTouch(0).phase == TouchPhase.Began;
-        }
-
-        return Input.GetMouseButtonDown(0);
-    }
-
-    bool IsPrimaryInputHeld()
-    {
-        if (Input.touchCount > 0)
-        {
-            TouchPhase phase = Input.GetTouch(0).phase;
-            return phase != TouchPhase.Ended && phase != TouchPhase.Canceled;
-        }
-
-        return Input.GetMouseButton(0);
-    }
-
-    bool IsPrimaryInputReleased()
-    {
-        if (Input.touchCount > 0)
-        {
-            TouchPhase phase = Input.GetTouch(0).phase;
-            return phase == TouchPhase.Ended || phase == TouchPhase.Canceled;
-        }
-
-        return Input.GetMouseButtonUp(0);
     }
 
     float NormalizeAngle(float angle)
@@ -597,11 +761,6 @@ public class PlayerController : MonoBehaviour
 
     float GetTimeBetweenShots()
     {
-        if (LunaManager.ins != null)
-        {
-            attackCooldown = LunaManager.ins.timeDelayAttackPlayer;
-        }
-
         return Mathf.Max(0f, attackCooldown);
     }
 }

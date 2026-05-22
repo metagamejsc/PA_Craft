@@ -56,12 +56,18 @@ public class AudioManager : MonoBehaviour
     }
     public void PlaySoundFire()
     {
-        if (fireSound == null)
+        PlaySoundFire(fireSound);
+    }
+
+    public void PlaySoundFire(AudioClip clip)
+    {
+        AudioClip selectedClip = clip != null ? clip : fireSound;
+        if (selectedClip == null)
         {
             return;
         }
 
-        sound.PlayOneShot(fireSound,1);
+        sound.PlayOneShot(selectedClip,1);
     }
     public void StartAimHold()
     {

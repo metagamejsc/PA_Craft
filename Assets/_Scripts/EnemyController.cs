@@ -16,6 +16,7 @@ public class EnemyController : MonoBehaviour
     public float attackHitDelay = 0.3f;
     public int attackDamage = 1;
     public Animator animator;
+    public Animator animator2;
 
     public Transform player;
     public PlayerController playerController;
@@ -30,6 +31,9 @@ public class EnemyController : MonoBehaviour
     public Color healthBarBackgroundColor = new Color(0.08f, 0.08f, 0.08f, 0.9f);
     public Color healthBarFillColor = new Color(0.27f, 0.85f, 0.16f, 1f);
 
+    [Header("Death")]
+    public AudioClip deadSound;
+
     [Header("Hit Reaction")]
     public float rotateSpeed = 8f;
     public float hitJumpHeight = 0.45f;
@@ -43,8 +47,10 @@ public class EnemyController : MonoBehaviour
     private Tween hitTween;
     private bool isHitReacting;
     private bool hasAttackTrigger;
+    private bool hasAttackTrigger2;
     private bool hasDeadTrigger;
     private bool hasIsMovingBool;
+    private bool hasIsMovingBool2;
 
     void OnEnable()
     {
@@ -135,10 +141,7 @@ public class EnemyController : MonoBehaviour
             RotateTowards(attackDirection);
         }
 
-        if (animator != null && hasAttackTrigger)
-        {
-            animator.SetTrigger(AttackTriggerHash);
-        }
+        SetAttackAnimation();
 
         yield return new WaitForSeconds(attackHitDelay);
 
@@ -345,9 +348,15 @@ public class EnemyController : MonoBehaviour
             //animator.SetTrigger(DeadTriggerHash);
             animator.Play("metarig|Fall");
         }*/
-        animator.Play("metarig|Fall");
+        if (deadSound != null && AudioManager.ins != null)
+        {
+            AudioManager.ins.PlaySound(deadSound);
+        }
+
+        PlayDeadAnimation();
         if (LunaManager.ins != null)
         {
+            LunaManager.ins.RegisterEnemyKill();
             if (!HasOtherAliveEnemies(this))
             {
                 LunaManager.ins.ShowWinCard();
@@ -432,19 +441,21 @@ public class EnemyController : MonoBehaviour
 
     void CacheAnimatorParameters()
     {
-        hasAttackTrigger = HasAnimatorParameter(AttackTriggerHash, AnimatorControllerParameterType.Trigger);
-        hasDeadTrigger = HasAnimatorParameter(DeadTriggerHash, AnimatorControllerParameterType.Trigger);
-        hasIsMovingBool = HasAnimatorParameter(IsMovingBoolHash, AnimatorControllerParameterType.Bool);
+        hasAttackTrigger = HasAnimatorParameter(animator, AttackTriggerHash, AnimatorControllerParameterType.Trigger);
+        hasAttackTrigger2 = HasAnimatorParameter(animator2, AttackTriggerHash, AnimatorControllerParameterType.Trigger);
+        hasDeadTrigger = HasAnimatorParameter(animator, DeadTriggerHash, AnimatorControllerParameterType.Trigger);
+        hasIsMovingBool = HasAnimatorParameter(animator, IsMovingBoolHash, AnimatorControllerParameterType.Bool);
+        hasIsMovingBool2 = HasAnimatorParameter(animator2, IsMovingBoolHash, AnimatorControllerParameterType.Bool);
     }
 
-    bool HasAnimatorParameter(int parameterHash, AnimatorControllerParameterType parameterType)
+    bool HasAnimatorParameter(Animator targetAnimator, int parameterHash, AnimatorControllerParameterType parameterType)
     {
-        if (animator == null)
+        if (targetAnimator == null)
         {
             return false;
         }
 
-        AnimatorControllerParameter[] parameters = animator.parameters;
+        AnimatorControllerParameter[] parameters = targetAnimator.parameters;
         for (int i = 0; i < parameters.Length; i++)
         {
             if (parameters[i].nameHash == parameterHash && parameters[i].type == parameterType)
@@ -456,14 +467,47 @@ public class EnemyController : MonoBehaviour
         return false;
     }
 
-    void SetMovingAnimation(bool isMoving)
+    void SetAttackAnimation()
     {
-        if (animator == null || !hasIsMovingBool)
+        if (animator != null && hasAttackTrigger)
         {
-            return;
+            animator.SetTrigger(AttackTriggerHash);
         }
 
-        animator.SetBool(IsMovingBoolHash, isMoving);
+        if (animator2 != null && hasAttackTrigger2)
+        {
+            animator2.SetTrigger(AttackTriggerHash);
+        }
+    }
+
+    void PlayDeadAnimation()
+    {
+        if (animator != null)
+        {
+            animator.ResetTrigger(AttackTriggerHash);
+            animator.SetBool(IsMovingBoolHash, false);
+            animator.Play("metarig|Fall", 0, 0f);
+        }
+
+        if (animator2 != null)
+        {
+            animator2.ResetTrigger(AttackTriggerHash);
+            animator2.SetBool(IsMovingBoolHash, false);
+            animator2.Play("metarig|Fall", 0, 0f);
+        }
+    }
+
+    void SetMovingAnimation(bool isMoving)
+    {
+        if (animator != null && hasIsMovingBool)
+        {
+            animator.SetBool(IsMovingBoolHash, isMoving);
+        }
+
+        if (animator2 != null && hasIsMovingBool2)
+        {
+            animator2.SetBool(IsMovingBoolHash, isMoving);
+        }
     }
 
     Vector3 GetAttackDirection()

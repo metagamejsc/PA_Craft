@@ -1,8 +1,8 @@
 {
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29023,
-    "creativeName": "UAC_V31_ChiTM_ToiNV",
+    "applicationID": 38393,
+    "creativeName": "MCS_V05_DungNV_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -105,18 +105,17 @@
                 "Assets/_Scripts/UIManager.cs",
                 "Assets/_Scripts/ThirdPersonCamera.cs",
                 "Assets/_Scripts/SoundChar.cs",
-                "Assets/_Scripts/JoystickController.cs",
                 "Assets/_Scripts/PlayerChar.cs",
                 "Assets/_Scripts/ZombieChar.cs",
                 "Assets/_Scripts/MonsterSpawner.cs",
                 "Assets/_Scripts/TriggerEffect.cs"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
-            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
+            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.14",
+            "msbuildVersion": "18.5",
             "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
@@ -162,7 +161,8 @@
                 "Assets/SoundFX/I Trolled My Noob Friend with Fake Ores (online-video-cutter.com) (1).mp4",
                 "Assets/Sound/Hard Parkour Music.mp3",
                 "Assets/SoundFX/an_ordinary_day (mp3cut.net).mp3",
-                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset"
+                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset",
+                "Assets/TextMesh Pro/Fonts/Customs/museo-sans-rounded-cufonfonts/MuseoSansRounded1000 SDF.asset"
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
@@ -198,7 +198,7 @@
         "preloader": {
             "logo": ""
         },
-        "enableRealtimeShadows": false,
+        "enableRealtimeShadows": true,
         "enableLunaCompilerV2": false,
         "optimiseShaderVariantsExport": true,
         "enableMecanimWASM": true,
@@ -3056,10 +3056,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEditor.Animations.ChildMotion",
-                "excluded": true
-            },
-            {
                 "name": "UnityEditor.MenuItem",
                 "excluded": true
             },
@@ -3653,10 +3649,6 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Components.WheelCollider",
-                "excluded": true
-            },
-            {
-                "name": "UnityEditor.Animations.BlendTree",
                 "excluded": true
             },
             {
@@ -4757,7 +4749,7 @@
             },
             {
                 "name": "UnityEditor.Animations.BlendTreeType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEditor.Animations.TransitionInterruptionSource",
@@ -8871,7 +8863,7 @@
                     },
                     {
                         "name": "$is",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "parse",
@@ -16591,7 +16583,7 @@
                     },
                     {
                         "name": "SetPositionAndRotation",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -31957,7 +31949,7 @@
                     },
                     {
                         "name": "DOLocalRotate",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOLocalRotateQuaternion",
@@ -34177,7 +34169,7 @@
                     },
                     {
                         "name": "SetFloat$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetFloat",
@@ -35134,6 +35126,14 @@
                     {
                         "name": "RotateTowards",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetAttackAnimation",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayDeadAnimation",
+                        "excluded": true
                     }
                 ]
             },
@@ -35234,22 +35234,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetPrimaryLookDelta",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsPrimaryInputStarted",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsPrimaryInputHeld",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsPrimaryInputReleased",
-                        "excluded": false
-                    },
-                    {
                         "name": "NormalizeAngle",
                         "excluded": false
                     },
@@ -35264,6 +35248,38 @@
                     {
                         "name": "GetTimeBetweenShots",
                         "excluded": false
+                    },
+                    {
+                        "name": "HandleMovement",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayTakeDamageWarning",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryShoot",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetMovementInput",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAimPointFromScreenCenter",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IsOwnedCollider",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetMouseLookDelta",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HideWeaponGuideUI",
+                        "excluded": true
                     }
                 ]
             },
@@ -35389,15 +35405,55 @@
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetEnemyPrefab",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetSpawnPoint",
                         "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ActivateSpawning",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetPlayer",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetEnemyPrefabs",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SpawnEnemy",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetSpawnPose",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ProjectToGround",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CountAliveEnemies",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolvePlayer",
+                        "excluded": false
                     }
                 ]
             },
@@ -35456,6 +35512,10 @@
                     {
                         "name": "RegisterPlayerShot",
                         "excluded": false
+                    },
+                    {
+                        "name": "RegisterEnemyKill",
+                        "excluded": true
                     }
                 ]
             },
@@ -37610,6 +37670,10 @@
                     {
                         "name": "PlayMusic",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlaySoundFire$1",
+                        "excluded": true
                     }
                 ]
             },
@@ -37944,6 +38008,220 @@
                         "excluded": true
                     }
                 ]
+            },
+            {
+                "className": "GunConfig",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GunPickupBox",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "OnTriggerEnter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "JoystickController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerDown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDrag",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerUp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateKnob",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ActiveTouchId#get",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "WeaponManager",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EquipGun",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UseAmmo",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetCurrentAmmo",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HasGunEquipped",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetCurrentGunIndex",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EquipGun$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ActivateEnemySpawner",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEditor.Animations.ChildMotion",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEditor.Animations.BlendTree",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "children#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "children#set",
+                        "excluded": false
+                    },
+                    {
+                        "name": "length#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "length#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetSamplers",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetParameters",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RecalculatePositionLimits",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NormalizeWeights",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BlendSamplers",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Sample",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PullOrphanEvents",
+                        "excluded": true
+                    },
+                    {
+                        "name": "WeightForIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Simple1DSampler",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GradientBandInterpolationSampler",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PolarGradientInterpolator",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PolarGradientBandInterpolationSampler",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DirectSampler",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SimpleDirectional2DSampler",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "ShootButton",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerDown",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnPointerUp",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -38101,6 +38379,26 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/skyboxtest11@2x.png"
+                    },
+                    {
+                        "maxWidth": 1024,
+                        "maxHeight": 1024,
+                        "format": "png32",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Game/Models/FlatMapByCreeperCoastal/texture/FlatbyCreeperCoastal-RGBA.png"
+                    },
+                    {
+                        "maxWidth": 1024,
+                        "maxHeight": 1024,
+                        "format": "png32",
+                        "compression": "quantSize",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Game/Models/FlatMapByCreeperCoastal/texture/FlatbyCreeperCoastal-RGB.png"
                     }
                 ]
             },
