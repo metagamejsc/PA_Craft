@@ -32,6 +32,12 @@ public class EnemyController : MonoBehaviour
     public bool isCinematicLocked = false;
     public bool waitForFirstPlayerInput = true;
 
+    [Header("Zigzag Chase")]
+    public bool enableZigzagMovement = true;
+    public float zigzagWidth = 1.5f;
+    public float zigzagFrequency = 2.5f;
+    public float zigzagStopDistance = 0.5f;
+
     [Header("Health Settings")]
     public float maxHealth = 3f;
     public float healthBarHeight = 2.2f;
@@ -153,9 +159,9 @@ public class EnemyController : MonoBehaviour
         Vector3 targetPosition = playerController != null
             ? playerController.GetCombatTargetPosition()
             : player.position;
-        Vector3 moveDirection = targetPosition - transform.position;
-        moveDirection.y = 0f;
-        if (moveDirection.sqrMagnitude <= attackDistance * attackDistance)
+        Vector3 directDirection = targetPosition - transform.position;
+        directDirection.y = 0f;
+        if (directDirection.sqrMagnitude <= attackDistance * attackDistance)
         {
             SetMovingAnimation(false);
 
@@ -167,9 +173,28 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
+        Vector3 moveDirection = GetChaseDirection(targetPosition, directDirection);
         SetMovingAnimation(true);
         RotateTowards(moveDirection);
         transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
+    }
+
+    Vector3 GetChaseDirection(Vector3 targetPosition, Vector3 directDirection)
+    {
+        if (!enableZigzagMovement || directDirection.sqrMagnitude <= 0.001f)
+        {
+            return directDirection;
+        }
+
+        float directDistance = directDirection.magnitude;
+        float fadeDistance = Mathf.Max(0.01f, zigzagStopDistance);
+        float zigzagStrength = Mathf.Clamp01((directDistance - attackDistance) / fadeDistance);
+        Vector3 sideDirection = Vector3.Cross(Vector3.up, directDirection.normalized);
+        float sideOffset = Mathf.Sin(Time.time * zigzagFrequency) * Mathf.Max(0f, zigzagWidth) * zigzagStrength;
+        Vector3 zigzagTarget = targetPosition + (sideDirection * sideOffset);
+        Vector3 zigzagDirection = zigzagTarget - transform.position;
+        zigzagDirection.y = 0f;
+        return zigzagDirection.sqrMagnitude > 0.001f ? zigzagDirection : directDirection;
     }
 
     System.Collections.IEnumerator AttackPlayer()

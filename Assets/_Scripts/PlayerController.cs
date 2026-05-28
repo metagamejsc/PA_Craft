@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
@@ -39,6 +41,8 @@ public class PlayerController : MonoBehaviour
     public float touchOrbitSensitivity = 0.08f;
     public float orbitSmoothSpeed = 12f;
     public Vector2 pitchClamp = new Vector2(8f, 45f);
+    public bool clampHorizontalRotation = true;
+    public Vector2 horizontalYawClamp = new Vector2(-45f, 45f);
 
     [Header("Recoil")]
     public float recoilPitch = 1.5f;
@@ -51,6 +55,14 @@ public class PlayerController : MonoBehaviour
 
     [Header("Health UI")]
     public Image[] heartImages;
+
+    [Header("Side Movement")]
+    public Button moveLeftButton;
+    public Button moveRightButton;
+    public float sideMoveSpeed = 5f;
+    public bool allowKeyboardMovement = true;
+    public Transform movementTarget;
+    public Rigidbody movementBody;
 
     private float currentHealth;
     private bool isDead;
@@ -73,6 +85,8 @@ public class PlayerController : MonoBehaviour
     private float recoilYawOffset;
     private float recoilPitchOffset;
     private Vector2 lastMousePosition;
+    private bool isMoveLeftHeld;
+    private bool isMoveRightHeld;
 
     void Start()
     {
@@ -97,6 +111,7 @@ public class PlayerController : MonoBehaviour
 
         SetBowState(0);
         UpdateHeartUI();
+        SetupMovementButtons();
     }
 
     void Update()
@@ -118,6 +133,16 @@ public class PlayerController : MonoBehaviour
 
         HandleAimInput();
         UpdateAimCamera();
+    }
+
+    void FixedUpdate()
+    {
+        if (isDead || (LunaManager.ins != null && LunaManager.ins.isCretivePause))
+        {
+            return;
+        }
+
+        HandleSideMovement();
     }
 
     IEnumerator AttackEnemy(EnemyController enemy)
@@ -279,6 +304,12 @@ public class PlayerController : MonoBehaviour
 
     void HandleAimInput()
     {
+        if (IsSideMovementHeld())
+        {
+            CancelPointerAim();
+            return;
+        }
+
         if (IsPrimaryInputStarted())
         {
             isPointerTracking = true;
@@ -325,6 +356,117 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void HandleSideMovement()
+    {
+        float inputDirection = 0f;
+        if (isMoveLeftHeld)
+        {
+            inputDirection -= 1f;
+        }
+
+        if (isMoveRightHeld)
+        {
+            inputDirection += 1f;
+        }
+
+        if (allowKeyboardMovement)
+        {
+            inputDirection += Input.GetAxisRaw("Horizontal");
+        }
+
+        inputDirection = Mathf.Clamp(inputDirection, -1f, 1f);
+        if (Mathf.Approximately(inputDirection, 0f))
+        {
+            return;
+        }
+
+        Vector3 movement = Vector3.forward * (inputDirection * sideMoveSpeed * Time.fixedDeltaTime);
+        if (movementBody != null)
+        {
+            movementBody.MovePosition(movementBody.position + movement);
+            return;
+        }
+
+        GetMovementTarget().position += movement;
+    }
+
+    Transform GetMovementTarget()
+    {
+        return movementTarget != null ? movementTarget : transform;
+    }
+
+    void SetupMovementButtons()
+    {
+        AddMovementButtonEvents(moveLeftButton, PressMoveLeft, ReleaseMoveLeft);
+        AddMovementButtonEvents(moveRightButton, PressMoveRight, ReleaseMoveRight);
+    }
+
+    void AddMovementButtonEvents(Button button, UnityAction<BaseEventData> pressAction, UnityAction<BaseEventData> releaseAction)
+    {
+        if (button == null)
+        {
+            return;
+        }
+
+        EventTrigger trigger = button.GetComponent<EventTrigger>();
+        if (trigger == null)
+        {
+            trigger = button.gameObject.AddComponent<EventTrigger>();
+        }
+
+        AddPointerEvent(trigger, EventTriggerType.PointerDown, pressAction);
+        AddPointerEvent(trigger, EventTriggerType.PointerUp, releaseAction);
+        AddPointerEvent(trigger, EventTriggerType.PointerExit, releaseAction);
+    }
+
+    void AddPointerEvent(EventTrigger trigger, EventTriggerType eventType, UnityAction<BaseEventData> action)
+    {
+        EventTrigger.Entry entry = new EventTrigger.Entry { eventID = eventType };
+        entry.callback.AddListener(action);
+        trigger.triggers.Add(entry);
+    }
+
+    public void PressMoveLeft(BaseEventData eventData = null)
+    {
+        isMoveLeftHeld = true;
+    }
+
+    public void ReleaseMoveLeft(BaseEventData eventData = null)
+    {
+        isMoveLeftHeld = false;
+    }
+
+    public void PressMoveRight(BaseEventData eventData = null)
+    {
+        isMoveRightHeld = true;
+    }
+
+    public void ReleaseMoveRight(BaseEventData eventData = null)
+    {
+        isMoveRightHeld = false;
+    }
+
+    bool IsSideMovementHeld()
+    {
+        return isMoveLeftHeld || isMoveRightHeld;
+    }
+
+    void CancelPointerAim()
+    {
+        if (!isPointerTracking)
+        {
+            return;
+        }
+
+        isPointerTracking = false;
+        hasLastMousePosition = false;
+        SetBowState(0);
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.StopAimHold();
+        }
+    }
+
     void UpdateAimCamera()
     {
         if (gameplayCamera == null)
@@ -342,6 +484,14 @@ public class PlayerController : MonoBehaviour
             zoomSpeed * Time.deltaTime);
 
         float finalYaw = targetYaw + recoilYawOffset;
+        if (clampHorizontalRotation)
+        {
+            float minimumYaw = Mathf.Min(horizontalYawClamp.x, horizontalYawClamp.y);
+            float maximumYaw = Mathf.Max(horizontalYawClamp.x, horizontalYawClamp.y);
+            float yawOffset = Mathf.DeltaAngle(defaultYaw, finalYaw);
+            finalYaw = defaultYaw + Mathf.Clamp(yawOffset, minimumYaw, maximumYaw);
+        }
+
         float finalPitch = Mathf.Clamp(targetPitch - recoilPitchOffset, pitchClamp.x, pitchClamp.y);
 
         currentYaw = Mathf.LerpAngle(currentYaw, finalYaw, orbitSmoothSpeed * Time.deltaTime);
@@ -425,6 +575,14 @@ public class PlayerController : MonoBehaviour
         }
 
         targetYaw += lookDelta.x;
+        if (clampHorizontalRotation)
+        {
+            float minimumYaw = Mathf.Min(horizontalYawClamp.x, horizontalYawClamp.y);
+            float maximumYaw = Mathf.Max(horizontalYawClamp.x, horizontalYawClamp.y);
+            float yawOffset = Mathf.DeltaAngle(defaultYaw, targetYaw);
+            targetYaw = defaultYaw + Mathf.Clamp(yawOffset, minimumYaw, maximumYaw);
+        }
+
         targetPitch = Mathf.Clamp(targetPitch - lookDelta.y, pitchClamp.x, pitchClamp.y);
     }
 
@@ -719,6 +877,8 @@ public class PlayerController : MonoBehaviour
 
     void OnDisable()
     {
+        isMoveLeftHeld = false;
+        isMoveRightHeld = false;
         if (gameplayCamera != null)
         {
             RestoreDefaultView();
