@@ -6,22 +6,25 @@ using UnityEngine.UI;
 public class EnemyController : MonoBehaviour
 {
     private static readonly List<EnemyController> ActiveEnemies = new List<EnemyController>();
-    private static readonly int AttackTriggerHash = Animator.StringToHash("Attack");
     private static readonly int DeadTriggerHash = Animator.StringToHash("Dead");
     private static readonly int IsMovingBoolHash = Animator.StringToHash("isMoving");
 
     public float moveSpeed = 2f;
-    public float attackDistance = 2f;
-    public float attackCooldown = 1.5f;
-    public float attackHitDelay = 0.3f;
-    public int attackDamage = 1;
     public Animator animator;
+
+    [Header("Patrol Settings")]
+    [Tooltip("Enemy wanders to random points within this radius of its anchor. It never chases or attacks the player.")]
+    public float patrolRadius = 3f;
+    [Tooltip("Optional anchor the enemy patrols around. Defaults to its spawn position when left empty.")]
+    public Transform patrolAnchorOverride;
+    [Tooltip("Random idle wait (seconds) after reaching a point before picking the next one.")]
+    public Vector2 patrolWaitTime = new Vector2(0.4f, 1.4f);
+    [Tooltip("Distance at which the enemy is considered to have reached its patrol point.")]
+    public float arriveThreshold = 0.2f;
 
     public Transform player;
     public PlayerController playerController;
     public bool isDead = false;
-    public bool isAttacking = false;
-    public bool canAttack = true;
     public bool waitForTutorialComplete = true;
 
     [Header("Health Settings")]
@@ -38,12 +41,15 @@ public class EnemyController : MonoBehaviour
     public float hitPushbackDistance = 1.1f;
 
     private float currentHealth;
+    private Vector3 patrolAnchor;
+    private Vector3 patrolTarget;
+    private float patrolWaitTimer;
+    private bool hasPatrolTarget;
     private Camera gameplayCamera;
     private Canvas healthCanvas;
     private RectTransform healthBarFillRect;
     private Tween hitTween;
     private bool isHitReacting;
-    private bool hasAttackTrigger;
     private bool hasDeadTrigger;
     private bool hasIsMovingBool;
 
@@ -68,6 +74,9 @@ public class EnemyController : MonoBehaviour
         ApplyLunaSettings();
         CacheAnimatorParameters();
         CreateHealthBar();
+
+        patrolAnchor = patrolAnchorOverride != null ? patrolAnchorOverride.position : transform.position;
+        PickNewPatrolTarget();
     }
 
     void Update()
@@ -82,7 +91,6 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        ResolvePlayer();
         UpdateHealthBarTransform();
 
         if (ShouldWaitForTutorial())
@@ -91,32 +99,34 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        if (player == null || (playerController != null && playerController.IsDead()))
+        if (isHitReacting)
         {
             SetMovingAnimation(false);
             return;
         }
 
-        if (isHitReacting || isAttacking)
+        Patrol();
+    }
+
+    // Wanders to random points within patrolRadius of the anchor, pausing briefly at
+    // each one. The enemy never chases or attacks the player.
+    void Patrol()
+    {
+        if (patrolWaitTimer > 0f)
         {
+            patrolWaitTimer -= Time.deltaTime;
             SetMovingAnimation(false);
             return;
         }
 
-        Vector3 targetPosition = playerController != null
-            ? playerController.GetCombatTargetPosition()
-            : player.position;
-        Vector3 moveDirection = targetPosition - transform.position;
+        Vector3 moveDirection = patrolTarget - transform.position;
         moveDirection.y = 0f;
-        if (moveDirection.sqrMagnitude <= attackDistance * attackDistance)
+
+        if (!hasPatrolTarget || moveDirection.sqrMagnitude <= arriveThreshold * arriveThreshold)
         {
+            PickNewPatrolTarget();
+            patrolWaitTimer = Random.Range(patrolWaitTime.x, patrolWaitTime.y);
             SetMovingAnimation(false);
-
-            if (canAttack)
-            {
-                StartCoroutine(AttackPlayer());
-            }
-
             return;
         }
 
@@ -125,48 +135,11 @@ public class EnemyController : MonoBehaviour
         transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
     }
 
-    System.Collections.IEnumerator AttackPlayer()
+    void PickNewPatrolTarget()
     {
-        if (isDead || isAttacking || !canAttack)
-        {
-            yield break;
-        }
-
-        isAttacking = true;
-        canAttack = false;
-        SetMovingAnimation(false);
-
-        Vector3 attackDirection = GetAttackDirection();
-        if (attackDirection.sqrMagnitude > 0.001f)
-        {
-            RotateTowards(attackDirection);
-        }
-
-        if (animator != null && hasAttackTrigger)
-        {
-            animator.SetTrigger(AttackTriggerHash);
-        }
-
-        yield return new WaitForSeconds(attackHitDelay);
-
-        if (!isDead && playerController != null && !playerController.IsDead())
-        {
-            Vector3 playerDirection = GetAttackDirection();
-            playerDirection.y = 0f;
-            if (playerDirection.sqrMagnitude <= attackDistance * attackDistance)
-            {
-                playerController.TakeDamage(attackDamage);
-            }
-        }
-
-        float remainingCooldown = Mathf.Max(0f, attackCooldown - attackHitDelay);
-        if (remainingCooldown > 0f)
-        {
-            yield return new WaitForSeconds(remainingCooldown);
-        }
-
-        isAttacking = false;
-        canAttack = true;
+        Vector2 randomOffset = Random.insideUnitCircle * patrolRadius;
+        patrolTarget = patrolAnchor + new Vector3(randomOffset.x, 0f, randomOffset.y);
+        hasPatrolTarget = true;
     }
 
     void ResolvePlayer()
@@ -356,8 +329,6 @@ public class EnemyController : MonoBehaviour
         StopAllCoroutines();
         hitTween?.Kill();
         isHitReacting = false;
-        isAttacking = false;
-        canAttack = false;
         //SetMovingAnimation(false);
 
         if (healthCanvas != null)
@@ -457,7 +428,6 @@ public class EnemyController : MonoBehaviour
 
     void CacheAnimatorParameters()
     {
-        hasAttackTrigger = HasAnimatorParameter(AttackTriggerHash, AnimatorControllerParameterType.Trigger);
         hasDeadTrigger = HasAnimatorParameter(DeadTriggerHash, AnimatorControllerParameterType.Trigger);
         hasIsMovingBool = HasAnimatorParameter(IsMovingBoolHash, AnimatorControllerParameterType.Bool);
     }
@@ -494,21 +464,6 @@ public class EnemyController : MonoBehaviour
     bool ShouldWaitForTutorial()
     {
         return waitForTutorialComplete && !TutorialBuildBlock.IsComplete;
-    }
-
-    Vector3 GetAttackDirection()
-    {
-        if (playerController != null)
-        {
-            return playerController.GetCombatTargetPosition() - transform.position;
-        }
-
-        if (player != null)
-        {
-            return player.position - transform.position;
-        }
-
-        return Vector3.zero;
     }
 
     void RotateTowards(Vector3 direction)

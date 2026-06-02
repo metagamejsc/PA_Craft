@@ -3,11 +3,45 @@ using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 
+public enum WeaponType
+{
+    Gun,
+    Sword,
+    Axe
+}
+
+[Serializable]
+public class WeaponLoadout
+{
+    public WeaponType type = WeaponType.Gun;
+
+    [Tooltip("Model on the player's hand. Activated when this weapon is chosen, hidden otherwise.")]
+    public GameObject weaponObject;
+
+    [Tooltip("Animator trigger to fire when attacking with this weapon (e.g. \"Shoot\" for gun, \"Attack\" for melee).")]
+    public string attackTrigger = "Attack";
+
+    [Tooltip("True for ranged weapons (gun) that spawn a projectile. False for melee (sword/axe) that deal instant damage.")]
+    public bool isRanged;
+
+    [Tooltip("Optional projectile prefab for this weapon. Falls back to PlayerController.projectilePrefab when empty.")]
+    public GameObject projectilePrefab;
+
+    [Tooltip("Optional animator controller to swap in for this weapon (use when each weapon has its own animation set).")]
+    public RuntimeAnimatorController animatorController;
+}
+
 public class PlayerController : MonoBehaviour
 {
     public Animator animator;
     public DOTweenAnimation effectDamageEnemy;
     public RectTransform aimReticle;
+
+    [Header("Weapons")]
+    [Tooltip("Configure one entry per selectable weapon. Index here matches the weapon-selection buttons.")]
+    public WeaponLoadout[] weapons;
+    [Tooltip("When true the player cannot attack until a weapon has been selected.")]
+    public bool requireWeaponSelection = true;
 
     [Header("Projectile")]
     public GameObject projectilePrefab;
@@ -41,6 +75,8 @@ public class PlayerController : MonoBehaviour
     private float currentHealth;
     private bool isDead;
     private bool canAttack = true;
+    private WeaponLoadout currentWeapon;
+    private bool weaponSelected;
     private bool isPointerTracking;
     private bool hasLastMousePosition;
     private Camera gameplayCamera;
@@ -74,9 +110,92 @@ public class PlayerController : MonoBehaviour
 
         CacheCameraState();
 
+        HideAllWeapons();
+
         if (animator != null)
         {
             animator.SetTrigger("Idle");
+        }
+    }
+
+    void HideAllWeapons()
+    {
+        if (weapons == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] != null && weapons[i].weaponObject != null)
+            {
+                weapons[i].weaponObject.SetActive(false);
+            }
+        }
+    }
+
+    // Previews the chosen weapon: activates its model on the player's hand and hides the
+    // others. Does NOT unlock attacking yet — call ConfirmWeapon() (on Play) for that.
+    public void SelectWeapon(int index)
+    {
+        if (weapons == null || index < 0 || index >= weapons.Length || weapons[index] == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] != null && weapons[i].weaponObject != null)
+            {
+                weapons[i].weaponObject.SetActive(i == index);
+            }
+        }
+
+        currentWeapon = weapons[index];
+
+        if (animator != null)
+        {
+            if (currentWeapon.animatorController != null)
+            {
+                animator.runtimeAnimatorController = currentWeapon.animatorController;
+            }
+
+            animator.SetTrigger("Idle");
+        }
+    }
+
+    // Called when the player presses Play. Locks in the currently previewed weapon and
+    // unlocks attacking. Returns false if no weapon has been previewed yet.
+    public bool ConfirmWeapon()
+    {
+        if (currentWeapon == null)
+        {
+            return false;
+        }
+
+        weaponSelected = true;
+        return true;
+    }
+
+    public bool HasWeaponEquipped()
+    {
+        return currentWeapon != null;
+    }
+
+    public void SelectWeapon(WeaponType type)
+    {
+        if (weapons == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] != null && weapons[i].type == type)
+            {
+                SelectWeapon(i);
+                return;
+            }
         }
     }
 
@@ -115,9 +234,13 @@ public class PlayerController : MonoBehaviour
         EnemyController lockedEnemy = enemy;
         FaceTarget(lockedEnemy);
 
+        string attackTrigger = currentWeapon != null && !string.IsNullOrEmpty(currentWeapon.attackTrigger)
+            ? currentWeapon.attackTrigger
+            : "Attack";
+
         if (animator != null)
         {
-            animator.SetTrigger("Attack");
+            animator.SetTrigger(attackTrigger);
         }
 
         if (AudioManager.ins != null)
@@ -129,9 +252,14 @@ public class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(shotDelay);
 
-        if (projectilePrefab != null)
+        bool useProjectile = currentWeapon != null ? currentWeapon.isRanged : (projectilePrefab != null);
+        GameObject activeProjectile = currentWeapon != null && currentWeapon.projectilePrefab != null
+            ? currentWeapon.projectilePrefab
+            : projectilePrefab;
+
+        if (useProjectile && activeProjectile != null)
         {
-            SpawnProjectile(aimRay, lockedEnemy);
+            SpawnProjectile(activeProjectile, aimRay, lockedEnemy);
         }
         else if (lockedEnemy != null && !lockedEnemy.IsDead())
         {
@@ -244,7 +372,7 @@ public class PlayerController : MonoBehaviour
                 AudioManager.ins.StopAimHold();
             }
 
-            if (canAttack)
+            if (canAttack && (weaponSelected || !requireWeaponSelection))
             {
                 StartCoroutine(AttackEnemy(FindEnemyFromAimRay(GetAimRay())));
             }
@@ -362,7 +490,7 @@ public class PlayerController : MonoBehaviour
         recoilYawOffset += UnityEngine.Random.Range(-recoilYaw, recoilYaw);
     }
 
-    void SpawnProjectile(Ray aimRay, EnemyController targetEnemy)
+    void SpawnProjectile(GameObject prefab, Ray aimRay, EnemyController targetEnemy)
     {
         Vector3 projectileDirection = aimRay.direction;
         Vector3 spawnPosition = GetProjectileSpawnPosition(projectileDirection);
@@ -373,7 +501,7 @@ public class PlayerController : MonoBehaviour
         }
 
         GameObject projectileObject = Instantiate(
-            projectilePrefab,
+            prefab,
             spawnPosition,
             Quaternion.LookRotation(projectileDirection));
 

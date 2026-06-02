@@ -2,7 +2,7 @@
     "version": "6.4.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 35800,
-    "creativeName": "CEBB_V09_NgocNDL_ToiNV",
+    "creativeName": "CEBB_V11_NgocNDL_ToiNV",
     "pgServer": "EU",
     "window": {
         "‐′": true
@@ -111,11 +111,11 @@
                 "Assets/_Scripts/TriggerEffect.cs"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
-            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
+            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.14",
+            "msbuildVersion": "18.5",
             "monoVersion": "9.0.11",
             "dotnetVersion": ""
         },
@@ -8249,6 +8249,10 @@
             {
                 "name": "IAmAnEmptyScriptJustToMakeCodelessProjectsCompileProperty",
                 "excluded": true
+            },
+            {
+                "name": "WeaponType",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -11940,11 +11944,11 @@
                     },
                     {
                         "name": "IncreaseCapacity",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetCapacity",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ContainsAllElements",
@@ -12094,7 +12098,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -14908,7 +14912,7 @@
                     },
                     {
                         "name": "LinearToGammaSpace",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "MoveTowardsAngle",
@@ -26062,7 +26066,7 @@
                     },
                     {
                         "name": "InsertNewLine",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SaveSpriteVertexInfo",
@@ -34032,7 +34036,7 @@
                     },
                     {
                         "name": "runtimeAnimatorController#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "hasBoundPlayables#get",
@@ -35103,10 +35107,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "AttackPlayer",
-                        "excluded": false
-                    },
-                    {
                         "name": "ApplyLunaSettings",
                         "excluded": false
                     },
@@ -35120,10 +35120,6 @@
                     },
                     {
                         "name": "SetMovingAnimation",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetAttackDirection",
                         "excluded": false
                     },
                     {
@@ -35141,6 +35137,14 @@
                     {
                         "name": "GetClosestAlive",
                         "excluded": true
+                    },
+                    {
+                        "name": "Patrol",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PickNewPatrolTarget",
+                        "excluded": false
                     }
                 ]
             },
@@ -35271,6 +35275,26 @@
                     {
                         "name": "OnDrawGizmosSelected",
                         "excluded": true
+                    },
+                    {
+                        "name": "HideAllWeapons",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SelectWeapon",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SelectWeapon$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ConfirmWeapon",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasWeaponEquipped",
+                        "excluded": true
                     }
                 ]
             },
@@ -35360,7 +35384,7 @@
                     },
                     {
                         "name": "insideUnitCircle#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "rotation#get",
@@ -38015,6 +38039,42 @@
                     {
                         "name": "OnDestroy",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "WeaponLoadout",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "WeaponSelectionController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PreviewWeapon",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPlay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateHighlight",
+                        "excluded": false
                     }
                 ]
             }
