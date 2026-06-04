@@ -36,7 +36,7 @@ public class UIBreakManual : MonoBehaviour, IPointerDownHandler, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        BreakAtPosition(eventData);
+        //BreakAtPosition(eventData);
     }
 
     void BreakAtPosition(PointerEventData eventData)
@@ -57,11 +57,6 @@ public class UIBreakManual : MonoBehaviour, IPointerDownHandler, IDragHandler
                 Image block = blocks[i];
                 blocks.RemoveAt(i);
                 StartCoroutine(PlayBreakAnimation(block));
-                if (i==0)
-                {
-                    LunaManager.ins.OnClickEndCard();
-                    LunaManager.ins.ShowEndCard();
-                }
             }
         }
     }
