@@ -3,11 +3,22 @@ using UnityEngine.UI;
 
 public class ModelSwitcher : MonoBehaviour
 {
+    public HandPointerController handPointerController;
     public GameObject[] models; // 3 model
     public Button[] buttons;    // 3 button
 public GameObject handPointer; // Đối tượng hình bàn tay
     void Start()
     {
+        if (handPointerController == null && handPointer != null)
+        {
+            handPointerController = handPointer.GetComponentInParent<HandPointerController>();
+        }
+
+        if (handPointerController == null)
+        {
+            handPointerController = FindObjectOfType<HandPointerController>();
+        }
+
         for (int i = 0; i < buttons.Length; i++)
         {
             int index = i; // tránh lỗi closure
@@ -15,7 +26,7 @@ public GameObject handPointer; // Đối tượng hình bàn tay
             buttons[i].onClick.AddListener(CheckClick);
         }
 
-        ShowModel(0); // mặc định hiện model đầu tiên
+        //ShowModel(0); // mặc định hiện model đầu tiên
     }
 
     public void ShowModel(int index)
@@ -28,7 +39,16 @@ public GameObject handPointer; // Đối tượng hình bàn tay
 
     public void CheckClick()
     {
-        handPointer.SetActive(false);
+        if (handPointerController != null)
+        {
+            handPointerController.StopAndResetSlotScales();
+        }
+
+        if (handPointer != null)
+        {
+            handPointer.SetActive(false);
+        }
+
         AudioManager.ins.PlaySoundBuy();
         LunaManager.ins.CheckClickShowEndCard();
     }

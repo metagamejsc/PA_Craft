@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class HandPointerController : MonoBehaviour
 {
+    private Coroutine moveHandCoroutine;
     
     public RectTransform handPointer; // Đối tượng hình bàn tay
     public Transform inventoryPanel;  // Panel chứa các ô inventory
@@ -25,7 +26,34 @@ public class HandPointerController : MonoBehaviour
             slots[0].localScale = Vector3.one * 1.2f;
         }
 
-        StartCoroutine(MoveHandToSlots());
+        moveHandCoroutine = StartCoroutine(MoveHandToSlots());
+    }
+
+    public void StopAndResetSlotScales()
+    {
+        if (moveHandCoroutine != null)
+        {
+            StopCoroutine(moveHandCoroutine);
+            moveHandCoroutine = null;
+        }
+
+        ResetSlotScales();
+    }
+
+    public void ResetSlotScales()
+    {
+        if (slots == null)
+        {
+            return;
+        }
+
+        foreach (RectTransform slot in slots)
+        {
+            if (slot != null)
+            {
+                slot.localScale = Vector3.one;
+            }
+        }
     }
 
     private IEnumerator MoveHandToSlots()
