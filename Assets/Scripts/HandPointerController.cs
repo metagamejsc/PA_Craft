@@ -60,7 +60,6 @@ public class HandPointerController : MonoBehaviour
         // Reset slot cũ
         if (currentSlot != null)
         {
-            currentSlot.localScale=Vector3.one;
             SetSlotColor(currentSlot, defaultColor);
         }
 
@@ -71,7 +70,6 @@ public class HandPointerController : MonoBehaviour
 
     void HighlightSlot(RectTransform slot)
     {
-        slot.localScale=Vector3.one*1.2f;
         SetSlotColor(slot, highlightColor);
     }
 
