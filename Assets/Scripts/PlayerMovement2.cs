@@ -11,6 +11,7 @@ public class PlayerMovement2 : MonoBehaviour
     private void Awake()
     {
         ins = this;
+        AutoAssignAnimators();
     }
 
     public float moveSpeed = 5f;
@@ -22,6 +23,7 @@ public class PlayerMovement2 : MonoBehaviour
     public float groundDistance = .4f;
     public LayerMask groundMask;
     public Animator animator;
+    public Animator animator2;
     public GameObject model;
     public ParticleSystem endEffect;
     
@@ -30,15 +32,37 @@ public class PlayerMovement2 : MonoBehaviour
     public bool isGrounded;
     private bool isJumping;
     private bool stopCoutine;
+    private static readonly int IsMoving = Animator.StringToHash("isMoving");
+    private static readonly int IsJumping = Animator.StringToHash("isJumping");
+
+    private void Reset()
+    {
+        AutoAssignAnimators();
+    }
+
+    private void AutoAssignAnimators()
+    {
+        Animator[] animators = GetComponentsInChildren<Animator>();
+
+        if (!animator && animators.Length > 0)
+        {
+            animator = animators[0];
+        }
+
+        if (!animator2 && animators.Length > 1)
+        {
+            animator2 = animators[1];
+        }
+    }
 
 
     public IEnumerator MoveAndIdle()
     {
         while (!stopCoutine)
         {
-            animator.SetBool("isMoving", true);
+            SetAnimatorBool(IsMoving, true);
             yield return new WaitForSeconds(2f);
-            animator.SetBool("isMoving", false);
+            SetAnimatorBool(IsMoving, false);
             yield return new WaitForSeconds(1f);
         }
     }
@@ -78,14 +102,14 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if (GetComponent<PlayerChar>().isDead)
         {
-            animator.SetBool("isJumping", false);
-            animator.Play("metarig|Fall");
+            SetAnimatorBool(IsJumping, false);
+            PlayAnimation("metarig|Fall");
             return;
         }
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
         //isGrounded=Physics.Raycast(groundCheck.position,Vector3.down,groundDistance,groundMask);
         //Debug.DrawRay(groundCheck.position, Vector3.down * groundDistance, Color.red);
-        animator.SetBool("isJumping", !isGrounded);
+        SetAnimatorBool(IsJumping, !isGrounded);
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
@@ -95,7 +119,7 @@ public class PlayerMovement2 : MonoBehaviour
     {
         if(isGrounded)
         {
-            animator.SetBool("isJumping", !isGrounded);
+            SetAnimatorBool(IsJumping, !isGrounded);
             //animator.Play("metarig|Character_Jump");
             rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
         }
@@ -145,8 +169,34 @@ public class PlayerMovement2 : MonoBehaviour
             model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
 
-        animator.SetBool("isMoving", isMoving);
-        animator.SetBool("isJumping", !isGrounded);
+        SetAnimatorBool(IsMoving, isMoving);
+        SetAnimatorBool(IsJumping, !isGrounded);
+    }
+
+    private void SetAnimatorBool(int paramHash, bool value)
+    {
+        if (animator)
+        {
+            animator.SetBool(paramHash, value);
+        }
+
+        if (animator2)
+        {
+            animator2.SetBool(paramHash, value);
+        }
+    }
+
+    private void PlayAnimation(string animationName)
+    {
+        if (animator)
+        {
+            animator.Play(animationName);
+        }
+
+        if (animator2)
+        {
+            animator2.Play(animationName);
+        }
     }
 
     
@@ -175,7 +225,7 @@ public class PlayerMovement2 : MonoBehaviour
             {
                 //var effect= Instantiate(endEffect);
                 //effect.transform.position = transform.position + new Vector3(0, 0, 2);
-                animator.SetBool("isMoving", false);
+                SetAnimatorBool(IsMoving, false);
                 rb.velocity = Vector3.zero;
                 LunaManager.ins.ShowWinCard();
             }
