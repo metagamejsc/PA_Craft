@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public enum WeaponType
 {
@@ -671,10 +672,16 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.touchCount > 0)
         {
-            return Input.GetTouch(0).phase == TouchPhase.Began;
+            Touch touch = Input.GetTouch(0);
+            return touch.phase == TouchPhase.Began && !IsPointerOverUi(touch.fingerId);
         }
 
-        return Input.GetMouseButtonDown(0);
+        return Input.GetMouseButtonDown(0) && !IsPointerOverUi(PointerInputModule.kMouseLeftId);
+    }
+
+    bool IsPointerOverUi(int pointerId)
+    {
+        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(pointerId);
     }
 
     bool IsPrimaryInputHeld()
