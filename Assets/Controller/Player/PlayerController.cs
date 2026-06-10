@@ -15,6 +15,8 @@ namespace Controller.Player
         [SerializeField] private float _groundRayDistance = 20f;
         [SerializeField] private LunaManager _luna;
         [SerializeField] private GameObject _text;
+        [SerializeField] private AudioClip _plantSound;
+        [SerializeField] [Range(0f, 1f)] private float _plantSoundVolume = 1f;
 
         private bool _hasPlantedFirstFlower;
 
@@ -70,6 +72,7 @@ namespace Controller.Player
 
             Quaternion spawnRotation = Quaternion.FromToRotation(Vector3.up, groundHit.normal);
             Instantiate(_flowerPrefab, spawnPosition, spawnRotation);
+            PlayPlantSound(spawnPosition);
 
             if (!_hasPlantedFirstFlower)
             {
@@ -91,6 +94,14 @@ namespace Controller.Player
         private bool IsFlowerLayer(int layer)
         {
             return (_flowerLayer.value & (1 << layer)) != 0;
+        }
+
+        private void PlayPlantSound(Vector3 worldPosition)
+        {
+            if (_plantSound != null)
+            {
+                AudioSource.PlayClipAtPoint(_plantSound, worldPosition, _plantSoundVolume);
+            }
         }
     }
 }
