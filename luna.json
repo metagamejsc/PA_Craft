@@ -8296,31 +8296,47 @@
                 "excluded": false
             },
             {
-                "name": "JoystickPlayerExample",
+                "name": "TankAndHealerStudioAssets.BasicInputDisplay",
                 "excluded": true
             },
             {
-                "name": "JoystickSetterExample",
+                "name": "TankAndHealerStudioAssets.JoystickPrefabDisplay",
                 "excluded": true
             },
             {
-                "name": "FloatingJoystick",
+                "name": "TankAndHealerStudioAssets.PositionOverrideExample",
                 "excluded": true
             },
             {
-                "name": "VariableJoystick",
+                "name": "TankAndHealerStudioAssets.RelativeCameraRotationExample",
                 "excluded": true
             },
             {
-                "name": "JoystickType",
+                "name": "TankAndHealerStudioAssets.TapCountExample",
                 "excluded": true
             },
             {
-                "name": "FixedJoystick",
+                "name": "Controller.Player.TutorialController.TutorialStep",
+                "excluded": false
+            },
+            {
+                "name": "TankAndHealerStudioAssets.RelativeCameraRotationExample.MovementCalculations",
                 "excluded": true
             },
             {
-                "name": "AxisOptions",
+                "name": "UltimateJoystick.Anchor",
+                "excluded": false
+            },
+            {
+                "name": "UltimateJoystick.Axis",
+                "excluded": false
+            },
+            {
+                "name": "UltimateJoystick.InputHandling",
+                "excluded": false
+            },
+            {
+                "name": "UltimateJoystick.TensionType",
                 "excluded": false
             }
         ],
@@ -26155,7 +26171,7 @@
                     },
                     {
                         "name": "ResizeLineExtents",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetTextInfo",
@@ -28084,6 +28100,10 @@
                     {
                         "name": "Stop",
                         "excluded": true
+                    },
+                    {
+                        "name": "Tick\",this)}this.c$-=t;if(this.c$<=0){pc.Application.getApplication().events.off(\"update",
+                        "excluded": false
                     }
                 ]
             },
@@ -37682,12 +37702,8 @@
                         "excluded": false
                     },
                     {
-                        "name": "CollectItem",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ClearItem",
-                        "excluded": true
+                        "name": "IsFlowerLayer",
+                        "excluded": false
                     }
                 ]
             },
@@ -37743,6 +37759,10 @@
                     },
                     {
                         "name": "UseHeldItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetUseButtonInteractable",
                         "excluded": false
                     }
                 ]
@@ -37823,6 +37843,14 @@
                     },
                     {
                         "name": "ApplyDelta",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetInteractable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "NotifyInteraction",
                         "excluded": false
                     }
                 ]
@@ -37936,89 +37964,197 @@
                 ]
             },
             {
-                "className": "Controller.UI.FlowerUIController",
+                "className": "Controller.Player.TutorialController",
                 "staticMethods": [],
                 "instanceMethods": [
+                    {
+                        "name": "SetHandVisible",
+                        "excluded": false
+                    },
                     {
                         "name": "init",
                         "excluded": false
                     },
                     {
-                        "name": "Start",
+                        "name": "Awake",
                         "excluded": false
                     },
                     {
-                        "name": "UseFlower",
+                        "name": "OnEnable",
                         "excluded": false
                     },
                     {
-                        "name": "ClearFlower",
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "InitializeTutorial",
                         "excluded": false
                     },
                     {
-                        "name": "SetButtonState",
+                        "name": "HandleJoystickStepCompleted",
                         "excluded": false
+                    },
+                    {
+                        "name": "HandleTouchStepCompleted",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleUseStepCompleted",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayJoystickLoop",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayTouchLoop",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayUseLoop",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateStepText",
+                        "excluded": false
+                    },
+                    {
+                        "name": "KillSequences",
+                        "excluded": true
                     }
                 ]
             },
             {
-                "className": "Joystick",
+                "className": "UltimateJoystick",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
-                        "name": "Horizontal#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Vertical#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Direction#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleRange#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HandleRange#set",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DeadZone#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "DeadZone#set",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AxisOptions#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "AxisOptions#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SnapX#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SnapX#set",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SnapY#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SnapY#set",
-                        "excluded": true
-                    },
-                    {
                         "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FormatDebug",
+                        "excluded": true
+                    },
+                    {
+                        "name": "JoystickConfirmed",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ReturnComponent",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetHorizontalAxis",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVerticalAxis",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetHorizontalAxisRaw",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVerticalAxisRaw",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetDistance",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetInputActive",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetAngle",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Disable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Enable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "InputInRange",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetJoystickState",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetUltimateJoystick",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetTapCount",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DisableJoystick",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnableJoystick",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Interactable#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Interactable#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "JoystickBase#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Joystick#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BaseColor#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BaseColor#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HighlightColor#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HighlightColor#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TensionColorNone#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TensionColorNone#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TensionColorFull#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TensionColorFull#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
                         "excluded": false
                     },
                     {
@@ -38026,65 +38162,103 @@
                         "excluded": false
                     },
                     {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTransformParentChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnApplicationFocus",
+                        "excluded": false
+                    },
+                    {
                         "name": "OnPointerDown",
-                        "excluded": true
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnInputDown",
+                        "excluded": false
                     },
                     {
                         "name": "OnDrag",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
-                        "name": "HandleInput",
-                        "excluded": true
-                    },
-                    {
-                        "name": "FormatInput",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SnapFloat",
-                        "excluded": true
+                        "name": "OnInputDrag",
+                        "excluded": false
                     },
                     {
                         "name": "OnPointerUp",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ScreenPointToAnchoredPosition",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
-                "className": "DynamicJoystick",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "MoveThreshold#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "MoveThreshold#set",
                         "excluded": false
                     },
                     {
-                        "name": "init",
+                        "name": "OnInputUp",
                         "excluded": false
                     },
                     {
-                        "name": "Start",
+                        "name": "ProcessInput",
                         "excluded": false
                     },
                     {
-                        "name": "OnPointerDown",
+                        "name": "UpdateJoystickCenter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TensionAccentDisplay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TensionAccentReset",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdatePositionValues",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetJoystick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdatePositioning$1",
                         "excluded": true
                     },
                     {
-                        "name": "OnPointerUp",
+                        "name": "UpdatePositioning",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartOverridePositioning",
                         "excluded": true
                     },
                     {
-                        "name": "HandleInput",
+                        "name": "StopOverridePositioning",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetOverridePosition",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetOverrideSize",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetOverridePositioning",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdatePositioningOverride",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateHighlightColor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateTensionColors",
                         "excluded": true
                     }
                 ]
