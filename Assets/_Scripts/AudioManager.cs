@@ -38,6 +38,13 @@ public class AudioManager : MonoBehaviour
     {
         sound.PlayOneShot(audioClip,1);
     }
+    
+    public void PlaySoundLoop(AudioClip audioClip)
+    {
+        sound.clip = audioClip;
+        sound.loop = true;
+        sound.Play();
+    }
 
     public void PlaySoundMerge()
     {
