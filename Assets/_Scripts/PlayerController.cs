@@ -3,16 +3,21 @@ using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    public static event Action<PlayerController> PlayerShotFired;
+
     public Animator animator;
     public DOTweenAnimation effectDamageEnemy;
     public DOTweenAnimation effectTakeDamagePlayer;
     public RectTransform aimReticle;
+    public GameObject blood;
 
     [Header("UI")]
     public GameObject weaponGuideUI;
+    public Image[] bulletImages;
 
     [Header("Projectile")]
     public GameObject projectilePrefab;
@@ -31,6 +36,7 @@ public class PlayerController : MonoBehaviour
     public AudioClip fireSound;
     public AudioClip deadSound;
     public string attackAnimTrigger = "Attack";
+    public int maxAmmo = 2;
 
     [Header("Combat Settings")]
     public float attackCooldown = 1f;
@@ -57,7 +63,7 @@ public class PlayerController : MonoBehaviour
 
     private float currentHealth;
     private bool isDead;
-    private bool canAttack = true;
+    [SerializeField]private bool canAttack = true;
     private bool isPointerTracking;
     private bool hasLastMousePosition;
     private Camera gameplayCamera;
@@ -75,6 +81,7 @@ public class PlayerController : MonoBehaviour
     private float recoilPitchOffset;
     private Vector2 lastMousePosition;
     private int aimTouchId = -1;
+    private int currentAmmo;
 
     void Start()
     {
@@ -88,6 +95,12 @@ public class PlayerController : MonoBehaviour
         }
 
         defaultLocalRotation = transform.localRotation;
+        currentAmmo = Mathf.Max(0, maxAmmo);
+        UpdateBulletUI();
+        if (blood != null)
+        {
+            blood.SetActive(false);
+        }
 
         CacheCameraState();
 
@@ -130,6 +143,14 @@ public class PlayerController : MonoBehaviour
         {
             yield break;
         }
+
+        if (currentAmmo <= 0)
+        {
+            yield break;
+        }
+
+        currentAmmo--;
+        UpdateBulletUI();
 
         canAttack = false;
         float timeBetweenShots = GetTimeBetweenShots();
@@ -176,6 +197,8 @@ public class PlayerController : MonoBehaviour
             LunaManager.ins.RegisterPlayerShot();
         }
 
+        PlayerShotFired?.Invoke(this);
+
         float remainingCooldown = Mathf.Max(0f, timeBetweenShots - shotDelay);
         if (remainingCooldown > 0f)
         {
@@ -208,6 +231,11 @@ public class PlayerController : MonoBehaviour
         }
 
         isDead = true;
+        if (blood != null)
+        {
+            blood.SetActive(true);
+        }
+
         if (LunaManager.ins != null)
         {
             LunaManager.ins.ShowEndCard();
@@ -269,6 +297,8 @@ public class PlayerController : MonoBehaviour
         if (LunaManager.ins != null && LunaManager.ins.isCretivePause)
             return;
         if (!canAttack)
+            return;
+        if (currentAmmo <= 0)
             return;
 
         StartCoroutine(AttackEnemy(FindEnemyFromAimRay(GetAimRay())));
@@ -762,5 +792,21 @@ public class PlayerController : MonoBehaviour
     float GetTimeBetweenShots()
     {
         return Mathf.Max(0f, attackCooldown);
+    }
+
+    void UpdateBulletUI()
+    {
+        if (bulletImages == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < bulletImages.Length; i++)
+        {
+            if (bulletImages[i] != null)
+            {
+                bulletImages[i].enabled = i < currentAmmo;
+            }
+        }
     }
 }

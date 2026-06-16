@@ -24,6 +24,11 @@ public class EnemyController : MonoBehaviour
     public bool isAttacking = false;
     public bool canAttack = true;
 
+    [Header("Patrol")]
+    public float patrolRadius = 2.5f;
+    public float patrolReachDistance = 0.2f;
+    public Vector2 patrolWaitTime = new Vector2(0.2f, 0.8f);
+
     [Header("Health Settings")]
     public float maxHealth = 3f;
     public float healthBarHeight = 2.2f;
@@ -51,6 +56,9 @@ public class EnemyController : MonoBehaviour
     private bool hasDeadTrigger;
     private bool hasIsMovingBool;
     private bool hasIsMovingBool2;
+    private Vector3 homePosition;
+    private Vector3 patrolTargetPosition;
+    private float patrolWaitTimer;
 
     void OnEnable()
     {
@@ -68,6 +76,8 @@ public class EnemyController : MonoBehaviour
 
     void Start()
     {
+        homePosition = transform.position;
+        ChooseNextPatrolTarget();
         ResolvePlayer();
         gameplayCamera = Camera.main;
         ApplyLunaSettings();
@@ -90,38 +100,13 @@ public class EnemyController : MonoBehaviour
         ResolvePlayer();
         UpdateHealthBarTransform();
 
-        if (player == null || (playerController != null && playerController.IsDead()))
-        {
-            SetMovingAnimation(false);
-            return;
-        }
-
         if (isHitReacting || isAttacking)
         {
             SetMovingAnimation(false);
             return;
         }
 
-        Vector3 targetPosition = playerController != null
-            ? playerController.GetCombatTargetPosition()
-            : player.position;
-        Vector3 moveDirection = targetPosition - transform.position;
-        moveDirection.y = 0f;
-        if (moveDirection.sqrMagnitude <= attackDistance * attackDistance)
-        {
-            SetMovingAnimation(false);
-
-            if (canAttack)
-            {
-                StartCoroutine(AttackPlayer());
-            }
-
-            return;
-        }
-
-        SetMovingAnimation(true);
-        RotateTowards(moveDirection);
-        transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
+        PatrolAroundHome();
     }
 
     System.Collections.IEnumerator AttackPlayer()
@@ -508,6 +493,37 @@ public class EnemyController : MonoBehaviour
         {
             animator2.SetBool(IsMovingBoolHash, isMoving);
         }
+    }
+
+    void PatrolAroundHome()
+    {
+        if (patrolWaitTimer > 0f)
+        {
+            patrolWaitTimer -= Time.deltaTime;
+            SetMovingAnimation(false);
+            return;
+        }
+
+        Vector3 moveDirection = patrolTargetPosition - transform.position;
+        moveDirection.y = 0f;
+        if (moveDirection.sqrMagnitude <= patrolReachDistance * patrolReachDistance)
+        {
+            ChooseNextPatrolTarget();
+            patrolWaitTimer = Random.Range(patrolWaitTime.x, patrolWaitTime.y);
+            SetMovingAnimation(false);
+            return;
+        }
+
+        SetMovingAnimation(true);
+        RotateTowards(moveDirection);
+        transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
+    }
+
+    void ChooseNextPatrolTarget()
+    {
+        Vector2 offset = Random.insideUnitCircle * Mathf.Max(0f, patrolRadius);
+        patrolTargetPosition = homePosition + new Vector3(offset.x, 0f, offset.y);
+        patrolTargetPosition.y = homePosition.y;
     }
 
     Vector3 GetAttackDirection()

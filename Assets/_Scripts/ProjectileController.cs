@@ -122,6 +122,12 @@ public class ProjectileController : MonoBehaviour
         transform.position = hit.point;
 
         EnemyController enemy = hit.collider.GetComponentInParent<EnemyController>();
+        IProjectileHitReceiver hitReceiver = hit.collider.GetComponentInParent<IProjectileHitReceiver>();
+        if (hitReceiver != null)
+        {
+            hitReceiver.OnProjectileHit(hit, damage, moveDirection);
+        }
+
         if (enemy != null && !enemy.IsDead())
         {
             enemy.TakeDamage(damage, moveDirection);
