@@ -1,164 +1,533 @@
+using DG.Tweening;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
-using TMPro;
+
+[System.Serializable]
+public class OrientationRectLayout
+{
+    public RectTransform target;
+    public RectTransform landscapeReference;
+    public RectTransform portraitReference;
+}
+
+[System.Serializable]
+public class OrientationHandSize
+{
+    public Vector2 landscapeSizeDelta;
+    public Vector2 portraitSizeDelta;
+}
+
 
 public class GameController : MonoBehaviour
 {
-    [Header("UI")] [SerializeField] private Button _btnDog;
-    [SerializeField] private Button _btnBirds;
-    [SerializeField] private Button _btnMeat;
-    [SerializeField] private Button _btnEggs;
-    [SerializeField] private GameObject _step1;
-    [SerializeField] private GameObject _step2;
-    [SerializeField] private GameObject _hand;
-    [SerializeField] private Transform _point1;
-    [SerializeField] private Transform _point2;
-    [SerializeField] private float _handMoveDuration = 0.6f;
-    [SerializeField] private float _handStartDelay = 0.2f;
-    [SerializeField] private Vector3 _handPressScale = new Vector3(0.9f, 0.9f, 0.9f);
-    [SerializeField] private float _handPressDuration = 0.15f;
-    [SerializeField] private TMP_Text _txtTut;
-    [SerializeField] private Vector3 _txtTutPunchScale = new Vector3(0.9f, 0.9f, 0.9f);
-    [SerializeField] private float _txtTutPulseDuration = 0.35f;
+    [SerializeField] private RectTransform _hand;
+    [SerializeField] private RectTransform _rumi;
+    [SerializeField] private RectTransform[] _optionPoints = new RectTransform[2];
+    [SerializeField] private GameObject[] _shaderPoints = new GameObject[2];
+    [SerializeField] private GameObject _landscapeBackground;
+    [SerializeField] private GameObject _portraitBackground;
+    [SerializeField] private OrientationRectLayout[] _rectLayouts;
+    [SerializeField] private OrientationHandSize _handSize;
+    [SerializeField] private float _moveDuration = 0.35f;
+    [SerializeField] private float _delayAtPoint = 0.5f;
+    [SerializeField] private float _characterJumpHeight = 18f;
+    [SerializeField] private float _characterJumpDuration = 0.45f;
+    [SerializeField] private float _focusedScaleMultiplier = 1.15f;
+    [SerializeField] private float _scaleDuration = 0.2f;
+    [SerializeField] private float _handScaleMultiplier = 1.12f;
+    [SerializeField] private float _handScaleDuration = 0.12f;
+    [SerializeField] private float _rumiHeightOffsetOnSquash = -24f;
+    [SerializeField] private float _rumiScaleDuration = 0.35f;
+    [SerializeField] private float _rumiYOffsetOnSquash = -8f;
 
-    [SerializeField] private House _house;
-    [SerializeField] private LunaManager _luna;
-
-    private RectTransform _handRect;
-    private Tween _handLoopTween;
-    private Tween _txtTutLoopTween;
+    private Sequence _handSequence;
+    private Tween _handMoveTween;
+    private Tween _handScaleTween;
+    private Tween[] _characterJumpTweens;
+    private Tween _rumiScaleTween;
+    private Vector2[] _baseAnchoredPositions;
+    private Vector3[] _baseScales;
+    private Vector3 _handBaseScale;
+    private Vector3 _rumiBaseScale;
+    private Vector2 _rumiBaseAnchoredPosition;
+    private Vector2 _rumiBaseSizeDelta;
+    private int _currentPointIndex = -1;
+    private bool _isLandscape;
+    private Vector2Int _lastScreenSize;
+    private Coroutine _refreshLayoutCoroutine;
 
     private void Awake()
     {
-        _handRect = _hand.GetComponent<RectTransform>();
+        CacheOptionStates();
     }
 
     private void Start()
     {
-        _btnDog.onClick.AddListener(() =>
-        {
-            _house.ShowDog();
-            Step2();
-        });
-        _btnBirds.onClick.AddListener(() =>
-        {
-            _house.ShowBird();
-            Step2();
-        });
-        _btnMeat.onClick.AddListener(() =>
-        {
-            _house.ShowMeat();
-            _luna.ShowEndCardEmpty();
-            _handLoopTween?.Kill();
-            _txtTutLoopTween?.Kill();
-            _hand.SetActive(false);
-            _txtTut.gameObject.SetActive(false);
-        });
-        _btnEggs.onClick.AddListener(() =>
-        {
-            _house.ShowEggs();
-            _luna.ShowEndCardEmpty();
-            _handLoopTween?.Kill();
-            _txtTutLoopTween?.Kill();
-            _hand.SetActive(false);
-            _txtTut.gameObject.SetActive(false);
-        });
-        Step1();
-    }
-
-    private void Step1()
-    {
-        _step2.SetActive(false);
-        _step1.SetActive(true);
-        _hand.SetActive(true);
-        _txtTut.gameObject.SetActive(true);
-        PlayHandLoop();
-        _txtTut.text = "Choose your pet!";
-        PlayTxtTutLoop();
-    }
-
-    private void Step2()
-    {
-        _step1.SetActive(false);
-        _step2.SetActive(true);
-        _hand.SetActive(true);
-        _txtTut.gameObject.SetActive(true);
-        PlayHandLoop();
-        _txtTut.text = "Give them a treat";
-        PlayTxtTutLoop();
-    }
-
-    private void PlayHandLoop()
-    {
-        if (_handRect == null || _point1 == null || _point2 == null)
-        {
-            return;
-        }
-
-        _handLoopTween?.Kill();
-        _handRect.DOKill();
-
-        Vector2 fromPosition = GetAnchoredPositionInParent(_point1);
-        Vector2 toPosition = GetAnchoredPositionInParent(_point2);
-
-        _handRect.anchoredPosition = fromPosition;
-        _handRect.localScale = Vector3.one;
-
-        Sequence sequence = DOTween.Sequence();
-        sequence.AppendInterval(_handStartDelay);
-        sequence.Append(_handRect.DOScale(_handPressScale, _handPressDuration));
-        sequence.Append(_handRect.DOScale(Vector3.one, _handPressDuration));
-        sequence.Append(_handRect.DOAnchorPos(toPosition, _handMoveDuration).SetEase(Ease.InOutSine));
-        sequence.Append(_handRect.DOScale(_handPressScale, _handPressDuration));
-        sequence.Append(_handRect.DOScale(Vector3.one, _handPressDuration));
-        sequence.Append(_handRect.DOAnchorPos(fromPosition, _handMoveDuration).SetEase(Ease.InOutSine));
-        sequence.SetLoops(-1, LoopType.Restart).SetEase(Ease.Linear);
-
-        _handLoopTween = sequence;
-    }
-
-    private void PlayTxtTutLoop()
-    {
-        if (_txtTut == null)
-        {
-            return;
-        }
-
-        _txtTutLoopTween?.Kill();
-        _txtTut.transform.DOKill();
-        _txtTut.transform.localScale = Vector3.one;
-
-        Sequence sequence = DOTween.Sequence();
-        sequence.Append(_txtTut.transform.DOScale(_txtTutPunchScale, _txtTutPulseDuration));
-        sequence.Append(_txtTut.transform.DOScale(Vector3.one, _txtTutPulseDuration));
-        sequence.SetLoops(-1, LoopType.Restart).SetEase(Ease.Linear);
-
-        _txtTutLoopTween = sequence;
-    }
-
-    private Vector2 GetAnchoredPositionInParent(Transform target)
-    {
-        RectTransform parentRect = _handRect.parent as RectTransform;
-        if (parentRect == null)
-        {
-            return _handRect.anchoredPosition;
-        }
-
-        Vector3 worldPosition = target.position;
-        Vector2 localPosition = parentRect.InverseTransformPoint(worldPosition);
-        return localPosition;
+        ApplyOrientationLayout(true);
+        LunaManager.ins.CheckClickShowEndCard();
     }
 
     private void OnDisable()
     {
-        _handLoopTween?.Kill();
-        _txtTutLoopTween?.Kill();
+        StopHandLoop();
+        StopCharacterBouncing();
+        StopRumiScale();
+        ResetOptionVisuals();
+
+        if (_refreshLayoutCoroutine != null)
+        {
+            StopCoroutine(_refreshLayoutCoroutine);
+            _refreshLayoutCoroutine = null;
+        }
     }
 
-    private void OnDestroy()
+    private void Update()
     {
-        _handLoopTween?.Kill();
-        _txtTutLoopTween?.Kill();
+        if (_lastScreenSize.x == Screen.width && _lastScreenSize.y == Screen.height)
+        {
+            return;
+        }
+
+        ApplyOrientationLayout();
+    }
+
+    public void StartHandLoop()
+    {
+        if (_hand == null || !HasEnoughPoints())
+        {
+            return;
+        }
+
+        StopHandLoop();
+
+        _currentPointIndex = 0;
+        _hand.gameObject.SetActive(true);
+        Vector2 handAnchoredPosition = _hand.anchoredPosition;
+        Vector2 optionPositionInHandParent = GetPositionInParentSpace(_optionPoints[_currentPointIndex], _hand.parent as RectTransform);
+        _hand.anchoredPosition = new Vector2(optionPositionInHandParent.x, handAnchoredPosition.y);
+        _hand.localScale = _handBaseScale;
+        SetFocusedOption(_currentPointIndex);
+        SetShaderState(_currentPointIndex, true);
+
+        _handSequence = DOTween.Sequence()
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable)
+            .SetLoops(-1, LoopType.Restart);
+
+        _handSequence.AppendCallback(() => MoveToPoint(1));
+        _handSequence.AppendInterval(_moveDuration + _delayAtPoint);
+        _handSequence.AppendCallback(() => MoveToPoint(0));
+        _handSequence.AppendInterval(_moveDuration + _delayAtPoint);
+    }
+
+    public void StopHandLoop()
+    {
+        if (_handSequence != null)
+        {
+            _handSequence.Kill();
+            _handSequence = null;
+        }
+
+        if (_hand != null)
+        {
+            if (_handMoveTween != null)
+            {
+                _handMoveTween.Kill();
+                _handMoveTween = null;
+            }
+
+            if (_handScaleTween != null)
+            {
+                _handScaleTween.Kill();
+                _handScaleTween = null;
+            }
+
+            _hand.localScale = _handBaseScale;
+        }
+    }
+
+    private void MoveToPoint(int pointIndex)
+    {
+        if (_hand == null || pointIndex < 0 || pointIndex >= _optionPoints.Length || _optionPoints[pointIndex] == null)
+        {
+            return;
+        }
+
+        int previousPointIndex = _currentPointIndex;
+        _currentPointIndex = pointIndex;
+
+        ResetOptionScale(previousPointIndex);
+        SetShaderState(previousPointIndex, false);
+        if (_handMoveTween != null)
+        {
+            _handMoveTween.Kill();
+        }
+
+        Vector2 optionPositionInHandParent = GetPositionInParentSpace(_optionPoints[pointIndex], _hand.parent as RectTransform);
+        _handMoveTween = _hand.DOAnchorPosX(optionPositionInHandParent.x, _moveDuration)
+            .SetEase(Ease.Linear)
+            .OnComplete(() =>
+            {
+                SetFocusedOption(_currentPointIndex);
+                SetShaderState(_currentPointIndex, true);
+                AnimateHandFocus();
+            });
+    }
+
+    private void CacheOptionStates()
+    {
+        if (_optionPoints == null)
+        {
+            return;
+        }
+
+        if (_hand != null)
+        {
+            _handBaseScale = _hand.localScale;
+        }
+
+        if (_rumi != null)
+        {
+            _rumiBaseScale = _rumi.localScale;
+            _rumiBaseAnchoredPosition = _rumi.anchoredPosition;
+            _rumiBaseSizeDelta = _rumi.sizeDelta;
+        }
+
+        int count = _optionPoints.Length;
+        _characterJumpTweens = new Tween[count];
+        _baseAnchoredPositions = new Vector2[count];
+        _baseScales = new Vector3[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            if (_optionPoints[i] == null)
+            {
+                continue;
+            }
+
+            _baseAnchoredPositions[i] = _optionPoints[i].anchoredPosition;
+            _baseScales[i] = _optionPoints[i].localScale;
+        }
+    }
+
+    private void ApplyOrientationLayout(bool force = false)
+    {
+        Vector2Int currentScreenSize = new Vector2Int(Screen.width, Screen.height);
+        bool shouldLandscape = Screen.width >= Screen.height;
+
+        if (!force && currentScreenSize == _lastScreenSize && shouldLandscape == _isLandscape)
+        {
+            return;
+        }
+
+        _lastScreenSize = currentScreenSize;
+        _isLandscape = shouldLandscape;
+
+        if (_refreshLayoutCoroutine != null)
+        {
+            StopCoroutine(_refreshLayoutCoroutine);
+        }
+
+        _refreshLayoutCoroutine = StartCoroutine(RefreshLayoutAfterOrientationChange());
+    }
+
+    private void ApplyRectLayouts(bool isLandscape)
+    {
+        if (_rectLayouts == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _rectLayouts.Length; i++)
+        {
+            OrientationRectLayout layout = _rectLayouts[i];
+            if (layout == null || layout.target == null)
+            {
+                continue;
+            }
+
+            RectTransform reference = isLandscape
+                ? layout.landscapeReference
+                : layout.portraitReference;
+
+            if (reference == null)
+            {
+                continue;
+            }
+
+            layout.target.anchorMin = reference.anchorMin;
+            layout.target.anchorMax = reference.anchorMax;
+            layout.target.pivot = reference.pivot;
+            layout.target.anchoredPosition3D = reference.anchoredPosition3D;
+            layout.target.localRotation = reference.localRotation;
+
+            layout.target.anchoredPosition = GetPositionInParentSpace(reference, layout.target.parent as RectTransform);
+        }
+    }
+
+    private void StartCharacterBouncing()
+    {
+        if (_optionPoints == null || _characterJumpTweens == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _optionPoints.Length; i++)
+        {
+            RectTransform option = _optionPoints[i];
+            if (option == null)
+            {
+                continue;
+            }
+
+            option.DOKill();
+            option.anchoredPosition = _baseAnchoredPositions[i];
+            option.localScale = _baseScales[i];
+
+            _characterJumpTweens[i] = option
+                .DOAnchorPosY(_baseAnchoredPositions[i].y + _characterJumpHeight, _characterJumpDuration)
+                .SetEase(Ease.OutQuad)
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetDelay(i * _characterJumpDuration)
+                .SetLink(option.gameObject, LinkBehaviour.KillOnDisable);
+        }
+    }
+
+    private void StopCharacterBouncing()
+    {
+        if (_characterJumpTweens == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _characterJumpTweens.Length; i++)
+        {
+            if (_characterJumpTweens[i] != null)
+            {
+                _characterJumpTweens[i].Kill();
+                _characterJumpTweens[i] = null;
+            }
+        }
+    }
+
+    private void SetFocusedOption(int focusedIndex, int previousIndex = -1)
+    {
+        if (_optionPoints == null || _baseScales == null)
+        {
+            return;
+        }
+
+        if (previousIndex >= 0 && previousIndex < _optionPoints.Length && _optionPoints[previousIndex] != null)
+        {
+            ResetOptionScale(previousIndex);
+        }
+
+        if (focusedIndex >= 0 && focusedIndex < _optionPoints.Length && _optionPoints[focusedIndex] != null)
+        {
+            _optionPoints[focusedIndex]
+                .DOScale(_baseScales[focusedIndex] * _focusedScaleMultiplier, _scaleDuration)
+                .SetEase(Ease.OutBack);
+        }
+    }
+
+    private void ResetOptionVisuals()
+    {
+        if (_optionPoints == null || _baseAnchoredPositions == null || _baseScales == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _optionPoints.Length; i++)
+        {
+            RectTransform option = _optionPoints[i];
+            if (option == null)
+            {
+                continue;
+            }
+
+            option.DOKill();
+            option.anchoredPosition = _baseAnchoredPositions[i];
+            option.localScale = _baseScales[i];
+            SetShaderState(i, false);
+        }
+    }
+
+    private bool HasEnoughPoints()
+    {
+        return _optionPoints != null
+               && _optionPoints.Length >= 2
+               && _optionPoints[0] != null
+               && _optionPoints[1] != null;
+    }
+
+    private void AnimateHandFocus()
+    {
+        if (_hand == null)
+        {
+            return;
+        }
+
+        if (_handScaleTween != null)
+        {
+            _handScaleTween.Kill();
+        }
+
+        _hand.localScale = _handBaseScale;
+        _handScaleTween = DOTween.Sequence()
+            .Append(_hand.DOScale(_handBaseScale * _handScaleMultiplier, _handScaleDuration).SetEase(Ease.OutQuad))
+            .Append(_hand.DOScale(_handBaseScale, _handScaleDuration).SetEase(Ease.InQuad));
+    }
+
+    private void ResetOptionScale(int optionIndex)
+    {
+        if (_optionPoints == null || _baseScales == null)
+        {
+            return;
+        }
+
+        if (optionIndex < 0 || optionIndex >= _optionPoints.Length || _optionPoints[optionIndex] == null)
+        {
+            return;
+        }
+
+        _optionPoints[optionIndex]
+            .DOScale(_baseScales[optionIndex], _scaleDuration)
+            .SetEase(Ease.OutQuad);
+    }
+
+    private void SetShaderState(int optionIndex, bool isActive)
+    {
+        if (_shaderPoints == null)
+        {
+            return;
+        }
+
+        if (optionIndex < 0 || optionIndex >= _shaderPoints.Length || _shaderPoints[optionIndex] == null)
+        {
+            return;
+        }
+
+        _shaderPoints[optionIndex].SetActive(isActive);
+    }
+
+    private void SetBackgroundState(GameObject background, bool isActive)
+    {
+        if (background == null)
+        {
+            return;
+        }
+
+        background.SetActive(isActive);
+    }
+
+    private void ApplyHandSize(bool isLandscape)
+    {
+        if (_hand == null || _handSize == null)
+        {
+            return;
+        }
+
+        _hand.sizeDelta = isLandscape
+            ? _handSize.landscapeSizeDelta
+            : _handSize.portraitSizeDelta;
+    }
+
+    private IEnumerator RefreshLayoutAfterOrientationChange()
+    {
+        StopHandLoop();
+        StopCharacterBouncing();
+        ResetOptionVisuals();
+
+        SetBackgroundState(_landscapeBackground, _isLandscape);
+        SetBackgroundState(_portraitBackground, !_isLandscape);
+        ApplyRectLayouts(_isLandscape);
+        ApplyHandSize(_isLandscape);
+
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+
+        if (_rectLayouts != null)
+        {
+            for (int i = 0; i < _rectLayouts.Length; i++)
+            {
+                OrientationRectLayout layout = _rectLayouts[i];
+                if (layout != null && layout.target != null)
+                {
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(layout.target);
+                }
+            }
+        }
+
+        CacheOptionStates();
+        StartCharacterBouncing();
+        StartRumiScale();
+        StartHandLoop();
+        _refreshLayoutCoroutine = null;
+    }
+
+    private Vector2 GetPositionInParentSpace(RectTransform source, RectTransform targetParent)
+    {
+        if (source == null)
+        {
+            return Vector2.zero;
+        }
+
+        if (targetParent == null)
+        {
+            return source.anchoredPosition;
+        }
+
+        Canvas parentCanvas = targetParent.GetComponentInParent<Canvas>();
+        Camera uiCamera = null;
+        if (parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
+        {
+            uiCamera = parentCanvas.worldCamera;
+        }
+
+        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(uiCamera, source.position);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(targetParent, screenPoint, uiCamera, out Vector2 localPoint);
+        return localPoint;
+    }
+
+    private void StartRumiScale()
+    {
+        if (_rumi == null)
+        {
+            return;
+        }
+
+        StopRumiScale();
+        _rumi.localScale = _rumiBaseScale;
+        _rumi.anchoredPosition = _rumiBaseAnchoredPosition;
+        _rumi.sizeDelta = _rumiBaseSizeDelta;
+
+        Sequence rumiSequence = DOTween.Sequence();
+        rumiSequence.Append(_rumi.DOSizeDelta(
+            new Vector2(_rumiBaseSizeDelta.x, _rumiBaseSizeDelta.y + _rumiHeightOffsetOnSquash),
+            _rumiScaleDuration).SetEase(Ease.InOutSine));
+        rumiSequence.Join(_rumi.DOAnchorPosY(_rumiBaseAnchoredPosition.y + _rumiYOffsetOnSquash, _rumiScaleDuration).SetEase(Ease.InOutSine));
+        rumiSequence.Append(_rumi.DOSizeDelta(_rumiBaseSizeDelta, _rumiScaleDuration).SetEase(Ease.InOutSine));
+        rumiSequence.Join(_rumi.DOAnchorPosY(_rumiBaseAnchoredPosition.y, _rumiScaleDuration).SetEase(Ease.InOutSine));
+
+        _rumiScaleTween = rumiSequence
+            .SetLoops(-1, LoopType.Restart)
+            .SetLink(_rumi.gameObject, LinkBehaviour.KillOnDisable);
+    }
+
+    private void StopRumiScale()
+    {
+        if (_rumiScaleTween != null)
+        {
+            _rumiScaleTween.Kill();
+            _rumiScaleTween = null;
+        }
+
+        if (_rumi != null)
+        {
+            _rumi.DOKill();
+            _rumi.localScale = _rumiBaseScale;
+            _rumi.anchoredPosition = _rumiBaseAnchoredPosition;
+            _rumi.sizeDelta = _rumiBaseSizeDelta;
+        }
     }
 }

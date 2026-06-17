@@ -14,6 +14,7 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("Lightning")] public float Lightning=5;
     [LunaPlaygroundField("Color Light")] public Color colorLight=Color.black;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
+    public List<Sprite> _sprites = new List<Sprite>();
 
     public Light directionalLight;
     public bool isCretivePause;
