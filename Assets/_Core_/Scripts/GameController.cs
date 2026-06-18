@@ -1,533 +1,384 @@
 using DG.Tweening;
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[System.Serializable]
-public class OrientationRectLayout
-{
-    public RectTransform target;
-    public RectTransform landscapeReference;
-    public RectTransform portraitReference;
-}
-
-[System.Serializable]
-public class OrientationHandSize
-{
-    public Vector2 landscapeSizeDelta;
-    public Vector2 portraitSizeDelta;
-}
-
-
 public class GameController : MonoBehaviour
 {
-    [SerializeField] private RectTransform _hand;
-    [SerializeField] private RectTransform _rumi;
-    [SerializeField] private RectTransform[] _optionPoints = new RectTransform[2];
-    [SerializeField] private GameObject[] _shaderPoints = new GameObject[2];
-    [SerializeField] private GameObject _landscapeBackground;
-    [SerializeField] private GameObject _portraitBackground;
-    [SerializeField] private OrientationRectLayout[] _rectLayouts;
-    [SerializeField] private OrientationHandSize _handSize;
-    [SerializeField] private float _moveDuration = 0.35f;
-    [SerializeField] private float _delayAtPoint = 0.5f;
-    [SerializeField] private float _characterJumpHeight = 18f;
-    [SerializeField] private float _characterJumpDuration = 0.45f;
-    [SerializeField] private float _focusedScaleMultiplier = 1.15f;
-    [SerializeField] private float _scaleDuration = 0.2f;
-    [SerializeField] private float _handScaleMultiplier = 1.12f;
-    [SerializeField] private float _handScaleDuration = 0.12f;
-    [SerializeField] private float _rumiHeightOffsetOnSquash = -24f;
-    [SerializeField] private float _rumiScaleDuration = 0.35f;
-    [SerializeField] private float _rumiYOffsetOnSquash = -8f;
+    [Header("Texture")] [LunaPlaygroundAsset("Texture Mode 1")] [SerializeField]
+    private Texture2D textureMode1;
 
-    private Sequence _handSequence;
-    private Tween _handMoveTween;
-    private Tween _handScaleTween;
-    private Tween[] _characterJumpTweens;
-    private Tween _rumiScaleTween;
-    private Vector2[] _baseAnchoredPositions;
-    private Vector3[] _baseScales;
-    private Vector3 _handBaseScale;
-    private Vector3 _rumiBaseScale;
-    private Vector2 _rumiBaseAnchoredPosition;
-    private Vector2 _rumiBaseSizeDelta;
-    private int _currentPointIndex = -1;
-    private bool _isLandscape;
-    private Vector2Int _lastScreenSize;
-    private Coroutine _refreshLayoutCoroutine;
+    [LunaPlaygroundAsset("Texture Mode 2")] [SerializeField]
+    private Texture2D textureMode2;
+
+    [LunaPlaygroundAsset("Texture Mode 3")] [SerializeField]
+    private Texture2D textureMode3;
+
+    [LunaPlaygroundAsset("Texture Mode 4")] [SerializeField]
+    private Texture2D textureMode4;
+
+    [Header("References")] [SerializeField]
+    private RectTransform handRect;
+
+    [SerializeField] private List<Button> buttons = new List<Button>();
+    [SerializeField] private List<Image> icons = new List<Image>();
+    [SerializeField] private Transform titleObject;
+    [SerializeField] private Transform playButtonObject;
+
+    [Header("Move")] [SerializeField] private Vector2 handOffset = new Vector2(0f, 60f);
+    [SerializeField] private float moveDuration = 0.35f;
+    [SerializeField] private float delayBeforeClick = 0.1f;
+    [SerializeField] private float delayAfterClick = 0.2f;
+
+    [Header("Hand Click")] [SerializeField]
+    private float handPressDistance = 18f;
+
+    [SerializeField] private float handPressDuration = 0.12f;
+    [SerializeField] private float handScaleDown = 0.9f;
+
+    [Header("Button Click")] [SerializeField]
+    private float buttonPunchScale = 0.12f;
+
+    [SerializeField] private float buttonPunchDuration = 0.2f;
+    [SerializeField] private int buttonPunchVibrato = 8;
+
+    [Header("Loop Scale")] [SerializeField]
+    private float idleScaleMultiplier = 1.08f;
+
+    [SerializeField] private float idleScaleDuration = 0.55f;
+
+    private int currentIndex;
+    private Vector3 handStartScale;
+    private Vector3 titleStartScale;
+    private Vector3 playButtonStartScale;
+    private Sequence loopSequence;
+    private Tween handMoveTween;
+    private readonly Dictionary<Button, Vector3> buttonStartScales = new Dictionary<Button, Vector3>();
 
     private void Awake()
     {
-        CacheOptionStates();
+        if (handRect == null)
+        {
+            handRect = transform as RectTransform;
+        }
+
+        if (handRect != null)
+        {
+            handStartScale = handRect.localScale;
+        }
+
+        if (titleObject != null)
+        {
+            titleStartScale = titleObject.localScale;
+        }
+
+        if (playButtonObject != null)
+        {
+            playButtonStartScale = playButtonObject.localScale;
+        }
+
+        CacheButtonScales();
     }
 
     private void Start()
     {
-        ApplyOrientationLayout(true);
-        LunaManager.ins.CheckClickShowEndCard();
+        StartIdleScaleEffects();
+        StartLoop();
+
+        foreach (Button button in buttons)
+        {
+            if (button != null)
+            {
+                button.onClick.AddListener(() => LunaManager.ins.CheckClickShowEndCard());
+            }
+        }
+
+        List<Texture2D> t = new List<Texture2D>();
+        t.Add(textureMode1);
+        t.Add(textureMode2);
+        t.Add(textureMode3);
+        t.Add(textureMode4);
+
+        for (int i = 0; i < t.Count; i++)
+        {
+            icons[i].sprite = CreateSprite(t[i]);
+        }
     }
 
     private void OnDisable()
     {
-        StopHandLoop();
-        StopCharacterBouncing();
-        StopRumiScale();
-        ResetOptionVisuals();
-
-        if (_refreshLayoutCoroutine != null)
-        {
-            StopCoroutine(_refreshLayoutCoroutine);
-            _refreshLayoutCoroutine = null;
-        }
+        StopLoop();
+        StopIdleScaleEffects();
     }
 
-    private void Update()
+    public void StartLoop()
     {
-        if (_lastScreenSize.x == Screen.width && _lastScreenSize.y == Screen.height)
+        StopLoop();
+
+        if (handRect == null || GetStepCount() == 0)
         {
+            Debug.LogWarning("GameController: missing handRect or buttons.");
             return;
         }
 
-        ApplyOrientationLayout();
-    }
-
-    public void StartHandLoop()
-    {
-        if (_hand == null || !HasEnoughPoints())
+        currentIndex = Mathf.Clamp(currentIndex, 0, GetStepCount() - 1);
+        RectTransform firstTarget =
+            buttons[currentIndex] != null ? buttons[currentIndex].transform as RectTransform : null;
+        if (firstTarget != null)
         {
-            return;
+            handRect.anchoredPosition = GetTargetAnchorPosition(firstTarget);
         }
 
-        StopHandLoop();
-
-        _currentPointIndex = 0;
-        _hand.gameObject.SetActive(true);
-        Vector2 handAnchoredPosition = _hand.anchoredPosition;
-        Vector2 optionPositionInHandParent = GetPositionInParentSpace(_optionPoints[_currentPointIndex], _hand.parent as RectTransform);
-        _hand.anchoredPosition = new Vector2(optionPositionInHandParent.x, handAnchoredPosition.y);
-        _hand.localScale = _handBaseScale;
-        SetFocusedOption(_currentPointIndex);
-        SetShaderState(_currentPointIndex, true);
-
-        _handSequence = DOTween.Sequence()
-            .SetLink(gameObject, LinkBehaviour.KillOnDisable)
-            .SetLoops(-1, LoopType.Restart);
-
-        _handSequence.AppendCallback(() => MoveToPoint(1));
-        _handSequence.AppendInterval(_moveDuration + _delayAtPoint);
-        _handSequence.AppendCallback(() => MoveToPoint(0));
-        _handSequence.AppendInterval(_moveDuration + _delayAtPoint);
+        PlayStep();
     }
 
-    public void StopHandLoop()
+    public void StopLoop()
     {
-        if (_handSequence != null)
+        if (loopSequence != null)
         {
-            _handSequence.Kill();
-            _handSequence = null;
+            loopSequence.Kill();
+            loopSequence = null;
         }
 
-        if (_hand != null)
+        if (handMoveTween != null)
         {
-            if (_handMoveTween != null)
+            handMoveTween.Kill();
+            handMoveTween = null;
+        }
+
+        if (handRect != null)
+        {
+            handRect.DOKill();
+            handRect.DOComplete();
+            handRect.localScale = handStartScale;
+        }
+
+        foreach (Button button in buttons)
+        {
+            if (button != null)
             {
-                _handMoveTween.Kill();
-                _handMoveTween = null;
+                button.transform.DOKill();
+                button.transform.localScale = GetButtonStartScale(button);
             }
-
-            if (_handScaleTween != null)
-            {
-                _handScaleTween.Kill();
-                _handScaleTween = null;
-            }
-
-            _hand.localScale = _handBaseScale;
         }
     }
 
-    private void MoveToPoint(int pointIndex)
+    private void StartIdleScaleEffects()
     {
-        if (_hand == null || pointIndex < 0 || pointIndex >= _optionPoints.Length || _optionPoints[pointIndex] == null)
+        if (titleObject != null)
+        {
+            titleObject.DOKill();
+            titleObject.localScale = titleStartScale;
+            titleObject
+                .DOScale(titleStartScale * idleScaleMultiplier, idleScaleDuration)
+                .SetEase(Ease.InOutSine)
+                .SetLoops(-1, LoopType.Yoyo);
+        }
+
+        if (playButtonObject != null)
+        {
+            playButtonObject.DOKill();
+            playButtonObject.localScale = playButtonStartScale;
+            playButtonObject
+                .DOScale(playButtonStartScale * idleScaleMultiplier, idleScaleDuration)
+                .SetEase(Ease.InOutSine)
+                .SetLoops(-1, LoopType.Yoyo);
+        }
+    }
+
+    private void StopIdleScaleEffects()
+    {
+        if (titleObject != null)
+        {
+            titleObject.DOKill();
+            titleObject.localScale = titleStartScale;
+        }
+
+        if (playButtonObject != null)
+        {
+            playButtonObject.DOKill();
+            playButtonObject.localScale = playButtonStartScale;
+        }
+    }
+
+    private void PlayStep()
+    {
+        int stepCount = GetStepCount();
+        if (stepCount == 0)
         {
             return;
         }
 
-        int previousPointIndex = _currentPointIndex;
-        _currentPointIndex = pointIndex;
-
-        ResetOptionScale(previousPointIndex);
-        SetShaderState(previousPointIndex, false);
-        if (_handMoveTween != null)
+        int targetIndex = GetNextValidIndex();
+        if (targetIndex < 0)
         {
-            _handMoveTween.Kill();
+            return;
         }
 
-        Vector2 optionPositionInHandParent = GetPositionInParentSpace(_optionPoints[pointIndex], _hand.parent as RectTransform);
-        _handMoveTween = _hand.DOAnchorPosX(optionPositionInHandParent.x, _moveDuration)
+        Button targetButton = GetButtonAtIndex(targetIndex);
+        RectTransform targetRect = targetButton != null ? targetButton.transform as RectTransform : null;
+        if (targetRect == null)
+        {
+            return;
+        }
+
+        loopSequence = DOTween.Sequence();
+        loopSequence.AppendCallback(() => MoveToPoint(targetRect, false));
+        loopSequence.AppendInterval(moveDuration);
+        loopSequence.AppendInterval(delayBeforeClick);
+        loopSequence.AppendCallback(() => PlayClickEffect(targetButton));
+        loopSequence.AppendInterval(handPressDuration * 2f + delayAfterClick);
+        loopSequence.OnComplete(() =>
+        {
+            currentIndex = (targetIndex + 1) % stepCount;
+            PlayStep();
+        });
+    }
+
+    private int GetNextValidIndex()
+    {
+        int stepCount = GetStepCount();
+        if (stepCount == 0)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < stepCount; i++)
+        {
+            int index = (currentIndex + i) % stepCount;
+            if (buttons[index] != null && buttons[index].transform is RectTransform)
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    private void PlayClickEffect(Button targetButton)
+    {
+        if (handRect == null || targetButton == null)
+        {
+            return;
+        }
+
+        handRect.DOKill();
+        handRect.localScale = handStartScale;
+
+        Vector2 startAnchorPos = handRect.anchoredPosition;
+        Vector2 pressOffset = Vector2.down * handPressDistance;
+        Sequence handClickSequence = DOTween.Sequence();
+        handClickSequence.Append(handRect.DOAnchorPos(startAnchorPos + pressOffset, handPressDuration)
+            .SetEase(Ease.InQuad));
+        handClickSequence.Join(handRect.DOScale(handStartScale * handScaleDown, handPressDuration)
+            .SetEase(Ease.InQuad));
+        handClickSequence.Append(handRect.DOAnchorPos(startAnchorPos, handPressDuration).SetEase(Ease.OutQuad));
+        handClickSequence.Join(handRect.DOScale(handStartScale, handPressDuration).SetEase(Ease.OutQuad));
+
+        targetButton.transform.DOKill();
+        targetButton.transform.localScale = GetButtonStartScale(targetButton);
+        targetButton.transform.DOPunchScale(Vector3.one * buttonPunchScale, buttonPunchDuration, buttonPunchVibrato,
+            0.9f);
+    }
+
+    private void MoveToPoint(RectTransform targetPoint, bool tapOnArrive)
+    {
+        if (handRect == null || targetPoint == null)
+        {
+            return;
+        }
+
+        if (handMoveTween != null)
+        {
+            handMoveTween.Kill();
+        }
+
+        handMoveTween = handRect.DOAnchorPos(GetTargetAnchorPosition(targetPoint), moveDuration)
             .SetEase(Ease.Linear)
             .OnComplete(() =>
             {
-                SetFocusedOption(_currentPointIndex);
-                SetShaderState(_currentPointIndex, true);
-                AnimateHandFocus();
+                handMoveTween = null;
+
+                if (tapOnArrive)
+                {
+                    Button targetButton = targetPoint.GetComponent<Button>();
+                    if (targetButton != null)
+                    {
+                        PlayClickEffect(targetButton);
+                    }
+                }
             });
     }
 
-    private void CacheOptionStates()
+    private Vector2 GetTargetAnchorPosition(RectTransform target)
     {
-        if (_optionPoints == null)
+        RectTransform parentRect = handRect.parent as RectTransform;
+        if (parentRect == null)
         {
-            return;
+            return target.anchoredPosition + handOffset;
         }
 
-        if (_hand != null)
-        {
-            _handBaseScale = _hand.localScale;
-        }
-
-        if (_rumi != null)
-        {
-            _rumiBaseScale = _rumi.localScale;
-            _rumiBaseAnchoredPosition = _rumi.anchoredPosition;
-            _rumiBaseSizeDelta = _rumi.sizeDelta;
-        }
-
-        int count = _optionPoints.Length;
-        _characterJumpTweens = new Tween[count];
-        _baseAnchoredPositions = new Vector2[count];
-        _baseScales = new Vector3[count];
-
-        for (int i = 0; i < count; i++)
-        {
-            if (_optionPoints[i] == null)
-            {
-                continue;
-            }
-
-            _baseAnchoredPositions[i] = _optionPoints[i].anchoredPosition;
-            _baseScales[i] = _optionPoints[i].localScale;
-        }
-    }
-
-    private void ApplyOrientationLayout(bool force = false)
-    {
-        Vector2Int currentScreenSize = new Vector2Int(Screen.width, Screen.height);
-        bool shouldLandscape = Screen.width >= Screen.height;
-
-        if (!force && currentScreenSize == _lastScreenSize && shouldLandscape == _isLandscape)
-        {
-            return;
-        }
-
-        _lastScreenSize = currentScreenSize;
-        _isLandscape = shouldLandscape;
-
-        if (_refreshLayoutCoroutine != null)
-        {
-            StopCoroutine(_refreshLayoutCoroutine);
-        }
-
-        _refreshLayoutCoroutine = StartCoroutine(RefreshLayoutAfterOrientationChange());
-    }
-
-    private void ApplyRectLayouts(bool isLandscape)
-    {
-        if (_rectLayouts == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < _rectLayouts.Length; i++)
-        {
-            OrientationRectLayout layout = _rectLayouts[i];
-            if (layout == null || layout.target == null)
-            {
-                continue;
-            }
-
-            RectTransform reference = isLandscape
-                ? layout.landscapeReference
-                : layout.portraitReference;
-
-            if (reference == null)
-            {
-                continue;
-            }
-
-            layout.target.anchorMin = reference.anchorMin;
-            layout.target.anchorMax = reference.anchorMax;
-            layout.target.pivot = reference.pivot;
-            layout.target.anchoredPosition3D = reference.anchoredPosition3D;
-            layout.target.localRotation = reference.localRotation;
-
-            layout.target.anchoredPosition = GetPositionInParentSpace(reference, layout.target.parent as RectTransform);
-        }
-    }
-
-    private void StartCharacterBouncing()
-    {
-        if (_optionPoints == null || _characterJumpTweens == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < _optionPoints.Length; i++)
-        {
-            RectTransform option = _optionPoints[i];
-            if (option == null)
-            {
-                continue;
-            }
-
-            option.DOKill();
-            option.anchoredPosition = _baseAnchoredPositions[i];
-            option.localScale = _baseScales[i];
-
-            _characterJumpTweens[i] = option
-                .DOAnchorPosY(_baseAnchoredPositions[i].y + _characterJumpHeight, _characterJumpDuration)
-                .SetEase(Ease.OutQuad)
-                .SetLoops(-1, LoopType.Yoyo)
-                .SetDelay(i * _characterJumpDuration)
-                .SetLink(option.gameObject, LinkBehaviour.KillOnDisable);
-        }
-    }
-
-    private void StopCharacterBouncing()
-    {
-        if (_characterJumpTweens == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < _characterJumpTweens.Length; i++)
-        {
-            if (_characterJumpTweens[i] != null)
-            {
-                _characterJumpTweens[i].Kill();
-                _characterJumpTweens[i] = null;
-            }
-        }
-    }
-
-    private void SetFocusedOption(int focusedIndex, int previousIndex = -1)
-    {
-        if (_optionPoints == null || _baseScales == null)
-        {
-            return;
-        }
-
-        if (previousIndex >= 0 && previousIndex < _optionPoints.Length && _optionPoints[previousIndex] != null)
-        {
-            ResetOptionScale(previousIndex);
-        }
-
-        if (focusedIndex >= 0 && focusedIndex < _optionPoints.Length && _optionPoints[focusedIndex] != null)
-        {
-            _optionPoints[focusedIndex]
-                .DOScale(_baseScales[focusedIndex] * _focusedScaleMultiplier, _scaleDuration)
-                .SetEase(Ease.OutBack);
-        }
-    }
-
-    private void ResetOptionVisuals()
-    {
-        if (_optionPoints == null || _baseAnchoredPositions == null || _baseScales == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < _optionPoints.Length; i++)
-        {
-            RectTransform option = _optionPoints[i];
-            if (option == null)
-            {
-                continue;
-            }
-
-            option.DOKill();
-            option.anchoredPosition = _baseAnchoredPositions[i];
-            option.localScale = _baseScales[i];
-            SetShaderState(i, false);
-        }
-    }
-
-    private bool HasEnoughPoints()
-    {
-        return _optionPoints != null
-               && _optionPoints.Length >= 2
-               && _optionPoints[0] != null
-               && _optionPoints[1] != null;
-    }
-
-    private void AnimateHandFocus()
-    {
-        if (_hand == null)
-        {
-            return;
-        }
-
-        if (_handScaleTween != null)
-        {
-            _handScaleTween.Kill();
-        }
-
-        _hand.localScale = _handBaseScale;
-        _handScaleTween = DOTween.Sequence()
-            .Append(_hand.DOScale(_handBaseScale * _handScaleMultiplier, _handScaleDuration).SetEase(Ease.OutQuad))
-            .Append(_hand.DOScale(_handBaseScale, _handScaleDuration).SetEase(Ease.InQuad));
-    }
-
-    private void ResetOptionScale(int optionIndex)
-    {
-        if (_optionPoints == null || _baseScales == null)
-        {
-            return;
-        }
-
-        if (optionIndex < 0 || optionIndex >= _optionPoints.Length || _optionPoints[optionIndex] == null)
-        {
-            return;
-        }
-
-        _optionPoints[optionIndex]
-            .DOScale(_baseScales[optionIndex], _scaleDuration)
-            .SetEase(Ease.OutQuad);
-    }
-
-    private void SetShaderState(int optionIndex, bool isActive)
-    {
-        if (_shaderPoints == null)
-        {
-            return;
-        }
-
-        if (optionIndex < 0 || optionIndex >= _shaderPoints.Length || _shaderPoints[optionIndex] == null)
-        {
-            return;
-        }
-
-        _shaderPoints[optionIndex].SetActive(isActive);
-    }
-
-    private void SetBackgroundState(GameObject background, bool isActive)
-    {
-        if (background == null)
-        {
-            return;
-        }
-
-        background.SetActive(isActive);
-    }
-
-    private void ApplyHandSize(bool isLandscape)
-    {
-        if (_hand == null || _handSize == null)
-        {
-            return;
-        }
-
-        _hand.sizeDelta = isLandscape
-            ? _handSize.landscapeSizeDelta
-            : _handSize.portraitSizeDelta;
-    }
-
-    private IEnumerator RefreshLayoutAfterOrientationChange()
-    {
-        StopHandLoop();
-        StopCharacterBouncing();
-        ResetOptionVisuals();
-
-        SetBackgroundState(_landscapeBackground, _isLandscape);
-        SetBackgroundState(_portraitBackground, !_isLandscape);
-        ApplyRectLayouts(_isLandscape);
-        ApplyHandSize(_isLandscape);
-
-        yield return null;
-        Canvas.ForceUpdateCanvases();
-
-        if (_rectLayouts != null)
-        {
-            for (int i = 0; i < _rectLayouts.Length; i++)
-            {
-                OrientationRectLayout layout = _rectLayouts[i];
-                if (layout != null && layout.target != null)
-                {
-                    LayoutRebuilder.ForceRebuildLayoutImmediate(layout.target);
-                }
-            }
-        }
-
-        CacheOptionStates();
-        StartCharacterBouncing();
-        StartRumiScale();
-        StartHandLoop();
-        _refreshLayoutCoroutine = null;
-    }
-
-    private Vector2 GetPositionInParentSpace(RectTransform source, RectTransform targetParent)
-    {
-        if (source == null)
-        {
-            return Vector2.zero;
-        }
-
-        if (targetParent == null)
-        {
-            return source.anchoredPosition;
-        }
-
-        Canvas parentCanvas = targetParent.GetComponentInParent<Canvas>();
+        Canvas canvas = handRect.GetComponentInParent<Canvas>();
         Camera uiCamera = null;
-        if (parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
         {
-            uiCamera = parentCanvas.worldCamera;
+            uiCamera = canvas.worldCamera;
         }
 
-        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(uiCamera, source.position);
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(targetParent, screenPoint, uiCamera, out Vector2 localPoint);
-        return localPoint;
+        Vector2 localPoint;
+        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(uiCamera, target.position);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, screenPoint, uiCamera, out localPoint);
+        return localPoint + handOffset;
     }
 
-    private void StartRumiScale()
+    private int GetStepCount()
     {
-        if (_rumi == null)
-        {
-            return;
-        }
-
-        StopRumiScale();
-        _rumi.localScale = _rumiBaseScale;
-        _rumi.anchoredPosition = _rumiBaseAnchoredPosition;
-        _rumi.sizeDelta = _rumiBaseSizeDelta;
-
-        Sequence rumiSequence = DOTween.Sequence();
-        rumiSequence.Append(_rumi.DOSizeDelta(
-            new Vector2(_rumiBaseSizeDelta.x, _rumiBaseSizeDelta.y + _rumiHeightOffsetOnSquash),
-            _rumiScaleDuration).SetEase(Ease.InOutSine));
-        rumiSequence.Join(_rumi.DOAnchorPosY(_rumiBaseAnchoredPosition.y + _rumiYOffsetOnSquash, _rumiScaleDuration).SetEase(Ease.InOutSine));
-        rumiSequence.Append(_rumi.DOSizeDelta(_rumiBaseSizeDelta, _rumiScaleDuration).SetEase(Ease.InOutSine));
-        rumiSequence.Join(_rumi.DOAnchorPosY(_rumiBaseAnchoredPosition.y, _rumiScaleDuration).SetEase(Ease.InOutSine));
-
-        _rumiScaleTween = rumiSequence
-            .SetLoops(-1, LoopType.Restart)
-            .SetLink(_rumi.gameObject, LinkBehaviour.KillOnDisable);
+        return buttons.Count;
     }
 
-    private void StopRumiScale()
+    private Button GetButtonAtIndex(int index)
     {
-        if (_rumiScaleTween != null)
+        if (index < 0 || index >= buttons.Count)
         {
-            _rumiScaleTween.Kill();
-            _rumiScaleTween = null;
+            return null;
         }
 
-        if (_rumi != null)
+        return buttons[index];
+    }
+
+    private void CacheButtonScales()
+    {
+        buttonStartScales.Clear();
+
+        foreach (Button button in buttons)
         {
-            _rumi.DOKill();
-            _rumi.localScale = _rumiBaseScale;
-            _rumi.anchoredPosition = _rumiBaseAnchoredPosition;
-            _rumi.sizeDelta = _rumiBaseSizeDelta;
+            if (button != null && !buttonStartScales.ContainsKey(button))
+            {
+                buttonStartScales.Add(button, button.transform.localScale);
+            }
         }
+    }
+
+    private Vector3 GetButtonStartScale(Button button)
+    {
+        if (button == null)
+        {
+            return Vector3.one;
+        }
+
+        if (buttonStartScales.TryGetValue(button, out Vector3 scale))
+        {
+            return scale;
+        }
+
+        return button.transform.localScale;
+    }
+
+    private static Sprite CreateSprite(Texture2D texture)
+    {
+        return Sprite.Create(
+            texture,
+            new Rect(0f, 0f, texture.width, texture.height),
+            new Vector2(0.5f, 0.5f));
     }
 }
