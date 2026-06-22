@@ -49,7 +49,7 @@ public GameObject handPointer; // Đối tượng hình bàn tay
             handPointer.SetActive(false);
         }
 
-        AudioManager.ins.PlaySoundBuy();
-        LunaManager.ins.CheckClickShowEndCard();
+        // AudioManager.ins.PlaySoundBuy();
+        // LunaManager.ins.CheckClickShowEndCard();
     }
 }
