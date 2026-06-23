@@ -22,14 +22,18 @@ public class PlayerMovement2 : MonoBehaviour
     public LayerMask groundMask;
     public Animator animator;
     public GameObject model;
+    public string buildAnimationState = "metarig|Build";
+    public float buildAnimationFade = 0.05f;
     
     private Rigidbody rb;
     private float xRotation = 0f;
     private bool isGrounded;
+    private int buildAnimationHash;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        buildAnimationHash = Animator.StringToHash(buildAnimationState);
     }
     bool IsOnSlope()
     {
@@ -85,6 +89,18 @@ public class PlayerMovement2 : MonoBehaviour
         {
             rb.AddForce(new Vector3(0,jumpHeight,0),ForceMode.Impulse);
         }
+    }
+
+    public void PlayBuildAnimation()
+    {
+        if (animator == null)
+            return;
+
+        if (!animator.HasState(0, buildAnimationHash))
+            buildAnimationHash = Animator.StringToHash(buildAnimationState);
+
+        if (animator.HasState(0, buildAnimationHash))
+            animator.CrossFadeInFixedTime(buildAnimationHash, buildAnimationFade);
     }
     void FixedUpdate()
     {

@@ -14,8 +14,14 @@ public class Inventory : MonoBehaviour
     public Image[] matImgs;
     public TextMeshProUGUI[] textCount;
     public Transform posBlock;
+    public GameObject[] handBlockPrefabs;
+    public Material[] handBlockMaterials;
+    public Vector3 handBlockLocalPosition = Vector3.zero;
+    public Vector3 handBlockLocalEulerAngles = Vector3.zero;
+    public Vector3 handBlockLocalScale = Vector3.one * 0.35f;
 
     int curMat;
+    GameObject curHandBlock;
 
     // Start is called before the first frame update
     void Start()
@@ -38,6 +44,7 @@ public class Inventory : MonoBehaviour
         AddToInventory2(BlockType.Glass, 99);
         AddToInventory2(BlockType.Trunk, 99);
         //matImgs[0].gameObject.SetActive(true);
+        SetCur(curMat);
     }
 
     // Update is called once per frame
@@ -59,6 +66,7 @@ public class Inventory : MonoBehaviour
 
         curMat = i;
         invImgs[i].color = new Color(0, 0, 0, 80/255f);
+        UpdateHandBlock();
     }
 
     public bool CanPlaceCur()
@@ -76,7 +84,10 @@ public class Inventory : MonoBehaviour
         matCounts[curMat]--;
         UpdateTextCount();
         if(matCounts[curMat] == 0)
+        {
             matImgs[curMat].gameObject.SetActive(false);
+            UpdateHandBlock();
+        }
         
     }
 
@@ -94,6 +105,8 @@ public class Inventory : MonoBehaviour
         if(matCounts[i] == 1)
             matImgs[i].gameObject.SetActive(true);
         UpdateTextCount();
+        if (i == curMat)
+            UpdateHandBlock();
 
     }
     public void AddToInventory2(BlockType block,int quanlity)
@@ -110,6 +123,8 @@ public class Inventory : MonoBehaviour
         if(matCounts[i] >= 1)
             matImgs[i].gameObject.SetActive(true);
         UpdateTextCount();
+        if (i == curMat)
+            UpdateHandBlock();
     }
 
     public void UpdateTextCount()
@@ -118,6 +133,62 @@ public class Inventory : MonoBehaviour
         {
             textCount[i].text= matCounts[i].ToString();
             textCount[i].gameObject.SetActive(false);
+        }
+    }
+
+    void UpdateHandBlock()
+    {
+        if (posBlock == null)
+            return;
+
+        if (curHandBlock != null)
+            Destroy(curHandBlock);
+
+        if (!CanPlaceCur())
+            return;
+
+        GameObject prefab = GetArrayValue(handBlockPrefabs, curMat);
+        curHandBlock = prefab != null ? Instantiate(prefab, posBlock) : GameObject.CreatePrimitive(PrimitiveType.Cube);
+        curHandBlock.transform.SetParent(posBlock, false);
+        curHandBlock.transform.localPosition = handBlockLocalPosition;
+        curHandBlock.transform.localEulerAngles = handBlockLocalEulerAngles;
+        curHandBlock.transform.localScale = handBlockLocalScale;
+
+        foreach (Collider col in curHandBlock.GetComponentsInChildren<Collider>())
+            col.enabled = false;
+
+        Material material = GetArrayValue(handBlockMaterials, curMat);
+        foreach (Renderer renderer in curHandBlock.GetComponentsInChildren<Renderer>())
+        {
+            if (material != null)
+                renderer.material = material;
+            else
+                renderer.material.color = GetFallbackColor(GetCurBlock());
+        }
+    }
+
+    T GetArrayValue<T>(T[] array, int index) where T : class
+    {
+        if (array == null || index < 0 || index >= array.Length)
+            return null;
+
+        return array[index];
+    }
+
+    Color GetFallbackColor(BlockType block)
+    {
+        switch (block)
+        {
+            case BlockType.Brick:
+                return new Color(0.55f, 0.16f, 0.12f);
+            case BlockType.Stone:
+                return new Color(0.45f, 0.45f, 0.45f);
+            case BlockType.Glass:
+                return new Color(0.45f, 0.8f, 0.95f, 0.65f);
+            case BlockType.Trunk:
+                return new Color(0.38f, 0.21f, 0.08f);
+            default:
+                return Color.white;
         }
     }
 }

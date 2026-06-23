@@ -263,6 +263,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             {
                 tc.blocks[bix, biy, biz] = BlockType.Brick;
                 tc.BuildMesh();
+                PlayerMovement2.ins?.PlayBuildAnimation();
                 return;
             }
         }
@@ -289,13 +290,14 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
         int biz = Mathf.FloorToInt(pointInTargetBlock.z) - chunkPosZ + 1;
 
         // Kiểm tra xem khối này có phải là Empty hay không
-        if (tc.blocks[bix, biy, biz] == BlockType.Empty)
+        if (tc.blocks[bix, biy, biz] == BlockType.Empty && inv.CanPlaceCur())
         {
             LunaManager.ins.CheckClickShowEndCard();
             AudioManager.ins.PlaySoundBuild();
             tc.blocks[bix, biy, biz] = inv.GetCurBlock();
             tc.BuildMesh();
             inv.ReduceCur();
+            PlayerMovement2.ins?.PlayBuildAnimation();
             return;
         }
 
@@ -328,6 +330,7 @@ public class MouseLook : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointe
             adjTc.blocks[adjBix, adjBiy, adjBiz] = inv.GetCurBlock();
             adjTc.BuildMesh();
             inv.ReduceCur();
+            PlayerMovement2.ins?.PlayBuildAnimation();
         }
     }
 }

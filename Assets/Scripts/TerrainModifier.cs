@@ -106,6 +106,7 @@ public class TerrainModifier : MonoBehaviour
                     tc.blocks[bix, biy, biz] = inv.GetCurBlock();
                     tc.BuildMesh();
                     inv.ReduceCur();
+                    PlayerMovement2.ins?.PlayBuildAnimation();
                 }
 
         }
@@ -136,10 +137,14 @@ public class TerrainModifier : MonoBehaviour
             
             if (tc.blocks[bix, biy, biz] == BlockType.Empty)
             {
-                AudioManager.ins.PlaySoundBuild();
-                tc.blocks[bix, biy, biz] = inv.GetCurBlock();
-                tc.BuildMesh();
-                inv.ReduceCur();
+                if(inv.CanPlaceCur())
+                {
+                    AudioManager.ins.PlaySoundBuild();
+                    tc.blocks[bix, biy, biz] = inv.GetCurBlock();
+                    tc.BuildMesh();
+                    inv.ReduceCur();
+                    PlayerMovement2.ins?.PlayBuildAnimation();
+                }
                 return;
             }
             if(inv.CanPlaceCur())
@@ -149,6 +154,7 @@ public class TerrainModifier : MonoBehaviour
                 tc.blocks[bix, biy, biz] = inv.GetCurBlock();
                 tc.BuildMesh();
                 inv.ReduceCur();
+                PlayerMovement2.ins?.PlayBuildAnimation();
             }
 
         }

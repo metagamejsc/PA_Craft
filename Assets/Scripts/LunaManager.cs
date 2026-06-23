@@ -14,6 +14,12 @@ public class LunaManager : MonoBehaviour
     [LunaPlaygroundField("NoiseIntensity")] public float noiseIntensity=10;
     [LunaPlaygroundField("LandNoiseScale")] public float landNoiseScale=0.8f;
     [LunaPlaygroundField("Tree Count")] public int treeCount=20;
+    [LunaPlaygroundField("Light Instensity")] public float lightInstensity;
+    [LunaPlaygroundField("Light Color")] public Color lightColor;
+    public Light light;
+    [LunaPlaygroundAsset("Music")] public AudioClip music;
+    [LunaPlaygroundAsset("Music Volum")] public float musicVolume;
+    public AudioSource musicSource;
     public bool isCretivePause;
     public Image[] doTweenAnimations;
     private void Awake()
@@ -38,6 +44,14 @@ public class LunaManager : MonoBehaviour
         EndCard.SetActive(false);
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
+        
+        light.intensity = lightInstensity;
+        light.color = lightColor;
+        
+        musicSource.clip = music;
+        musicSource.loop = true;
+        musicSource.volume = musicVolume;
+        musicSource.Play();
     }
     public IEnumerator IESelectBuilding()
     {
