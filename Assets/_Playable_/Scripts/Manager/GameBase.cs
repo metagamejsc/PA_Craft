@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Playable.Manager
+namespace Playable
 {
     public class GameBase : MonoBehaviour
     {
@@ -24,14 +24,15 @@ namespace Playable.Manager
         private int _quantityEvent = 0;
         protected AudioManager _audioManager;
 
-        private void Start()
+
+        protected virtual void Start()
         {
             _btnBlock.onClick.AddListener(CallToAction);
             _btnBlock.gameObject.SetActive(false);
 
-            _background.sprite = CreateSprite(_backgroundTexture);
+            if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
             _audioManager = AudioManager.Instance;
-            _audioManager.PlayMusic(_backgroundMusic);
+            if (_backgroundMusic) _audioManager.PlayMusic(_backgroundMusic);
 
             StartCoroutine(IECountdownEndGame());
         }

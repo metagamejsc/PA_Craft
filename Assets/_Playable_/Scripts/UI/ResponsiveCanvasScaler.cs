@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Playable.UI
+namespace Playable
 {
     [RequireComponent(typeof(CanvasScaler))]
     public class ResponsiveCanvasScaler : MonoBehaviour

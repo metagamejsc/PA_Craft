@@ -1,12 +1,17 @@
 using UnityEngine;
 
-namespace Playable.Manager
+namespace Playable
 {
     public class AudioManager : MonoBehaviour
     {
         public static AudioManager Instance;
         [SerializeField] private AudioSource _audioMusic;
         [SerializeField] private AudioSource _audioSound;
+
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         public void PlayMusic(AudioClip clip)
         {
