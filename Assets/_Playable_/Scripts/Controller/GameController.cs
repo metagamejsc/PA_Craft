@@ -1,242 +1,158 @@
 using DG.Tweening;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Playable
 {
     public class GameController : GameBase
     {
-        [Header("Gameplay")] [SerializeField] private Camera _raycastCamera;
-        [SerializeField] private LayerMask _targetLayer;
-        [SerializeField] private float _rayDistance = 100f;
-        [SerializeField] private Player _player;
-        [SerializeField] private Monster _monster;
-        [SerializeField] private GameObject _allTargets;
-        [SerializeField] private TMP_Text _txt;
-        [SerializeField] private GameObject _hand;
-        [SerializeField] private Transform _handPoint1;
-        [SerializeField] private Transform _handPoint2;
-        [SerializeField] private Transform _handPoint3;
+        [Header("Gameplay")] [SerializeField] private SelectableItem[] _sourceItems;
+        [SerializeField] private CloneDragItem _cloneItem;
+        [SerializeField] private DropItemSlot[] _itemSlots;
 
-        [Header("Camera Shake")] [SerializeField]
-        private float _cameraShakeStrength = 0.3f;
+        [Header("Monster Reveal")] [SerializeField]
+        private Image _monster;
 
-        [SerializeField] private float _cameraShakeDuration = 0.2f;
-        [SerializeField] private float _txtPulseScale = 1.1f;
-        [SerializeField] private float _txtPulseDuration = 0.45f;
-        [SerializeField] private float _handMoveDuration = 0.35f;
-        [SerializeField] private float _handTapScale = 0.85f;
-        [SerializeField] private float _handTapDuration = 0.12f;
-        [SerializeField] private float _handPauseDuration = 0.12f;
+        [SerializeField] private int _flashLoopCount = 3;
+        [SerializeField] private float _flashDuration = 0.12f;
+        [SerializeField] private float _finalRevealDuration = 0.3f;
 
+        private Tween _monsterTween;
+        private bool _isCompleted;
 
-        private bool _isSelectBow = true;
-        private Tween _cameraShakeTween;
-        private Tween _txtPulseTween;
-        private Sequence _handGuideSequence;
-
-        protected override void Start()
+        private void Awake()
         {
-            base.Start();
-            _player.StartIdleBounce();
-            SetText("99% Choose Wrong!");
-            StartTxtPulse();
-            StartHandGuide();
-        }
-
-        private void Update()
-        {
-            if (!TryGetPointerDownPosition(out Vector3 screenPosition) || !_isSelectBow)
+            if (_cloneItem != null)
             {
-                return;
+                _cloneItem.Initialize();
             }
 
-            Camera raycastCamera = GetRaycastCamera();
-
-            Ray ray = raycastCamera.ScreenPointToRay(screenPosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, _rayDistance, _targetLayer))
+            if (_sourceItems != null)
             {
-                Target target = hit.collider.GetComponent<Target>();
-                if (target != null)
+                for (int i = 0; i < _sourceItems.Length; i++)
                 {
-                    _isSelectBow = false;
-                    StopHandGuide();
-                    AttackMonster(target.Type);
-                    _allTargets.SetActive(false);
-                    StopHandGuide();
-                    if (target.Type == BowType.BowVip)
+                    if (_sourceItems[i] == null)
                     {
-                        SetText("SMART CHOICE");
+                        continue;
                     }
-                    else
-                    {
-                        SetText("TOO WEAK");
-                    }
-                }
-            }
-        }
 
-        private bool TryGetPointerDownPosition(out Vector3 screenPosition)
-        {
-            screenPosition = default;
-
-            if (Input.touchCount > 0)
-            {
-                Touch touch = Input.GetTouch(0);
-                if (touch.phase == TouchPhase.Began)
-                {
-                    screenPosition = touch.position;
-                    return true;
+                    _sourceItems[i].Initialize(this);
                 }
             }
 
-            if (Input.GetMouseButtonDown(0))
+            if (_itemSlots != null)
             {
-                screenPosition = Input.mousePosition;
-                return true;
-            }
-
-            return false;
-        }
-
-        private Camera GetRaycastCamera()
-        {
-            if (_raycastCamera != null)
-            {
-                return _raycastCamera;
-            }
-
-            if (Camera.main != null)
-            {
-                return Camera.main;
-            }
-
-            return Camera.current;
-        }
-
-        private void AttackMonster(BowType bowType)
-        {
-            _player.SelectBow(bowType);
-            _monster.JumpDown(AimMonster);
-        }
-
-        private void ShakeCamera()
-        {
-            Camera targetCamera = GetRaycastCamera();
-            if (targetCamera == null)
-            {
-                Debug.LogWarning("GameController: missing camera for shake.");
-                return;
-            }
-
-            Transform cameraTransform = targetCamera.transform;
-            cameraTransform.DOKill();
-
-            _cameraShakeTween?.Kill();
-            _cameraShakeTween = cameraTransform
-                .DOShakePosition(_cameraShakeDuration, _cameraShakeStrength)
-                .SetUpdate(true)
-                .OnKill(() => _cameraShakeTween = null);
-        }
-
-        private void AimMonster()
-        {
-            ShakeCamera();
-            DOVirtual.DelayedCall(0.5f,
-                () =>
+                for (int i = 0; i < _itemSlots.Length; i++)
                 {
-                    _player.RotateToShootAngle(
-                        () => { _monster.Attack(EndGame); },
-                        () => { _monster.Death(EndGame); });
-                });
+                    if (_itemSlots[i] == null)
+                    {
+                        continue;
+                    }
+
+                    _itemSlots[i].Initialize(this);
+                }
+            }
+
+            PrepareMonster();
         }
 
-        private void SetText(string text)
+        private void OnDestroy()
         {
-            _txt.text = text;
+            _monsterTween?.Kill();
         }
 
-        private void StartTxtPulse()
+        public void SelectSourceItem(SelectableItem sourceItem)
         {
-            if (_txt == null)
+            if (_cloneItem == null || sourceItem == null)
             {
                 return;
             }
 
-            _txtPulseTween?.Kill();
-            _txt.transform.localScale = Vector3.one;
-            _txtPulseTween = _txt.transform
-                .DOScale(_txtPulseScale, _txtPulseDuration)
-                .SetEase(Ease.InOutSine)
-                .SetLoops(-1, LoopType.Yoyo)
-                .OnKill(() => _txtPulseTween = null);
+            _cloneItem.SetData(sourceItem.ItemId, sourceItem.ItemSprite);
         }
 
-        private void StartHandGuide()
+        public void TryPlaceItem(DropItemSlot slot, CloneDragItem dragItem)
         {
-            if (_hand == null || _handPoint1 == null || _handPoint2 == null || _handPoint3 == null)
+            if (_isCompleted || slot == null || dragItem == null || !dragItem.HasData)
             {
                 return;
             }
 
-            Transform handTransform = _hand.transform;
-            _handGuideSequence?.Kill();
+            if (!slot.CanAccept(dragItem.CurrentItemId))
+            {
+                return;
+            }
 
-            _hand.SetActive(true);
-            handTransform.position = _handPoint1.position;
-            handTransform.localScale = Vector3.one;
+            slot.SetItem(dragItem.CurrentItemId, dragItem.CurrentSprite);
 
-            _handGuideSequence = DOTween.Sequence()
-                .AppendCallback(() => MoveHandToPoint(handTransform, _handPoint1))
-                .AppendInterval(_handMoveDuration + (_handTapDuration * 2f) + _handPauseDuration)
-                .AppendCallback(() => MoveHandToPoint(handTransform, _handPoint2))
-                .AppendInterval(_handMoveDuration + (_handTapDuration * 2f) + _handPauseDuration)
-                .AppendCallback(() => MoveHandToPoint(handTransform, _handPoint3))
-                .AppendInterval(_handMoveDuration + (_handTapDuration * 2f) + _handPauseDuration)
-                .SetLoops(-1)
-                .OnKill(() => _handGuideSequence = null);
+            if (AreAllSlotsFilled())
+            {
+                RevealMonster();
+            }
         }
 
-        private void MoveHandToPoint(Transform handTransform, Transform targetPoint)
+        private bool AreAllSlotsFilled()
         {
-            handTransform.DOMove(targetPoint.position, _handMoveDuration)
-                .SetEase(Ease.OutSine)
-                .OnComplete(() =>
+            if (_itemSlots == null || _itemSlots.Length == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < _itemSlots.Length; i++)
+            {
+                if (_itemSlots[i] == null || !_itemSlots[i].IsFilled)
                 {
-                    handTransform
-                        .DOScale(_handTapScale, _handTapDuration)
-                        .SetEase(Ease.InSine)
-                        .OnComplete(() =>
-                        {
-                            handTransform
-                                .DOScale(Vector3.one, _handTapDuration)
-                                .SetEase(Ease.OutSine);
-                        });
-                });
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        public void StopHandGuide()
+        private void PrepareMonster()
         {
-            _handGuideSequence?.Kill();
-            _handGuideSequence = null;
+            SetMonsterAlpha(0f);
+            _monster.gameObject.SetActive(false);
+        }
 
-            if (_hand == null)
+        private void RevealMonster()
+        {
+            if (_monster == null || _isCompleted)
             {
                 return;
             }
 
-            _hand.transform.DOKill();
-            _hand.transform.localScale = Vector3.one;
-            _hand.SetActive(false);
+            _isCompleted = true;
+            _monsterTween?.Kill();
+
+            _monster.gameObject.SetActive(true);
+            SetMonsterAlpha(0f);
+
+            Sequence sequence = DOTween.Sequence();
+            for (int i = 0; i < Mathf.Max(1, _flashLoopCount); i++)
+            {
+                sequence.Append(_monster.DOFade(1f, _flashDuration));
+                sequence.Append(_monster.DOFade(0.15f, _flashDuration));
+            }
+
+            sequence.Append(_monster.DOFade(1f, _finalRevealDuration));
+            sequence.OnComplete(() =>
+            {
+                SetMonsterAlpha(1f);
+                CountEvent();
+            });
+
+            _monsterTween = sequence;
         }
 
-        private void OnDisable()
+        private void SetMonsterAlpha(float alpha)
         {
-            _cameraShakeTween?.Kill();
-            _cameraShakeTween = null;
-            _txtPulseTween?.Kill();
-            _txtPulseTween = null;
-            StopHandGuide();
+            if (_monster != null)
+            {
+                Color color = _monster.color;
+                color.a = alpha;
+                _monster.color = color;
+            }
         }
     }
 }
