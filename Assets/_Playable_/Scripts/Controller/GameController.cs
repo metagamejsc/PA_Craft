@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Playable
 {
-    public class GameController : GameBase
+    public class GameController : MonoBehaviour
     {
         [Header("Gameplay")] [SerializeField] private Camera _raycastCamera;
         [SerializeField] private LayerMask _targetLayer;
@@ -29,15 +29,13 @@ namespace Playable
         [SerializeField] private float _handTapDuration = 0.12f;
         [SerializeField] private float _handPauseDuration = 0.12f;
 
-
         private bool _isSelectBow = true;
         private Tween _cameraShakeTween;
         private Tween _txtPulseTween;
         private Sequence _handGuideSequence;
 
-        protected override void Start()
+        protected void Start()
         {
-            base.Start();
             _player.StartIdleBounce();
             SetText("99% Choose Wrong!");
             StartTxtPulse();
@@ -150,30 +148,16 @@ namespace Playable
                         {
                             _monster.Attack(() =>
                             {
-                                if (_failPanel != null)
-                                {
-                                    _failPanel.Show();
-                                }
-                                else
-                                {
-                                    Debug.LogWarning("GameController: missing FailPanel reference.");
-                                }
-                                // EndGame();
+                                GameManager.Instance.ShowFailPanel();
+                                GameManager.Instance.EndGame();
                             });
                         },
                         () =>
                         {
                             _monster.Death(() =>
                             {
-                                if (_winPanel != null)
-                                {
-                                    _winPanel.Show();
-                                }
-                                else
-                                {
-                                    Debug.LogWarning("GameController: missing WinPanel reference.");
-                                }
-                                // EndGame();
+                                GameManager.Instance.ShowWinPanel();
+                                GameManager.Instance.EndGame();
                             });
                         });
                 });

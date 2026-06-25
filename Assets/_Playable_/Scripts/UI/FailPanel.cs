@@ -19,8 +19,8 @@ public class FailPanel : MonoBehaviour
     public void Show()
     {
         gameObject.SetActive(true);
-        // PlayTitleImpact();
-        // PlayButtonPulse();
+        PlayTitleImpact();
+        PlayButtonPulse();
     }
 
     private void PlayTitleImpact()

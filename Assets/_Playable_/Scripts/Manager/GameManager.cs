@@ -4,38 +4,42 @@ using UnityEngine.UI;
 
 namespace Playable
 {
-    public class GameBase : MonoBehaviour
+    public class GameManager : MonoBehaviour
     {
-        [Header("Luna Field")] [LunaPlaygroundField("Total Event For CTA")] 
-        public int _totalEvent;
+        public static GameManager Instance;
 
-        [LunaPlaygroundField("End Time")] 
-        public int _endTime = 30;
+        [Header("Luna Field")] [LunaPlaygroundField("Total Event For CTA")] [SerializeField]
+        private int _totalEvent;
+
+        [LunaPlaygroundField("End Time")] [SerializeField]
+        private int _endTime = 30;
 
         [LunaPlaygroundAsset("Background Music")] [SerializeField]
-        protected AudioClip _backgroundMusic;
+        private AudioClip _backgroundMusic;
 
         [LunaPlaygroundAsset("Background Texture")] [SerializeField]
-        protected Texture2D _backgroundTexture;
+        private Texture2D _backgroundTexture;
 
         [SerializeField] private Button _btnBlock;
         [SerializeField] private Image _background;
 
-        [Header("UI Field")] [SerializeField] protected FailPanel _failPanel;
-        [SerializeField] protected WinPanel _winPanel;
+        [Header("UI Field")] [SerializeField] private FailPanel _failPanel;
+        [SerializeField] private WinPanel _winPanel;
 
         private int _quantityEvent = 0;
-        protected AudioManager _audioManager;
 
+        private void Awake()
+        {
+            Instance = this;
+        }
 
-        protected virtual void Start()
+        private void Start()
         {
             _btnBlock.onClick.AddListener(CallToAction);
             _btnBlock.gameObject.SetActive(false);
 
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
-            _audioManager = AudioManager.Instance;
-            if (_backgroundMusic) _audioManager.PlayMusic(_backgroundMusic);
+            if (_backgroundMusic) AudioManager.Instance.PlayMusic(_backgroundMusic);
 
             StartCoroutine(IECountdownEndGame());
         }
@@ -46,7 +50,7 @@ namespace Playable
             Luna.Unity.Playable.InstallFullGame();
         }
 
-        protected void EndGame()
+        public void EndGame()
         {
             Debug.Log("End Game");
             _btnBlock.gameObject.SetActive(true);
@@ -75,6 +79,16 @@ namespace Playable
                 texture,
                 new Rect(0f, 0f, texture.width, texture.height),
                 new Vector2(0.5f, 0.5f));
+        }
+
+        public void ShowWinPanel()
+        {
+            _winPanel.Show();
+        }
+
+        public void ShowFailPanel()
+        {
+            _failPanel.Show();
         }
     }
 }

@@ -18,8 +18,8 @@ namespace Playable
         public void Show()
         {
             gameObject.SetActive(true);
-            // PlayTitlePulse();
-            // PlayButtonPulse();
+            PlayTitlePulse();
+            PlayButtonPulse();
         }
 
         private void PlayTitlePulse()
