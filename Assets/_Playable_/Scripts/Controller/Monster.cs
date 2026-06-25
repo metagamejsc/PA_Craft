@@ -54,7 +54,7 @@ namespace Playable
 
         public void Death(Action callback)
         {
-            // _vfxBlood.Play();
+            _vfxBlood.Play();
             AudioManager.Instance.PlaySound(_soundMonsterRoar);
             _deathTween?.Kill();
             _moveTween?.Kill();
