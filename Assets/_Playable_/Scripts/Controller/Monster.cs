@@ -18,8 +18,10 @@ namespace Playable
         [Header("Attack")] [SerializeField] private Transform _attackPoint;
         [SerializeField] private float _durationMoveToAttackPoint = 0.5f;
 
-        [Header("Death")] [SerializeField] private float _deathHopPower = 0.5f;
+        [Header("Death")] [SerializeField] private Transform _deathPoint;
         [SerializeField] private float _deathDuration = 0.45f;
+        [SerializeField] private float _deathFlipAngle = -95f;
+        [SerializeField] private ParticleSystem _vfxBlood;
 
         [Header("Sound")] [SerializeField] private AudioClip _soundMonsterJump;
         [SerializeField] private AudioClip _soundMonsterRoar;
@@ -27,7 +29,6 @@ namespace Playable
 
         private Tween _moveTween;
         private Tween _deathTween;
-        private Vector3 _initialScale;
 
         private void Awake()
         {
@@ -35,8 +36,6 @@ namespace Playable
             {
                 _animator = GetComponentInChildren<Animator>();
             }
-
-            _initialScale = transform.localScale;
         }
 
         public void JumpDown(Action callback)
@@ -55,19 +54,22 @@ namespace Playable
 
         public void Death(Action callback)
         {
+            // _vfxBlood.Play();
             AudioManager.Instance.PlaySound(_soundMonsterRoar);
             _deathTween?.Kill();
             _moveTween?.Kill();
             SetAnimationState(isRun: false, isAttack: false);
 
+            Vector3 deathTargetPosition = _deathPoint != null ? _deathPoint.position : transform.position;
+            Vector3 deathTargetRotation = new Vector3(_deathFlipAngle, 0f, 0f);
+
             _deathTween = DOTween.Sequence()
-                .Append(transform.DOJump(transform.position, _deathHopPower, 1, _deathDuration).SetEase(Ease.OutQuad))
-                .Join(transform.DOScale(Vector3.zero, _deathDuration).SetEase(Ease.InBack))
+                .Append(transform.DOMove(deathTargetPosition, _deathDuration).SetEase(Ease.OutExpo))
+                .Join(transform.DORotate(deathTargetRotation, _deathDuration, RotateMode.FastBeyond360)
+                    .SetEase(Ease.OutQuad))
                 .OnComplete(() =>
                 {
                     _deathTween = null;
-                    gameObject.SetActive(false);
-                    transform.localScale = _initialScale;
                     callback?.Invoke();
                 });
         }

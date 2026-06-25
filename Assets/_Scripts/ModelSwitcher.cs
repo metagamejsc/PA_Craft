@@ -21,12 +21,11 @@ public GameObject handPointer; // Đối tượng hình bàn tay
 
         for (int i = 0; i < buttons.Length; i++)
         {
-            int index = i; // tránh lỗi closure
+            int index = i; 
             buttons[i].onClick.AddListener(() => ShowModel(index));
             buttons[i].onClick.AddListener(CheckClick);
         }
 
-        //ShowModel(0); // mặc định hiện model đầu tiên
     }
 
     public void ShowModel(int index)
@@ -48,8 +47,6 @@ public GameObject handPointer; // Đối tượng hình bàn tay
         {
             handPointer.SetActive(false);
         }
-
-        // AudioManager.ins.PlaySoundBuy();
-        // LunaManager.ins.CheckClickShowEndCard();
+        
     }
 }

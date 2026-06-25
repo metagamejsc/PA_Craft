@@ -6,11 +6,11 @@ namespace Playable
 {
     public class GameBase : MonoBehaviour
     {
-        [Header("Luna Field")] [LunaPlaygroundField("Total Event For CTA")] [SerializeField]
-        protected int _totalEvent;
+        [Header("Luna Field")] [LunaPlaygroundField("Total Event For CTA")] 
+        public int _totalEvent;
 
-        [LunaPlaygroundField("End Time")] [SerializeField]
-        protected int _endTime = 30;
+        [LunaPlaygroundField("End Time")] 
+        public int _endTime = 30;
 
         [LunaPlaygroundAsset("Background Music")] [SerializeField]
         protected AudioClip _backgroundMusic;
@@ -20,6 +20,9 @@ namespace Playable
 
         [SerializeField] private Button _btnBlock;
         [SerializeField] private Image _background;
+
+        [Header("UI Field")] [SerializeField] protected FailPanel _failPanel;
+        [SerializeField] protected WinPanel _winPanel;
 
         private int _quantityEvent = 0;
         protected AudioManager _audioManager;
@@ -48,6 +51,7 @@ namespace Playable
             Debug.Log("End Game");
             _btnBlock.gameObject.SetActive(true);
             Luna.Unity.LifeCycle.GameEnded();
+            CallToAction();
         }
 
         protected void CountEvent()

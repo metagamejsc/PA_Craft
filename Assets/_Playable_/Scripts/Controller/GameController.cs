@@ -146,8 +146,36 @@ namespace Playable
                 () =>
                 {
                     _player.RotateToShootAngle(
-                        () => { _monster.Attack(EndGame); },
-                        () => { _monster.Death(EndGame); });
+                        () =>
+                        {
+                            _monster.Attack(() =>
+                            {
+                                if (_failPanel != null)
+                                {
+                                    _failPanel.Show();
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("GameController: missing FailPanel reference.");
+                                }
+                                // EndGame();
+                            });
+                        },
+                        () =>
+                        {
+                            _monster.Death(() =>
+                            {
+                                if (_winPanel != null)
+                                {
+                                    _winPanel.Show();
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("GameController: missing WinPanel reference.");
+                                }
+                                // EndGame();
+                            });
+                        });
                 });
         }
 
@@ -215,7 +243,7 @@ namespace Playable
                 });
         }
 
-        public void StopHandGuide()
+        private void StopHandGuide()
         {
             _handGuideSequence?.Kill();
             _handGuideSequence = null;
