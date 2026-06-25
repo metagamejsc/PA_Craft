@@ -6,6 +6,15 @@ using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
+    [Serializable]
+    public class EnemySpawnChoice
+    {
+        public GameObject enemyPrefab;
+        public GameObject handEggPrefab;
+        public Sprite eggIcon;
+        public Sprite enemyIcon;
+    }
+
     public Animator animator;
     public DOTweenAnimation effectDamageEnemy;
     public DOTweenAnimation effectTakeDamagePlayer;
@@ -13,6 +22,15 @@ public class PlayerController : MonoBehaviour
 
     [Header("UI")]
     public GameObject weaponGuideUI;
+
+    [Header("Enemy Spawn")]
+    public GameObject enemySpawnPanel;
+    public EnemySpawnChoice[] enemySpawnChoices;
+    public Transform handEggAnchor;
+    public LayerMask enemySpawnGroundMask = ~0;
+    public float enemySpawnRayDistance = 80f;
+    public bool hideSpawnPanelAfterSelect = true;
+    public bool clearHandEggAfterSpawn = true;
 
     [Header("Projectile")]
     public GameObject projectilePrefab;
@@ -75,6 +93,10 @@ public class PlayerController : MonoBehaviour
     private float recoilPitchOffset;
     private Vector2 lastMousePosition;
     private int aimTouchId = -1;
+    private int selectedEnemySpawnIndex = -1;
+    private GameObject currentHandEgg;
+
+    public int SelectedEnemySpawnIndex => selectedEnemySpawnIndex;
 
     void Start()
     {
@@ -260,6 +282,154 @@ public class PlayerController : MonoBehaviour
         {
             weaponGuideUI.SetActive(false);
         }
+    }
+
+    public void OpenEnemySpawnPanel()
+    {
+        SetEnemySpawnPanelActive(true);
+    }
+
+    public void CloseEnemySpawnPanel()
+    {
+        SetEnemySpawnPanelActive(false);
+    }
+
+    public void ToggleEnemySpawnPanel()
+    {
+        SetEnemySpawnPanelActive(enemySpawnPanel == null || !enemySpawnPanel.activeSelf);
+    }
+
+    public void SelectEnemyToSpawn(int choiceIndex)
+    {
+        if (enemySpawnChoices == null || choiceIndex < 0 || choiceIndex >= enemySpawnChoices.Length)
+        {
+            return;
+        }
+
+        if (enemySpawnChoices[choiceIndex] == null || enemySpawnChoices[choiceIndex].enemyPrefab == null)
+        {
+            return;
+        }
+
+        selectedEnemySpawnIndex = choiceIndex;
+        ShowHandEgg(enemySpawnChoices[choiceIndex]);
+
+        if (hideSpawnPanelAfterSelect)
+        {
+            SetEnemySpawnPanelActive(false);
+        }
+    }
+
+    public void TrySpawnSelectedEnemy()
+    {
+        if (isDead || LunaManager.ins != null && LunaManager.ins.isCretivePause)
+        {
+            return;
+        }
+
+        EnemySpawnChoice choice = GetSelectedEnemySpawnChoice();
+        if (choice == null || choice.enemyPrefab == null)
+        {
+            return;
+        }
+
+        if (!TryGetEnemySpawnPose(out Vector3 spawnPosition, out Quaternion spawnRotation))
+        {
+            return;
+        }
+
+        if (animator != null)
+        {
+            animator.SetTrigger(attackAnimTrigger);
+        }
+
+        Instantiate(choice.enemyPrefab, spawnPosition, spawnRotation);
+
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.RegisterPlayerShot();
+        }
+
+        if (clearHandEggAfterSpawn)
+        {
+            ClearHandEgg();
+        }
+    }
+
+    void SetEnemySpawnPanelActive(bool isActive)
+    {
+        if (enemySpawnPanel != null)
+        {
+            enemySpawnPanel.SetActive(isActive);
+        }
+    }
+
+    EnemySpawnChoice GetSelectedEnemySpawnChoice()
+    {
+        if (enemySpawnChoices == null || selectedEnemySpawnIndex < 0 || selectedEnemySpawnIndex >= enemySpawnChoices.Length)
+        {
+            return null;
+        }
+
+        return enemySpawnChoices[selectedEnemySpawnIndex];
+    }
+
+    void ShowHandEgg(EnemySpawnChoice choice)
+    {
+        ClearHandEgg();
+
+        if (choice == null || choice.handEggPrefab == null || handEggAnchor == null)
+        {
+            return;
+        }
+
+        currentHandEgg = Instantiate(choice.handEggPrefab, handEggAnchor);
+        currentHandEgg.transform.localPosition = Vector3.zero;
+        currentHandEgg.transform.localRotation = Quaternion.identity;
+        currentHandEgg.transform.localScale = Vector3.one;
+    }
+
+    void ClearHandEgg()
+    {
+        if (currentHandEgg != null)
+        {
+            Destroy(currentHandEgg);
+            currentHandEgg = null;
+        }
+    }
+
+    bool TryGetEnemySpawnPose(out Vector3 spawnPosition, out Quaternion spawnRotation)
+    {
+        spawnPosition = Vector3.zero;
+        spawnRotation = Quaternion.identity;
+
+        if (gameplayCamera == null)
+        {
+            CacheCameraState();
+        }
+
+        Ray spawnRay = gameplayCamera != null
+            ? gameplayCamera.ScreenPointToRay(GetAimScreenPosition())
+            : new Ray(transform.position + Vector3.up, Vector3.down);
+
+        if (!Physics.Raycast(spawnRay, out RaycastHit hit, enemySpawnRayDistance, enemySpawnGroundMask, QueryTriggerInteraction.Ignore))
+        {
+            return false;
+        }
+
+        spawnPosition = hit.point;
+        Vector3 forward = gameplayCamera != null ? gameplayCamera.transform.forward : transform.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude <= 0.001f)
+        {
+            forward = transform.forward;
+            forward.y = 0f;
+        }
+
+        spawnRotation = forward.sqrMagnitude > 0.001f
+            ? Quaternion.LookRotation(forward.normalized)
+            : Quaternion.identity;
+        return true;
     }
 
     public void TryShoot()

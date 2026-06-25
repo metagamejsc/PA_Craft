@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,6 +19,15 @@ public class EnemyController : MonoBehaviour
     public Animator animator;
     public Animator animator2;
 
+    [Header("Animation States")]
+    public string attackStateName = "metarig_Zombie_Attack";
+    public string[] attackStateFallbackNames = { "metarig|Build", "metarig|Build1", "metarig|Character_Attack", "Attack_Gun" };
+    public string deadStateName = "metarig|Fall";
+    public string[] deadStateFallbackNames = { "Armature|Falling Idle", "Falling Idle" };
+    public bool playAttackStateDirectly = true;
+    public bool playDeadStateDirectly = true;
+    public float minimumAttackAnimationTime = 0.45f;
+
     public Transform player;
     public PlayerController playerController;
     public bool isDead = false;
@@ -31,8 +41,23 @@ public class EnemyController : MonoBehaviour
     public Color healthBarBackgroundColor = new Color(0.08f, 0.08f, 0.08f, 0.9f);
     public Color healthBarFillColor = new Color(0.27f, 0.85f, 0.16f, 1f);
 
-    [Header("Death")]
+    [Header("Enemy AI")]
+    public float detectRadius = 8f;
+    public float roamRadius = 4f;
+    public float roamPointReachDistance = 0.35f;
+    public float roamPointInterval = 2f;
+    public LayerMask groundMask = ~0;
+    public float groundRayHeight = 10f;
+
+    [Header("Sounds")]
     public AudioClip deadSound;
+    public List<AudioClip> idleSounds = new List<AudioClip>();
+    public List<AudioClip> moveSounds = new List<AudioClip>();
+    public List<AudioClip> takeDamageSounds = new List<AudioClip>();
+    public List<AudioClip> attackSounds = new List<AudioClip>();
+    public List<AudioClip> deadSounds = new List<AudioClip>();
+    public float idleSoundInterval = 4f;
+    public float moveSoundInterval = 0.65f;
 
     [Header("Hit Reaction")]
     public float rotateSpeed = 8f;
@@ -49,8 +74,15 @@ public class EnemyController : MonoBehaviour
     private bool hasAttackTrigger;
     private bool hasAttackTrigger2;
     private bool hasDeadTrigger;
+    private bool hasDeadTrigger2;
     private bool hasIsMovingBool;
     private bool hasIsMovingBool2;
+    private Vector3 spawnPosition;
+    private Vector3 roamTargetPosition;
+    private float nextRoamPointTime;
+    private float nextIdleSoundTime;
+    private float nextMoveSoundTime;
+    private EnemyController combatTarget;
 
     void OnEnable()
     {
@@ -69,6 +101,9 @@ public class EnemyController : MonoBehaviour
     void Start()
     {
         ResolvePlayer();
+        spawnPosition = transform.position;
+        roamTargetPosition = spawnPosition;
+        PickNewRoamTarget();
         gameplayCamera = Camera.main;
         ApplyLunaSettings();
         CacheAnimatorParameters();
@@ -87,14 +122,8 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        ResolvePlayer();
+        PlayIdleSoundIfReady();
         UpdateHealthBarTransform();
-
-        if (player == null || (playerController != null && playerController.IsDead()))
-        {
-            SetMovingAnimation(false);
-            return;
-        }
 
         if (isHitReacting || isAttacking)
         {
@@ -102,10 +131,25 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        Vector3 targetPosition = playerController != null
-            ? playerController.GetCombatTargetPosition()
-            : player.position;
-        Vector3 moveDirection = targetPosition - transform.position;
+        combatTarget = GetClosestAliveEnemyInRange(transform.position, detectRadius, this);
+        if (combatTarget != null)
+        {
+            HandleCombatTarget(combatTarget);
+            return;
+        }
+
+        HandleRoam();
+    }
+
+    void HandleCombatTarget(EnemyController target)
+    {
+        if (target == null || target.isDead)
+        {
+            SetMovingAnimation(false);
+            return;
+        }
+
+        Vector3 moveDirection = target.transform.position - transform.position;
         moveDirection.y = 0f;
         if (moveDirection.sqrMagnitude <= attackDistance * attackDistance)
         {
@@ -113,18 +157,64 @@ public class EnemyController : MonoBehaviour
 
             if (canAttack)
             {
-                StartCoroutine(AttackPlayer());
+                StartCoroutine(AttackEnemy(target));
             }
 
             return;
         }
 
         SetMovingAnimation(true);
+        PlayMoveSoundIfReady();
         RotateTowards(moveDirection);
         transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
     }
 
-    System.Collections.IEnumerator AttackPlayer()
+    void HandleRoam()
+    {
+        Vector3 moveDirection = roamTargetPosition - transform.position;
+        moveDirection.y = 0f;
+
+        if (moveDirection.sqrMagnitude <= roamPointReachDistance * roamPointReachDistance || Time.time >= nextRoamPointTime)
+        {
+            PickNewRoamTarget();
+            moveDirection = roamTargetPosition - transform.position;
+            moveDirection.y = 0f;
+        }
+
+        if (moveDirection.sqrMagnitude <= 0.001f)
+        {
+            SetMovingAnimation(false);
+            return;
+        }
+
+        SetMovingAnimation(true);
+        PlayMoveSoundIfReady();
+        RotateTowards(moveDirection);
+        transform.position += moveDirection.normalized * moveSpeed * Time.deltaTime;
+    }
+
+    void PickNewRoamTarget()
+    {
+        Vector2 randomCircle = Random.insideUnitCircle * Mathf.Max(0.1f, roamRadius);
+        Vector3 targetPosition = spawnPosition + new Vector3(randomCircle.x, 0f, randomCircle.y);
+        roamTargetPosition = ProjectToGround(targetPosition, spawnPosition.y);
+        nextRoamPointTime = Time.time + Mathf.Max(0.2f, roamPointInterval);
+    }
+
+    Vector3 ProjectToGround(Vector3 position, float fallbackY)
+    {
+        Vector3 rayOrigin = position + Vector3.up * groundRayHeight;
+        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, groundRayHeight * 2f, groundMask, QueryTriggerInteraction.Ignore))
+        {
+            position.y = hit.point.y;
+            return position;
+        }
+
+        position.y = fallbackY;
+        return position;
+    }
+
+    IEnumerator AttackEnemy(EnemyController target)
     {
         if (isDead || isAttacking || !canAttack)
         {
@@ -135,27 +225,38 @@ public class EnemyController : MonoBehaviour
         canAttack = false;
         SetMovingAnimation(false);
 
-        Vector3 attackDirection = GetAttackDirection();
+        Vector3 attackDirection = target != null ? target.transform.position - transform.position : Vector3.zero;
         if (attackDirection.sqrMagnitude > 0.001f)
         {
             RotateTowards(attackDirection);
         }
 
         SetAttackAnimation();
+        PlayRandomSound(attackSounds);
 
-        yield return new WaitForSeconds(attackHitDelay);
-
-        if (!isDead && playerController != null && !playerController.IsDead())
+        float hitDelay = Mathf.Max(0f, attackHitDelay);
+        if (hitDelay > 0f)
         {
-            Vector3 playerDirection = GetAttackDirection();
-            playerDirection.y = 0f;
-            if (playerDirection.sqrMagnitude <= attackDistance * attackDistance)
+            yield return new WaitForSeconds(hitDelay);
+        }
+
+        if (!isDead && target != null && !target.isDead)
+        {
+            Vector3 targetDirection = target.transform.position - transform.position;
+            targetDirection.y = 0f;
+            if (targetDirection.sqrMagnitude <= attackDistance * attackDistance)
             {
-                playerController.TakeDamage(attackDamage);
+                target.TakeDamage(attackDamage, targetDirection.normalized);
             }
         }
 
-        float remainingCooldown = Mathf.Max(0f, attackCooldown - attackHitDelay);
+        float remainingAttackAnimationTime = Mathf.Max(0f, minimumAttackAnimationTime - hitDelay);
+        if (remainingAttackAnimationTime > 0f)
+        {
+            yield return new WaitForSeconds(remainingAttackAnimationTime);
+        }
+
+        float remainingCooldown = Mathf.Max(0f, attackCooldown - Mathf.Max(hitDelay, minimumAttackAnimationTime));
         if (remainingCooldown > 0f)
         {
             yield return new WaitForSeconds(remainingCooldown);
@@ -305,6 +406,7 @@ public class EnemyController : MonoBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         UpdateHealthBarFill();
+        PlayRandomSound(takeDamageSounds);
         PlayHitReaction(hitDirection);
 
         if (currentHealth <= 0f)
@@ -348,7 +450,7 @@ public class EnemyController : MonoBehaviour
             //animator.SetTrigger(DeadTriggerHash);
             animator.Play("metarig|Fall");
         }*/
-        if (deadSound != null && AudioManager.ins != null)
+        if (!PlayRandomSound(deadSounds) && deadSound != null && AudioManager.ins != null)
         {
             AudioManager.ins.PlaySound(deadSound);
         }
@@ -381,6 +483,30 @@ public class EnemyController : MonoBehaviour
 
             float sqrDistance = (enemy.transform.position - fromPosition).sqrMagnitude;
             if (sqrDistance < closestDistance)
+            {
+                closestDistance = sqrDistance;
+                closestEnemy = enemy;
+            }
+        }
+
+        return closestEnemy;
+    }
+
+    public static EnemyController GetClosestAliveEnemyInRange(Vector3 fromPosition, float range, EnemyController excludedEnemy)
+    {
+        EnemyController closestEnemy = null;
+        float closestDistance = range * range;
+
+        for (int i = 0; i < ActiveEnemies.Count; i++)
+        {
+            EnemyController enemy = ActiveEnemies[i];
+            if (enemy == null || enemy == excludedEnemy || enemy.isDead)
+            {
+                continue;
+            }
+
+            float sqrDistance = (enemy.transform.position - fromPosition).sqrMagnitude;
+            if (sqrDistance <= closestDistance)
             {
                 closestDistance = sqrDistance;
                 closestEnemy = enemy;
@@ -441,9 +567,21 @@ public class EnemyController : MonoBehaviour
 
     void CacheAnimatorParameters()
     {
+        // Force animators to always sample. In WebGL/IL2CPP builds a culled animator
+        // can silently skip the attack state even though the gameplay logic still runs.
+        if (animator != null)
+        {
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        }
+        if (animator2 != null)
+        {
+            animator2.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        }
+
         hasAttackTrigger = HasAnimatorParameter(animator, AttackTriggerHash, AnimatorControllerParameterType.Trigger);
         hasAttackTrigger2 = HasAnimatorParameter(animator2, AttackTriggerHash, AnimatorControllerParameterType.Trigger);
         hasDeadTrigger = HasAnimatorParameter(animator, DeadTriggerHash, AnimatorControllerParameterType.Trigger);
+        hasDeadTrigger2 = HasAnimatorParameter(animator2, DeadTriggerHash, AnimatorControllerParameterType.Trigger);
         hasIsMovingBool = HasAnimatorParameter(animator, IsMovingBoolHash, AnimatorControllerParameterType.Bool);
         hasIsMovingBool2 = HasAnimatorParameter(animator2, IsMovingBoolHash, AnimatorControllerParameterType.Bool);
     }
@@ -469,32 +607,137 @@ public class EnemyController : MonoBehaviour
 
     void SetAttackAnimation()
     {
-        if (animator != null && hasAttackTrigger)
-        {
-            animator.SetTrigger(AttackTriggerHash);
-        }
-
-        if (animator2 != null && hasAttackTrigger2)
-        {
-            animator2.SetTrigger(AttackTriggerHash);
-        }
+        PlayAttackAnimation(animator, hasIsMovingBool);
+        PlayAttackAnimation(animator2, hasIsMovingBool2);
     }
 
     void PlayDeadAnimation()
     {
-        if (animator != null)
+        PlayDeadAnimation(animator, hasAttackTrigger, hasDeadTrigger, hasIsMovingBool);
+        PlayDeadAnimation(animator2, hasAttackTrigger2, hasDeadTrigger2, hasIsMovingBool2);
+    }
+
+    void PlayAttackAnimation(Animator targetAnimator, bool hasMoving)
+    {
+        if (targetAnimator == null)
         {
-            animator.ResetTrigger(AttackTriggerHash);
-            animator.SetBool(IsMovingBoolHash, false);
-            animator.Play("metarig|Fall", 0, 0f);
+            return;
         }
 
-        if (animator2 != null)
+        if (hasMoving)
         {
-            animator2.ResetTrigger(AttackTriggerHash);
-            animator2.SetBool(IsMovingBoolHash, false);
-            animator2.Play("metarig|Fall", 0, 0f);
+            targetAnimator.SetBool(IsMovingBoolHash, false);
         }
+
+        if (!string.IsNullOrEmpty(attackStateName))
+        {
+            targetAnimator.Play(attackStateName, 0, 0f);
+            targetAnimator.Update(0f);
+        }
+    }
+
+    void PlayDeadAnimation(Animator targetAnimator, bool hasAttack, bool hasDead, bool hasMoving)
+    {
+        if (targetAnimator == null)
+        {
+            return;
+        }
+
+        if (hasAttack)
+        {
+            targetAnimator.ResetTrigger(AttackTriggerHash);
+        }
+
+        if (hasMoving)
+        {
+            targetAnimator.SetBool(IsMovingBoolHash, false);
+        }
+
+        if (hasDead)
+        {
+            targetAnimator.SetTrigger(DeadTriggerHash);
+        }
+
+        if (playDeadStateDirectly && PlayFirstAvailableAnimatorState(targetAnimator, deadStateName, deadStateFallbackNames) <= 0f)
+        {
+            targetAnimator.Play(deadStateName, 0, 0f);
+        }
+    }
+
+    float PlayFirstAvailableAnimatorState(Animator targetAnimator, string primaryStateName, string[] fallbackStateNames)
+    {
+        if (TryPlayAnimatorState(targetAnimator, primaryStateName, out float stateLength))
+        {
+            return stateLength;
+        }
+
+        if (fallbackStateNames == null)
+        {
+            return 0f;
+        }
+
+        for (int i = 0; i < fallbackStateNames.Length; i++)
+        {
+            if (TryPlayAnimatorState(targetAnimator, fallbackStateNames[i], out stateLength))
+            {
+                return stateLength;
+            }
+        }
+
+        return 0f;
+    }
+
+    bool TryPlayAnimatorState(Animator targetAnimator, string stateName, out float stateLength)
+    {
+        stateLength = 0f;
+
+        if (targetAnimator == null || string.IsNullOrEmpty(stateName))
+        {
+            return false;
+        }
+
+        int stateHash = Animator.StringToHash(stateName);
+        int fullPathHash = Animator.StringToHash("Base Layer." + stateName);
+        int playableHash = 0;
+
+        if (targetAnimator.HasState(0, fullPathHash))
+        {
+            playableHash = fullPathHash;
+        }
+        else if (targetAnimator.HasState(0, stateHash))
+        {
+            playableHash = stateHash;
+        }
+        else
+        {
+            return false;
+        }
+
+        // Use CrossFadeInFixedTime instead of Play + manual Animator.Update(0f).
+        // Pumping the animator by hand commits the deltaTime-0 update for this frame,
+        // which makes the engine skip its own animation pass in IL2CPP/WebGL builds and
+        // the freshly started attack state never gets sampled. Letting the engine drive
+        // the cross-fade plays reliably across Editor and build targets.
+        targetAnimator.CrossFadeInFixedTime(playableHash, 0.05f, 0, 0f);
+        stateLength = GetClipLength(targetAnimator, stateName);
+        return true;
+    }
+
+    float GetClipLength(Animator targetAnimator, string stateName)
+    {
+        if (targetAnimator != null && targetAnimator.runtimeAnimatorController != null)
+        {
+            AnimationClip[] clips = targetAnimator.runtimeAnimatorController.animationClips;
+            for (int i = 0; i < clips.Length; i++)
+            {
+                if (clips[i] != null && clips[i].name == stateName && clips[i].length > 0f)
+                {
+                    return clips[i].length;
+                }
+            }
+        }
+
+        return minimumAttackAnimationTime;
     }
 
     void SetMovingAnimation(bool isMoving)
@@ -508,6 +751,49 @@ public class EnemyController : MonoBehaviour
         {
             animator2.SetBool(IsMovingBoolHash, isMoving);
         }
+    }
+
+    void PlayIdleSoundIfReady()
+    {
+        if (idleSounds == null || idleSounds.Count == 0 || Time.time < nextIdleSoundTime)
+        {
+            return;
+        }
+
+        if (PlayRandomSound(idleSounds))
+        {
+            nextIdleSoundTime = Time.time + Mathf.Max(0.1f, idleSoundInterval);
+        }
+    }
+
+    void PlayMoveSoundIfReady()
+    {
+        if (moveSounds == null || moveSounds.Count == 0 || Time.time < nextMoveSoundTime)
+        {
+            return;
+        }
+
+        if (PlayRandomSound(moveSounds))
+        {
+            nextMoveSoundTime = Time.time + Mathf.Max(0.1f, moveSoundInterval);
+        }
+    }
+
+    bool PlayRandomSound(List<AudioClip> clips)
+    {
+        if (clips == null || clips.Count == 0 || AudioManager.ins == null)
+        {
+            return false;
+        }
+
+        AudioClip clip = clips[Random.Range(0, clips.Count)];
+        if (clip == null)
+        {
+            return false;
+        }
+
+        AudioManager.ins.PlaySound(clip);
+        return true;
     }
 
     Vector3 GetAttackDirection()
@@ -535,5 +821,14 @@ public class EnemyController : MonoBehaviour
 
         Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectRadius);
+        Gizmos.color = Color.cyan;
+        Vector3 center = Application.isPlaying ? spawnPosition : transform.position;
+        Gizmos.DrawWireSphere(center, roamRadius);
     }
 }

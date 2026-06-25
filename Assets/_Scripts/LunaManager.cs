@@ -10,7 +10,7 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     public int countDrop = 0;
     public int countEnemyDead = 0;
-    [LunaPlaygroundField("Number dino feeded to store")] public int countDropFinal = 20;
+    [LunaPlaygroundField("Number enemy spawn to store")] public int countDropFinal = 20;
     public int countEnemyDeadFinal=20;
     [LunaPlaygroundField("Time")] public int timeEndCreative = 30;
     [LunaPlaygroundAsset("Music")] public AudioClip bgMusic;
