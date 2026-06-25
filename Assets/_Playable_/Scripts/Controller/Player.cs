@@ -14,7 +14,6 @@ namespace Playable
         [SerializeField] private Vector3 _angleShoot;
         [SerializeField] private float _rotateToShootDuration = 0.25f;
         
-        
 
         private Bow _currentBow;
         private Tween _idleBounceTween;

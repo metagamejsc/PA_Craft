@@ -35,7 +35,7 @@ namespace Playable
 
         private void Start()
         {
-            _btnBlock.onClick.AddListener(CallToAction);
+            _btnBlock.onClick.AddListener(EndGame);
             _btnBlock.gameObject.SetActive(false);
 
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
@@ -44,18 +44,13 @@ namespace Playable
             StartCoroutine(IECountdownEndGame());
         }
 
-        private void CallToAction()
-        {
-            Debug.Log("Call To Action");
-            Luna.Unity.Playable.InstallFullGame();
-        }
 
         public void EndGame()
         {
             Debug.Log("End Game");
             _btnBlock.gameObject.SetActive(true);
             Luna.Unity.LifeCycle.GameEnded();
-            CallToAction();
+            Luna.Unity.Playable.InstallFullGame();
         }
 
         protected void CountEvent()

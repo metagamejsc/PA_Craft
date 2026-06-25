@@ -28,6 +28,7 @@ namespace Playable
         [SerializeField] private float _handTapScale = 0.85f;
         [SerializeField] private float _handTapDuration = 0.12f;
         [SerializeField] private float _handPauseDuration = 0.12f;
+        [SerializeField] private ParticleSystem _vfxBlood;
 
         private bool _isSelectBow = true;
         private Tween _cameraShakeTween;
@@ -148,16 +149,22 @@ namespace Playable
                         {
                             _monster.Attack(() =>
                             {
-                                GameManager.Instance.ShowFailPanel();
-                                GameManager.Instance.EndGame();
+                                _vfxBlood.Play();
+                                DOVirtual.DelayedCall(1.5f, () =>
+                                {
+                                    _txt.gameObject.SetActive(false);
+                                    GameManager.Instance.ShowFailPanel();
+                                    DOVirtual.DelayedCall(1, () => GameManager.Instance.EndGame());
+                                });
                             });
                         },
                         () =>
                         {
                             _monster.Death(() =>
                             {
+                                _txt.gameObject.SetActive(false);
                                 GameManager.Instance.ShowWinPanel();
-                                GameManager.Instance.EndGame();
+                                DOVirtual.DelayedCall(1, () => GameManager.Instance.EndGame());
                             });
                         });
                 });
