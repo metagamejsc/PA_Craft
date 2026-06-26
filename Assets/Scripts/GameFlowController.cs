@@ -14,7 +14,7 @@ public class GameFlowController : MonoBehaviour
     private void Start()
     {
         weaponSelectionPanel.SetActive(false);
-        ctaPanel.SetActive(false);
+        //ctaPanel.SetActive(false);
         StartCoroutine(ShowWeaponOptionsAfterDelay(LunaManager.ins.timeShowSelectWeapon));
     }
 
@@ -26,9 +26,9 @@ public class GameFlowController : MonoBehaviour
 
     public void OnWeaponSelected(int weaponIndex)
     {
-        weaponSelectionPanel.SetActive(false);
-        ctaPanel.SetActive(true);
-        selectedWeaponImage.sprite = weaponSprites[weaponIndex];
+        //weaponSelectionPanel.SetActive(false);
+        //ctaPanel.SetActive(true);
+        //selectedWeaponImage.sprite = weaponSprites[weaponIndex];
     }
 
     public void OnCTAButtonClicked()

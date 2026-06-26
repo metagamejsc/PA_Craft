@@ -13,16 +13,21 @@ public class LunaManager : MonoBehaviour
     public static LunaManager ins;
     [LunaPlaygroundField("Time")]           public int timeEndCreative=30;
     [LunaPlaygroundAsset("Video")]          public VideoClip videoClip;
-    [LunaPlaygroundField("Text")]           public string stringEndCreative;
-    [LunaPlaygroundField("Text Color")]     public Color colorTextEndCreative;
-    [LunaPlaygroundField("Text Position")]     public Vector2 positionTextEndCreative;
-    [LunaPlaygroundField("Text Size")]      public float sizeTextEndCreative;
-    [LunaPlaygroundField("Text Style")]     public FontStyles fontStyleTextEndCreative;
+    [LunaPlaygroundField("Video Volume")]           public float videoVolume;
+    
+    [LunaPlaygroundAsset("Music Clip")]          public AudioClip musicClip;
+   
+    [LunaPlaygroundField("Music Volume")]           public float musicVolume;
+    [LunaPlaygroundAsset("Texture 1")] public Texture2D texture1;
+    [LunaPlaygroundField("Color Texture 1")]          public Color colorTexture1;
+    [LunaPlaygroundAsset("Texture 2")]          public Texture2D texture2;
+    [LunaPlaygroundField("Color Texture 2")]          public Color colorTexture2;
+    public RawImage image1, image2;
     [LunaPlaygroundField("Time Show Select Weapon")]     public float timeShowSelectWeapon=2f;
-    public TextMeshProUGUI txtEndCreative;
 
     public bool isCretivePause;
     public VideoPlayer video;
+    public AudioSource musicSource;
     private void Awake()
     {
         ins = this;
@@ -43,11 +48,17 @@ public class LunaManager : MonoBehaviour
         //SetupField();
         Invoke(nameof(ShowEndCard),timeEndCreative);
         video.clip = videoClip;
-        txtEndCreative.text = stringEndCreative;
-        txtEndCreative.color = colorTextEndCreative;
-        txtEndCreative.fontSize = sizeTextEndCreative;
-        txtEndCreative.fontStyle = fontStyleTextEndCreative;
-        txtEndCreative.rectTransform.anchoredPosition = positionTextEndCreative;
+        //video.audioOutputMode = VideoAudioOutputMode.Direct;
+        video.EnableAudioTrack(0, true);
+        video.SetDirectAudioVolume(0, videoVolume);
+        
+        musicSource.clip = musicClip;
+        musicSource.volume = musicVolume;
+        musicSource.Play();
+        image1.texture = texture1;
+        image2.texture = texture2;
+        image1.color = colorTexture1;
+        image2.color = colorTexture2;
     }
     
     // Update is called once per frame
