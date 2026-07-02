@@ -64,7 +64,7 @@ namespace Playable
                 _countBlocks++;
                 ConsumeStepValue();
                 UpdateProgressUI();
-                if (_countBlocks >= _blocks.Count)
+                if (_countBlocks >= 20)
                 {
                     _isComplete = true;
                     DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
