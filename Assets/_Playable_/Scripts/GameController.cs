@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using DG.Tweening;
+using UnityEngine.UI;
+using TMPro;
 
 namespace Playable
 {
@@ -13,11 +15,21 @@ namespace Playable
         [SerializeField] private GameObject _hand;
         [SerializeField] private float _handPressScale = 0.85f;
         [SerializeField] private float _handPressDuration = 0.25f;
+        [SerializeField] private Image _bar;
+        [SerializeField] private TMP_Text _countText;
+        [SerializeField] private float _barFillDuration = 0.25f;
+        [SerializeField] private List<TMP_Text> _stepTexts = new List<TMP_Text>();
+        [SerializeField] private List<Image> _stepSelectImages = new List<Image>();
+        [SerializeField] private int _startStepValue = 10;
+        [SerializeField] private AudioClip _soundBuild;
         private int _countBlocks = 0;
         private bool _isComplete;
         private Tween _cameraLookTween;
         private Tween _handPressTween;
+        private Tween _barTween;
         private Vector3 _handStartScale = Vector3.one;
+        private List<int> _stepValues = new List<int>();
+        private int _currentStepTextIndex;
 
         private void Awake()
         {
@@ -30,21 +42,28 @@ namespace Playable
             {
                 _handStartScale = _hand.transform.localScale;
             }
+
+            InitializeStepTexts();
         }
 
         private void Start()
         {
+            UpdateProgressUI(true);
             LookAtCurrentBlock();
             PlayHandPressEffect();
+            _blocks[_countBlocks].Select();
         }
 
         private void Update()
         {
             if (Input.GetMouseButtonDown(0) && !_isComplete)
             {
+                AudioManager.Instance.PlaySound(_soundBuild);
                 StopHandPressEffect();
                 _blocks[_countBlocks].SetSolidAndPlayBoxEffect();
                 _countBlocks++;
+                ConsumeStepValue();
+                UpdateProgressUI();
                 if (_countBlocks >= _blocks.Count)
                 {
                     _isComplete = true;
@@ -128,10 +147,109 @@ namespace Playable
             }
         }
 
+        private void InitializeStepTexts()
+        {
+            _stepValues.Clear();
+            _currentStepTextIndex = 0;
+
+            for (int i = 0; i < _stepTexts.Count; i++)
+            {
+                _stepValues.Add(_startStepValue);
+
+                if (_stepTexts[i] != null)
+                {
+                    _stepTexts[i].text = _startStepValue.ToString();
+                }
+            }
+
+            UpdateStepSelectionVisual();
+        }
+
+        private void ConsumeStepValue()
+        {
+            if (_stepValues.Count == 0)
+            {
+                return;
+            }
+
+            while (_currentStepTextIndex < _stepValues.Count && _stepValues[_currentStepTextIndex] <= 0)
+            {
+                _currentStepTextIndex++;
+            }
+
+            UpdateStepSelectionVisual();
+
+            if (_currentStepTextIndex >= _stepValues.Count)
+            {
+                return;
+            }
+
+            _stepValues[_currentStepTextIndex] = Mathf.Max(0, _stepValues[_currentStepTextIndex] - 1);
+
+            TMP_Text currentText = _stepTexts[_currentStepTextIndex];
+            if (currentText != null)
+            {
+                currentText.text = _stepValues[_currentStepTextIndex].ToString();
+            }
+
+            if (_stepValues[_currentStepTextIndex] == 0)
+            {
+                _currentStepTextIndex++;
+            }
+
+            UpdateStepSelectionVisual();
+        }
+
+        private void UpdateStepSelectionVisual()
+        {
+            for (int i = 0; i < _stepSelectImages.Count; i++)
+            {
+                if (_stepSelectImages[i] == null)
+                {
+                    continue;
+                }
+
+                bool isActive = i == _currentStepTextIndex && _currentStepTextIndex < _stepValues.Count;
+                _stepSelectImages[i].gameObject.SetActive(isActive);
+            }
+        }
+
+        private void UpdateProgressUI(bool instant = false)
+        {
+            int totalBlocks = _blocks != null ? _blocks.Count : 0;
+            int currentCount = Mathf.Clamp(_countBlocks, 0, totalBlocks);
+
+            if (_countText != null)
+            {
+                _countText.text = currentCount + "/" + totalBlocks;
+            }
+
+            if (_bar == null)
+            {
+                return;
+            }
+
+            float targetFill = totalBlocks > 0 ? currentCount / (float)totalBlocks : 0f;
+            _barTween?.Kill();
+
+            if (instant)
+            {
+                _bar.fillAmount = targetFill;
+                return;
+            }
+
+            _barTween = _bar
+                .DOFillAmount(targetFill, _barFillDuration)
+                .SetEase(Ease.OutSine)
+                .OnKill(() => _barTween = null)
+                .OnComplete(() => _barTween = null);
+        }
+
         private void OnDestroy()
         {
             _cameraLookTween?.Kill();
             _handPressTween?.Kill();
+            _barTween?.Kill();
         }
     }
 }
