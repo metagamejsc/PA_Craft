@@ -1,4 +1,5 @@
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -79,11 +80,13 @@ namespace Playable
         public void ShowWinPanel()
         {
             _winPanel.Show();
+            DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
         }
 
         public void ShowFailPanel()
         {
             _failPanel.Show();
+            DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
         }
     }
 }

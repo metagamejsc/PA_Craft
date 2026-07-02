@@ -15,6 +15,7 @@ namespace Playable
 
         [SerializeField] private TMP_Text _countdownText;
         [SerializeField] private List<EnemyController> _enemies = new List<EnemyController>();
+        [SerializeField] private Transform _handTutorial;
 
         [Header("Countdown")] [SerializeField] private float _delayBeforeShake = 10f;
         [SerializeField] private Color _normalTextColor = Color.white;
@@ -25,10 +26,17 @@ namespace Playable
 
         [Header("Shake")] [SerializeField] private float _shakeDuration = 1f;
         [SerializeField] private float _shakeStrength = 0.2f;
+        [SerializeField] private AudioClip _shakeSound;
+
+        [SerializeField] private float _handMoveDistance = 45f;
+        [SerializeField] private float _handMoveHeight = 24f;
+        [SerializeField] private float _handMoveDuration = 1.2f;
 
         private Coroutine _countdownCoroutine;
         private Tween _warningTween;
+        private Tween _handTutorialTween;
         private Vector3 _countdownDefaultScale = Vector3.one;
+        private Vector3 _handStartLocalPosition;
         private bool _isSafe;
         private bool _hasStartedEnemyMove;
 
@@ -46,11 +54,17 @@ namespace Playable
             {
                 _countdownDefaultScale = _countdownText.transform.localScale;
             }
+
+            if (_handTutorial != null)
+            {
+                _handStartLocalPosition = _handTutorial.localPosition;
+            }
         }
 
         private void Start()
         {
             StartShakeCountdown();
+            PlayHandTutorial();
         }
 
         private void Update()
@@ -60,10 +74,14 @@ namespace Playable
                 return;
             }
 
-            if (HasTapInput())
+            if (!Input.GetMouseButtonDown(0))
             {
-                StartAllEnemyMove();
+                return;
             }
+
+            _hasStartedEnemyMove = true;
+            StopHandTutorial();
+            StartAllEnemyMove();
         }
 
         public void StartShakeCountdown()
@@ -89,6 +107,33 @@ namespace Playable
                 }
 
                 _enemies[i].Move();
+            }
+        }
+
+        public void PlayHandTutorial()
+        {
+            if (_handTutorial == null)
+            {
+                return;
+            }
+
+            _handTutorialTween?.Kill();
+            _handTutorial.localPosition = _handStartLocalPosition;
+            _handTutorialTween = DOVirtual.Float(0f, Mathf.PI * 2f, _handMoveDuration, UpdateHandTutorialPosition)
+                .SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Restart)
+                .OnKill(() => _handTutorialTween = null);
+        }
+
+        public void StopHandTutorial()
+        {
+            _handTutorialTween?.Kill();
+            _handTutorialTween = null;
+
+            if (_handTutorial != null)
+            {
+                _handTutorial.localPosition = _handStartLocalPosition;
+                _handTutorial.gameObject.SetActive(false);
             }
         }
 
@@ -178,6 +223,8 @@ namespace Playable
                 return;
             }
 
+            AudioManager.Instance.StopMusic();
+            AudioManager.Instance.PlaySound(_shakeSound);
             _cameraShakeTarget.DOComplete();
             _cameraShakeTarget.DOShakePosition(
                 _shakeDuration,
@@ -191,28 +238,26 @@ namespace Playable
                 {
                     GameManager.Instance.ShowFailPanel();
                 }
-
-                GameManager.Instance.EndGame();
             });
         }
 
-        private bool HasTapInput()
+        private void UpdateHandTutorialPosition(float timeValue)
         {
-            if (Input.touchCount > 0)
+            if (_handTutorial == null)
             {
-                return Input.GetTouch(0).phase == TouchPhase.Began;
+                return;
             }
 
-#if UNITY_EDITOR || UNITY_STANDALONE
-            return Input.GetMouseButtonDown(0);
-#else
-            return false;
-#endif
+            float x = Mathf.Sin(timeValue) * _handMoveDistance;
+            float y = Mathf.Sin(timeValue * 2f) * _handMoveHeight * 0.5f;
+
+            _handTutorial.localPosition = _handStartLocalPosition + new Vector3(x, y, 0f);
         }
 
         private void OnDisable()
         {
             StopShakeCountdown();
+            StopHandTutorial();
         }
     }
 }

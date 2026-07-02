@@ -2,7 +2,7 @@
     "version": "7.2.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29023,
-    "creativeName": "UAC_V59_ThuLH_HuyNQ",
+    "creativeName": "UAC_V63_ThuLH_HuyNQ",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -28711,7 +28711,7 @@
                     },
                     {
                         "name": "warningsDisabled#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "defaultFontAssetPath#get",
@@ -37875,7 +37875,7 @@
                 "instanceMethods": [
                     {
                         "name": "Float",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Int",
@@ -38425,19 +38425,19 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Awake",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Update",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Move",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "StopMove",
@@ -38449,19 +38449,19 @@
                     },
                     {
                         "name": "UpdateMove",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RotateTowards",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GoToNextPoint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "UpdateAnimator",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -38475,7 +38475,7 @@
                     },
                     {
                         "name": "IsSafe#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "init",
@@ -38499,7 +38499,7 @@
                     },
                     {
                         "name": "StartAllEnemyMove",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "StopShakeCountdown",
@@ -38526,12 +38526,20 @@
                         "excluded": false
                     },
                     {
-                        "name": "HasTapInput",
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayHandTutorial",
                         "excluded": false
                     },
                     {
-                        "name": "OnDisable",
-                        "excluded": true
+                        "name": "StopHandTutorial",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateHandTutorialPosition",
+                        "excluded": false
                     }
                 ]
             },
@@ -38541,11 +38549,29 @@
                 "instanceMethods": [
                     {
                         "name": "OnTriggerEnter",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnTriggerExit",
-                        "excluded": true
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.NamePlayer",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "LateUpdate",
+                        "excluded": false
                     }
                 ]
             }
@@ -38898,6 +38924,56 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/Sound/twinkle_far1.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:07.401",
+                        "lengthInSeconds": 7.401000022888184,
+                        "bitrate": 32,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/Sound/348551__jirzin__alarm_sequence.wav"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/Sound/523541__les-blachut__earthquakesfx (online-video-cutter.com).wav"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:30.000",
+                        "lengthInSeconds": 0.0,
+                        "bitrate": 128,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/Sound/523541__les-blachut__earthquakesfx-_online-video-cutter.com_.mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:07.356",
+                        "lengthInSeconds": 7.355999946594238,
+                        "bitrate": 32,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/Sound/348551__jirzin__alarm_sequence.mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:03.605",
+                        "endTime": "00:11.065",
+                        "lengthInSeconds": 7.4599995613098148,
+                        "bitrate": 32,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/Sound/423120__ogsoundfx__earthquake-1-big.wav"
                     }
                 ]
             },
