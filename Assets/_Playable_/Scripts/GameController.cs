@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine.UI;
 using TMPro;
@@ -8,123 +7,203 @@ namespace Playable
 {
     public class GameController : MonoBehaviour
     {
-        [SerializeField] private Camera _targetCamera;
-        [SerializeField] private List<Block> _blocks = new List<Block>();
-        [SerializeField] private float _cameraLookDuration = 0.4f;
-        [SerializeField] private GameObject _text;
-        [SerializeField] private GameObject _hand;
+        private enum GameStep
+        {
+            TapToTransform,
+            MovingToMonster,
+            TapToAttack,
+            ResolvingAttack,
+            TapToRoar,
+            ResolvingRoar,
+            Complete
+        }
+
+        [Header("References")]
+        [SerializeField] private PlayerAction _playerAction;
+        [SerializeField] private MonsterAction _monsterAction;
+        [SerializeField] private Button _actionButton;
+        [SerializeField] private TMP_Text _instructionText;
+        [SerializeField] private GameObject _tapHintRoot;
+        [SerializeField] private Transform _handHint;
+
+        [Header("Prompt Text")]
+        [SerializeField] private string _transformPrompt = "TAP TO TRANSFORM";
+        [SerializeField] private string _attackPrompt = "TAP TO ATTACK";
+        [SerializeField] private string _roarPrompt = "TAP TO ROAR";
+
+        [Header("Hint Animation")]
         [SerializeField] private float _handPressScale = 0.85f;
         [SerializeField] private float _handPressDuration = 0.25f;
-        [SerializeField] private Image _bar;
-        [SerializeField] private TMP_Text _countText;
-        [SerializeField] private float _barFillDuration = 0.25f;
-        [SerializeField] private List<TMP_Text> _stepTexts = new List<TMP_Text>();
-        [SerializeField] private List<Image> _stepSelectImages = new List<Image>();
-        [SerializeField] private int _startStepValue = 10;
-        [SerializeField] private AudioClip _soundBuild;
-        private int _countBlocks = 0;
-        private bool _isComplete;
-        private Tween _cameraLookTween;
+
+        [Header("Flow Timing")]
+        [SerializeField] private float _postAttackDelay = 0.25f;
+        [SerializeField] private float _postRoarDelay = 0.8f;
+
+        private GameStep _currentStep;
         private Tween _handPressTween;
-        private Tween _barTween;
+        private Tween _stepDelayTween;
         private Vector3 _handStartScale = Vector3.one;
-        private List<int> _stepValues = new List<int>();
-        private int _currentStepTextIndex;
 
         private void Awake()
         {
-            if (_targetCamera == null)
+            if (_handHint != null)
             {
-                _targetCamera = Camera.main;
+                _handStartScale = _handHint.localScale;
             }
 
-            if (_hand != null)
+            if (_actionButton != null)
             {
-                _handStartScale = _hand.transform.localScale;
+                _actionButton.onClick.AddListener(OnActionPressed);
             }
-
-            InitializeStepTexts();
         }
 
         private void Start()
         {
-            UpdateProgressUI(true);
-            LookAtCurrentBlock();
+            if (_playerAction != null)
+            {
+                _playerAction.SetHumanState();
+            }
+
+            if (_monsterAction != null)
+            {
+                _monsterAction.ResetState();
+            }
+
+            SetStep(GameStep.TapToTransform, _transformPrompt);
+        }
+
+        public void OnActionPressed()
+        {
+            switch (_currentStep)
+            {
+                case GameStep.TapToTransform:
+                    HandleTransformStep();
+                    break;
+                case GameStep.TapToAttack:
+                    HandleAttackStep();
+                    break;
+                case GameStep.TapToRoar:
+                    HandleRoarStep();
+                    break;
+            }
+        }
+
+        private void HandleTransformStep()
+        {
+            if (_playerAction == null)
+            {
+                return;
+            }
+
+            SetStep(GameStep.MovingToMonster, string.Empty);
+            _playerAction.PlayTransform();
+
+            _stepDelayTween?.Kill();
+            _stepDelayTween = DOVirtual.DelayedCall(_playerAction.TransformDuration, () =>
+            {
+                _playerAction.FinishTransform();
+                _playerAction.MoveTo(_monsterAction != null ? _monsterAction.AttackPoint : null, () =>
+                {
+                    SetStep(GameStep.TapToAttack, _attackPrompt);
+                });
+            });
+        }
+
+        private void HandleAttackStep()
+        {
+            if (_playerAction == null)
+            {
+                return;
+            }
+
+            SetStep(GameStep.ResolvingAttack, string.Empty);
+            _playerAction.PlayAttack();
+
+            if (_monsterAction != null)
+            {
+                _monsterAction.PlayHitAndHide();
+            }
+
+            float delay = Mathf.Max(_playerAction.AttackDuration, (_monsterAction != null ? _monsterAction.HideDelay : 0f)) + _postAttackDelay;
+            _stepDelayTween?.Kill();
+            _stepDelayTween = DOVirtual.DelayedCall(delay, () =>
+            {
+                SetStep(GameStep.TapToRoar, _roarPrompt);
+            });
+        }
+
+        private void HandleRoarStep()
+        {
+            if (_playerAction == null)
+            {
+                return;
+            }
+
+            SetStep(GameStep.ResolvingRoar, string.Empty);
+            _playerAction.PlayRoar();
+
+            _stepDelayTween?.Kill();
+            _stepDelayTween = DOVirtual.DelayedCall(_playerAction.RoarDuration + _postRoarDelay, () =>
+            {
+                _currentStep = GameStep.Complete;
+                HidePrompt();
+                GameManager.Instance.ShowWinPanel();
+            });
+        }
+
+        private void SetStep(GameStep step, string prompt)
+        {
+            _currentStep = step;
+
+            bool showPrompt = step == GameStep.TapToTransform
+                || step == GameStep.TapToAttack
+                || step == GameStep.TapToRoar;
+
+            if (showPrompt)
+            {
+                ShowPrompt(prompt);
+            }
+            else
+            {
+                HidePrompt();
+            }
+        }
+
+        private void ShowPrompt(string prompt)
+        {
+            if (_instructionText != null)
+            {
+                _instructionText.text = prompt;
+            }
+
+            if (_tapHintRoot != null)
+            {
+                _tapHintRoot.SetActive(true);
+            }
+
             PlayHandPressEffect();
-            _blocks[_countBlocks].Select();
         }
 
-        private void Update()
+        private void HidePrompt()
         {
-            if (Input.GetMouseButtonDown(0) && !_isComplete)
+            if (_tapHintRoot != null)
             {
-                AudioManager.Instance.PlaySound(_soundBuild);
-                StopHandPressEffect();
-                _blocks[_countBlocks].SetSolidAndPlayBoxEffect();
-                _countBlocks++;
-                ConsumeStepValue();
-                UpdateProgressUI();
-                if (_countBlocks >= 20)
-                {
-                    _isComplete = true;
-                    DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
-                }
-                else
-                {
-                    LookAtCurrentBlock();
-                    _blocks[_countBlocks].Select();
-                }
-            }
-        }
-
-        private void LookAtCurrentBlock(bool instant = false)
-        {
-            if (_targetCamera == null || _blocks == null || _blocks.Count == 0)
-            {
-                return;
+                _tapHintRoot.SetActive(false);
             }
 
-            int blockIndex = Mathf.Clamp(_countBlocks, 0, _blocks.Count - 1);
-            Block currentBlock = _blocks[blockIndex];
-
-            if (currentBlock == null)
-            {
-                return;
-            }
-
-            Vector3 lookDirection = currentBlock.transform.position - _targetCamera.transform.position;
-
-            if (lookDirection.sqrMagnitude <= 0.0001f)
-            {
-                return;
-            }
-
-            Quaternion targetRotation = Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
-            _cameraLookTween?.Kill();
-
-            if (instant)
-            {
-                _targetCamera.transform.rotation = targetRotation;
-                return;
-            }
-
-            _cameraLookTween = _targetCamera.transform
-                .DORotateQuaternion(targetRotation, _cameraLookDuration)
-                .SetEase(Ease.InOutSine)
-                .OnKill(() => _cameraLookTween = null)
-                .OnComplete(() => _cameraLookTween = null);
+            StopHandPressEffect();
         }
 
         private void PlayHandPressEffect()
         {
-            if (_hand == null)
+            if (_handHint == null)
             {
                 return;
             }
 
             _handPressTween?.Kill();
-            _hand.transform.localScale = _handStartScale;
-            _handPressTween = _hand.transform
+            _handHint.localScale = _handStartScale;
+            _handPressTween = _handHint
                 .DOScale(_handStartScale * _handPressScale, _handPressDuration)
                 .SetEase(Ease.InOutSine)
                 .SetLoops(-1, LoopType.Yoyo)
@@ -135,121 +214,21 @@ namespace Playable
         {
             _handPressTween?.Kill();
 
-            if (_hand != null)
+            if (_handHint != null)
             {
-                _hand.transform.localScale = _handStartScale;
-                _hand.SetActive(false);
+                _handHint.localScale = _handStartScale;
             }
-
-            if (_text != null)
-            {
-                _text.SetActive(false);
-            }
-        }
-
-        private void InitializeStepTexts()
-        {
-            _stepValues.Clear();
-            _currentStepTextIndex = 0;
-
-            for (int i = 0; i < _stepTexts.Count; i++)
-            {
-                _stepValues.Add(_startStepValue);
-
-                if (_stepTexts[i] != null)
-                {
-                    _stepTexts[i].text = _startStepValue.ToString();
-                }
-            }
-
-            UpdateStepSelectionVisual();
-        }
-
-        private void ConsumeStepValue()
-        {
-            if (_stepValues.Count == 0)
-            {
-                return;
-            }
-
-            while (_currentStepTextIndex < _stepValues.Count && _stepValues[_currentStepTextIndex] <= 0)
-            {
-                _currentStepTextIndex++;
-            }
-
-            UpdateStepSelectionVisual();
-
-            if (_currentStepTextIndex >= _stepValues.Count)
-            {
-                return;
-            }
-
-            _stepValues[_currentStepTextIndex] = Mathf.Max(0, _stepValues[_currentStepTextIndex] - 1);
-
-            TMP_Text currentText = _stepTexts[_currentStepTextIndex];
-            if (currentText != null)
-            {
-                currentText.text = _stepValues[_currentStepTextIndex].ToString();
-            }
-
-            if (_stepValues[_currentStepTextIndex] == 0)
-            {
-                _currentStepTextIndex++;
-            }
-
-            UpdateStepSelectionVisual();
-        }
-
-        private void UpdateStepSelectionVisual()
-        {
-            for (int i = 0; i < _stepSelectImages.Count; i++)
-            {
-                if (_stepSelectImages[i] == null)
-                {
-                    continue;
-                }
-
-                bool isActive = i == _currentStepTextIndex && _currentStepTextIndex < _stepValues.Count;
-                _stepSelectImages[i].gameObject.SetActive(isActive);
-            }
-        }
-
-        private void UpdateProgressUI(bool instant = false)
-        {
-            int totalBlocks = _blocks != null ? _blocks.Count : 0;
-            int currentCount = Mathf.Clamp(_countBlocks, 0, totalBlocks);
-
-            if (_countText != null)
-            {
-                _countText.text = currentCount + "/" + totalBlocks;
-            }
-
-            if (_bar == null)
-            {
-                return;
-            }
-
-            float targetFill = totalBlocks > 0 ? currentCount / (float)totalBlocks : 0f;
-            _barTween?.Kill();
-
-            if (instant)
-            {
-                _bar.fillAmount = targetFill;
-                return;
-            }
-
-            _barTween = _bar
-                .DOFillAmount(targetFill, _barFillDuration)
-                .SetEase(Ease.OutSine)
-                .OnKill(() => _barTween = null)
-                .OnComplete(() => _barTween = null);
         }
 
         private void OnDestroy()
         {
-            _cameraLookTween?.Kill();
             _handPressTween?.Kill();
-            _barTween?.Kill();
+            _stepDelayTween?.Kill();
+
+            if (_actionButton != null)
+            {
+                _actionButton.onClick.RemoveListener(OnActionPressed);
+            }
         }
     }
 }
