@@ -114,6 +114,25 @@ namespace Playable
             UpdateCameraPosition(true);
         }
 
+        public void LookAtPoint(Vector3 worldPoint, bool instant = true)
+        {
+            Transform anchor = GetFollowAnchor();
+            Vector3 lookDirection = worldPoint - anchor.position;
+
+            if (lookDirection.sqrMagnitude <= 0.0001f)
+            {
+                return;
+            }
+
+            _yaw = Mathf.Atan2(lookDirection.x, lookDirection.z) * Mathf.Rad2Deg;
+            float horizontalDistance = new Vector2(lookDirection.x, lookDirection.z).magnitude;
+            _pitch = -Mathf.Atan2(lookDirection.y, Mathf.Max(horizontalDistance, 0.0001f)) * Mathf.Rad2Deg;
+            _pitch = Mathf.Clamp(_pitch, _pitchMin, _pitchMax);
+
+            UpdateRigRotation();
+            UpdateCameraPosition(instant);
+        }
+
         private void OnLookDelta(Vector2 delta)
         {
 #if UNITY_EDITOR

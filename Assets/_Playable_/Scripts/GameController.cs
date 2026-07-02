@@ -1,263 +1,137 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using TMPro;
 
 namespace Playable
 {
     public class GameController : MonoBehaviour
     {
-        public static GameController Instance;
-
-        [Header("References")] [SerializeField]
-        private Transform _cameraShakeTarget;
-
-        [SerializeField] private TMP_Text _countdownText;
-        [SerializeField] private List<EnemyController> _enemies = new List<EnemyController>();
-        [SerializeField] private Transform _handTutorial;
-
-        [Header("Countdown")] [SerializeField] private float _delayBeforeShake = 10f;
-        [SerializeField] private Color _normalTextColor = Color.white;
-        [SerializeField] private Color _warningTextColor = Color.red;
-        [SerializeField] private float _warningThreshold = 5f;
-        [SerializeField] private float _warningScale = 1.2f;
-        [SerializeField] private float _warningPulseDuration = 0.25f;
-
-        [Header("Shake")] [SerializeField] private float _shakeDuration = 1f;
-        [SerializeField] private float _shakeStrength = 0.2f;
-        [SerializeField] private AudioClip _shakeSound;
-
-        [SerializeField] private float _handMoveDistance = 45f;
-        [SerializeField] private float _handMoveHeight = 24f;
-        [SerializeField] private float _handMoveDuration = 1.2f;
-
-        private Coroutine _countdownCoroutine;
-        private Tween _warningTween;
-        private Tween _handTutorialTween;
-        private Vector3 _countdownDefaultScale = Vector3.one;
-        private Vector3 _handStartLocalPosition;
-        private bool _isSafe;
-        private bool _hasStartedEnemyMove;
-
-        public bool IsSafe
-        {
-            get => _isSafe;
-            set => _isSafe = value;
-        }
+        [SerializeField] private Camera _targetCamera;
+        [SerializeField] private List<Block> _blocks = new List<Block>();
+        [SerializeField] private float _cameraLookDuration = 0.4f;
+        [SerializeField] private GameObject _text;
+        [SerializeField] private GameObject _hand;
+        [SerializeField] private float _handPressScale = 0.85f;
+        [SerializeField] private float _handPressDuration = 0.25f;
+        private int _countBlocks = 0;
+        private bool _isComplete;
+        private Tween _cameraLookTween;
+        private Tween _handPressTween;
+        private Vector3 _handStartScale = Vector3.one;
 
         private void Awake()
         {
-            Instance = this;
-
-            if (_countdownText != null)
+            if (_targetCamera == null)
             {
-                _countdownDefaultScale = _countdownText.transform.localScale;
+                _targetCamera = Camera.main;
             }
 
-            if (_handTutorial != null)
+            if (_hand != null)
             {
-                _handStartLocalPosition = _handTutorial.localPosition;
+                _handStartScale = _hand.transform.localScale;
             }
         }
 
         private void Start()
         {
-            StartShakeCountdown();
-            PlayHandTutorial();
+            LookAtCurrentBlock();
+            PlayHandPressEffect();
         }
 
         private void Update()
         {
-            if (_hasStartedEnemyMove)
+            if (Input.GetMouseButtonDown(0) && !_isComplete)
             {
-                return;
-            }
-
-            if (!Input.GetMouseButtonDown(0))
-            {
-                return;
-            }
-
-            _hasStartedEnemyMove = true;
-            StopHandTutorial();
-            StartAllEnemyMove();
-        }
-
-        public void StartShakeCountdown()
-        {
-            StopShakeCountdown();
-            _countdownCoroutine = StartCoroutine(IEShakeCountdown());
-        }
-
-        public void StartAllEnemyMove()
-        {
-            if (_enemies == null || _enemies.Count == 0)
-            {
-                return;
-            }
-
-            _hasStartedEnemyMove = true;
-
-            for (int i = 0; i < _enemies.Count; i++)
-            {
-                if (_enemies[i] == null)
+                StopHandPressEffect();
+                _blocks[_countBlocks].SetSolidAndPlayBoxEffect();
+                _countBlocks++;
+                if (_countBlocks >= _blocks.Count)
                 {
-                    continue;
-                }
-
-                _enemies[i].Move();
-            }
-        }
-
-        public void PlayHandTutorial()
-        {
-            if (_handTutorial == null)
-            {
-                return;
-            }
-
-            _handTutorialTween?.Kill();
-            _handTutorial.localPosition = _handStartLocalPosition;
-            _handTutorialTween = DOVirtual.Float(0f, Mathf.PI * 2f, _handMoveDuration, UpdateHandTutorialPosition)
-                .SetEase(Ease.Linear)
-                .SetLoops(-1, LoopType.Restart)
-                .OnKill(() => _handTutorialTween = null);
-        }
-
-        public void StopHandTutorial()
-        {
-            _handTutorialTween?.Kill();
-            _handTutorialTween = null;
-
-            if (_handTutorial != null)
-            {
-                _handTutorial.localPosition = _handStartLocalPosition;
-                _handTutorial.gameObject.SetActive(false);
-            }
-        }
-
-        public void StopShakeCountdown()
-        {
-            if (_countdownCoroutine != null)
-            {
-                StopCoroutine(_countdownCoroutine);
-                _countdownCoroutine = null;
-            }
-
-            StopWarningEffect();
-            SetCountdownText(0f);
-        }
-
-        private IEnumerator IEShakeCountdown()
-        {
-            float remainingTime = _delayBeforeShake;
-
-            while (remainingTime > 0f)
-            {
-                SetCountdownText(remainingTime);
-
-                if (remainingTime <= _warningThreshold)
-                {
-                    PlayWarningEffect();
+                    _isComplete = true;
+                    DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
                 }
                 else
                 {
-                    StopWarningEffect();
+                    LookAtCurrentBlock();
+                    _blocks[_countBlocks].Select();
                 }
-
-                remainingTime -= Time.deltaTime;
-                yield return null;
             }
-
-            SetCountdownText(0f);
-            StopWarningEffect();
-            _countdownCoroutine = null;
-
-            PlayCameraShake();
         }
 
-        private void SetCountdownText(float remainingTime)
+        private void LookAtCurrentBlock(bool instant = false)
         {
-            if (_countdownText == null)
+            if (_targetCamera == null || _blocks == null || _blocks.Count == 0)
             {
                 return;
             }
 
-            int displayTime = Mathf.CeilToInt(Mathf.Max(remainingTime, 0f));
-            _countdownText.text = displayTime.ToString();
-            _countdownText.color = remainingTime <= _warningThreshold ? _warningTextColor : _normalTextColor;
-        }
+            int blockIndex = Mathf.Clamp(_countBlocks, 0, _blocks.Count - 1);
+            Block currentBlock = _blocks[blockIndex];
 
-        private void PlayWarningEffect()
-        {
-            if (_countdownText == null || _warningTween != null)
+            if (currentBlock == null)
             {
                 return;
             }
 
-            _countdownText.transform.localScale = _countdownDefaultScale;
-            _warningTween = _countdownText.transform
-                .DOScale(_countdownDefaultScale * _warningScale, _warningPulseDuration)
+            Vector3 lookDirection = currentBlock.transform.position - _targetCamera.transform.position;
+
+            if (lookDirection.sqrMagnitude <= 0.0001f)
+            {
+                return;
+            }
+
+            Quaternion targetRotation = Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
+            _cameraLookTween?.Kill();
+
+            if (instant)
+            {
+                _targetCamera.transform.rotation = targetRotation;
+                return;
+            }
+
+            _cameraLookTween = _targetCamera.transform
+                .DORotateQuaternion(targetRotation, _cameraLookDuration)
+                .SetEase(Ease.InOutSine)
+                .OnKill(() => _cameraLookTween = null)
+                .OnComplete(() => _cameraLookTween = null);
+        }
+
+        private void PlayHandPressEffect()
+        {
+            if (_hand == null)
+            {
+                return;
+            }
+
+            _handPressTween?.Kill();
+            _hand.transform.localScale = _handStartScale;
+            _handPressTween = _hand.transform
+                .DOScale(_handStartScale * _handPressScale, _handPressDuration)
                 .SetEase(Ease.InOutSine)
                 .SetLoops(-1, LoopType.Yoyo)
-                .OnKill(() => _warningTween = null);
+                .OnKill(() => _handPressTween = null);
         }
 
-        private void StopWarningEffect()
+        private void StopHandPressEffect()
         {
-            if (_countdownText != null)
+            _handPressTween?.Kill();
+
+            if (_hand != null)
             {
-                _countdownText.color = _normalTextColor;
-                _countdownText.transform.localScale = _countdownDefaultScale;
+                _hand.transform.localScale = _handStartScale;
+                _hand.SetActive(false);
             }
 
-            _warningTween?.Kill();
-            _warningTween = null;
-        }
-
-        private void PlayCameraShake()
-        {
-            if (_cameraShakeTarget == null)
+            if (_text != null)
             {
-                return;
+                _text.SetActive(false);
             }
-
-            AudioManager.Instance.StopMusic();
-            AudioManager.Instance.PlaySound(_shakeSound);
-            _cameraShakeTarget.DOComplete();
-            _cameraShakeTarget.DOShakePosition(
-                _shakeDuration,
-                _shakeStrength).OnComplete(() =>
-            {
-                if (_isSafe)
-                {
-                    GameManager.Instance.ShowWinPanel();
-                }
-                else
-                {
-                    GameManager.Instance.ShowFailPanel();
-                }
-            });
         }
 
-        private void UpdateHandTutorialPosition(float timeValue)
+        private void OnDestroy()
         {
-            if (_handTutorial == null)
-            {
-                return;
-            }
-
-            float x = Mathf.Sin(timeValue) * _handMoveDistance;
-            float y = Mathf.Sin(timeValue * 2f) * _handMoveHeight * 0.5f;
-
-            _handTutorial.localPosition = _handStartLocalPosition + new Vector3(x, y, 0f);
-        }
-
-        private void OnDisable()
-        {
-            StopShakeCountdown();
-            StopHandTutorial();
+            _cameraLookTween?.Kill();
+            _handPressTween?.Kill();
         }
     }
 }
