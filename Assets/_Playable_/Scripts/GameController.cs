@@ -18,25 +18,29 @@ namespace Playable
             Complete
         }
 
-        [Header("References")]
-        [SerializeField] private PlayerAction _playerAction;
+        [Header("References")] [SerializeField]
+        private PlayerAction _playerAction;
+
         [SerializeField] private MonsterAction _monsterAction;
         [SerializeField] private Button _actionButton;
+        [SerializeField] private Image[] _stepIcons;
         [SerializeField] private TMP_Text _instructionText;
-        [SerializeField] private GameObject _tapHintRoot;
-        [SerializeField] private Transform _handHint;
+        [SerializeField] private Transform _hand;
 
-        [Header("Prompt Text")]
-        [SerializeField] private string _transformPrompt = "TAP TO TRANSFORM";
+        [Header("Prompt Text")] [SerializeField]
+        private string _transformPrompt = "TAP TO TRANSFORM";
+
         [SerializeField] private string _attackPrompt = "TAP TO ATTACK";
         [SerializeField] private string _roarPrompt = "TAP TO ROAR";
 
-        [Header("Hint Animation")]
-        [SerializeField] private float _handPressScale = 0.85f;
+        [Header("Hint Animation")] [SerializeField]
+        private float _handPressScale = 0.85f;
+
         [SerializeField] private float _handPressDuration = 0.25f;
 
-        [Header("Flow Timing")]
-        [SerializeField] private float _postAttackDelay = 0.25f;
+        [Header("Flow Timing")] [SerializeField]
+        private float _postAttackDelay = 0.25f;
+
         [SerializeField] private float _postRoarDelay = 0.8f;
 
         private GameStep _currentStep;
@@ -46,9 +50,9 @@ namespace Playable
 
         private void Awake()
         {
-            if (_handHint != null)
+            if (_hand != null)
             {
-                _handStartScale = _handHint.localScale;
+                _handStartScale = _hand.localScale;
             }
 
             if (_actionButton != null)
@@ -96,17 +100,16 @@ namespace Playable
             }
 
             SetStep(GameStep.MovingToMonster, string.Empty);
-            _playerAction.PlayTransform();
+            _playerAction.Transform();
+            _instructionText.gameObject.SetActive(false);
 
             _stepDelayTween?.Kill();
-            _stepDelayTween = DOVirtual.DelayedCall(_playerAction.TransformDuration, () =>
-            {
-                _playerAction.FinishTransform();
-                _playerAction.MoveTo(_monsterAction != null ? _monsterAction.AttackPoint : null, () =>
+            _stepDelayTween = DOVirtual.DelayedCall(1,
+                () =>
                 {
-                    SetStep(GameStep.TapToAttack, _attackPrompt);
+                    _playerAction.MoveTo(_monsterAction != null ? _monsterAction.AttackPoint : null,
+                        () => { SetStep(GameStep.TapToAttack, _attackPrompt); });
                 });
-            });
         }
 
         private void HandleAttackStep()
@@ -117,47 +120,36 @@ namespace Playable
             }
 
             SetStep(GameStep.ResolvingAttack, string.Empty);
-            _playerAction.PlayAttack();
-
-            if (_monsterAction != null)
+            _playerAction.PlayRoar();
+            _instructionText.gameObject.SetActive(false);
+            DOVirtual.DelayedCall(2.7f, () =>
             {
-                _monsterAction.PlayHitAndHide();
-            }
+                _playerAction.PlayAttack();
 
-            float delay = Mathf.Max(_playerAction.AttackDuration, (_monsterAction != null ? _monsterAction.HideDelay : 0f)) + _postAttackDelay;
-            _stepDelayTween?.Kill();
-            _stepDelayTween = DOVirtual.DelayedCall(delay, () =>
-            {
-                SetStep(GameStep.TapToRoar, _roarPrompt);
+                DOVirtual.DelayedCall(1f, () => { _monsterAction.PlayHitAndHide(); });
+
+                float delay =
+                    Mathf.Max(_playerAction.AttackDuration, (_monsterAction != null ? _monsterAction.HideDelay : 0f)) +
+                    _postAttackDelay;
+                _stepDelayTween?.Kill();
+                _stepDelayTween = DOVirtual.DelayedCall(delay, () => { SetStep(GameStep.TapToRoar, _roarPrompt); });
             });
         }
 
         private void HandleRoarStep()
         {
-            if (_playerAction == null)
-            {
-                return;
-            }
-
-            SetStep(GameStep.ResolvingRoar, string.Empty);
-            _playerAction.PlayRoar();
-
-            _stepDelayTween?.Kill();
-            _stepDelayTween = DOVirtual.DelayedCall(_playerAction.RoarDuration + _postRoarDelay, () =>
-            {
-                _currentStep = GameStep.Complete;
-                HidePrompt();
-                GameManager.Instance.ShowWinPanel();
-            });
+            GameManager.Instance.EndGame();
         }
 
         private void SetStep(GameStep step, string prompt)
         {
+            _instructionText.gameObject.SetActive(true);
             _currentStep = step;
+            UpdateStepIcons();
 
             bool showPrompt = step == GameStep.TapToTransform
-                || step == GameStep.TapToAttack
-                || step == GameStep.TapToRoar;
+                              || step == GameStep.TapToAttack
+                              || step == GameStep.TapToRoar;
 
             if (showPrompt)
             {
@@ -169,6 +161,39 @@ namespace Playable
             }
         }
 
+        private void UpdateStepIcons()
+        {
+            int activeIndex = -1;
+
+            switch (_currentStep)
+            {
+                case GameStep.TapToTransform:
+                    activeIndex = 0;
+                    break;
+                case GameStep.TapToAttack:
+                    activeIndex = 1;
+                    break;
+                case GameStep.TapToRoar:
+                    activeIndex = 2;
+                    break;
+            }
+
+            if (_stepIcons == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < _stepIcons.Length; i++)
+            {
+                if (_stepIcons[i] == null)
+                {
+                    continue;
+                }
+
+                _stepIcons[i].gameObject.SetActive(i == activeIndex);
+            }
+        }
+
         private void ShowPrompt(string prompt)
         {
             if (_instructionText != null)
@@ -176,34 +201,28 @@ namespace Playable
                 _instructionText.text = prompt;
             }
 
-            if (_tapHintRoot != null)
-            {
-                _tapHintRoot.SetActive(true);
-            }
+            _hand.gameObject.SetActive(true);
 
             PlayHandPressEffect();
         }
 
         private void HidePrompt()
         {
-            if (_tapHintRoot != null)
-            {
-                _tapHintRoot.SetActive(false);
-            }
+            _hand.gameObject.SetActive(false);
 
             StopHandPressEffect();
         }
 
         private void PlayHandPressEffect()
         {
-            if (_handHint == null)
+            if (_hand == null)
             {
                 return;
             }
 
             _handPressTween?.Kill();
-            _handHint.localScale = _handStartScale;
-            _handPressTween = _handHint
+            _hand.localScale = _handStartScale;
+            _handPressTween = _hand
                 .DOScale(_handStartScale * _handPressScale, _handPressDuration)
                 .SetEase(Ease.InOutSine)
                 .SetLoops(-1, LoopType.Yoyo)
@@ -214,9 +233,9 @@ namespace Playable
         {
             _handPressTween?.Kill();
 
-            if (_handHint != null)
+            if (_hand != null)
             {
-                _handHint.localScale = _handStartScale;
+                _hand.localScale = _handStartScale;
             }
         }
 

@@ -5,16 +5,16 @@ namespace Playable
 {
     public class MonsterAction : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private Animator _animator;
+        [Header("References")] [SerializeField]
+        private Animator _animator;
+
         [SerializeField] private GameObject _visualRoot;
         [SerializeField] private Transform _attackPoint;
 
-        [Header("Animation Params")]
-        [SerializeField] private string _hitTrigger = "Hit";
+        [Header("Animation Params")] [SerializeField]
+        private string _hitTrigger = "Hit";
 
-        [Header("Timing")]
-        [SerializeField] private float _hideDelay = 0.35f;
+        [Header("Timing")] [SerializeField] private float _hideDelay = 0.35f;
         [SerializeField] private float _hideDuration = 0.25f;
 
         private Tween _hideTween;
@@ -38,7 +38,6 @@ namespace Playable
 
         public void ResetState()
         {
-            _hideTween?.Kill();
             _visualRoot.SetActive(true);
             _visualRoot.transform.localScale = _startScale;
         }
@@ -49,25 +48,6 @@ namespace Playable
             {
                 _animator.SetTrigger(_hitTriggerHash);
             }
-
-            _hideTween?.Kill();
-            _hideTween = DOVirtual.DelayedCall(_hideDelay, () =>
-                {
-                    _visualRoot.transform
-                        .DOScale(Vector3.zero, _hideDuration)
-                        .SetEase(Ease.InBack)
-                        .OnComplete(() =>
-                        {
-                            _visualRoot.SetActive(false);
-                        });
-                })
-                .OnKill(() => _hideTween = null)
-                .OnComplete(() => _hideTween = null);
-        }
-
-        private void OnDestroy()
-        {
-            _hideTween?.Kill();
         }
     }
 }

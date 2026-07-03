@@ -8330,6 +8330,10 @@
             {
                 "name": "Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver",
                 "excluded": true
+            },
+            {
+                "name": "Playable.GameController.GameStep",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -17083,7 +17087,7 @@
                     },
                     {
                         "name": "fieldOfView#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fov#get",
@@ -22373,7 +22377,7 @@
                     },
                     {
                         "name": "Stop",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Stop$1",
@@ -33883,7 +33887,7 @@
                     },
                     {
                         "name": "SetTrigger",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResetTrigger$1",
@@ -37996,14 +38000,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LookAtCurrentBlock",
-                        "excluded": false
-                    },
-                    {
                         "name": "PlayHandPressEffect",
                         "excluded": false
                     },
@@ -38016,19 +38012,35 @@
                         "excluded": true
                     },
                     {
-                        "name": "InitializeStepTexts",
+                        "name": "OnActionPressed",
                         "excluded": false
                     },
                     {
-                        "name": "ConsumeStepValue",
+                        "name": "HandleTransformStep",
                         "excluded": false
                     },
                     {
-                        "name": "UpdateStepSelectionVisual",
+                        "name": "HandleAttackStep",
                         "excluded": false
                     },
                     {
-                        "name": "UpdateProgressUI",
+                        "name": "HandleRoarStep",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetStep",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateStepIcons",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowPrompt",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HidePrompt",
                         "excluded": false
                     }
                 ]
@@ -38076,9 +38088,51 @@
                 ]
             },
             {
-                "className": "Playable.Block",
+                "className": "Playable.CameraFieldOfViewAdapter",
                 "staticMethods": [],
                 "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFieldOfView",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterAction",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "AttackPoint#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HideDelay#get",
+                        "excluded": false
+                    },
                     {
                         "name": "init",
                         "excluded": false
@@ -38088,23 +38142,89 @@
                         "excluded": false
                     },
                     {
-                        "name": "Select",
+                        "name": "ResetState",
                         "excluded": false
                     },
                     {
-                        "name": "SetSolidAndPlayBoxEffect",
+                        "name": "PlayHitAndHide",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.PlayerAction",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "TransformDuration#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AttackDuration#get",
                         "excluded": false
                     },
                     {
-                        "name": "PlayBoxEffect",
+                        "name": "RoarDuration#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "MoveRoot#get",
                         "excluded": false
                     },
                     {
-                        "name": "ApplyBlockVisual",
+                        "name": "init",
                         "excluded": false
                     },
                     {
-                        "name": "SetMaterialAlpha",
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetHumanState",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Transform",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveTo",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartMoveTween",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayRoar",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetMoveSpeed",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveCameraToTransformView",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveCameraToTarget",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartMoveCameraShake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopMoveCameraShake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IEMoveCameraShake",
                         "excluded": false
                     },
                     {

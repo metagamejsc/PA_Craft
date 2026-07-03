@@ -27,12 +27,13 @@ namespace Playable
             _audioMusic.Stop();
         }
 
-        public void PlaySound(AudioClip clip, bool isLoop = false)
+        public void PlaySound(AudioClip clip, float volume = 1, bool isLoop = false)
         {
             StopSound();
             if (clip) _audioSound.clip = clip;
             else Debug.LogError("Sound Not Found");
             _audioSound.loop = isLoop;
+            _audioSound.volume = volume;
             _audioSound.Play();
         }
 
