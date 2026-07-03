@@ -10,8 +10,9 @@ namespace Playable
         [SerializeField] private Vector2 _referenceResolution = new Vector2(1080f, 1920f);
         [SerializeField] private float _referenceFieldOfView = 60f;
 
-        private int _lastScreenWidth;
-        private int _lastScreenHeight;
+        private Vector2Int _lastScreenSize;
+        private ScreenOrientation _lastOrientation;
+        private Rect _lastPixelRect;
 
         private void Reset()
         {
@@ -46,7 +47,7 @@ namespace Playable
 
         private void Update()
         {
-            if (Screen.width == _lastScreenWidth && Screen.height == _lastScreenHeight)
+            if (!HasDisplayChanged())
             {
                 return;
             }
@@ -76,8 +77,27 @@ namespace Playable
                 Mathf.Tan(referenceHorizontal * 0.5f) / currentAspect) * Mathf.Rad2Deg;
 
             _targetCamera.fieldOfView = newFieldOfView;
-            _lastScreenWidth = Screen.width;
-            _lastScreenHeight = Screen.height;
+            CacheDisplayState();
+        }
+
+        private bool HasDisplayChanged()
+        {
+            if (_targetCamera == null)
+            {
+                return false;
+            }
+
+            Vector2Int currentScreenSize = new Vector2Int(Screen.width, Screen.height);
+            return currentScreenSize != _lastScreenSize
+                   || Screen.orientation != _lastOrientation
+                   || _targetCamera.pixelRect != _lastPixelRect;
+        }
+
+        private void CacheDisplayState()
+        {
+            _lastScreenSize = new Vector2Int(Screen.width, Screen.height);
+            _lastOrientation = Screen.orientation;
+            _lastPixelRect = _targetCamera != null ? _targetCamera.pixelRect : default;
         }
     }
 }

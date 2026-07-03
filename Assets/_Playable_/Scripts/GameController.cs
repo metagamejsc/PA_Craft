@@ -14,8 +14,6 @@ namespace Playable
             TapToAttack,
             ResolvingAttack,
             TapToRoar,
-            ResolvingRoar,
-            Complete
         }
 
         [Header("References")] [SerializeField]
@@ -125,14 +123,14 @@ namespace Playable
             DOVirtual.DelayedCall(2.7f, () =>
             {
                 _playerAction.PlayAttack();
+                Debug.Log("attack");
 
-                DOVirtual.DelayedCall(1f, () => { _monsterAction.PlayHitAndHide(); });
-
-                float delay =
-                    Mathf.Max(_playerAction.AttackDuration, (_monsterAction != null ? _monsterAction.HideDelay : 0f)) +
-                    _postAttackDelay;
-                _stepDelayTween?.Kill();
-                _stepDelayTween = DOVirtual.DelayedCall(delay, () => { SetStep(GameStep.TapToRoar, _roarPrompt); });
+                DOVirtual.DelayedCall(1f, () =>
+                {
+                    Debug.Log("hit");
+                    _monsterAction.PlayHitAndHide();
+                    SetStep(GameStep.TapToRoar, _roarPrompt);
+                });
             });
         }
 
