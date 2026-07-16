@@ -20,7 +20,6 @@ namespace Playable
         [SerializeField] private float _barFillDuration = 0.25f;
         [SerializeField] private List<TMP_Text> _stepTexts = new List<TMP_Text>();
         [SerializeField] private List<Image> _stepSelectImages = new List<Image>();
-        [SerializeField] private int _startStepValue = 10;
         [SerializeField] private AudioClip _soundBuild;
         private int _countBlocks = 0;
         private bool _isComplete;
@@ -154,12 +153,16 @@ namespace Playable
 
             for (int i = 0; i < _stepTexts.Count; i++)
             {
-                _stepValues.Add(_startStepValue);
+                int stepValue = 0;
+                TMP_Text stepText = _stepTexts[i];
 
-                if (_stepTexts[i] != null)
+                if (stepText != null)
                 {
-                    _stepTexts[i].text = _startStepValue.ToString();
+                    int.TryParse(stepText.text, out stepValue);
+                    stepText.text = stepValue.ToString();
                 }
+
+                _stepValues.Add(stepValue);
             }
 
             UpdateStepSelectionVisual();

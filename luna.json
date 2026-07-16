@@ -2,7 +2,7 @@
     "version": "7.2.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29023,
-    "creativeName": "UAC_V64_ThuLH_HuyNQ",
+    "creativeName": "UAC_V66_ThuLH_HuyNQ",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -80,8 +80,8 @@
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.13",
-            "monoVersion": "9.0.3",
+            "msbuildVersion": "17.14",
+            "monoVersion": "9.0.18",
             "dotnetVersion": ""
         },
         "assets": {
@@ -6325,7 +6325,7 @@
             },
             {
                 "name": "UnityEngine.ScreenOrientation",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.Search.SearchViewFlags",
@@ -8330,6 +8330,10 @@
             {
                 "name": "Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver",
                 "excluded": true
+            },
+            {
+                "name": "Playable.GameController.OptionStep",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -15153,7 +15157,7 @@
                     },
                     {
                         "name": "op_Inequality",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getDefaultValue",
@@ -17083,7 +17087,7 @@
                     },
                     {
                         "name": "fieldOfView#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fov#get",
@@ -17195,7 +17199,7 @@
                     },
                     {
                         "name": "pixelRect#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pixelRect#set",
@@ -20885,7 +20889,7 @@
                     },
                     {
                         "name": "orientation#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "orientation#set",
@@ -22373,7 +22377,7 @@
                     },
                     {
                         "name": "Stop",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Stop$1",
@@ -32061,7 +32065,7 @@
                     },
                     {
                         "name": "DOLocalMoveY",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOLocalMoveZ",
@@ -33407,7 +33411,7 @@
                     },
                     {
                         "name": "op_Inequality",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "x#set",
@@ -33883,7 +33887,7 @@
                     },
                     {
                         "name": "SetTrigger",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResetTrigger$1",
@@ -37996,40 +38000,32 @@
                         "excluded": false
                     },
                     {
-                        "name": "Update",
+                        "name": "PlayHandDemo",
                         "excluded": false
                     },
                     {
-                        "name": "LookAtCurrentBlock",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayHandPressEffect",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StopHandPressEffect",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
+                        "name": "StopHandDemo",
                         "excluded": true
                     },
                     {
-                        "name": "InitializeStepTexts",
+                        "name": "CacheInitialState",
                         "excluded": false
                     },
                     {
-                        "name": "ConsumeStepValue",
+                        "name": "ResetTransforms",
                         "excluded": false
                     },
                     {
-                        "name": "UpdateStepSelectionVisual",
+                        "name": "ActivateTargetOnly",
                         "excluded": false
                     },
                     {
-                        "name": "UpdateProgressUI",
+                        "name": "DeactivateAllTargets",
                         "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
                     }
                 ]
             },
@@ -38076,7 +38072,7 @@
                 ]
             },
             {
-                "className": "Playable.Block",
+                "className": "Playable.PlayerAction",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
@@ -38088,27 +38084,41 @@
                         "excluded": false
                     },
                     {
-                        "name": "Select",
+                        "name": "OnEnable",
                         "excluded": false
                     },
                     {
-                        "name": "SetSolidAndPlayBoxEffect",
+                        "name": "PlayBounce",
                         "excluded": false
                     },
                     {
-                        "name": "PlayBoxEffect",
+                        "name": "StopBounce",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.DinoController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
                         "excluded": false
                     },
                     {
-                        "name": "ApplyBlockVisual",
+                        "name": "Start",
                         "excluded": false
                     },
                     {
-                        "name": "SetMaterialAlpha",
+                        "name": "Fire",
                         "excluded": false
                     },
                     {
-                        "name": "OnDestroy",
+                        "name": "OnDisable",
                         "excluded": true
                     }
                 ]
