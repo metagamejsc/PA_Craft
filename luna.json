@@ -2,7 +2,7 @@
     "version": "7.2.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29023,
-    "creativeName": "UAC_V65_ThuLH_HuyNQ",
+    "creativeName": "UAC_V66_ThuLH_HuyNQ",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -81,7 +81,7 @@
             "externalJSLibraries": [],
             "scriptingDefines": [],
             "msbuildVersion": "17.14",
-            "monoVersion": "9.0.18",
+            "monoVersion": "N/A",
             "dotnetVersion": ""
         },
         "assets": {
@@ -8332,7 +8332,7 @@
                 "excluded": true
             },
             {
-                "name": "Playable.GameController.GameStep",
+                "name": "Playable.GameController.OptionStep",
                 "excluded": false
             }
         ],
@@ -32065,7 +32065,7 @@
                     },
                     {
                         "name": "DOLocalMoveY",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DOLocalMoveZ",
@@ -38000,48 +38000,32 @@
                         "excluded": false
                     },
                     {
-                        "name": "PlayHandPressEffect",
+                        "name": "PlayHandDemo",
                         "excluded": false
                     },
                     {
-                        "name": "StopHandPressEffect",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
+                        "name": "StopHandDemo",
                         "excluded": true
                     },
                     {
-                        "name": "OnActionPressed",
+                        "name": "CacheInitialState",
                         "excluded": false
                     },
                     {
-                        "name": "HandleTransformStep",
+                        "name": "ResetTransforms",
                         "excluded": false
                     },
                     {
-                        "name": "HandleAttackStep",
+                        "name": "ActivateTargetOnly",
                         "excluded": false
                     },
                     {
-                        "name": "HandleRoarStep",
+                        "name": "DeactivateAllTargets",
                         "excluded": false
                     },
                     {
-                        "name": "SetStep",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateStepIcons",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowPrompt",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HidePrompt",
-                        "excluded": false
+                        "name": "OnDisable",
+                        "excluded": true
                     }
                 ]
             },
@@ -38088,16 +38072,12 @@
                 ]
             },
             {
-                "className": "Playable.CameraFieldOfViewAdapter",
+                "className": "Playable.PlayerAction",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
                         "name": "init",
                         "excluded": false
-                    },
-                    {
-                        "name": "Reset",
-                        "excluded": true
                     },
                     {
                         "name": "Awake",
@@ -38108,135 +38088,37 @@
                         "excluded": false
                     },
                     {
-                        "name": "OnValidate",
+                        "name": "PlayBounce",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopBounce",
                         "excluded": true
                     },
                     {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyFieldOfView",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HasDisplayChanged",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CacheDisplayState",
-                        "excluded": false
+                        "name": "OnDisable",
+                        "excluded": true
                     }
                 ]
             },
             {
-                "className": "Playable.MonsterAction",
+                "className": "Playable.DinoController",
                 "staticMethods": [],
                 "instanceMethods": [
-                    {
-                        "name": "AttackPoint#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideDelay#get",
-                        "excluded": false
-                    },
                     {
                         "name": "init",
                         "excluded": false
                     },
                     {
-                        "name": "Awake",
+                        "name": "Start",
                         "excluded": false
                     },
                     {
-                        "name": "ResetState",
+                        "name": "Fire",
                         "excluded": false
                     },
                     {
-                        "name": "PlayHitAndHide",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "Playable.PlayerAction",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "TransformDuration#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "AttackDuration#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RoarDuration#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "MoveRoot#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetHumanState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Transform",
-                        "excluded": false
-                    },
-                    {
-                        "name": "MoveTo",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StartMoveTween",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayAttack",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayRoar",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetMoveSpeed",
-                        "excluded": false
-                    },
-                    {
-                        "name": "MoveCameraToTransformView",
-                        "excluded": false
-                    },
-                    {
-                        "name": "MoveCameraToTarget",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StartMoveCameraShake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StopMoveCameraShake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IEMoveCameraShake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
+                        "name": "OnDisable",
                         "excluded": true
                     }
                 ]
