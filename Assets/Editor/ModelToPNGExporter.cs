@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 public class ModelToPNGExporter : EditorWindow
 {
+    private const string PreviewShaderAssetPath = "Assets/Editor/ModelToPNG_PreviewUnlit.shader";
+    private const string PreviewShaderName = "Hidden/ModelToPNG/PreviewUnlit";
+
     private enum CaptureView
     {
         Isometric,
@@ -25,6 +28,13 @@ public class ModelToPNGExporter : EditorWindow
     private bool cropTransparentPadding = true;
     private int cropPaddingPixels = 24;
     private float cameraPaddingPercent = 4f;
+    private float previewYaw;
+    private float previewPitch;
+    private float previewDragSensitivity = 0.35f;
+    private float previewMinPitch = -80f;
+    private float previewMaxPitch = 80f;
+    private bool previewDragging;
+    private Vector2 previewDragLastMousePosition;
 
     private Texture2D previewTexture;
     private string lastPreviewKey = string.Empty;
@@ -172,6 +182,7 @@ public class ModelToPNGExporter : EditorWindow
         float aspect = (float)previewTexture.width / Mathf.Max(1, previewTexture.height);
         float height = Mathf.Clamp(maxWidth / aspect, 120, Mathf.Max(120, position.height - 56f));
         Rect rect = GUILayoutUtility.GetRect(maxWidth, height, GUILayout.ExpandWidth(true));
+        HandlePreviewDrag(rect);
         GUI.DrawTexture(rect, previewTexture, ScaleMode.ScaleToFit, true);
     }
 
@@ -185,10 +196,51 @@ public class ModelToPNGExporter : EditorWindow
             QueuePreviewRefresh();
     }
 
+    private void HandlePreviewDrag(Rect previewRect)
+    {
+        Event evt = Event.current;
+        if (!previewRect.Contains(evt.mousePosition))
+        {
+            if (evt.type == EventType.MouseUp)
+            {
+                previewDragging = false;
+            }
+
+            return;
+        }
+
+        if (evt.type == EventType.MouseDown && evt.button == 0)
+        {
+            previewDragging = true;
+            previewDragLastMousePosition = evt.mousePosition;
+            evt.Use();
+            return;
+        }
+
+        if (evt.type == EventType.MouseDrag && previewDragging)
+        {
+            Vector2 delta = evt.mousePosition - previewDragLastMousePosition;
+            previewDragLastMousePosition = evt.mousePosition;
+
+            previewYaw += delta.x * previewDragSensitivity;
+            previewPitch = Mathf.Clamp(previewPitch - delta.y * previewDragSensitivity, previewMinPitch, previewMaxPitch);
+
+            RefreshPreview();
+            evt.Use();
+            return;
+        }
+
+        if (evt.type == EventType.MouseUp && previewDragging)
+        {
+            previewDragging = false;
+            evt.Use();
+        }
+    }
+
     private string BuildPreviewKey()
     {
         int id = targetModel != null ? targetModel.GetInstanceID() : 0;
-        return id + "|" + selectedView + "|" + previewResolution + "|" + transparentBackground + "|" + cropTransparentPadding + "|" + cropPaddingPixels + "|" + cameraPaddingPercent;
+        return id + "|" + selectedView + "|" + previewResolution + "|" + transparentBackground + "|" + cropTransparentPadding + "|" + cropPaddingPixels + "|" + cameraPaddingPercent + "|" + previewYaw + "|" + previewPitch;
     }
 
     private void QueuePreviewRefresh()
@@ -211,7 +263,7 @@ public class ModelToPNGExporter : EditorWindow
             return;
 
         ClearPreview();
-        previewTexture = RenderModel(selectedView, previewResolution, true);
+        previewTexture = RenderModel(selectedView, previewResolution, true, true);
         lastPreviewKey = BuildPreviewKey();
         Repaint();
     }
@@ -231,7 +283,7 @@ public class ModelToPNGExporter : EditorWindow
             return;
 
         EnsureDirectory(savePath);
-        Texture2D tex = RenderModel(selectedView, resolution, true);
+        Texture2D tex = RenderModel(selectedView, resolution, true, true);
         string filePath = Path.Combine(savePath, targetModel.name + "_" + selectedView.ToString().ToLowerInvariant() + ".png");
         File.WriteAllBytes(filePath, tex.EncodeToPNG());
         DestroyImmediate(tex);
@@ -248,7 +300,7 @@ public class ModelToPNGExporter : EditorWindow
         int exported = 0;
         foreach (CaptureView view in System.Enum.GetValues(typeof(CaptureView)))
         {
-            Texture2D tex = RenderModel(view, resolution, true);
+            Texture2D tex = RenderModel(view, resolution, true, false);
             string filePath = Path.Combine(savePath, targetModel.name + "_" + view.ToString().ToLowerInvariant() + ".png");
             File.WriteAllBytes(filePath, tex.EncodeToPNG());
             DestroyImmediate(tex);
@@ -268,12 +320,14 @@ public class ModelToPNGExporter : EditorWindow
         return false;
     }
 
-    private Texture2D RenderModel(CaptureView view, int size, bool allowCrop)
+    private Texture2D RenderModel(CaptureView view, int size, bool allowCrop, bool applyPreviewRotation)
     {
         GameObject modelInstance = null;
         GameObject camGO = null;
         GameObject lightGO = null;
+        Camera cam = null;
         RenderTexture rt = null;
+        List<Material> tempMaterials = new List<Material>();
         RenderTexture oldRT = RenderTexture.active;
 
         try
@@ -282,6 +336,7 @@ public class ModelToPNGExporter : EditorWindow
             modelInstance.name = targetModel.name + "_PNGRenderInstance";
             modelInstance.hideFlags = HideFlags.HideAndDontSave;
             ResetTransform(modelInstance.transform);
+            ApplyPreviewMaterials(modelInstance.transform, tempMaterials);
 
             Bounds bounds;
             if (!TryCalculateBounds(modelInstance, out bounds))
@@ -289,7 +344,7 @@ public class ModelToPNGExporter : EditorWindow
 
             camGO = new GameObject("Temp_PNG_Camera");
             camGO.hideFlags = HideFlags.HideAndDontSave;
-            Camera cam = camGO.AddComponent<Camera>();
+            cam = camGO.AddComponent<Camera>();
             cam.clearFlags = transparentBackground ? CameraClearFlags.SolidColor : CameraClearFlags.Skybox;
             cam.backgroundColor = transparentBackground ? new Color(0f, 0f, 0f, 0f) : Color.gray;
             cam.orthographic = true;
@@ -298,9 +353,7 @@ public class ModelToPNGExporter : EditorWindow
             cam.allowHDR = false;
             cam.allowMSAA = true;
 
-            Vector3 direction = GetViewDirection(view).normalized;
-            Vector3 up = GetViewUp(view);
-            Quaternion camRotation = Quaternion.LookRotation(direction, up);
+            Quaternion camRotation = GetCameraRotation(view, applyPreviewRotation);
             FitCameraToBounds(cam, bounds, camRotation, size, size);
 
             lightGO = new GameObject("Temp_PNG_Light");
@@ -308,7 +361,7 @@ public class ModelToPNGExporter : EditorWindow
             Light light = lightGO.AddComponent<Light>();
             light.type = LightType.Directional;
             light.intensity = 1.25f;
-            light.transform.rotation = Quaternion.LookRotation(direction, up);
+            light.transform.rotation = camRotation;
 
             rt = new RenderTexture(size, size, 24, RenderTextureFormat.ARGB32);
             rt.antiAliasing = 8;
@@ -335,8 +388,19 @@ public class ModelToPNGExporter : EditorWindow
         finally
         {
             RenderTexture.active = oldRT;
+            if (cam != null)
+            {
+                cam.targetTexture = null;
+            }
             if (rt != null)
                 DestroyImmediate(rt);
+            for (int i = 0; i < tempMaterials.Count; i++)
+            {
+                if (tempMaterials[i] != null)
+                {
+                    DestroyImmediate(tempMaterials[i]);
+                }
+            }
             if (camGO != null)
                 DestroyImmediate(camGO);
             if (lightGO != null)
@@ -366,6 +430,22 @@ public class ModelToPNGExporter : EditorWindow
             return Vector3.forward;
 
         return Vector3.up;
+    }
+
+    private Quaternion GetCameraRotation(CaptureView view, bool applyPreviewRotation)
+    {
+        Vector3 direction = GetViewDirection(view).normalized;
+        Vector3 up = GetViewUp(view).normalized;
+
+        if (!applyPreviewRotation)
+        {
+            return Quaternion.LookRotation(direction, up);
+        }
+
+        Quaternion previewRotation = Quaternion.Euler(previewPitch, previewYaw, 0f);
+        Vector3 rotatedDirection = previewRotation * direction;
+        Vector3 rotatedUp = previewRotation * up;
+        return Quaternion.LookRotation(rotatedDirection, rotatedUp);
     }
 
     private void FitCameraToBounds(Camera cam, Bounds bounds, Quaternion rotation, int width, int height)
@@ -471,13 +551,13 @@ public class ModelToPNGExporter : EditorWindow
 
     private bool TryCalculateBounds(GameObject obj, out Bounds bounds)
     {
-        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>(true);
         bounds = new Bounds(obj.transform.position, Vector3.zero);
         bool hasBounds = false;
 
         foreach (Renderer r in renderers)
         {
-            if (!r.enabled)
+            if (r == null || !r.enabled || !r.gameObject.activeInHierarchy)
                 continue;
 
             if (!hasBounds)
@@ -492,6 +572,164 @@ public class ModelToPNGExporter : EditorWindow
         }
 
         return hasBounds;
+    }
+
+    private void ApplyPreviewMaterials(Transform root, List<Material> tempMaterials)
+    {
+        Shader shader = GetOrCreatePreviewShader();
+        if (shader == null)
+        {
+            throw new System.Exception("Could not load preview shader.");
+        }
+
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            Material[] sourceMaterials = renderer.sharedMaterials;
+            if (sourceMaterials == null || sourceMaterials.Length == 0)
+            {
+                continue;
+            }
+
+            Material[] previewMaterials = new Material[sourceMaterials.Length];
+            for (int i = 0; i < sourceMaterials.Length; i++)
+            {
+                Material source = sourceMaterials[i];
+                if (source == null)
+                {
+                    continue;
+                }
+
+                previewMaterials[i] = CreatePreviewMaterial(source, shader, tempMaterials);
+            }
+
+            renderer.sharedMaterials = previewMaterials;
+        }
+    }
+
+    private Material CreatePreviewMaterial(Material source, Shader shader, List<Material> tempMaterials)
+    {
+        Material material = new Material(shader);
+        material.hideFlags = HideFlags.HideAndDontSave;
+        tempMaterials.Add(material);
+
+        Texture texture = null;
+        Vector2 textureScale = Vector2.one;
+        Vector2 textureOffset = Vector2.zero;
+
+        if (source.HasProperty("_MainTex"))
+        {
+            texture = source.GetTexture("_MainTex");
+            textureScale = source.GetTextureScale("_MainTex");
+            textureOffset = source.GetTextureOffset("_MainTex");
+        }
+        else if (source.HasProperty("_BaseMap"))
+        {
+            texture = source.GetTexture("_BaseMap");
+            textureScale = source.GetTextureScale("_BaseMap");
+            textureOffset = source.GetTextureOffset("_BaseMap");
+        }
+
+        if (texture != null)
+        {
+            material.SetTexture("_MainTex", texture);
+            material.SetTextureScale("_MainTex", textureScale);
+            material.SetTextureOffset("_MainTex", textureOffset);
+        }
+
+        if (source.HasProperty("_Color"))
+        {
+            material.SetColor("_Color", source.GetColor("_Color"));
+        }
+        else if (source.HasProperty("_BaseColor"))
+        {
+            material.SetColor("_Color", source.GetColor("_BaseColor"));
+        }
+
+        return material;
+    }
+
+    private Shader GetOrCreatePreviewShader()
+    {
+        Shader shader = Shader.Find(PreviewShaderName);
+        if (shader != null)
+        {
+            return shader;
+        }
+
+        if (!File.Exists(PreviewShaderAssetPath))
+        {
+            File.WriteAllText(PreviewShaderAssetPath, GetPreviewShaderSource());
+            AssetDatabase.ImportAsset(PreviewShaderAssetPath, ImportAssetOptions.ForceSynchronousImport);
+        }
+
+        return AssetDatabase.LoadAssetAtPath<Shader>(PreviewShaderAssetPath);
+    }
+
+    private string GetPreviewShaderSource()
+    {
+        return @"Shader ""Hidden/ModelToPNG/PreviewUnlit""
+{
+    Properties
+    {
+        _MainTex (""MainTex"", 2D) = ""white"" {}
+        _Color (""Color"", Color) = (1,1,1,1)
+    }
+
+    SubShader
+    {
+        Tags { ""Queue"" = ""Geometry"" ""RenderType"" = ""Opaque"" }
+
+        Pass
+        {
+            ZWrite On
+            ZTest LEqual
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include ""UnityCG.cginc""
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _Color;
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct v2f
+            {
+                float4 pos : SV_POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                o.pos = UnityObjectToClipPos(v.vertex);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 col = tex2D(_MainTex, i.uv) * _Color;
+                return col;
+            }
+            ENDCG
+        }
+    }
+    Fallback Off
+}";
     }
 
     private void ResetTransform(Transform t)

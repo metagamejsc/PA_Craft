@@ -20,13 +20,24 @@ namespace Playable
         [SerializeField] private float _barFillDuration = 0.25f;
         [SerializeField] private List<TMP_Text> _stepTexts = new List<TMP_Text>();
         [SerializeField] private List<Image> _stepSelectImages = new List<Image>();
+        [SerializeField] private Transform _houseTarget;
+        [SerializeField] private float _houseOrbitDuration = 6f;
+        [SerializeField] private int _houseOrbitTurns = 2;
+        [SerializeField] private float _houseLookHeight = 1.5f;
+        [SerializeField] private Vector3 _houseOrbitCameraOffset = new Vector3(0f, 2.5f, -5f);
+        [SerializeField] private GameObject _vfx;
         [SerializeField] private AudioClip _soundBuild;
         private int _countBlocks = 0;
         private bool _isComplete;
+        private bool _isHouseOrbiting;
         private Tween _cameraLookTween;
+        private Tween _houseOrbitTween;
         private Tween _handPressTween;
         private Tween _barTween;
         private Vector3 _handStartScale = Vector3.one;
+        private Vector3 _cameraStartPosition;
+        private Quaternion _cameraStartRotation;
+        private bool _hasSavedCameraPose;
         private List<int> _stepValues = new List<int>();
         private int _currentStepTextIndex;
 
@@ -42,6 +53,13 @@ namespace Playable
                 _handStartScale = _hand.transform.localScale;
             }
 
+            if (_targetCamera != null)
+            {
+                _cameraStartPosition = _targetCamera.transform.position;
+                _cameraStartRotation = _targetCamera.transform.rotation;
+                _hasSavedCameraPose = true;
+            }
+
             InitializeStepTexts();
         }
 
@@ -50,7 +68,10 @@ namespace Playable
             UpdateProgressUI(true);
             LookAtCurrentBlock();
             PlayHandPressEffect();
-            _blocks[_countBlocks].Select();
+            if (_blocks != null && _blocks.Count > 0 && _blocks[0] != null)
+            {
+                _blocks[_countBlocks].Select();
+            }
         }
 
         private void Update()
@@ -63,22 +84,25 @@ namespace Playable
                 _countBlocks++;
                 ConsumeStepValue();
                 UpdateProgressUI();
-                if (_countBlocks >= 20)
+                if (_countBlocks >= (_blocks != null ? _blocks.Count : 0))
                 {
                     _isComplete = true;
-                    DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
+                    StartHouseOrbit();
                 }
                 else
                 {
                     LookAtCurrentBlock();
-                    _blocks[_countBlocks].Select();
+                    if (_blocks[_countBlocks] != null)
+                    {
+                        _blocks[_countBlocks].Select();
+                    }
                 }
             }
         }
 
         private void LookAtCurrentBlock(bool instant = false)
         {
-            if (_targetCamera == null || _blocks == null || _blocks.Count == 0)
+            if (_targetCamera == null || _blocks == null || _blocks.Count == 0 || _isHouseOrbiting)
             {
                 return;
             }
@@ -112,6 +136,66 @@ namespace Playable
                 .SetEase(Ease.InOutSine)
                 .OnKill(() => _cameraLookTween = null)
                 .OnComplete(() => _cameraLookTween = null);
+        }
+
+        private void StartHouseOrbit()
+        {
+            _vfx.SetActive(true);
+            _isHouseOrbiting = true;
+            _cameraLookTween?.Kill();
+            _houseOrbitTween?.Kill();
+
+            if (!_hasSavedCameraPose)
+            {
+                _cameraStartPosition = _targetCamera.transform.position;
+                _cameraStartRotation = _targetCamera.transform.rotation;
+                _hasSavedCameraPose = true;
+            }
+
+            Vector3 housePosition = _houseTarget.position + Vector3.up * _houseLookHeight;
+            Vector3 orbitStartOffset = _houseOrbitCameraOffset;
+            Vector3 flatOffset = new Vector3(orbitStartOffset.x, 0f, orbitStartOffset.z);
+
+            if (flatOffset.sqrMagnitude < 0.01f)
+            {
+                flatOffset = new Vector3(0f, 0f, -5f);
+            }
+
+            orbitStartOffset = new Vector3(flatOffset.x, orbitStartOffset.y, flatOffset.z);
+            _targetCamera.transform.position = housePosition + orbitStartOffset;
+            _targetCamera.transform.LookAt(housePosition);
+
+            int orbitTurns = Mathf.Max(1, _houseOrbitTurns);
+            float angle = 0f;
+            _houseOrbitTween = DOTween.To(() => angle, value =>
+                {
+                    angle = value;
+                    Quaternion rotation = Quaternion.Euler(0f, angle, 0f);
+                    Vector3 orbitOffset = rotation * orbitStartOffset;
+                    orbitOffset.y = orbitStartOffset.y;
+                    _targetCamera.transform.position = housePosition + orbitOffset;
+                    _targetCamera.transform.LookAt(housePosition);
+                }, 360f * orbitTurns, _houseOrbitDuration)
+                .SetEase(Ease.Linear)
+                .OnComplete(() =>
+                {
+                    RestoreCameraPose();
+                    _isHouseOrbiting = false;
+                    _houseOrbitTween = null;
+                    GameManager.Instance.EndGame();
+                })
+                .OnKill(() => _houseOrbitTween = null);
+        }
+
+        private void RestoreCameraPose()
+        {
+            if (_targetCamera == null)
+            {
+                return;
+            }
+
+            _vfx.SetActive(false);
+            _targetCamera.transform.SetPositionAndRotation(_cameraStartPosition, _cameraStartRotation);
         }
 
         private void PlayHandPressEffect()
@@ -251,6 +335,7 @@ namespace Playable
         private void OnDestroy()
         {
             _cameraLookTween?.Kill();
+            _houseOrbitTween?.Kill();
             _handPressTween?.Kill();
             _barTween?.Kill();
         }
