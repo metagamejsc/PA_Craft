@@ -2,7 +2,7 @@
     "version": "7.2.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29023,
-    "creativeName": "UAC_V66_ThuLH_HuyNQ",
+    "creativeName": "UAC_V67_ThuLH_HuyNQ",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -8330,10 +8330,6 @@
             {
                 "name": "Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver",
                 "excluded": true
-            },
-            {
-                "name": "Playable.GameController.OptionStep",
-                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -8837,7 +8833,7 @@
                     },
                     {
                         "name": "tryParseInt",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "parseIntStyles",
@@ -16675,7 +16671,7 @@
                     },
                     {
                         "name": "SetPositionAndRotation",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -25255,7 +25251,7 @@
                     },
                     {
                         "name": "text#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "textPreprocessor#get",
@@ -38000,31 +37996,91 @@
                         "excluded": false
                     },
                     {
-                        "name": "PlayHandDemo",
+                        "name": "PreparePanel",
                         "excluded": false
                     },
                     {
-                        "name": "StopHandDemo",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CacheInitialState",
+                        "name": "HidePanelImmediately",
                         "excluded": false
                     },
                     {
-                        "name": "ResetTransforms",
+                        "name": "EndGame",
                         "excluded": false
                     },
                     {
-                        "name": "ActivateTargetOnly",
+                        "name": "Update",
                         "excluded": false
                     },
                     {
-                        "name": "DeactivateAllTargets",
+                        "name": "LookAtCurrentBlock",
                         "excluded": false
                     },
                     {
-                        "name": "OnDisable",
+                        "name": "StartHouseOrbit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RestoreCameraPose",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowCompletePanelDuringOrbit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowPostBuildPanels",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SelectNextHouse",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BeginCurrentHouseBuild",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasCurrentBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasAvailableNextHouse",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayHandPressEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopHandPressEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "InitializeStepTexts",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CaptureInitialStepIcons",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyStepUI",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ConsumeStepValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateStepSelectionVisual",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateProgressUI",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
                         "excluded": true
                     }
                 ]
@@ -38072,7 +38128,7 @@
                 ]
             },
             {
-                "className": "Playable.PlayerAction",
+                "className": "Playable.Block",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
@@ -38084,25 +38140,33 @@
                         "excluded": false
                     },
                     {
-                        "name": "OnEnable",
+                        "name": "Select",
                         "excluded": false
                     },
                     {
-                        "name": "PlayBounce",
+                        "name": "SetSolidAndPlayBoxEffect",
                         "excluded": false
                     },
                     {
-                        "name": "StopBounce",
-                        "excluded": true
+                        "name": "PlayBoxEffect",
+                        "excluded": false
                     },
                     {
-                        "name": "OnDisable",
+                        "name": "ApplyBlockVisual",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetMaterialAlpha",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
                         "excluded": true
                     }
                 ]
             },
             {
-                "className": "Playable.DinoController",
+                "className": "Playable.CameraFieldOfViewAdapter",
                 "staticMethods": [],
                 "instanceMethods": [
                     {
@@ -38110,16 +38174,70 @@
                         "excluded": false
                     },
                     {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Fire",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDisable",
+                        "name": "Reset",
                         "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFieldOfView",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasDisplayChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheDisplayState",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.GameController.HouseBuildData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "HouseRoot#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OrbitTarget#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SelectButton#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StepCounts#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StepIcons#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBlocks",
+                        "excluded": false
                     }
                 ]
             }
