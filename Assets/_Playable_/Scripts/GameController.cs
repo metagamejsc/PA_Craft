@@ -6,106 +6,160 @@ namespace Playable
 {
     public class GameController : MonoBehaviour
     {
-        [Header("Player")] [SerializeField] private Animator _playerAnimator;
-        [SerializeField] private string _kickAnimTrigger = "Kick";
-        [SerializeField] private float _kickAnimDelay = 0.4f;
+        [Header("Hand Tutorial")]
+        [SerializeField] private GameObject _hand;
+        [SerializeField] private Transform _pos1;
+        [SerializeField] private Transform _pos2;
+        [SerializeField] private Transform _pos3;
+        [SerializeField] private GameObject _obj1;
+        [SerializeField] private GameObject _obj2;
+        [SerializeField] private GameObject _obj3;
+        [SerializeField] private float _handMoveDuration = 0.4f;
+        [SerializeField] private float _handPressDuration = 0.2f;
+        [SerializeField, Range(0.1f, 1f)] private float _handPressScale = 0.8f;
+        [SerializeField] private float _delayBetweenPositions = 0.15f;
 
-        [Header("Power Bar")] [SerializeField] private Image _powerBarFill;
-        [SerializeField] private float _powerSpeed = 1.2f;
-        private float _currentPower;
-        private bool _isChargingPower = true;
-
-        [Header("Tap To Kick UI")] [SerializeField]
-        private RectTransform _tapText;
-
-        [SerializeField] private RectTransform _handTut;
-        [SerializeField] private CanvasGroup _tapToKickGroup;
-        [SerializeField] private Button _kickButton;
-
-        [Header("Ball")] [SerializeField] private Transform _ball;
-        [SerializeField] private float _minDistance = 5f;
-        [SerializeField] private float _maxDistance = 20f;
-        [SerializeField] private float _minHeight = 1f;
-        [SerializeField] private float _maxHeight = 5f;
-        [SerializeField] private float _flightDuration = 1.2f;
-
-        [Header("Camera")] [SerializeField] private Transform _cameraTransform;
-        [SerializeField] private Vector3 _cameraOffset = new Vector3(0f, 3f, -6f);
-        [SerializeField] private float _cameraFollowSpeed = 4f;
-        private bool _isFollowingBall;
-
-        [Header("Open Button")] [SerializeField]
-        private GameObject _openButtonObject;
-
-        [SerializeField] private Button _openButton;
-
-        private Vector3 _ballStartPos;
+        private Sequence _handTutorialSequence;
+        private Vector3 _handStartScale;
+        private int _lastScreenWidth;
+        private int _lastScreenHeight;
 
         private void Start()
         {
-            _ballStartPos = _ball.position;
-
-            _kickButton.onClick.AddListener(OnKickPressed);
-            _openButton.onClick.AddListener(() => GameManager.Instance.EndGame());
-            _openButtonObject.SetActive(false);
-
-            PlayTapTutAnim();
+            _lastScreenWidth = Screen.width;
+            _lastScreenHeight = Screen.height;
+            Canvas.ForceUpdateCanvases();
+            PlayHandTutorial();
         }
 
-        private void PlayTapTutAnim()
+        private void LateUpdate()
         {
-            _tapText.DOScale(1.15f, 0.5f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
-            _handTut.DOScale(0.85f, 0.4f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
-        }
-
-        private void Update()
-        {
-            if (_isChargingPower)
+            if (_lastScreenWidth == Screen.width &&
+                _lastScreenHeight == Screen.height)
             {
-                _currentPower = Mathf.PingPong(Time.time * _powerSpeed, 1f);
-                _powerBarFill.fillAmount = _currentPower;
+                return;
             }
 
-            if (_isFollowingBall)
+            _lastScreenWidth = Screen.width;
+            _lastScreenHeight = Screen.height;
+
+            // Recalculate all UI positions after the Canvas changes orientation.
+            Canvas.ForceUpdateCanvases();
+            PlayHandTutorial();
+        }
+
+        private void PlayHandTutorial()
+        {
+            if (_hand == null)
             {
-                Vector3 desiredPos = _ball.position + _cameraOffset;
-                _cameraTransform.position = Vector3.Lerp(_cameraTransform.position, desiredPos,
-                    _cameraFollowSpeed * Time.deltaTime);
-                _cameraTransform.LookAt(_ball);
+                return;
+            }
+
+            _handTutorialSequence?.Kill();
+            _hand.SetActive(true);
+            _handStartScale = _hand.transform.localScale;
+
+            Transform[] positions = { _pos1, _pos2, _pos3 };
+            GameObject[] objects = { _obj1, _obj2, _obj3 };
+            int[] tutorialOrder = { 0, 1, 2, 1 };
+
+            SetAllTutorialObjectsActive(objects, false);
+
+            // Pos 1 is the stable start/end point of each tutorial cycle.
+            if (_pos1 != null)
+            {
+                Vector3 handPosition = _hand.transform.localPosition;
+                handPosition.y = GetTargetLocalY(_pos1);
+                _hand.transform.localPosition = handPosition;
+            }
+
+            _handTutorialSequence = DOTween.Sequence();
+
+            for (int i = 0; i < tutorialOrder.Length; i++)
+            {
+                int targetIndex = tutorialOrder[i];
+                Transform targetPosition = positions[targetIndex];
+                if (targetPosition == null)
+                {
+                    continue;
+                }
+
+                // The hand already ends the previous cycle at Pos 1.
+                // Do not add a Pos1 -> Pos1 tween because it creates a visible pause.
+                if (i > 0)
+                {
+                    _handTutorialSequence.Append(_hand.transform
+                        .DOLocalMoveY(GetTargetLocalY(targetPosition), _handMoveDuration)
+                        .SetEase(Ease.InOutSine));
+                }
+
+                _handTutorialSequence
+                    .AppendCallback(() => SetTutorialObjectActive(objects, targetIndex, true))
+                    .Append(_hand.transform
+                        .DOScale(_handStartScale * _handPressScale, _handPressDuration)
+                        .SetEase(Ease.InOutSine)
+                        .SetLoops(2, LoopType.Yoyo))
+                    .AppendCallback(() => SetTutorialObjectActive(objects, targetIndex, false))
+                    .AppendInterval(_delayBetweenPositions);
+            }
+
+            if (_pos1 != null)
+            {
+                _handTutorialSequence.Append(_hand.transform
+                    .DOLocalMoveY(GetTargetLocalY(_pos1), _handMoveDuration)
+                    .SetEase(Ease.InOutSine));
+            }
+
+            _handTutorialSequence
+                .SetLoops(-1, LoopType.Restart)
+                .OnKill(() =>
+                {
+                    SetAllTutorialObjectsActive(objects, false);
+                    _hand.transform.localScale = _handStartScale;
+                    _handTutorialSequence = null;
+                });
+        }
+
+        private float GetTargetLocalY(Transform target)
+        {
+            Transform handParent = _hand.transform.parent;
+            if (handParent == null)
+            {
+                return target.position.y;
+            }
+
+            return handParent.InverseTransformPoint(target.position).y;
+        }
+
+        private static void SetTutorialObjectActive(
+            GameObject[] objects,
+            int index,
+            bool isActive)
+        {
+            if (index < 0 || index >= objects.Length || objects[index] == null)
+            {
+                return;
+            }
+
+            objects[index].SetActive(isActive);
+        }
+
+        private static void SetAllTutorialObjectsActive(
+            GameObject[] objects,
+            bool isActive)
+        {
+            for (int i = 0; i < objects.Length; i++)
+            {
+                if (objects[i] != null)
+                {
+                    objects[i].SetActive(isActive);
+                }
             }
         }
 
-        private void OnKickPressed()
+        private void OnDestroy()
         {
-            _isChargingPower = false;
-            _kickButton.gameObject.SetActive(false);
-            _tapToKickGroup.DOFade(0f, 0.25f).OnComplete(() => _tapToKickGroup.gameObject.SetActive(false));
-
-            if (_playerAnimator) _playerAnimator.SetTrigger(_kickAnimTrigger);
-
-            DOVirtual.DelayedCall(_kickAnimDelay, LaunchBall);
-        }
-
-        private void LaunchBall()
-        {
-            float distance = Mathf.Lerp(_minDistance, _maxDistance, _currentPower);
-            float height = Mathf.Lerp(_minHeight, _maxHeight, _currentPower);
-            Vector3 targetPos = _ballStartPos + _ball.forward * distance;
-
-            _isFollowingBall = true;
-
-            DOVirtual.Float(0f, 1f, _flightDuration, t =>
-            {
-                Vector3 pos = Vector3.Lerp(_ballStartPos, targetPos, t);
-                pos.y += height * 4f * t * (1f - t); // đường cong parabol
-                _ball.position = pos;
-            }).SetEase(Ease.Linear).OnComplete(OnBallLanded);
-        }
-
-        private void OnBallLanded()
-        {
-            _isFollowingBall = false;
-            _openButtonObject.SetActive(true);
+            _handTutorialSequence?.Kill();
         }
     }
 }
