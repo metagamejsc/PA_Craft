@@ -1,13 +1,13 @@
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Playable
 {
     public class GameController : MonoBehaviour
     {
-        [Header("Hand Tutorial")]
-        [SerializeField] private GameObject _hand;
+        [Header("Hand Tutorial")] [SerializeField]
+        private GameObject _hand;
+
         [SerializeField] private Transform _pos1;
         [SerializeField] private Transform _pos2;
         [SerializeField] private Transform _pos3;
@@ -43,7 +43,6 @@ namespace Playable
             _lastScreenWidth = Screen.width;
             _lastScreenHeight = Screen.height;
 
-            // Recalculate all UI positions after the Canvas changes orientation.
             Canvas.ForceUpdateCanvases();
             PlayHandTutorial();
         }
@@ -65,7 +64,6 @@ namespace Playable
 
             SetAllTutorialObjectsActive(objects, false);
 
-            // Pos 1 is the stable start/end point of each tutorial cycle.
             if (_pos1 != null)
             {
                 Vector3 handPosition = _hand.transform.localPosition;
@@ -84,8 +82,7 @@ namespace Playable
                     continue;
                 }
 
-                // The hand already ends the previous cycle at Pos 1.
-                // Do not add a Pos1 -> Pos1 tween because it creates a visible pause.
+              
                 if (i > 0)
                 {
                     _handTutorialSequence.Append(_hand.transform
