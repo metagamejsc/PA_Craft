@@ -10,38 +10,29 @@ namespace Playable
             FirstPerson
         }
 
-        [Header("References")]
-        [SerializeField] private PlayerController _target;
-        [SerializeField] private Camera _targetCamera;
+        [Header("References")] [SerializeField]
+        private PlayerController _target;
+
         [SerializeField] private TouchController _touchController;
         [SerializeField] private Transform _yawPivot;
         [SerializeField] private Transform _pitchPivot;
         [SerializeField] private Transform _followTarget;
 
-        [Header("View")]
-        [SerializeField] private ViewMode _viewMode = ViewMode.ThirdPerson;
+        [Header("View")] [SerializeField] private ViewMode _viewMode = ViewMode.ThirdPerson;
         [SerializeField] private Vector3 _thirdPersonOffset = new Vector3(0f, 1.6f, -3.5f);
         [SerializeField] private Vector3 _firstPersonOffset = new Vector3(0f, 1.65f, 0f);
         [SerializeField] private float _followSmooth = 14f;
 
-        [Header("Look")]
-        [SerializeField] private float _lookSensitivity = 0.18f;
+        [Header("Look")] [SerializeField] private float _lookSensitivity = 0.18f;
         [SerializeField] private float _pitchMin = -35f;
         [SerializeField] private float _pitchMax = 75f;
 
+        private Camera _targetCamera;
         private float _yaw;
         private float _pitch;
 
         public Transform YawPivot => _yawPivot != null ? _yawPivot : transform;
         public ViewMode CurrentViewMode => _viewMode;
-
-        private void Awake()
-        {
-            if (_targetCamera == null)
-            {
-                _targetCamera = GetComponentInChildren<Camera>();
-            }
-        }
 
         private void OnEnable()
         {
@@ -133,18 +124,16 @@ namespace Playable
             UpdateCameraPosition(instant);
         }
 
-        private void OnLookDelta(Vector2 delta)
+        public void AddLookInput(Vector2 delta)
         {
-#if UNITY_EDITOR
-            if (Input.GetMouseButton(1))
-            {
-                delta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * 20f;
-            }
-#endif
-
             _yaw += delta.x * _lookSensitivity;
             _pitch -= delta.y * _lookSensitivity;
             _pitch = Mathf.Clamp(_pitch, _pitchMin, _pitchMax);
+        }
+
+        private void OnLookDelta(Vector2 delta)
+        {
+            AddLookInput(delta);
         }
 
         private void SnapToTarget()
