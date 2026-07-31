@@ -10,22 +10,21 @@ namespace Playable
             FirstPerson
         }
 
-        [Header("References")]
-        [SerializeField] private PlayerController _target;
+        [Header("References")] [SerializeField]
+        private PlayerController _target;
+
         [SerializeField] private Camera _targetCamera;
         [SerializeField] private TouchController _touchController;
         [SerializeField] private Transform _yawPivot;
         [SerializeField] private Transform _pitchPivot;
         [SerializeField] private Transform _followTarget;
 
-        [Header("View")]
-        [SerializeField] private ViewMode _viewMode = ViewMode.ThirdPerson;
+        [Header("View")] [SerializeField] private ViewMode _viewMode = ViewMode.ThirdPerson;
         [SerializeField] private Vector3 _thirdPersonOffset = new Vector3(0f, 1.6f, -3.5f);
         [SerializeField] private Vector3 _firstPersonOffset = new Vector3(0f, 1.65f, 0f);
         [SerializeField] private float _followSmooth = 14f;
 
-        [Header("Look")]
-        [SerializeField] private float _lookSensitivity = 0.18f;
+        [Header("Look")] [SerializeField] private float _lookSensitivity = 0.18f;
         [SerializeField] private float _pitchMin = -35f;
         [SerializeField] private float _pitchMax = 75f;
 
