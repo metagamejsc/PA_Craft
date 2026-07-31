@@ -211,7 +211,7 @@ namespace Playable
             float speed = horizontalVelocity.magnitude;
 
             _animator.SetFloat(_speedParamHash, speed);
-            _animator.SetBool(_isJumpParamHash, !_isGrounded);
+            // _animator.SetBool(_isJumpParamHash, !_isGrounded);
         }
     }
 }
