@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1827386499891729009}
   - component: {fileID: 8139612376689187319}
-  - component: {fileID: 4159128142156811230}
+  - component: {fileID: 2129771483043946733}
   - component: {fileID: 4398915735319478777}
   - component: {fileID: 8129016885121019062}
   m_Layer: 0
@@ -64,8 +64,8 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!143 &4159128142156811230
-CharacterController:
+--- !u!136 &2129771483043946733
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -79,15 +79,13 @@ CharacterController:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
+  serializedVersion: 2
   m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
+  m_Height: 1
+  m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4398915735319478777
 MonoBehaviour:
@@ -101,7 +99,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 089e48a3978cc224691b9757c1001542, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _characterController: {fileID: 4159128142156811230}
+  _rigidbody: {fileID: 8139612376689187319}
+  _capsuleCollider: {fileID: 2129771483043946733}
   _moveJoystick: {fileID: 0}
   _cameraController: {fileID: 3791338694366148034}
   _animator: {fileID: 469597488238920653}
@@ -111,8 +110,6 @@ MonoBehaviour:
   _rotationSmooth: 12
   _airControlMultiplier: 0.6
   _jumpHeight: 2
-  _gravity: -20
-  _groundedStickForce: -2
   _groundMask:
     serializedVersion: 2
     m_Bits: 4294967295

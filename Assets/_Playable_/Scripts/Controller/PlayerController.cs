@@ -1,13 +1,16 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Playable
 {
-    [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(CapsuleCollider))]
     public class PlayerController : MonoBehaviour
     {
         [Header("References")] [SerializeField]
-        private CharacterController _characterController;
+        private Rigidbody _rigidbody;
 
+        [SerializeField] private CapsuleCollider _capsuleCollider;
         [SerializeField] private UltimateJoystick _moveJoystick;
         [SerializeField] private CameraController _cameraController;
         [SerializeField] private Animator _animator;
@@ -16,47 +19,52 @@ namespace Playable
         [SerializeField] private string _isJumpParam = "isJump";
 
         [Header("Movement")] [SerializeField] private float _moveSpeed = 4f;
-        [SerializeField] private float _rotationSmooth = 12f;
-        [SerializeField] private float _airControlMultiplier = 0.6f;
+        [SerializeField] private float _rotationSmooth = 15f;
+        [SerializeField] private float _airControlMultiplier = 0.5f;
 
-        [Header("Jump")] [SerializeField] private float _jumpHeight = 1.2f;
-        [SerializeField] private float _gravity = -20f;
-        [SerializeField] private float _groundedStickForce = -2f;
+        [Header("Jump")] [SerializeField] private float _jumpHeight = 1.5f;
 
         [Header("Ground Check")] [SerializeField]
         private LayerMask _groundMask = ~0;
 
-        [SerializeField] private float _groundCheckDistance = 0.2f;
+        [SerializeField] private float _groundCheckDistance = 0.15f;
 
-        private Vector3 _verticalVelocity;
+        [Header("Button")] [SerializeField] private Button _btnJump;
         private bool _isGrounded;
         private bool _jumpRequested;
-        private int _speedParamHash;
-        private int _isJumpParamHash;
+
+        private Vector2 _moveInput;
+
+        private int _speedHash;
+        private int _jumpHash;
         private bool _hasAnimator;
 
         public bool IsGrounded => _isGrounded;
-        public Vector3 Velocity { get; private set; }
+        public Vector3 Velocity => _rigidbody.linearVelocity;
 
         private void Awake()
         {
-            if (_characterController == null)
-            {
-                _characterController = GetComponent<CharacterController>();
-            }
+            if (_rigidbody == null)
+                _rigidbody = GetComponent<Rigidbody>();
+
+            if (_capsuleCollider == null)
+                _capsuleCollider = GetComponent<CapsuleCollider>();
 
             if (_animator == null)
-            {
                 _animator = GetComponentInChildren<Animator>();
-            }
 
             _hasAnimator = _animator != null;
 
             if (_hasAnimator)
             {
-                _speedParamHash = Animator.StringToHash(_speedParam);
-                _isJumpParamHash = Animator.StringToHash(_isJumpParam);
+                _speedHash = Animator.StringToHash(_speedParam);
+                _jumpHash = Animator.StringToHash(_isJumpParam);
             }
+
+            _rigidbody.useGravity = true;
+            _rigidbody.freezeRotation = true;
+            _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+            _rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         }
 
         private void Update()
@@ -68,37 +76,28 @@ namespace Playable
             }
 #endif
 
-            CheckGround();
-            HandleJump();
-
-            Vector2 moveInput = _moveJoystick != null
+            _moveInput = _moveJoystick != null
                 ? new Vector2(_moveJoystick.HorizontalAxis, _moveJoystick.VerticalAxis)
                 : Vector2.zero;
 
 #if UNITY_EDITOR
-            moveInput = ApplyEditorKeyboardInput(moveInput);
-#endif
-
-            Move(moveInput);
-            ApplyGravity();
-            UpdateAnimator();
-        }
-
-#if UNITY_EDITOR
-        private Vector2 ApplyEditorKeyboardInput(Vector2 moveInput)
-        {
-            Vector2 keyboardInput = new Vector2(
+            Vector2 keyboard = new Vector2(
                 Input.GetAxisRaw("Horizontal"),
                 Input.GetAxisRaw("Vertical"));
 
-            if (keyboardInput.sqrMagnitude > 0.0001f)
-            {
-                moveInput = keyboardInput;
-            }
-
-            return moveInput;
-        }
+            if (keyboard.sqrMagnitude > 0.01f)
+                _moveInput = keyboard;
 #endif
+
+            UpdateAnimator();
+        }
+
+        private void FixedUpdate()
+        {
+            CheckGround();
+            HandleMovement();
+            HandleJump();
+        }
 
         public void OnJumpButtonPressed()
         {
@@ -117,101 +116,115 @@ namespace Playable
 
         private void CheckGround()
         {
-            _isGrounded = _characterController.isGrounded;
+            Vector3 origin = transform.position + Vector3.up * 0.1f;
 
-            if (!_isGrounded)
-            {
-                Vector3 origin = transform.position + Vector3.up * 0.1f;
-                _isGrounded = Physics.SphereCast(
-                    origin,
-                    _characterController.radius * 0.9f,
-                    Vector3.down,
-                    out _,
-                    _groundCheckDistance + 0.1f,
-                    _groundMask,
-                    QueryTriggerInteraction.Ignore);
-            }
+            float radius = _capsuleCollider.radius * 0.9f;
 
-            if (_isGrounded && _verticalVelocity.y < 0f)
-            {
-                _verticalVelocity.y = _groundedStickForce;
-            }
+            float distance =
+                (_capsuleCollider.height * 0.5f)
+                - radius
+                + _groundCheckDistance;
+
+            _isGrounded = Physics.SphereCast(
+                origin,
+                radius,
+                Vector3.down,
+                out _,
+                distance,
+                _groundMask,
+                QueryTriggerInteraction.Ignore);
         }
 
-        private void HandleJump()
-        {
-            if (!_jumpRequested)
-            {
-                return;
-            }
-
-            _jumpRequested = false;
-
-            if (_isGrounded)
-            {
-                _verticalVelocity.y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
-            }
-        }
-
-        private void Move(Vector2 input)
+        private void HandleMovement()
         {
             Vector3 moveDirection = Vector3.zero;
 
-            if (input.sqrMagnitude > 0.0001f)
+            if (_moveInput.sqrMagnitude > 0.001f)
             {
-                Transform yawPivot = _cameraController != null ? _cameraController.YawPivot : null;
+                Transform yaw = _cameraController != null
+                    ? _cameraController.YawPivot
+                    : transform;
 
-                Vector3 forward = yawPivot != null ? yawPivot.forward : transform.forward;
-                Vector3 right = yawPivot != null ? yawPivot.right : transform.right;
-                forward.y = 0f;
-                right.y = 0f;
+                Vector3 forward = yaw.forward;
+                Vector3 right = yaw.right;
+
+                forward.y = 0;
+                right.y = 0;
+
                 forward.Normalize();
                 right.Normalize();
 
-                moveDirection = (forward * input.y) + (right * input.x);
+                moveDirection =
+                    forward * _moveInput.y +
+                    right * _moveInput.x;
 
                 if (moveDirection.sqrMagnitude > 1f)
-                {
                     moveDirection.Normalize();
-                }
 
                 RotateTowards(moveDirection);
             }
 
             float control = _isGrounded ? 1f : _airControlMultiplier;
-            Vector3 horizontalMotion = moveDirection * (_moveSpeed * control);
-            Vector3 motion = horizontalMotion + _verticalVelocity;
 
-            _characterController.Move(motion * Time.deltaTime);
-            Velocity = motion;
+            Vector3 targetVelocity = moveDirection * (_moveSpeed * control);
+
+            Vector3 velocity = _rigidbody.linearVelocity;
+
+            velocity.y = 0;
+            velocity.x = targetVelocity.x;
+            velocity.z = targetVelocity.z;
+
+            _rigidbody.linearVelocity = velocity;
+        }
+
+        private void HandleJump()
+        {
+            if (!_jumpRequested)
+                return;
+
+            _jumpRequested = false;
+
+            if (!_isGrounded)
+                return;
+
+            Vector3 velocity = _rigidbody.linearVelocity;
+            velocity.y = 0;
+            _rigidbody.linearVelocity = velocity;
+
+            float jumpVelocity =
+                Mathf.Sqrt(_jumpHeight * -2f * Physics.gravity.y);
+
+            _rigidbody.AddForce(
+                Vector3.up * jumpVelocity,
+                ForceMode.VelocityChange);
         }
 
         private void RotateTowards(Vector3 moveDirection)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                Time.deltaTime * _rotationSmooth);
-        }
+            Quaternion targetRotation =
+                Quaternion.LookRotation(moveDirection);
 
-        private void ApplyGravity()
-        {
-            _verticalVelocity.y += _gravity * Time.deltaTime;
+            Quaternion rotation = Quaternion.Slerp(
+                _rigidbody.rotation,
+                targetRotation,
+                Time.fixedDeltaTime * _rotationSmooth);
+
+            _rigidbody.MoveRotation(rotation);
         }
 
         private void UpdateAnimator()
         {
             if (!_hasAnimator)
-            {
                 return;
-            }
 
-            Vector3 horizontalVelocity = new Vector3(Velocity.x, 0f, Velocity.z);
-            float speed = horizontalVelocity.magnitude;
+            Vector3 horizontal =
+                new Vector3(
+                    _rigidbody.linearVelocity.x,
+                    0,
+                    _rigidbody.linearVelocity.z);
 
-            _animator.SetFloat(_speedParamHash, speed);
-            // _animator.SetBool(_isJumpParamHash, !_isGrounded);
+            _animator.SetFloat(_speedHash, horizontal.magnitude);
+            // _animator.SetBool(_jumpHash, !_isGrounded);
         }
     }
 }
