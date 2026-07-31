@@ -54,7 +54,7 @@ namespace Playable
             Luna.Unity.Playable.InstallFullGame();
         }
 
-        protected void CountEvent()
+        public void CountEvent()
         {
             _quantityEvent++;
             if (_quantityEvent >= _totalEvent)
