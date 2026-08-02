@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Playable
 {
@@ -19,52 +18,89 @@ namespace Playable
         [SerializeField] private string _isJumpParam = "isJump";
 
         [Header("Movement")] [SerializeField] private float _moveSpeed = 4f;
-        [SerializeField] private float _rotationSmooth = 15f;
-        [SerializeField] private float _airControlMultiplier = 0.5f;
+        [SerializeField] private float _rotationSmooth = 12f;
+        [SerializeField] private float _airControlMultiplier = 0.6f;
+        [SerializeField, Range(0f, 0.5f)] private float _inputDeadZone = 0.1f;
 
-        [Header("Jump")] [SerializeField] private float _jumpHeight = 1.5f;
+        [Header("Jump")] [SerializeField] private float _jumpHeight = 1.2f;
+        [SerializeField] private float _gravity = -20f;
 
         [Header("Ground Check")] [SerializeField]
         private LayerMask _groundMask = ~0;
 
-        [SerializeField] private float _groundCheckDistance = 0.15f;
-
-        [Header("Button")] [SerializeField] private Button _btnJump;
-        private bool _isGrounded;
-        private bool _jumpRequested;
+        [SerializeField] private float _groundCheckRadius = 0.3f;
 
         private Vector2 _moveInput;
-
-        private int _speedHash;
-        private int _jumpHash;
+        private Vector3 _verticalVelocity;
+        private bool _isGrounded;
+        private bool _jumpRequested;
+        private int _speedParamHash;
+        private int _isJumpParamHash;
         private bool _hasAnimator;
 
         public bool IsGrounded => _isGrounded;
-        public Vector3 Velocity => _rigidbody.linearVelocity;
+        public Vector3 Velocity { get; private set; }
 
         private void Awake()
         {
             if (_rigidbody == null)
+            {
                 _rigidbody = GetComponent<Rigidbody>();
+            }
 
             if (_capsuleCollider == null)
+            {
                 _capsuleCollider = GetComponent<CapsuleCollider>();
+            }
+
+            DisableChildPhysics();
+
+            _rigidbody.useGravity = false;
+            _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+            _rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
 
             if (_animator == null)
+            {
                 _animator = GetComponentInChildren<Animator>();
+            }
 
             _hasAnimator = _animator != null;
 
             if (_hasAnimator)
             {
-                _speedHash = Animator.StringToHash(_speedParam);
-                _jumpHash = Animator.StringToHash(_isJumpParam);
+                _speedParamHash = Animator.StringToHash(_speedParam);
+                // _isJumpParamHash = Animator.StringToHash(_isJumpParam);
+            }
+        }
+
+        private void DisableChildPhysics()
+        {
+            Rigidbody[] childRigidbodies = GetComponentsInChildren<Rigidbody>(true);
+
+            foreach (Rigidbody childRigidbody in childRigidbodies)
+            {
+                if (childRigidbody == _rigidbody)
+                {
+                    continue;
+                }
+
+                childRigidbody.linearVelocity = Vector3.zero;
+                childRigidbody.angularVelocity = Vector3.zero;
+                childRigidbody.useGravity = false;
+                childRigidbody.isKinematic = true;
+                childRigidbody.detectCollisions = false;
             }
 
-            _rigidbody.useGravity = true;
-            _rigidbody.freezeRotation = true;
-            _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-            _rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            Collider[] childColliders = GetComponentsInChildren<Collider>(true);
+
+            foreach (Collider childCollider in childColliders)
+            {
+                if (childCollider != _capsuleCollider)
+                {
+                    childCollider.enabled = false;
+                }
+            }
         }
 
         private void Update()
@@ -80,13 +116,13 @@ namespace Playable
                 ? new Vector2(_moveJoystick.HorizontalAxis, _moveJoystick.VerticalAxis)
                 : Vector2.zero;
 
-#if UNITY_EDITOR
-            Vector2 keyboard = new Vector2(
-                Input.GetAxisRaw("Horizontal"),
-                Input.GetAxisRaw("Vertical"));
+            if (_moveInput.sqrMagnitude < _inputDeadZone * _inputDeadZone)
+            {
+                _moveInput = Vector2.zero;
+            }
 
-            if (keyboard.sqrMagnitude > 0.01f)
-                _moveInput = keyboard;
+#if UNITY_EDITOR
+            _moveInput = ApplyEditorKeyboardInput(_moveInput);
 #endif
 
             UpdateAnimator();
@@ -95,9 +131,26 @@ namespace Playable
         private void FixedUpdate()
         {
             CheckGround();
-            HandleMovement();
             HandleJump();
+            ApplyGravity();
+            Move(_moveInput);
         }
+
+#if UNITY_EDITOR
+        private Vector2 ApplyEditorKeyboardInput(Vector2 moveInput)
+        {
+            Vector2 keyboardInput = new Vector2(
+                Input.GetAxisRaw("Horizontal"),
+                Input.GetAxisRaw("Vertical"));
+
+            if (keyboardInput.sqrMagnitude > 0.0001f)
+            {
+                moveInput = keyboardInput;
+            }
+
+            return moveInput;
+        }
+#endif
 
         public void OnJumpButtonPressed()
         {
@@ -116,115 +169,103 @@ namespace Playable
 
         private void CheckGround()
         {
-            Vector3 origin = transform.position + Vector3.up * 0.1f;
+            Transform playerTransform = transform;
+            Vector3 worldCenter = playerTransform.TransformPoint(_capsuleCollider.center);
+            float worldHeight = _capsuleCollider.height * Mathf.Abs(playerTransform.lossyScale.y);
+            Vector3 capsuleBottom = worldCenter - playerTransform.up * (worldHeight * 0.5f);
+            Vector3 checkPosition = capsuleBottom + playerTransform.up * _groundCheckRadius;
 
-            float radius = _capsuleCollider.radius * 0.9f;
-
-            float distance =
-                (_capsuleCollider.height * 0.5f)
-                - radius
-                + _groundCheckDistance;
-
-            _isGrounded = Physics.SphereCast(
-                origin,
-                radius,
-                Vector3.down,
-                out _,
-                distance,
+            _isGrounded = Physics.CheckSphere(
+                checkPosition,
+                _groundCheckRadius,
                 _groundMask,
                 QueryTriggerInteraction.Ignore);
-        }
 
-        private void HandleMovement()
-        {
-            Vector3 moveDirection = Vector3.zero;
-
-            if (_moveInput.sqrMagnitude > 0.001f)
+            if (_isGrounded && _verticalVelocity.y < 0f)
             {
-                Transform yaw = _cameraController != null
-                    ? _cameraController.YawPivot
-                    : transform;
-
-                Vector3 forward = yaw.forward;
-                Vector3 right = yaw.right;
-
-                forward.y = 0;
-                right.y = 0;
-
-                forward.Normalize();
-                right.Normalize();
-
-                moveDirection =
-                    forward * _moveInput.y +
-                    right * _moveInput.x;
-
-                if (moveDirection.sqrMagnitude > 1f)
-                    moveDirection.Normalize();
-
-                RotateTowards(moveDirection);
+                _verticalVelocity.y = 0f;
             }
-
-            float control = _isGrounded ? 1f : _airControlMultiplier;
-
-            Vector3 targetVelocity = moveDirection * (_moveSpeed * control);
-
-            Vector3 velocity = _rigidbody.linearVelocity;
-
-            velocity.y = 0;
-            velocity.x = targetVelocity.x;
-            velocity.z = targetVelocity.z;
-
-            _rigidbody.linearVelocity = velocity;
         }
 
         private void HandleJump()
         {
             if (!_jumpRequested)
+            {
                 return;
+            }
 
             _jumpRequested = false;
 
-            if (!_isGrounded)
-                return;
+            if (_isGrounded)
+            {
+                _verticalVelocity.y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+                _isGrounded = false;
+            }
+        }
 
-            Vector3 velocity = _rigidbody.linearVelocity;
-            velocity.y = 0;
-            _rigidbody.linearVelocity = velocity;
+        private void Move(Vector2 input)
+        {
+            Vector3 moveDirection = Vector3.zero;
 
-            float jumpVelocity =
-                Mathf.Sqrt(_jumpHeight * -2f * Physics.gravity.y);
+            if (input.sqrMagnitude > 0.0001f)
+            {
+                Transform yawPivot = _cameraController != null ? _cameraController.YawPivot : null;
 
-            _rigidbody.AddForce(
-                Vector3.up * jumpVelocity,
-                ForceMode.VelocityChange);
+                Vector3 forward = yawPivot != null ? yawPivot.forward : transform.forward;
+                Vector3 right = yawPivot != null ? yawPivot.right : transform.right;
+                forward.y = 0f;
+                right.y = 0f;
+                forward.Normalize();
+                right.Normalize();
+
+                moveDirection = (forward * input.y) + (right * input.x);
+
+                if (moveDirection.sqrMagnitude > 1f)
+                {
+                    moveDirection.Normalize();
+                }
+
+                RotateTowards(moveDirection);
+            }
+
+            float control = _isGrounded ? 1f : _airControlMultiplier;
+            Vector3 horizontalMotion = moveDirection * (_moveSpeed * control);
+            Vector3 motion = horizontalMotion + _verticalVelocity;
+
+            _rigidbody.linearVelocity = motion;
+            Velocity = motion;
         }
 
         private void RotateTowards(Vector3 moveDirection)
         {
-            Quaternion targetRotation =
-                Quaternion.LookRotation(moveDirection);
-
-            Quaternion rotation = Quaternion.Slerp(
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            Quaternion smoothedRotation = Quaternion.Slerp(
                 _rigidbody.rotation,
                 targetRotation,
                 Time.fixedDeltaTime * _rotationSmooth);
 
-            _rigidbody.MoveRotation(rotation);
+            _rigidbody.MoveRotation(smoothedRotation);
+        }
+
+        private void ApplyGravity()
+        {
+            if (!_isGrounded)
+            {
+                _verticalVelocity.y += _gravity * Time.fixedDeltaTime;
+            }
         }
 
         private void UpdateAnimator()
         {
             if (!_hasAnimator)
+            {
                 return;
+            }
 
-            Vector3 horizontal =
-                new Vector3(
-                    _rigidbody.linearVelocity.x,
-                    0,
-                    _rigidbody.linearVelocity.z);
+            Vector3 horizontalVelocity = new Vector3(Velocity.x, 0f, Velocity.z);
+            float speed = horizontalVelocity.magnitude;
 
-            _animator.SetFloat(_speedHash, horizontal.magnitude);
-            // _animator.SetBool(_jumpHash, !_isGrounded);
+            _animator.SetFloat(_speedParamHash, speed);
         }
     }
 }
