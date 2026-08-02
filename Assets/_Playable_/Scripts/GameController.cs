@@ -80,6 +80,7 @@ namespace Playable
         public void Steal()
         {
             _hand.transform.position = _btnSteal.transform.position;
+            _hand.transform.parent = _btnSteal.transform;
             _btnSteal.gameObject.SetActive(true);
             _hand.gameObject.SetActive(true);
             _animHand.AnimationState.SetAnimation(0, "tab", true);
