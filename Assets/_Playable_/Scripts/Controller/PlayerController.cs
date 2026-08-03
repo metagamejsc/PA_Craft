@@ -203,6 +203,9 @@ namespace Playable
 
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
+#if UNITY_LUNA
+            return;
+#else
             if (hit.collider == null)
             {
                 return;
@@ -219,6 +222,7 @@ namespace Playable
             }
 
             TryRequestAutoJump(hit, surfaceAngle);
+#endif
         }
 
         public void SetMoveInput(Vector2 input)
@@ -495,8 +499,10 @@ namespace Playable
 
         private void ConfigurePhysicsComponents()
         {
+#if !UNITY_LUNA
             _characterController.stepOffset = GetValidStepOffset();
             _characterController.slopeLimit = _maxStableSlopeAngle;
+#endif
 
             if (_rigidbody != null)
             {
@@ -599,6 +605,9 @@ namespace Playable
             ControllerColliderHit movementHit,
             float surfaceAngle)
         {
+#if UNITY_LUNA
+            return;
+#else
             if (!_autoJumpLowObstacles ||
                 _isFlying ||
                 !_isGrounded ||
@@ -653,6 +662,7 @@ namespace Playable
 
             _nextAutoJumpTime = Time.time + _autoJumpCooldown;
             RequestJump();
+#endif
         }
 
         private void UpdateGroundState(float deltaTime)
@@ -699,11 +709,15 @@ namespace Playable
             if (_isGrounded)
             {
                 _lastGroundedTime = Time.time;
+#if !UNITY_LUNA
                 _characterController.stepOffset = GetValidStepOffset();
+#endif
             }
             else
             {
+#if !UNITY_LUNA
                 _characterController.stepOffset = 0f;
+#endif
             }
         }
 
@@ -759,8 +773,12 @@ namespace Playable
             }
 
             float slopeAngle = Vector3.Angle(closestHit.normal, up);
+#if UNITY_LUNA
+            stableGround = slopeAngle <= _maxStableSlopeAngle;
+#else
             stableGround = slopeAngle <=
                            Mathf.Min(_maxStableSlopeAngle, _characterController.slopeLimit);
+#endif
             return true;
         }
 

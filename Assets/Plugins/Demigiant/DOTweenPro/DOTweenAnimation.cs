@@ -669,13 +669,21 @@ namespace DG.Tweening
         /// Sends to the given time (and pauses) all the tweens whose target-id is the one set by this animation
         /// </summary>
         /// <param name="time">Time to send the tween to</param>
+#if UNITY_LUNA
+        public void DOGotoAndPause(float time)
+#else
         public override void DOGotoAndPause(float time)
+#endif
         { DOGoto(time, false); }
         /// <summary>
         /// Sends to the given time (and plays) all the tweens whose target-id is the one set by this animation
         /// </summary>
         /// <param name="time">Time to send the tween to</param>
+#if UNITY_LUNA
+        public void DOGotoAndPlay(float time)
+#else
         public override void DOGotoAndPlay(float time)
+#endif
         { DOGoto(time, true); }
         void DOGoto(float time, bool andPlay)
         {
