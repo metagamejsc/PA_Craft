@@ -2,7 +2,7 @@
     "version": "7.2.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 29023,
-    "creativeName": "UAC_V69_ThuLH_HuyNQ",
+    "creativeName": "UAC_V72_ThuLH_HuyNQ",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -8332,72 +8332,8 @@
                 "excluded": true
             },
             {
-                "name": "Playable.PlayerController",
-                "excluded": true
-            },
-            {
-                "name": "Playable.PlayerInput",
-                "excluded": true
-            },
-            {
-                "name": "Playable.TouchController",
-                "excluded": true
-            },
-            {
-                "name": "TankAndHealerStudioAssets.BasicInputDisplay",
-                "excluded": true
-            },
-            {
-                "name": "TankAndHealerStudioAssets.JoystickPrefabDisplay",
-                "excluded": true
-            },
-            {
-                "name": "TankAndHealerStudioAssets.PositionOverrideExample",
-                "excluded": true
-            },
-            {
-                "name": "TankAndHealerStudioAssets.RelativeCameraRotationExample",
-                "excluded": true
-            },
-            {
-                "name": "TankAndHealerStudioAssets.TapCountExample",
-                "excluded": true
-            },
-            {
-                "name": "UltimateJoystick",
-                "excluded": true
-            },
-            {
-                "name": "Playable.CameraController.ViewMode",
-                "excluded": true
-            },
-            {
-                "name": "Playable.IPlayerAttackHandler",
-                "excluded": true
-            },
-            {
-                "name": "Playable.PlayerInput.HoldButtonBinding",
-                "excluded": true
-            },
-            {
-                "name": "TankAndHealerStudioAssets.RelativeCameraRotationExample.MovementCalculations",
-                "excluded": true
-            },
-            {
-                "name": "UltimateJoystick.Anchor",
-                "excluded": true
-            },
-            {
-                "name": "UltimateJoystick.Axis",
-                "excluded": true
-            },
-            {
-                "name": "UltimateJoystick.InputHandling",
-                "excluded": true
-            },
-            {
-                "name": "UltimateJoystick.TensionType",
-                "excluded": true
+                "name": "Playable.GameController.HandPhase",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -38080,51 +38016,87 @@
                         "excluded": true
                     },
                     {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DisablePlayerCameraController",
-                        "excluded": false
-                    },
-                    {
                         "name": "ConfigureUi",
                         "excluded": false
                     },
                     {
-                        "name": "StartProgressLoop",
+                        "name": "Update",
                         "excluded": false
                     },
                     {
-                        "name": "StartHandAnimation",
+                        "name": "ConfigureButtons",
                         "excluded": false
                     },
                     {
-                        "name": "Kick",
+                        "name": "StartIntro",
                         "excluded": false
                     },
                     {
-                        "name": "PlayKickAnimation",
+                        "name": "UpdateIntro",
                         "excluded": false
                     },
                     {
-                        "name": "LaunchBall",
+                        "name": "AdvanceIntroTurn",
                         "excluded": false
                     },
                     {
-                        "name": "OnBallLanded",
+                        "name": "ApplyIntroCameraRotation",
                         "excluded": false
                     },
                     {
-                        "name": "OpenGame",
+                        "name": "GetRandomIntroYaw",
                         "excluded": false
                     },
                     {
-                        "name": "PlaceBallInFrontOfPlayer",
+                        "name": "FinishIntro",
                         "excluded": false
                     },
                     {
-                        "name": "FollowBall",
+                        "name": "UpdateBreathing",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheSteveTransforms",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateStevePressure",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetShakePosition",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetShakeAngle",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartHandTutorial",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateHandTutorial",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveToNextButton",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetHandPhase",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasValidWeaponButton",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindNextValidButtonIndex",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SelectWeapon",
                         "excluded": false
                     }
                 ]
@@ -38168,84 +38140,6 @@
                     {
                         "name": "EvaluateAndApply",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "Playable.CameraController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "YawPivot#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CurrentViewMode#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "init",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": true
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetTarget",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetTouchController",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ToggleView",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SetViewMode",
-                        "excluded": true
-                    },
-                    {
-                        "name": "LookAtPoint",
-                        "excluded": true
-                    },
-                    {
-                        "name": "AddLookInput",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnLookDelta",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SnapToTarget",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetFollowAnchor",
-                        "excluded": true
-                    },
-                    {
-                        "name": "UpdateRigRotation",
-                        "excluded": true
-                    },
-                    {
-                        "name": "UpdateCameraPosition",
-                        "excluded": true
                     }
                 ]
             }

@@ -1,310 +1,503 @@
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Playable
 {
     public class GameController : MonoBehaviour
     {
-        [Header("Gameplay References")] [SerializeField]
-        private Transform _player;
+        [Header("First Person Camera")] [SerializeField]
+        private Camera _playerCamera;
 
-        [SerializeField] private Animator _playerAnimator;
-        [SerializeField] private Transform _ball;
-        [SerializeField] private Camera _gameCamera;
+        [Header("Intro")] [FormerlySerializedAs("_introText")] [SerializeField]
+        private TMP_Text _gameplayText;
 
-        [Header("UI References")] [SerializeField]
-        private GameObject _gameplayUi;
+        [SerializeField, Min(1)] private int _introTurnCount = 5;
+        [SerializeField] private float _introMinYawAngle = 25f;
+        [SerializeField] private float _introMaxYawAngle = 40f;
+        [SerializeField] private float _introTurnDuration = 0.5f;
+        [SerializeField] private float _introTurnDelay = 0.2f;
 
-        [SerializeField] private Image _progressImage;
-        [SerializeField] private Button _kickButton;
-        [SerializeField] private TMP_Text _tapToKickText;
-        [SerializeField] private Button _openButton;
-        [SerializeField] private RectTransform _hand;
+        [Header("Camera Shake")] [SerializeField]
+        private float _shakePositionAmount = 0.012f;
 
-        [Header("Hand Settings")] [SerializeField]
-        private Vector2 _handOffset = new Vector2(55f, -45f);
+        [SerializeField] private float _shakeAngleAmount = 0.35f;
+        [SerializeField] private float _shakeSpeed = 18f;
 
-        [SerializeField] private float _handScaleAmount = 0.12f;
-        [SerializeField] private float _handScaleDuration = 0.45f;
+        [Header("Breathing")] [SerializeField] private float _breathingHeight = 0.06f;
+        [SerializeField] private float _breathingAngle = 1.2f;
+        [SerializeField] private float _breathingSpeed = 2.2f;
 
-        [Header("Kick Settings")] [SerializeField]
-        private string _kickAnimationState = "Attack";
+        [Header("Steve Pressure Motion")] [SerializeField]
+        private Transform[] _steveObjects;
 
-        [SerializeField] private float _kickAnimationDelay = 0.2f;
-        [SerializeField] private float _minimumDistance = 5f;
-        [SerializeField] private float _maximumDistance = 30f;
-        [SerializeField] private float _jumpPower = 5f;
-        [SerializeField] private float _ballFlightDuration = 1.5f;
-        [SerializeField] private float _progressCycleDuration = 1.25f;
-        [SerializeField] private float _ballStartOffset = 1.2f;
+        [SerializeField] private float _steveScalePulse = 0.025f;
+        [SerializeField] private float _steveMotionSpeed = 3.5f;
+        [SerializeField, Range(0f, 1f)] private float _steveGameplayIntensity = 0.65f;
 
-        [Header("Camera Settings")] [SerializeField]
-        private Vector3 _ballCameraOffset = new Vector3(-7f, 4f, 0f);
+        [Header("Gameplay UI")] [SerializeField]
+        private GameObject _buttons;
 
-        [SerializeField] private Vector3 _ballCameraEulerAngles = new Vector3(15f, 90f, 0f);
-        [SerializeField] private float _cameraFollowSpeed = 8f;
-        [SerializeField] private float _cameraLookHeight = 0.5f;
+        [SerializeField] private Button[] _weaponButtons;
 
-        [Header("Landing Settings")] [SerializeField]
-        private float _landingBouncePower = 1.25f;
+        [Header("Hand Tutorial")] [SerializeField]
+        private RectTransform _handTutorial;
 
-        [SerializeField] private float _landingBounceDuration = 0.6f;
-        [SerializeField] private Vector3 _landingCameraEulerAngles = new Vector3(15f, 90f, 0f);
-        [SerializeField] private float _landingCameraRotateDuration = 0.5f;
-        [SerializeField] private AudioClip _soundKick;
-        [SerializeField] private AudioClip _soundVictory;
+        [SerializeField] private Vector2 _handOffset = new Vector2(35f, -35f);
+        [SerializeField] private float _handMoveDuration = 0.55f;
+        [SerializeField] private float _handPressDuration = 0.3f;
+        [SerializeField] private float _handPauseDuration = 0.2f;
+        [SerializeField, Range(0.05f, 0.5f)] private float _handPressScale = 0.15f;
+        [SerializeField] private AudioClip _breathingSound;
 
-        private Tween _progressTween;
-        private Tween _kickDelayTween;
-        private Tween _ballTween;
-        private Tween _handTween;
-        private Tween _landingCameraRotationTween;
-        private Tween _landingBounceTween;
-        private float _progressValue;
-        private bool _isBallFlying;
-        private bool _hasKicked;
-        private Vector3 _kickDirection;
-        private Quaternion _ballCameraRotation;
+        private enum HandPhase
+        {
+            Move,
+            Press,
+            Pause
+        }
+
+        private Transform _cameraTransform;
+        private Vector3 _cameraStartLocalPosition;
+        private Quaternion _cameraStartLocalRotation;
+        private Vector3 _handMoveStartPosition;
+        private Vector3 _handStartScale;
+        private Vector3[] _steveStartScales;
+        private float _introSegmentTimer;
+        private float _introDelayTimer;
+        private float _introStartYaw;
+        private float _introTargetYaw;
+        private float _handPhaseTimer;
+        private int _introTurnIndex;
+        private int _handTargetIndex;
+        private HandPhase _handPhase;
+        private bool _introWaitingForNextTurn;
+        private bool _introReturningToCenter;
+        private bool _introFinished;
+        private bool _hasSelectedWeapon;
 
         private void Awake()
         {
-            DisablePlayerCameraController();
+            if (_playerCamera == null)
+            {
+                _playerCamera = Camera.main;
+            }
+
+            if (_playerCamera != null)
+            {
+                _cameraTransform = _playerCamera.transform;
+                _cameraStartLocalPosition = _cameraTransform.localPosition;
+                _cameraStartLocalRotation = _cameraTransform.localRotation;
+            }
+
+            CacheSteveTransforms();
             ConfigureUi();
+            ConfigureButtons();
         }
 
         private void Start()
         {
-            PlaceBallInFrontOfPlayer();
-            StartProgressLoop();
-            StartHandAnimation();
+            StartIntro();
+            AudioManager.Instance.PlaySound(_breathingSound, true);
         }
 
-        private void LateUpdate()
+        private void Update()
         {
-            if (_isBallFlying)
+            UpdateStevePressure();
+
+            if (!_introFinished)
             {
-                FollowBall();
+                UpdateIntro();
+                return;
+            }
+
+            UpdateBreathing();
+
+            if (!_hasSelectedWeapon)
+            {
+                UpdateHandTutorial();
             }
         }
 
         private void OnDestroy()
         {
-            _kickButton?.onClick.RemoveListener(Kick);
-            _openButton?.onClick.RemoveListener(OpenGame);
-            _progressTween?.Kill();
-            _kickDelayTween?.Kill();
-            _ballTween?.Kill();
-            _handTween?.Kill();
-            _landingCameraRotationTween?.Kill();
-            _landingBounceTween?.Kill();
-        }
-
-
-        private void DisablePlayerCameraController()
-        {
-            if (_player == null)
+            if (_weaponButtons == null)
             {
                 return;
             }
 
-            CameraController cameraController = _player.GetComponentInChildren<CameraController>(true);
-
-            if (cameraController != null)
+            foreach (Button weaponButton in _weaponButtons)
             {
-                cameraController.enabled = false;
+                if (weaponButton != null)
+                {
+                    weaponButton.onClick.RemoveListener(SelectWeapon);
+                }
             }
         }
 
         private void ConfigureUi()
         {
-            if (_gameplayUi != null)
+            if (_gameplayText != null)
             {
-                _gameplayUi.SetActive(true);
+                _gameplayText.text = "Can you survive this?";
+                _gameplayText.gameObject.SetActive(true);
             }
 
-            if (_progressImage == null || _kickButton == null || _tapToKickText == null ||
-                _openButton == null)
+            if (_handTutorial != null)
             {
-                Debug.LogError("GameController could not initialize the gameplay UI.", this);
-                enabled = false;
-                return;
+                _handStartScale = _handTutorial.localScale;
+                _handTutorial.gameObject.SetActive(false);
             }
-
-            _progressImage.type = Image.Type.Filled;
-            _progressImage.fillMethod = Image.FillMethod.Vertical;
-            _progressImage.fillOrigin = 0;
-            _progressImage.fillAmount = 0f;
-
-            _kickButton.onClick.RemoveListener(Kick);
-            _kickButton.onClick.AddListener(Kick);
-            _kickButton.interactable = true;
-
-            _openButton.onClick.RemoveListener(OpenGame);
-            _openButton.onClick.AddListener(OpenGame);
-            _openButton.gameObject.SetActive(false);
         }
 
-        private void StartProgressLoop()
+        private void ConfigureButtons()
         {
-            _progressTween?.Kill();
-            _progressImage.fillAmount = 0f;
-            _progressTween = _progressImage.DOFillAmount(1f, _progressCycleDuration)
-                .SetEase(Ease.Linear)
-                .SetLoops(-1, LoopType.Yoyo);
-        }
-
-        private void StartHandAnimation()
-        {
-            if (_hand == null || _kickButton == null)
+            if (_weaponButtons == null)
             {
                 return;
             }
 
-            _handTween?.Kill();
-            _hand.SetParent(_kickButton.transform, false);
-            _hand.anchorMin = new Vector2(0.5f, 0.5f);
-            _hand.anchorMax = new Vector2(0.5f, 0.5f);
-            _hand.anchoredPosition = _handOffset;
-            _hand.localScale = Vector3.one;
-            _hand.gameObject.SetActive(true);
-            _handTween = _hand.DOScale(1f - _handScaleAmount, _handScaleDuration)
-                .SetEase(Ease.InOutSine)
-                .SetLoops(-1, LoopType.Yoyo);
-        }
-
-        private void Kick()
-        {
-            if (_hasKicked || _player == null || _ball == null)
+            foreach (Button weaponButton in _weaponButtons)
             {
-                return;
-            }
-
-            _hasKicked = true;
-            _kickButton.interactable = false;
-            _kickButton.gameObject.SetActive(false);
-            _tapToKickText.gameObject.SetActive(false);
-            _handTween?.Kill();
-            if (_hand != null)
-            {
-                _hand.gameObject.SetActive(false);
-            }
-
-            _progressValue = _progressImage.fillAmount;
-            _progressTween?.Kill();
-
-            PlayKickAnimation();
-            _kickDelayTween = DOVirtual.DelayedCall(_kickAnimationDelay, LaunchBall);
-        }
-
-        private void PlayKickAnimation()
-        {
-            if (_playerAnimator == null || string.IsNullOrWhiteSpace(_kickAnimationState))
-            {
-                return;
-            }
-
-            int stateHash = Animator.StringToHash(_kickAnimationState);
-
-            if (_playerAnimator.HasState(0, stateHash))
-            {
-                _playerAnimator.CrossFade(stateHash, 0.08f, 0, 0f);
-                return;
-            }
-
-            foreach (AnimatorControllerParameter parameter in _playerAnimator.parameters)
-            {
-                if (parameter.name == _kickAnimationState &&
-                    parameter.type == AnimatorControllerParameterType.Trigger)
+                if (weaponButton == null)
                 {
-                    _playerAnimator.SetTrigger(stateHash);
-                    break;
+                    continue;
+                }
+
+                weaponButton.onClick.RemoveListener(SelectWeapon);
+                weaponButton.onClick.AddListener(SelectWeapon);
+                weaponButton.interactable = true;
+            }
+        }
+
+        private void StartIntro()
+        {
+            _introSegmentTimer = 0f;
+            _introDelayTimer = 0f;
+            _introStartYaw = 0f;
+            _introTurnIndex = 0;
+            _introWaitingForNextTurn = false;
+            _introReturningToCenter = false;
+            _introFinished = false;
+
+            if (_cameraTransform == null || _introTurnDuration <= 0f || _introTurnCount <= 0)
+            {
+                FinishIntro();
+                return;
+            }
+
+            _introTargetYaw = GetRandomIntroYaw(_introTurnIndex);
+        }
+
+        private void UpdateIntro()
+        {
+            if (_introWaitingForNextTurn)
+            {
+                ApplyIntroCameraRotation(_introTargetYaw);
+                _introDelayTimer += Time.deltaTime;
+
+                if (_introDelayTimer >= _introTurnDelay)
+                {
+                    AdvanceIntroTurn();
+                }
+
+                return;
+            }
+
+            _introSegmentTimer += Time.deltaTime;
+            float progress = Mathf.Clamp01(_introSegmentTimer / _introTurnDuration);
+            float smoothProgress = progress * progress * (3f - 2f * progress);
+            float yaw = Mathf.Lerp(_introStartYaw, _introTargetYaw, smoothProgress);
+
+            ApplyIntroCameraRotation(yaw);
+
+            if (progress < 1f)
+            {
+                return;
+            }
+
+            _introWaitingForNextTurn = true;
+            _introDelayTimer = 0f;
+        }
+
+        private void AdvanceIntroTurn()
+        {
+            _introWaitingForNextTurn = false;
+
+            if (_introReturningToCenter)
+            {
+                FinishIntro();
+                return;
+            }
+
+            _introTurnIndex++;
+            _introSegmentTimer = 0f;
+            _introStartYaw = _introTargetYaw;
+
+            if (_introTurnIndex >= _introTurnCount)
+            {
+                _introReturningToCenter = true;
+                _introTargetYaw = 0f;
+                return;
+            }
+
+            _introTargetYaw = GetRandomIntroYaw(_introTurnIndex);
+        }
+
+        private void ApplyIntroCameraRotation(float yaw)
+        {
+            float shakeAngle = GetShakeAngle();
+            _cameraTransform.localPosition = _cameraStartLocalPosition + GetShakePosition();
+            _cameraTransform.localRotation = _cameraStartLocalRotation *
+                                             Quaternion.Euler(0f, yaw, shakeAngle);
+        }
+
+        private float GetRandomIntroYaw(int turnIndex)
+        {
+            float minimumAngle = Mathf.Min(
+                Mathf.Abs(_introMinYawAngle),
+                Mathf.Abs(_introMaxYawAngle));
+            float maximumAngle = Mathf.Max(
+                Mathf.Abs(_introMinYawAngle),
+                Mathf.Abs(_introMaxYawAngle));
+            float randomAngle = Random.Range(minimumAngle, maximumAngle);
+            bool lookLeft = turnIndex % 2 == 0;
+            return lookLeft ? -randomAngle : randomAngle;
+        }
+
+        private void FinishIntro()
+        {
+            _introFinished = true;
+
+            if (_cameraTransform != null)
+            {
+                _cameraTransform.localPosition = _cameraStartLocalPosition;
+                _cameraTransform.localRotation = _cameraStartLocalRotation;
+            }
+
+            if (_gameplayText != null)
+            {
+                _gameplayText.text = "Pick item to survive";
+            }
+
+            _buttons.SetActive(true);
+
+            StartHandTutorial();
+        }
+
+        private void UpdateBreathing()
+        {
+            if (_cameraTransform == null)
+            {
+                return;
+            }
+
+            float breath = Mathf.Sin(Time.time * _breathingSpeed);
+            _cameraTransform.localPosition = _cameraStartLocalPosition +
+                                             Vector3.up * (breath * _breathingHeight) +
+                                             GetShakePosition();
+            _cameraTransform.localRotation = _cameraStartLocalRotation *
+                                             Quaternion.Euler(
+                                                 breath * _breathingAngle,
+                                                 0f,
+                                                 GetShakeAngle());
+        }
+
+        private void CacheSteveTransforms()
+        {
+            if (_steveObjects == null)
+            {
+                return;
+            }
+
+            _steveStartScales = new Vector3[_steveObjects.Length];
+
+            for (int index = 0; index < _steveObjects.Length; index++)
+            {
+                Transform steve = _steveObjects[index];
+                if (steve == null)
+                {
+                    continue;
+                }
+
+                _steveStartScales[index] = steve.localScale;
+            }
+        }
+
+        private void UpdateStevePressure()
+        {
+            if (_steveObjects == null || _steveStartScales == null)
+            {
+                return;
+            }
+
+            float intensity = _introFinished ? _steveGameplayIntensity : 1f;
+
+            for (int index = 0; index < _steveObjects.Length; index++)
+            {
+                Transform steve = _steveObjects[index];
+                if (steve == null)
+                {
+                    continue;
+                }
+
+                float phase = Time.time * _steveMotionSpeed + index * 1.73f;
+                float scalePulse = 1f + Mathf.Abs(Mathf.Sin(phase * 0.8f)) *
+                    _steveScalePulse * intensity;
+                steve.localScale = _steveStartScales[index] * scalePulse;
+            }
+        }
+
+        private Vector3 GetShakePosition()
+        {
+            float time = Time.time * _shakeSpeed;
+            return new Vector3(
+                Mathf.Sin(time * 1.37f),
+                Mathf.Sin(time * 1.91f),
+                0f) * _shakePositionAmount;
+        }
+
+        private float GetShakeAngle()
+        {
+            return Mathf.Sin(Time.time * _shakeSpeed * 1.63f) * _shakeAngleAmount;
+        }
+
+        private void StartHandTutorial()
+        {
+            if (_handTutorial == null || !HasValidWeaponButton())
+            {
+                return;
+            }
+
+            _handTargetIndex = FindNextValidButtonIndex(-1);
+            _handPhase = HandPhase.Move;
+            _handPhaseTimer = 0f;
+            _handMoveStartPosition = _handTutorial.position;
+            _handTutorial.localScale = _handStartScale;
+            _handTutorial.gameObject.SetActive(true);
+        }
+
+        private void UpdateHandTutorial()
+        {
+            if (_handTutorial == null || _weaponButtons == null || _handTargetIndex < 0)
+            {
+                return;
+            }
+
+            RectTransform target = _weaponButtons[_handTargetIndex].transform as RectTransform;
+            if (target == null)
+            {
+                MoveToNextButton();
+                return;
+            }
+
+            _handPhaseTimer += Time.deltaTime;
+
+            if (_handPhase == HandPhase.Move)
+            {
+                float progress = Mathf.Clamp01(_handPhaseTimer / Mathf.Max(0.01f, _handMoveDuration));
+                float smoothProgress = progress * progress * (3f - 2f * progress);
+                Vector3 targetPosition = target.TransformPoint(_handOffset);
+                _handTutorial.position = Vector3.Lerp(
+                    _handMoveStartPosition,
+                    targetPosition,
+                    smoothProgress);
+
+                if (progress >= 1f)
+                {
+                    SetHandPhase(HandPhase.Press);
+                }
+
+                return;
+            }
+
+            if (_handPhase == HandPhase.Press)
+            {
+                float progress = Mathf.Clamp01(_handPhaseTimer / Mathf.Max(0.01f, _handPressDuration));
+                float pulse = Mathf.Sin(progress * Mathf.PI) * _handPressScale;
+                _handTutorial.localScale = _handStartScale * (1f - pulse);
+
+                if (progress >= 1f)
+                {
+                    _handTutorial.localScale = _handStartScale;
+                    SetHandPhase(HandPhase.Pause);
+                }
+
+                return;
+            }
+
+            if (_handPhaseTimer >= _handPauseDuration)
+            {
+                MoveToNextButton();
+            }
+        }
+
+        private void MoveToNextButton()
+        {
+            _handTargetIndex = FindNextValidButtonIndex(_handTargetIndex);
+            _handMoveStartPosition = _handTutorial.position;
+            SetHandPhase(HandPhase.Move);
+        }
+
+        private void SetHandPhase(HandPhase phase)
+        {
+            _handPhase = phase;
+            _handPhaseTimer = 0f;
+        }
+
+        private bool HasValidWeaponButton()
+        {
+            return FindNextValidButtonIndex(-1) >= 0;
+        }
+
+        private int FindNextValidButtonIndex(int currentIndex)
+        {
+            if (_weaponButtons == null || _weaponButtons.Length == 0)
+            {
+                return -1;
+            }
+
+            for (int offset = 1; offset <= _weaponButtons.Length; offset++)
+            {
+                int index = (currentIndex + offset) % _weaponButtons.Length;
+                if (_weaponButtons[index] != null)
+                {
+                    return index;
                 }
             }
+
+            return -1;
         }
 
-        private void LaunchBall()
+        private void SelectWeapon()
         {
-            AudioManager.Instance.PlaySound(_soundKick);
-            float distance = Mathf.Lerp(_minimumDistance, _maximumDistance, _progressValue);
-            _kickDirection = Vector3.right;
-            Vector3 startPosition = _ball.position;
-            Vector3 destination = new Vector3(
-                startPosition.x + distance,
-                startPosition.y,
-                startPosition.z);
+            if (_hasSelectedWeapon)
+            {
+                return;
+            }
 
-            _ballCameraRotation = Quaternion.Euler(_ballCameraEulerAngles);
-            _gameCamera.transform.rotation = _ballCameraRotation;
-            _isBallFlying = true;
-            _ballTween = _ball.DOJump(destination, _jumpPower, 1, _ballFlightDuration)
-                .SetEase(Ease.Linear)
-                .OnComplete(OnBallLanded);
-        }
+            _hasSelectedWeapon = true;
 
-        private void OnBallLanded()
-        {
-            AudioManager.Instance.PlaySound(_soundVictory);
-            _isBallFlying = false;
-            _progressImage.transform.parent.gameObject.SetActive(false);
+            if (_handTutorial != null)
+            {
+                _handTutorial.gameObject.SetActive(false);
+            }
 
-            Vector3 landingPosition = _ball.position;
-            _landingCameraRotationTween?.Kill();
-            _landingCameraRotationTween = _gameCamera.transform
-                .DORotate(_landingCameraEulerAngles, _landingCameraRotateDuration)
-                .SetEase(Ease.InOutSine);
+            if (_weaponButtons != null)
+            {
+                foreach (Button weaponButton in _weaponButtons)
+                {
+                    if (weaponButton != null)
+                    {
+                        weaponButton.interactable = false;
+                    }
+                }
+            }
 
-            _openButton.gameObject.SetActive(true);
-
-            _landingBounceTween?.Kill();
-            _landingBounceTween = _ball
-                .DOJump(landingPosition, _landingBouncePower, 1, _landingBounceDuration)
-                .SetEase(Ease.Linear)
-                .SetLoops(-1, LoopType.Restart);
-        }
-
-        private void OpenGame()
-        {
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.EndGame();
-            }
-        }
-
-        private void PlaceBallInFrontOfPlayer()
-        {
-            if (_player == null || _ball == null)
-            {
-                return;
-            }
-
-            _kickDirection = Vector3.right;
-        }
-
-
-        private void FollowBall()
-        {
-            Vector3 desiredPosition = _ball.position +
-                                      _kickDirection * _ballCameraOffset.x +
-                                      Vector3.up * _ballCameraOffset.y +
-                                      Vector3.forward * _ballCameraOffset.z;
-            float followFactor = 1f - Mathf.Exp(-_cameraFollowSpeed * Time.deltaTime);
-
-            _gameCamera.transform.position = Vector3.Lerp(
-                _gameCamera.transform.position,
-                desiredPosition,
-                followFactor);
-
-            Vector3 lookDirection = _ball.position - _gameCamera.transform.position;
-            if (lookDirection.sqrMagnitude > 0.0001f)
-            {
-                Quaternion lookRotation = Quaternion.LookRotation(lookDirection, Vector3.up);
-                _gameCamera.transform.rotation = Quaternion.Slerp(
-                    _gameCamera.transform.rotation,
-                    lookRotation,
-                    followFactor);
             }
         }
     }
