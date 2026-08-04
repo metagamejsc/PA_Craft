@@ -56,6 +56,9 @@ namespace Playable
         private float _landingBouncePower = 1.25f;
 
         [SerializeField] private float _landingBounceDuration = 0.6f;
+        [SerializeField, Min(1)] private int _landingBounceCount = 4;
+        [SerializeField, Range(0.1f, 0.9f)] private float _landingBounceDecay = 0.55f;
+        [SerializeField] private float _landingBounceDurationMultiplier = 1.1f;
         [SerializeField] private Vector3 _landingCameraEulerAngles = new Vector3(15f, 90f, 0f);
         [SerializeField] private float _landingCameraRotateDuration = 0.5f;
         [SerializeField] private AudioClip _soundKick;
@@ -268,10 +271,21 @@ namespace Playable
             _openButton.gameObject.SetActive(true);
 
             _landingBounceTween?.Kill();
-            _landingBounceTween = _ball
-                .DOJump(landingPosition, _landingBouncePower, 1, _landingBounceDuration)
-                .SetEase(Ease.Linear)
-                .SetLoops(-1, LoopType.Restart);
+            Sequence bounceSequence = DOTween.Sequence();
+            float bouncePower = _landingBouncePower;
+            float bounceDuration = _landingBounceDuration;
+
+            for (int bounceIndex = 0; bounceIndex < _landingBounceCount; bounceIndex++)
+            {
+                bounceSequence.Append(
+                    _ball.DOJump(landingPosition, bouncePower, 1, bounceDuration)
+                        .SetEase(Ease.Linear));
+                bouncePower *= _landingBounceDecay;
+                bounceDuration *= _landingBounceDurationMultiplier;
+            }
+
+            _landingBounceTween = bounceSequence
+                .OnComplete(() => _ball.position = landingPosition);
         }
 
         private void OpenGame()
