@@ -24,6 +24,10 @@ namespace Playable
         [SerializeField] private Button _openButton;
         [SerializeField] private RectTransform _hand;
 
+        [Header("Tap Text Animation")]
+        [SerializeField] private float _tapTextScaleMultiplier = 1.08f;
+        [SerializeField] private float _tapTextScaleDuration = 0.5f;
+
         [Header("Hand Settings")] [SerializeField]
         private Vector2 _handOffset = new Vector2(55f, -45f);
 
@@ -31,7 +35,7 @@ namespace Playable
         [SerializeField] private float _handScaleDuration = 0.45f;
 
         [Header("Kick Settings")] [SerializeField]
-        private string _kickAnimationState = "Attack";
+        private string _kickAnimationStateName = "Kick";
 
         [SerializeField] private float _kickAnimationDelay = 0.2f;
         [SerializeField] private float _minimumDistance = 5f;
@@ -61,6 +65,7 @@ namespace Playable
         private Tween _kickDelayTween;
         private Tween _ballTween;
         private Tween _handTween;
+        private Tween _tapTextTween;
         private Tween _landingCameraRotationTween;
         private Tween _landingBounceTween;
         private float _progressValue;
@@ -80,6 +85,7 @@ namespace Playable
             PlaceBallInFrontOfPlayer();
             StartProgressLoop();
             StartHandAnimation();
+            StartTapTextAnimation();
         }
 
         private void LateUpdate()
@@ -98,6 +104,7 @@ namespace Playable
             _kickDelayTween?.Kill();
             _ballTween?.Kill();
             _handTween?.Kill();
+            _tapTextTween?.Kill();
             _landingCameraRotationTween?.Kill();
             _landingBounceTween?.Kill();
         }
@@ -156,6 +163,23 @@ namespace Playable
                 .SetLoops(-1, LoopType.Yoyo);
         }
 
+        private void StartTapTextAnimation()
+        {
+            if (_tapToKickText == null)
+            {
+                return;
+            }
+
+            _tapTextTween?.Kill();
+            Transform textTransform = _tapToKickText.transform;
+            Vector3 startScale = textTransform.localScale;
+            textTransform.localScale = startScale;
+            _tapTextTween = textTransform
+                .DOScale(startScale * _tapTextScaleMultiplier, _tapTextScaleDuration)
+                .SetEase(Ease.InOutSine)
+                .SetLoops(-1, LoopType.Yoyo);
+        }
+
         private void StartHandAnimation()
         {
             if (_hand == null || _kickButton == null)
@@ -170,7 +194,7 @@ namespace Playable
             _hand.anchoredPosition = _handOffset;
             _hand.localScale = Vector3.one;
             _hand.gameObject.SetActive(true);
-            _handTween = _hand.DOScale(1f - _handScaleAmount, _handScaleDuration)
+            _handTween = _hand.DOScale(_handScaleAmount, _handScaleDuration)
                 .SetEase(Ease.InOutSine)
                 .SetLoops(-1, LoopType.Yoyo);
         }
@@ -185,6 +209,7 @@ namespace Playable
             _hasKicked = true;
             _kickButton.interactable = false;
             _kickButton.gameObject.SetActive(false);
+            _tapTextTween?.Kill();
             _tapToKickText.gameObject.SetActive(false);
             _handTween?.Kill();
             if (_hand != null)
@@ -201,28 +226,12 @@ namespace Playable
 
         private void PlayKickAnimation()
         {
-            if (_playerAnimator == null || string.IsNullOrWhiteSpace(_kickAnimationState))
+            if (_playerAnimator == null || string.IsNullOrWhiteSpace(_kickAnimationStateName))
             {
                 return;
             }
 
-            int stateHash = Animator.StringToHash(_kickAnimationState);
-
-            if (_playerAnimator.HasState(0, stateHash))
-            {
-                _playerAnimator.CrossFade(stateHash, 0.08f, 0, 0f);
-                return;
-            }
-
-            foreach (AnimatorControllerParameter parameter in _playerAnimator.parameters)
-            {
-                if (parameter.name == _kickAnimationState &&
-                    parameter.type == AnimatorControllerParameterType.Trigger)
-                {
-                    _playerAnimator.SetTrigger(stateHash);
-                    break;
-                }
-            }
+            _playerAnimator.Play(_kickAnimationStateName, 0, 0f);
         }
 
         private void LaunchBall()
