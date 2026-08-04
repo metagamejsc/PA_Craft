@@ -19,16 +19,6 @@ namespace Playable
         [SerializeField] private float _introTurnDuration = 0.5f;
         [SerializeField] private float _introTurnDelay = 0.2f;
 
-        [Header("Camera Shake")] [SerializeField]
-        private float _shakePositionAmount = 0.012f;
-
-        [SerializeField] private float _shakeAngleAmount = 0.35f;
-        [SerializeField] private float _shakeSpeed = 18f;
-
-        [Header("Breathing")] [SerializeField] private float _breathingHeight = 0.06f;
-        [SerializeField] private float _breathingAngle = 1.2f;
-        [SerializeField] private float _breathingSpeed = 2.2f;
-
         [Header("Steve Pressure Motion")] [SerializeField]
         private Transform[] _steveObjects;
 
@@ -112,7 +102,6 @@ namespace Playable
                 return;
             }
 
-            UpdateBreathing();
 
             if (!_hasSelectedWeapon)
             {
@@ -247,10 +236,9 @@ namespace Playable
 
         private void ApplyIntroCameraRotation(float yaw)
         {
-            float shakeAngle = GetShakeAngle();
-            _cameraTransform.localPosition = _cameraStartLocalPosition + GetShakePosition();
+            _cameraTransform.localPosition = _cameraStartLocalPosition;
             _cameraTransform.localRotation = _cameraStartLocalRotation *
-                                             Quaternion.Euler(0f, yaw, shakeAngle);
+                                             Quaternion.Euler(0f, yaw, 0f);
         }
 
         private float GetRandomIntroYaw(int turnIndex)
@@ -286,23 +274,6 @@ namespace Playable
             StartHandTutorial();
         }
 
-        private void UpdateBreathing()
-        {
-            if (_cameraTransform == null)
-            {
-                return;
-            }
-
-            float breath = Mathf.Sin(Time.time * _breathingSpeed);
-            _cameraTransform.localPosition = _cameraStartLocalPosition +
-                                             Vector3.up * (breath * _breathingHeight) +
-                                             GetShakePosition();
-            _cameraTransform.localRotation = _cameraStartLocalRotation *
-                                             Quaternion.Euler(
-                                                 breath * _breathingAngle,
-                                                 0f,
-                                                 GetShakeAngle());
-        }
 
         private void CacheSteveTransforms()
         {
@@ -349,19 +320,6 @@ namespace Playable
             }
         }
 
-        private Vector3 GetShakePosition()
-        {
-            float time = Time.time * _shakeSpeed;
-            return new Vector3(
-                Mathf.Sin(time * 1.37f),
-                Mathf.Sin(time * 1.91f),
-                0f) * _shakePositionAmount;
-        }
-
-        private float GetShakeAngle()
-        {
-            return Mathf.Sin(Time.time * _shakeSpeed * 1.63f) * _shakeAngleAmount;
-        }
 
         private void StartHandTutorial()
         {
