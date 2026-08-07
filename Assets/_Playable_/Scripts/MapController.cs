@@ -67,6 +67,11 @@ namespace Playable
         [SerializeField]
         private List<GameObject> _tutorialBlurs = new List<GameObject>();
 
+        [Tooltip("Blur/tối màn hình dùng chung cho các bước tay chỉ vào nút (Transform, Hotbar). " +
+                 "Bật khi vào các bước này, tắt khi chuyển sang bước spawn point hoặc kết thúc tutorial")]
+        [SerializeField]
+        private GameObject _buttonStepBlur;
+
         [Tooltip("PlayerController của player, dùng để biết khi nào player transform xong")]
         [SerializeField]
         private PlayerController _playerController;
@@ -250,6 +255,7 @@ namespace Playable
         {
             _tutorialStep = index == 0 ? TutorialStep.WaitSpawn0 : TutorialStep.WaitSpawn1;
             _currentSpawnIndex = index;
+            HideButtonBlur();
             ShowTutorialPoint(index);
         }
 
@@ -274,6 +280,8 @@ namespace Playable
             {
                 _targetImage.gameObject.SetActive(false);
             }
+
+            ShowButtonBlur();
 
             if (_tutorialPointer == null)
             {
@@ -518,11 +526,29 @@ namespace Playable
                     blur.SetActive(false);
                 }
             }
+
+            HideButtonBlur();
         }
 
         private GameObject GetBlur(int index)
         {
             return index >= 0 && index < _tutorialBlurs.Count ? _tutorialBlurs[index] : null;
+        }
+
+        private void ShowButtonBlur()
+        {
+            if (_buttonStepBlur != null && !_buttonStepBlur.activeSelf)
+            {
+                _buttonStepBlur.SetActive(true);
+            }
+        }
+
+        private void HideButtonBlur()
+        {
+            if (_buttonStepBlur != null && _buttonStepBlur.activeSelf)
+            {
+                _buttonStepBlur.SetActive(false);
+            }
         }
 
         #endregion
