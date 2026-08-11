@@ -20,9 +20,13 @@ namespace Playable
 
         [SerializeField] private float _landscapeAspectThreshold = 1.3f;
 
+        [Header("Stability")]
+        [Tooltip("Chỉ áp dụng lại khi tỉ lệ màn hình đổi hơn ngưỡng này. Tránh rebuild canvas khi trình duyệt co giãn vài pixel")]
+        [SerializeField]
+        private float _aspectEpsilon = 0.005f;
 
         private CanvasScaler _canvasScaler;
-        private Vector2Int _lastScreenSize;
+        private float _lastAspectRatio = -1f;
 
         private void Awake()
         {
@@ -37,8 +41,17 @@ namespace Playable
 
         private void Update()
         {
-            Vector2Int currentScreenSize = new Vector2Int(Screen.width, Screen.height);
-            if (currentScreenSize == _lastScreenSize)
+            if (Screen.height <= 0)
+            {
+                return;
+            }
+
+            float aspectRatio = (float)Screen.width / Screen.height;
+
+            // Mỗi lần gán property của CanvasScaler là canvas bị đánh dấu dirty và rebuild lại
+            // toàn bộ. Trên trình duyệt mobile, thanh địa chỉ ẩn/hiện khi chạm làm Screen.height
+            // đổi liên tục -> nếu áp dụng lại mỗi lần thì UI giật/nhảy.
+            if (Mathf.Abs(aspectRatio - _lastAspectRatio) < _aspectEpsilon)
             {
                 return;
             }
@@ -49,31 +62,49 @@ namespace Playable
         private void OnValidate()
         {
             _canvasScaler = GetComponent<CanvasScaler>();
+            _lastAspectRatio = -1f;
             ApplyScaleSettings();
         }
 
         public void ApplyScaleSettings()
         {
-            if (_canvasScaler == null)
-            {
-                return;
-            }
-
-            if (Screen.height == 0)
+            if (_canvasScaler == null || Screen.height <= 0)
             {
                 return;
             }
 
             float aspectRatio = (float)Screen.width / Screen.height;
 
-            _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            _canvasScaler.referenceResolution = _referenceResolution;
-            _canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            _canvasScaler.matchWidthOrHeight = GetMatchValue(aspectRatio);
+            if (_canvasScaler.uiScaleMode != CanvasScaler.ScaleMode.ScaleWithScreenSize)
+            {
+                _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            }
 
-            _lastScreenSize = new Vector2Int(Screen.width, Screen.height);
+            if (_canvasScaler.referenceResolution != _referenceResolution)
+            {
+                _canvasScaler.referenceResolution = _referenceResolution;
+            }
+
+            if (_canvasScaler.screenMatchMode != CanvasScaler.ScreenMatchMode.MatchWidthOrHeight)
+            {
+                _canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            }
+
+            float match = GetMatchValue(aspectRatio);
+
+            if (!Mathf.Approximately(_canvasScaler.matchWidthOrHeight, match))
+            {
+                _canvasScaler.matchWidthOrHeight = match;
+            }
+
+            _lastAspectRatio = aspectRatio;
         }
 
+        /// <summary>
+        /// Nội suy liên tục giữa 3 mốc portrait / square / landscape.
+        /// Bản cũ nhảy thẳng 1 -> 0.5 -> 0 khi vượt ngưỡng, nên chỉ cần màn hình đổi
+        /// vài pixel quanh ngưỡng là toàn bộ UI đổi tỉ lệ đột ngột.
+        /// </summary>
         private float GetMatchValue(float aspectRatio)
         {
             if (aspectRatio <= _portraitAspectThreshold)
@@ -86,7 +117,16 @@ namespace Playable
                 return _landscapeMatch;
             }
 
-            return _squareMatch;
+            float middleAspect = (_portraitAspectThreshold + _landscapeAspectThreshold) * 0.5f;
+
+            if (aspectRatio <= middleAspect)
+            {
+                float t = Mathf.InverseLerp(_portraitAspectThreshold, middleAspect, aspectRatio);
+                return Mathf.Lerp(_portraitMatch, _squareMatch, t);
+            }
+
+            float landscapeT = Mathf.InverseLerp(middleAspect, _landscapeAspectThreshold, aspectRatio);
+            return Mathf.Lerp(_squareMatch, _landscapeMatch, landscapeT);
         }
     }
 }

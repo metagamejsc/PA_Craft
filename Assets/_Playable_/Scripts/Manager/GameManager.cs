@@ -41,8 +41,6 @@ namespace Playable
 
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
             if (_backgroundMusic) AudioManager.Instance.PlayMusic(_backgroundMusic);
-
-            StartCoroutine(IECountdownEndGame());
         }
 
 
@@ -61,6 +59,11 @@ namespace Playable
             {
                 EndGame();
             }
+        }
+
+        public void CountdownEndGame()
+        {
+            StartCoroutine(IECountdownEndGame());
         }
 
         private IEnumerator IECountdownEndGame()

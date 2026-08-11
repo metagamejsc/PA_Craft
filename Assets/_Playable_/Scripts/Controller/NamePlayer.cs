@@ -7,27 +7,34 @@ namespace Playable
         [SerializeField] private Camera _targetCamera;
         [SerializeField] private bool _onlyRotateYAxis = true;
 
+        private Transform _transform;
+        private Transform _cameraTransform;
+
         private void Awake()
         {
+            _transform = transform;
+
             if (_targetCamera == null)
             {
                 _targetCamera = Camera.main;
+            }
+
+            if (_targetCamera != null)
+            {
+                _cameraTransform = _targetCamera.transform;
             }
         }
 
         private void LateUpdate()
         {
-            if (_targetCamera == null)
+            // Camera.main quét theo tag, không được gọi mỗi frame -> không có camera thì tắt luôn component.
+            if (_cameraTransform == null)
             {
-                _targetCamera = Camera.main;
-
-                if (_targetCamera == null)
-                {
-                    return;
-                }
+                enabled = false;
+                return;
             }
 
-            Vector3 lookDirection = transform.position - _targetCamera.transform.position;
+            Vector3 lookDirection = _transform.position - _cameraTransform.position;
 
             if (_onlyRotateYAxis)
             {
@@ -39,7 +46,7 @@ namespace Playable
                 return;
             }
 
-            transform.rotation = Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
+            _transform.rotation = Quaternion.LookRotation(lookDirection, Vector3.up);
         }
     }
 }

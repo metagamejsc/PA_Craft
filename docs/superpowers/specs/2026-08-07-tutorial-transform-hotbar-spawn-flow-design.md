@@ -5,7 +5,7 @@
 `Assets/_Playable_/Scripts/HotbarItem.cs`, `Assets/_Playable_/Scripts/IMonsterSelector.cs`
 
 ## Bối cảnh
-
+~~~~~~~~
 Hiện tại `MapController` chỉ bắt đầu tutorial (trỏ tay tới các spawn point) sau khi player chọn quái lần đầu
 (`SelectMonster` → `_tutorialStarted = true` → `BeginTutorial()`), rồi đi tuần tự qua toàn bộ `_spawnPoints`.
 Player transform (cưỡi ngựa) và chọn hotbar không nằm trong chuỗi tutorial.

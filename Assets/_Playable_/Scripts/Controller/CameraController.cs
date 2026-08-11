@@ -13,6 +13,7 @@ namespace Playable
         [Header("References")] [SerializeField]
         private PlayerController _target;
 
+        [SerializeField] private Camera _targetCamera;
         [SerializeField] private TouchController _touchController;
         [SerializeField] private Transform _yawPivot;
         [SerializeField] private Transform _pitchPivot;
@@ -27,12 +28,28 @@ namespace Playable
         [SerializeField] private float _pitchMin = -35f;
         [SerializeField] private float _pitchMax = 75f;
 
-        private Camera _targetCamera;
         private float _yaw;
         private float _pitch;
+        private Transform _transform;
+        private Transform _cameraTransform;
 
-        public Transform YawPivot => _yawPivot != null ? _yawPivot : transform;
+        public Transform YawPivot => _yawPivot != null ? _yawPivot : _transform;
         public ViewMode CurrentViewMode => _viewMode;
+
+        private void Awake()
+        {
+            _transform = transform;
+
+            if (_targetCamera == null)
+            {
+                _targetCamera = GetComponentInChildren<Camera>();
+            }
+
+            if (_targetCamera != null)
+            {
+                _cameraTransform = _targetCamera.transform;
+            }
+        }
 
         private void OnEnable()
         {
@@ -124,16 +141,18 @@ namespace Playable
             UpdateCameraPosition(instant);
         }
 
-        public void AddLookInput(Vector2 delta)
+        private void OnLookDelta(Vector2 delta)
         {
+#if UNITY_EDITOR
+            if (Input.GetMouseButton(1))
+            {
+                delta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * 20f;
+            }
+#endif
+
             _yaw += delta.x * _lookSensitivity;
             _pitch -= delta.y * _lookSensitivity;
             _pitch = Mathf.Clamp(_pitch, _pitchMin, _pitchMax);
-        }
-
-        private void OnLookDelta(Vector2 delta)
-        {
-            AddLookInput(delta);
         }
 
         private void SnapToTarget()
@@ -153,7 +172,7 @@ namespace Playable
                 return _followTarget;
             }
 
-            return _target != null ? _target.transform : transform;
+            return _target != null ? _target.transform : _transform;
         }
 
         private void UpdateRigRotation()
@@ -174,7 +193,7 @@ namespace Playable
 
         private void UpdateCameraPosition(bool instant = false)
         {
-            if (_targetCamera == null)
+            if (_cameraTransform == null)
             {
                 return;
             }
@@ -185,13 +204,13 @@ namespace Playable
             Quaternion desiredRotation = anchor.rotation;
             float lerpFactor = instant ? 1f : Time.deltaTime * _followSmooth;
 
-            _targetCamera.transform.position = Vector3.Lerp(
-                _targetCamera.transform.position,
+            _cameraTransform.position = Vector3.Lerp(
+                _cameraTransform.position,
                 desiredPosition,
                 lerpFactor);
 
-            _targetCamera.transform.rotation = Quaternion.Slerp(
-                _targetCamera.transform.rotation,
+            _cameraTransform.rotation = Quaternion.Slerp(
+                _cameraTransform.rotation,
                 desiredRotation,
                 lerpFactor);
         }

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Playable
 {
@@ -26,7 +27,9 @@ namespace Playable
         [SerializeField] private List<HotbarItem> _hotbarItems = new List<HotbarItem>();
         [SerializeField] private Monster _prefabMonster;
 
-        [Header("Spawn Monster")] [SerializeField]
+        [Header("Spawn Monster")]
+        [Tooltip("2 vị trí cố định (đặt sẵn trong Editor) để hand tutorial trỏ tới và player tap vào để spawn")]
+        [SerializeField]
         private List<RectTransform> _spawnPoints = new List<RectTransform>();
 
         [SerializeField] private float _rayMaxDistance = 500f;
@@ -38,47 +41,55 @@ namespace Playable
         [SerializeField]
         private Camera _worldCamera;
 
-        [Tooltip("Cha của quái sau khi spawn. Bỏ trống thì spawn ra gốc scene")] [SerializeField]
-        private Transform _monsterParent;
-
         [SerializeField] private float _monsterWanderRadius = 3f;
 
         [Header("Tutorial UI")]
-        [Tooltip("Canvas chứa các spawn point. Bỏ trống sẽ tự tìm từ point đầu tiên")]
+        [Tooltip("Canvas chứa các spawn point. Bỏ trống sẽ tự tìm từ spawn point đầu tiên")]
         [SerializeField]
         private Canvas _uiCanvas;
 
-        [Tooltip("Image mục tiêu, di chuyển tới từng spawn point. Player phải tap trúng image này")]
-        [SerializeField]
-        private RectTransform _targetImage;
+        [Tooltip("Màn blur - bật 1 lần lúc bắt đầu tutorial, tắt 1 lần lúc tutorial xong")] [SerializeField]
+        private GameObject _blur;
 
         [Tooltip("Component điều khiển animation bàn tay hướng dẫn (hand + efx)")] [SerializeField]
         private TutorialPointer _tutorialPointer;
 
-        [Tooltip("Lệch vị trí bàn tay so với tâm image mục tiêu")] [SerializeField]
+        [Tooltip("Lệch vị trí bàn tay so với tâm target")] [SerializeField]
         private Vector2 _handOffset = Vector2.zero;
 
-        [Tooltip("Bán kính tap phụ (pixel) ngoài image mục tiêu. 0 = chỉ nhận tap trong image")]
+        [Tooltip("Bán kính tap phụ (pixel) ngoài vùng spawn point. 0 = chỉ nhận tap trong RectTransform")]
         [SerializeField]
         private float _extraTapRadius = 0f;
 
-        [Tooltip("Ảnh blur/tối theo từng spawn point, index khớp với _spawnPoints. " +
-                 "Bật khi tới point tương ứng, tắt ngay khi tap trúng")]
-        [SerializeField]
-        private List<GameObject> _tutorialBlurs = new List<GameObject>();
-
-        [Tooltip("Blur/tối màn hình dùng chung cho các bước tay chỉ vào nút (Transform, Hotbar). " +
-                 "Bật khi vào các bước này, tắt khi chuyển sang bước spawn point hoặc kết thúc tutorial")]
-        [SerializeField]
-        private GameObject _buttonStepBlur;
-
-        [Tooltip("PlayerController của player, dùng để biết khi nào player transform xong")]
-        [SerializeField]
+        [Tooltip("PlayerController của player, dùng để biết khi nào player transform xong")] [SerializeField]
         private PlayerController _playerController;
 
-        [Tooltip("RectTransform của nút Transform trên player, để trỏ tay tutorial tới")]
+        [Tooltip("Sau khi tutorial xong, có cho player thao tác (di chuyển/nhảy/fly/transform...) không. " +
+                 "Tắt = khoá toàn bộ input player (PlayerController.IsWorking = false) ngay khi vào Gameplay.")]
         [SerializeField]
+        private bool _enablePlayerControlAfterTutorial = true;
+
+        [Tooltip("RectTransform của nút Transform trên player, để trỏ tay tutorial tới")] [SerializeField]
         private RectTransform _transformButtonTarget;
+
+        [Tooltip("Canvas của nút Transform - chỉnh sortingOrder để nút nổi lên trên màn blur. " +
+                 "Canvas phải để sẵn overrideSorting = true.")]
+        [SerializeField]
+        private Canvas _transformButtonCanvas;
+
+        [Tooltip("SortingOrder khi nút Transform được highlight. Lúc không highlight thì về lại 0.")] [SerializeField]
+        private int _transformButtonHighlightSortingOrder = 3;
+
+        [Header("Tutorial Hint Text")]
+        [Tooltip("Chỉ dùng trong tutorial - text gợi ý hiện phía trên nút hotbar/spawn point")]
+        [SerializeField]
+        private TMP_Text _hintText;
+
+        [Tooltip("Text hiện khi tay trỏ tới nút hotbar (bước chọn quái)")] [SerializeField]
+        private string _selectHotbarHintText = "Select another monster to summon";
+
+        [Tooltip("Màu tên quái trong text \"Tap to spawn <tên quái>\" (chữ nghiêng)")] [SerializeField]
+        private Color _monsterNameHintColor = Color.yellow;
 
         [Header("Camera Follow")]
         [Tooltip("Camera bám player nên cùng điểm màn hình sẽ trỏ tới chỗ khác trên ground. " +
@@ -96,6 +107,8 @@ namespace Playable
 
         private readonly List<RaycastResult> _raycastResults = new List<RaycastResult>();
 
+        private HotbarItem _selectedHotbarItem;
+        private RectTransform _currentHandTarget;
         private Phase _currentPhase = Phase.Tutorial;
         private TutorialStep _tutorialStep;
         private Plane _groundPlane;
@@ -110,10 +123,20 @@ namespace Playable
         private int _spawnedMonsterCount;
         private bool _limitReachedNotified;
 
+        // --- [SCALE DEBUG] tạm thời, xoá sau khi xác định xong nguyên nhân ---
+        private float _screenSizeLogUntil;
+        private int _lastLoggedScreenWidth = -1;
+        private int _lastLoggedScreenHeight = -1;
+        // -----------------------------------------------------------------
+
         public Phase CurrentPhase => _currentPhase;
 
         private void Start()
         {
+            // [SCALE DEBUG] theo dõi Screen.width/height trong 5s đầu xem có ổn định ngay không
+            _screenSizeLogUntil = Time.time + 5f;
+            LogScreenSizeIfChanged();
+
             foreach (var hotbarItem in _hotbarItems)
             {
                 hotbarItem.Init(this);
@@ -135,8 +158,6 @@ namespace Playable
 
             ResolveUiCamera();
 
-            ShowTutorialUI(false);
-
             // Thiếu 1 trong các điều kiện dưới thì không chạy được đủ chuỗi tutorial
             // (transform -> hotbar[0] -> spawn[0] -> hotbar[1] -> spawn[1]). Bỏ qua thẳng
             // vào gameplay, không kẹt tutorial.
@@ -151,14 +172,31 @@ namespace Playable
                 _playerController.OnTransformedOn += HandlePlayerTransformed;
             }
 
+            if (_blur != null)
+            {
+                _blur.SetActive(true);
+            }
+
             GoToTransformStep();
         }
 
         private void Update()
         {
-            if (_currentPhase == Phase.Tutorial && IsSpawnWaitStep())
+            // [SCALE DEBUG] log mỗi khi Screen size đổi trong 5s đầu
+            if (Time.time <= _screenSizeLogUntil)
             {
-                RefreshTutorialPointPosition();
+                LogScreenSizeIfChanged();
+            }
+
+            if (_currentPhase == Phase.Tutorial)
+            {
+                // Bám vị trí target mỗi frame - bù resize màn hình (xem giải thích ở ShowHandAt).
+                RefreshHandPosition();
+
+                if (IsSpawnWaitStep())
+                {
+                    RefreshTutorialPointPosition();
+                }
             }
 
             if (!TryGetTapPosition(out Vector2 screenPosition))
@@ -172,7 +210,7 @@ namespace Playable
             }
             else
             {
-                HandleGameplayTap(screenPosition);
+                HandleTap(screenPosition);
             }
         }
 
@@ -188,11 +226,22 @@ namespace Playable
 
         public void SelectMonster(Monster monster, HotbarItem source)
         {
+            // Bấm lại đúng hotbar đang chọn -> bỏ chọn, không còn quái nào để spawn cho tới khi chọn
+            // lại 1 hotbar khác.
+            if (_selectedHotbarItem == source)
+            {
+                _selectedHotbarItem = null;
+                _prefabMonster = null;
+                source.SetSelected(false);
+                return;
+            }
+
             _prefabMonster = monster;
+            _selectedHotbarItem = source;
 
             foreach (var hotbarItem in _hotbarItems)
             {
-                hotbarItem.DeselectMonster();
+                hotbarItem.SetSelected(hotbarItem == source);
             }
 
             if (_currentPhase != Phase.Tutorial)
@@ -206,10 +255,12 @@ namespace Playable
 
             if (_tutorialStep == TutorialStep.WaitHotbar0 && index == 0)
             {
+                _hotbarItems[0].TurnOnCanvas(false);
                 GoToSpawnStep(0);
             }
             else if (_tutorialStep == TutorialStep.WaitHotbar1 && index == 1)
             {
+                _hotbarItems[1].TurnOnCanvas(false);
                 GoToSpawnStep(1);
             }
         }
@@ -224,7 +275,9 @@ namespace Playable
         private void GoToTransformStep()
         {
             _tutorialStep = TutorialStep.WaitTransform;
-            ShowButtonPointer(_transformButtonTarget);
+            SetTransformButtonHighlighted(true);
+            ShowHandAt(_transformButtonTarget);
+            HideHintText();
         }
 
         private void HandlePlayerTransformed()
@@ -234,7 +287,16 @@ namespace Playable
                 return;
             }
 
+            SetTransformButtonHighlighted(false);
             GoToHotbarStep(0);
+        }
+
+        private void SetTransformButtonHighlighted(bool active)
+        {
+            if (_transformButtonCanvas != null)
+            {
+                _transformButtonCanvas.sortingOrder = active ? _transformButtonHighlightSortingOrder : 0;
+            }
         }
 
         private void GoToHotbarStep(int index)
@@ -247,64 +309,18 @@ namespace Playable
                 return;
             }
 
+            hotbar.TurnOnCanvas(true);
+
             _tutorialStep = index == 0 ? TutorialStep.WaitHotbar0 : TutorialStep.WaitHotbar1;
-            ShowButtonPointer(hotbar.ButtonRect);
+            ShowHandAt(hotbar.ButtonRect);
+            ShowHintText(_selectHotbarHintText);
         }
 
         private void GoToSpawnStep(int index)
         {
             _tutorialStep = index == 0 ? TutorialStep.WaitSpawn0 : TutorialStep.WaitSpawn1;
             _currentSpawnIndex = index;
-            HideButtonBlur();
-            ShowTutorialPoint(index);
-        }
 
-        private void FinishTutorial()
-        {
-            _tutorialStep = TutorialStep.Done;
-            EnterGameplay();
-        }
-
-        /// <summary>
-        /// Trỏ tay tutorial vào 1 nút UI (Transform / Hotbar). Nút tự nhận click qua Button.onClick
-        /// của Unity, không cần target image / ground raycast / blur như spawn point.
-        /// </summary>
-        private void ShowButtonPointer(RectTransform target)
-        {
-            if (target == null)
-            {
-                return;
-            }
-
-            if (_targetImage != null && _targetImage.gameObject.activeSelf)
-            {
-                _targetImage.gameObject.SetActive(false);
-            }
-
-            ShowButtonBlur();
-
-            if (_tutorialPointer == null)
-            {
-                return;
-            }
-
-            var pointerRect = (RectTransform)_tutorialPointer.transform;
-            pointerRect.position = target.position;
-
-            if (_handOffset != Vector2.zero)
-            {
-                pointerRect.anchoredPosition += _handOffset;
-            }
-
-            _tutorialPointer.Show();
-        }
-
-        /// <summary>
-        /// Đưa image mục tiêu + bàn tay tới spawn point, đồng thời bắn raycast từ đúng vị trí đó
-        /// trên màn hình xuống ground để đặt VFX ngay chỗ quái sẽ rơi.
-        /// </summary>
-        private void ShowTutorialPoint(int index)
-        {
             RectTransform point = GetSpawnPoint(index);
 
             if (point == null)
@@ -322,9 +338,8 @@ namespace Playable
             }
 
             ShowVfx(_posSpawnTutorial);
-            MoveTargetToPoint(point);
-            _tutorialPointer?.Show();
-            ShowBlur(index);
+            ShowHandAt(point);
+            ShowSpawnHintText();
 
             CacheCameraState();
             _refreshTime = Time.time + _refreshInterval;
@@ -342,24 +357,46 @@ namespace Playable
             }
         }
 
-        private void MoveTargetToPoint(RectTransform point)
+        private void FinishTutorial()
         {
-            Vector3 pointPosition = point.position;
+            _tutorialStep = TutorialStep.Done;
+            EnterGameplay();
+        }
 
-            if (_targetImage != null)
+        /// <summary>
+        /// Di chuyển bàn tay tutorial tới đúng vị trí 1 RectTransform (nút Transform, nút hotbar,
+        /// hoặc spawn point cố định) rồi hiện lên.
+        /// </summary>
+        private void ShowHandAt(RectTransform target)
+        {
+            if (target == null || _tutorialPointer == null)
             {
-                _targetImage.gameObject.SetActive(true);
-                _targetImage.position = pointPosition;
-                pointPosition = _targetImage.position;
+                return;
             }
 
-            if (_tutorialPointer == null)
+            // Lưu lại target để Update() tự bám vị trí mỗi frame (xem RefreshHandPosition) - vị trí
+            // world của target có thể đổi ngay cả khi RectTransform của nó không di chuyển gì (vd.
+            // resize màn hình làm Canvas reflow lại anchor), nếu chỉ set 1 lần ở đây thì bàn tay sẽ
+            // đứng yên tại chỗ cũ trong khi nút/spawn point đã dời sang vị trí khác.
+            _currentHandTarget = target;
+            RefreshHandPosition();
+
+            _tutorialPointer.Show();
+        }
+
+        /// <summary>
+        /// Đặt lại vị trí bàn tay theo đúng _currentHandTarget - gọi mỗi frame trong Update() lúc tutorial
+        /// đang chạy, để bàn tay luôn bám đúng nút/spawn point kể cả khi màn hình đổi kích thước.
+        /// </summary>
+        private void RefreshHandPosition()
+        {
+            if (_currentHandTarget == null || _tutorialPointer == null)
             {
                 return;
             }
 
             var pointerRect = (RectTransform)_tutorialPointer.transform;
-            pointerRect.position = pointPosition;
+            pointerRect.position = _currentHandTarget.position;
 
             if (_handOffset != Vector2.zero)
             {
@@ -379,13 +416,14 @@ namespace Playable
                 return;
             }
 
-            HideBlur(_currentSpawnIndex);
-
             // Vị trí spawn lấy từ raycast đã tính sẵn cho point này, đúng chỗ VFX đang đứng.
             if (!TrySpawnMonster(_posSpawnTutorial))
             {
                 return;
             }
+
+            HideVfx();
+            HideHintText();
 
             if (_tutorialStep == TutorialStep.WaitSpawn0)
             {
@@ -398,13 +436,53 @@ namespace Playable
         }
 
         /// <summary>
-        /// Tap phải nằm trong image mục tiêu (hoặc trong bán kính phụ) mới tính.
+        /// Text "Select another monster to summon" - hiện lúc tay trỏ vào nút hotbar.
+        /// </summary>
+        private void ShowHintText(string text)
+        {
+            if (_hintText == null)
+            {
+                return;
+            }
+
+            _hintText.text = text;
+
+            if (!_hintText.gameObject.activeSelf)
+            {
+                _hintText.gameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>
+        /// Text "Tap to spawn &lt;tên quái&gt;" (tên quái tô màu + nghiêng) - hiện lúc tay trỏ tới spawn
+        /// point, dùng đúng quái đang chọn (_prefabMonster, đã set khi player bấm hotbar).
+        /// </summary>
+        private void ShowSpawnHintText()
+        {
+            if (_prefabMonster == null)
+            {
+                return;
+            }
+
+            string colorHex = ColorUtility.ToHtmlStringRGB(_monsterNameHintColor);
+
+            ShowHintText($"Tap to spawn <color=#{colorHex}><i>{_prefabMonster.name}</i></color>");
+        }
+
+        private void HideHintText()
+        {
+            if (_hintText != null && _hintText.gameObject.activeSelf)
+            {
+                _hintText.gameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// Tap phải nằm trong RectTransform của spawn point hiện tại (hoặc trong bán kính phụ) mới tính.
         /// </summary>
         private bool IsTapOnTarget(Vector2 screenPosition)
         {
-            RectTransform tapArea = _targetImage != null
-                ? _targetImage
-                : GetSpawnPoint(_currentSpawnIndex);
+            RectTransform tapArea = GetSpawnPoint(_currentSpawnIndex);
 
             if (tapArea == null)
             {
@@ -431,27 +509,21 @@ namespace Playable
             _currentPhase = Phase.Gameplay;
 
             _tutorialPointer?.Stop();
-            HideAllBlurs();
 
-            ShowTutorialUI(false);
-        }
-
-        private void ShowTutorialUI(bool show)
-        {
-            if (_targetImage != null && _targetImage.gameObject.activeSelf != show)
+            if (_blur != null)
             {
-                _targetImage.gameObject.SetActive(show);
+                _blur.SetActive(false);
             }
 
-            if (!show && _tutorialPointer != null && _tutorialPointer.IsPlaying)
+            HideVfx();
+            HideHintText();
+
+            if (_playerController != null)
             {
-                _tutorialPointer.Stop();
+                _playerController.IsWorking = _enablePlayerControlAfterTutorial;
             }
 
-            if (_vfxSpawn != null && _vfxSpawn.activeSelf != show)
-            {
-                _vfxSpawn.SetActive(show);
-            }
+            GameManager.Instance?.CountdownEndGame();
         }
 
         /// <summary>
@@ -497,67 +569,16 @@ namespace Playable
             _lastCameraRotation = _worldCameraTransform.rotation;
         }
 
-        private void ShowBlur(int index)
-        {
-            GameObject blur = GetBlur(index);
-
-            if (blur != null && !blur.activeSelf)
-            {
-                blur.SetActive(true);
-            }
-        }
-
-        private void HideBlur(int index)
-        {
-            GameObject blur = GetBlur(index);
-
-            if (blur != null && blur.activeSelf)
-            {
-                blur.SetActive(false);
-            }
-        }
-
-        private void HideAllBlurs()
-        {
-            foreach (GameObject blur in _tutorialBlurs)
-            {
-                if (blur != null && blur.activeSelf)
-                {
-                    blur.SetActive(false);
-                }
-            }
-
-            HideButtonBlur();
-        }
-
-        private GameObject GetBlur(int index)
-        {
-            return index >= 0 && index < _tutorialBlurs.Count ? _tutorialBlurs[index] : null;
-        }
-
-        private void ShowButtonBlur()
-        {
-            if (_buttonStepBlur != null && !_buttonStepBlur.activeSelf)
-            {
-                _buttonStepBlur.SetActive(true);
-            }
-        }
-
-        private void HideButtonBlur()
-        {
-            if (_buttonStepBlur != null && _buttonStepBlur.activeSelf)
-            {
-                _buttonStepBlur.SetActive(false);
-            }
-        }
-
         #endregion
 
         #region Gameplay
 
-        private void HandleGameplayTap(Vector2 screenPosition)
+        /// <summary>
+        /// Tap trúng widget tương tác thật (Button...) thì bỏ qua (tránh vừa bấm UI vừa spawn). Tap
+        /// trúng map thì bắn raycast từ điểm tap xuống ground, spawn quái đang chọn đúng tại điểm chạm.
+        /// </summary>
+        private void HandleTap(Vector2 screenPosition)
         {
-            // Chặn tap trúng hotbar / UI khác, tránh vừa chọn quái vừa spawn.
             if (IsPointerOverUI(screenPosition))
             {
                 return;
@@ -586,13 +607,14 @@ namespace Playable
                 return false;
             }
 
+
             if (_maxTotalMonsters > 0 && _spawnedMonsterCount >= _maxTotalMonsters)
             {
                 NotifyMonsterLimitReached();
                 return false;
             }
 
-            Monster monster = Instantiate(_prefabMonster, _monsterParent);
+            Monster monster = Instantiate(_prefabMonster);
             monster.Spawn(worldPosition, _monsterWanderRadius);
             _spawnedMonsterCount++;
 
@@ -612,7 +634,7 @@ namespace Playable
 
             _limitReachedNotified = true;
 
-            // TODO: thêm logic của bạn ở đây.
+            GameManager.Instance.EndGame();
         }
 
         private void ShowVfx(Vector3 worldPosition)
@@ -627,6 +649,14 @@ namespace Playable
             if (!_vfxSpawn.activeSelf)
             {
                 _vfxSpawn.SetActive(true);
+            }
+        }
+
+        private void HideVfx()
+        {
+            if (_vfxSpawn != null && _vfxSpawn.activeSelf)
+            {
+                _vfxSpawn.SetActive(false);
             }
         }
 
@@ -678,14 +708,22 @@ namespace Playable
             _raycastResults.Clear();
             eventSystem.RaycastAll(_pointerEventData, _raycastResults);
 
-            return _raycastResults.Count > 0;
+            for (int i = 0; i < _raycastResults.Count; i++)
+            {
+                if (_raycastResults[i].gameObject.GetComponentInParent<Selectable>() != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void ResolveUiCamera()
         {
             if (_uiCanvas == null)
             {
-                RectTransform reference = _targetImage != null ? _targetImage : GetSpawnPoint(0);
+                RectTransform reference = GetSpawnPoint(0);
 
                 if (reference != null)
                 {
@@ -729,24 +767,43 @@ namespace Playable
 
             Ray ray = _worldCamera.ScreenPointToRay(screenPosition);
 
-            if (Physics.Raycast(
-                    ray,
-                    out RaycastHit hit,
-                    _rayMaxDistance,
-                    _groundMask,
-                    QueryTriggerInteraction.Ignore))
+            bool hitCollider = Physics.Raycast(
+                ray,
+                out RaycastHit hit,
+                _rayMaxDistance,
+                _groundMask,
+                QueryTriggerInteraction.Ignore);
+
+            bool hitPlane = false;
+
+            if (hitCollider)
             {
                 worldPosition = hit.point;
-                return true;
             }
-
-            if (_groundPlane.Raycast(ray, out float distance))
+            else
             {
-                worldPosition = ray.GetPoint(distance);
-                return true;
+                hitPlane = _groundPlane.Raycast(ray, out float distance);
+
+                if (hitPlane)
+                {
+                    worldPosition = ray.GetPoint(distance);
+                }
             }
 
-            return false;
+
+            return hitCollider || hitPlane;
+        }
+
+        // [SCALE DEBUG] tạm thời, xoá sau khi xác định xong nguyên nhân
+        private void LogScreenSizeIfChanged()
+        {
+            if (Screen.width == _lastLoggedScreenWidth && Screen.height == _lastLoggedScreenHeight)
+            {
+                return;
+            }
+
+            _lastLoggedScreenWidth = Screen.width;
+            _lastLoggedScreenHeight = Screen.height;
         }
 
         #endregion
