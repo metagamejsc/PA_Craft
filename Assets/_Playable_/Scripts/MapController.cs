@@ -607,16 +607,17 @@ namespace Playable
                 return false;
             }
 
-
             if (_maxTotalMonsters > 0 && _spawnedMonsterCount >= _maxTotalMonsters)
             {
                 NotifyMonsterLimitReached();
+
                 return false;
             }
 
             Monster monster = Instantiate(_prefabMonster);
             monster.Spawn(worldPosition, _monsterWanderRadius);
             _spawnedMonsterCount++;
+            if (_spawnedMonsterCount >= _maxTotalMonsters) GameManager.Instance.EndGame();
 
             return true;
         }
@@ -633,8 +634,6 @@ namespace Playable
             }
 
             _limitReachedNotified = true;
-
-            GameManager.Instance.EndGame();
         }
 
         private void ShowVfx(Vector3 worldPosition)
