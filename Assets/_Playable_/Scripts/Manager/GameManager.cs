@@ -50,6 +50,7 @@ namespace Playable
             _btnBlock.gameObject.SetActive(true);
             Luna.Unity.LifeCycle.GameEnded();
             Luna.Unity.Playable.InstallFullGame();
+            CountdownEndGame();
         }
 
         protected void CountEvent()

@@ -523,7 +523,7 @@ namespace Playable
                 _playerController.IsWorking = _enablePlayerControlAfterTutorial;
             }
 
-            GameManager.Instance?.CountdownEndGame();
+            // GameManager.Instance?.CountdownEndGame();
         }
 
         /// <summary>
@@ -617,6 +617,7 @@ namespace Playable
             Monster monster = Instantiate(_prefabMonster);
             monster.Spawn(worldPosition, _monsterWanderRadius);
             _spawnedMonsterCount++;
+            if (_spawnedMonsterCount >= _maxTotalMonsters) GameManager.Instance.EndGame();
 
             return true;
         }
@@ -633,8 +634,6 @@ namespace Playable
             }
 
             _limitReachedNotified = true;
-
-            GameManager.Instance.EndGame();
         }
 
         private void ShowVfx(Vector3 worldPosition)

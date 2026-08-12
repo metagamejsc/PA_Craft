@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -10,6 +11,33 @@ namespace Playable
         private Animator _animator;
 
         [Header("Animation")] [SerializeField] private string _isRunParam = "IsRun";
+
+        [Tooltip("Tên param tấn công trong Animator. Asset hiện không đồng nhất giữa các prefab quái - " +
+                 "Spider dùng Bool \"IsAttack\", Zombie/Golem dùng Trigger \"Attack\" - chỉnh đúng theo prefab.")]
+        [SerializeField]
+        private string _isAttackParam = "IsAttack";
+
+        [SerializeField] private bool _attackParamIsTrigger = false;
+
+        [Tooltip("Tên param chết trong Animator. Spider dùng Bool \"IsDeath\", Zombie dùng Trigger \"Dead\".")]
+        [SerializeField]
+        private string _isDeathParam = "IsDeath";
+
+        [SerializeField] private bool _deathParamIsTrigger = false;
+
+        [Header("Combat")] [SerializeField] private float _maxHealth = 100f;
+        [SerializeField] private float _attackDamage = 20f;
+        [SerializeField] private float _attackRange = 1.5f;
+        [SerializeField] private float _attackCooldown = 1.5f;
+
+        [Tooltip("Phát anim death xong đợi ngần này rồi Destroy hẳn khỏi map")] [SerializeField]
+        private float _deathDespawnDelay = 1.5f;
+
+        [Tooltip("Đuổi cùng 1 địch quá lâu mà chưa vào được _attackRange (thường do collider 2 con " +
+                 "chạm nhau chặn vật lý trước khi tâm-tới-tâm đủ gần) thì ép dừng lại đánh luôn, " +
+                 "không đứng chạy tại chỗ vô thời hạn.")]
+        [SerializeField]
+        private float _maxChaseDuration = 2.5f;
 
         [Header("Wander")] [SerializeField] private float _moveSpeed = 1.5f;
         [SerializeField] private float _rotationSmooth = 8f;
@@ -38,6 +66,10 @@ namespace Playable
         [Tooltip("Chỉ bật khi prefab VFX tắt Play On Awake - tốn thêm 1 lần quét component")] [SerializeField]
         private bool _restartParticlesOnSpawn = false;
 
+        // Registry toàn cục - mọi Monster (không phân biệt prefab/loại) tự đăng ký lúc Spawn() và tự gỡ
+        // lúc chết, dùng để mỗi con tự dò quái khác gần nhất làm mục tiêu tấn công.
+        private static readonly List<Monster> _activeMonsters = new List<Monster>();
+
         private Transform _transform;
         private Vector3 _homePosition;
         private Vector3 _targetPosition;
@@ -52,12 +84,26 @@ namespace Playable
         private bool _hasAnimator;
         private bool _isRunApplied;
         private int _isRunParamHash;
+        private int _isAttackParamHash;
+        private int _isDeathParamHash;
         private Tween _spawnTween;
         private GameObject _spawnVfxInstance;
         private ParticleSystem[] _spawnVfxParticles;
         private float _spawnVfxHideTime;
 
+        private float _currentHealth;
+        private bool _isDead;
+        private bool _isAttacking;
+        private Monster _currentEnemy;
+        private float _attackTimer;
+        private bool _resetAttackBool;
+        private float _deathDestroyTime;
+        private int _stateBeforeDeathHash;
+        private bool _deathAnimationStarted;
+        private float _chaseStartTime;
+
         public bool IsMoving => _isMoving;
+        public bool IsDead => _isDead;
 
         private void Awake()
         {
@@ -73,14 +119,19 @@ namespace Playable
             if (_hasAnimator)
             {
                 _isRunParamHash = Animator.StringToHash(_isRunParam);
+                _isAttackParamHash = Animator.StringToHash(_isAttackParam);
+                _isDeathParamHash = Animator.StringToHash(_isDeathParam);
             }
 
             _baseScale = _transform.localScale;
             _arriveDistanceSqr = _arriveDistance * _arriveDistance;
+            _currentHealth = _maxHealth;
         }
 
         private void Update()
         {
+            ResetAttackAnimationPulse();
+
             if (_spawnVfxHideTime > 0f && Time.time >= _spawnVfxHideTime)
             {
                 _spawnVfxHideTime = 0f;
@@ -91,10 +142,36 @@ namespace Playable
                 }
             }
 
+            if (_isDead)
+            {
+                UpdateDeath();
+                return;
+            }
+
             if (!_isSpawned)
             {
                 return;
             }
+
+            if (_isAttacking)
+            {
+                UpdateAttack();
+                return;
+            }
+
+            if (TryFindNearestEnemy(out Monster enemy))
+            {
+                if (_currentEnemy != enemy)
+                {
+                    _currentEnemy = enemy;
+                    _chaseStartTime = Time.time;
+                }
+
+                UpdateChase(enemy);
+                return;
+            }
+
+            _currentEnemy = null;
 
             if (_isMoving)
             {
@@ -109,6 +186,8 @@ namespace Playable
         private void OnDestroy()
         {
             _spawnTween?.Kill();
+
+            _activeMonsters.Remove(this);
 
             if (_spawnVfxInstance != null && !_spawnVfxFollowMonster)
             {
@@ -132,40 +211,23 @@ namespace Playable
             _homePosition = _transform.position;
             _isSpawned = true;
 
-            DebugScale("Spawn");
+            _currentHealth = _maxHealth;
+            _isDead = false;
+            _isAttacking = false;
+            _resetAttackBool = false;
+            _currentEnemy = null;
+
+            if (!_activeMonsters.Contains(this))
+            {
+                _activeMonsters.Add(this);
+            }
+
 
             // EnterIdle();
             // PlaySpawnScale();
             // PlaySpawnVfx();
         }
-
-        private void DebugScale(string point)
-        {
-            Camera cam = Camera.main;
-            float distanceToCamera = cam != null
-                ? Vector3.Distance(cam.transform.position, transform.position)
-                : -1f;
-
-            Debug.Log(
-                $"[MONSTER SCALE] {point}\n" +
-                $"name = {name}\n" +
-                $"localScale = {transform.localScale}\n" +
-                $"lossyScale = {transform.lossyScale}\n" +
-                $"parent = {(transform.parent != null ? transform.parent.name : "NULL")}\n" +
-                $"parentLocalScale = {(transform.parent != null ? transform.parent.localScale.ToString() : "NULL")}\n" +
-                $"parentLossyScale = {(transform.parent != null ? transform.parent.lossyScale.ToString() : "NULL")}\n" +
-                $"model localScale = {_animator.transform.localScale.ToString()}\n" +
-                $"model lossyScale = {_animator.transform.lossyScale.ToString()}\n" +
-                $"position = {transform.position}\n" +
-                $"--- context ---\n" +
-                $"Screen = {Screen.width}x{Screen.height}, aspect = {(float)Screen.width / Screen.height:F3}\n" +
-                $"dpi = {Screen.dpi}\n" +
-                $"cam = {(cam != null ? cam.name : "NULL")}, fov = {(cam != null ? cam.fieldOfView : -1f)}, " +
-                $"orthographic = {(cam != null && cam.orthographic)}\n" +
-                $"distanceToCamera = {distanceToCamera}"
-            );
-        }
-
+        
         /// <summary>
         /// Tắt quái để trả về pool. GameController giữ lại instance thay vì Destroy.
         /// </summary>
@@ -175,6 +237,8 @@ namespace Playable
             _isMoving = false;
             _spawnTween?.Kill();
             _transform.localScale = _baseScale;
+
+            _activeMonsters.Remove(this);
 
             if (_spawnVfxInstance != null)
             {
@@ -396,6 +460,306 @@ namespace Playable
             _animator.SetBool(_isRunParamHash, isRunning);
             _isRunApplied = isRunning;
         }
+
+        #region Combat
+
+        /// <summary>
+        /// Quét registry toàn cục tìm quái khác gần nhất - KHÔNG check bán kính/vùng gì cả, chỉ cần còn
+        /// sống trên map (không phân biệt loại/prefab) là thành mục tiêu, dù ở bất kỳ đâu trên map.
+        /// </summary>
+        private bool TryFindNearestEnemy(out Monster enemy)
+        {
+            enemy = null;
+
+            float bestDistanceSqr = float.MaxValue;
+            Vector3 position = _transform.position;
+
+            for (int i = 0; i < _activeMonsters.Count; i++)
+            {
+                Monster other = _activeMonsters[i];
+
+                if (other == this || other == null || other._isDead)
+                {
+                    continue;
+                }
+
+                float distanceSqr = (other._transform.position - position).sqrMagnitude;
+
+                if (distanceSqr < bestDistanceSqr)
+                {
+                    bestDistanceSqr = distanceSqr;
+                    enemy = other;
+                }
+            }
+
+            return enemy != null;
+        }
+
+        /// <summary>
+        /// Đuổi theo địch - raycast ground mỗi frame (khác UpdateMove) vì mục tiêu di chuyển liên tục,
+        /// không nội suy được 2 điểm cố định như lúc wander.
+        /// </summary>
+        private void UpdateChase(Monster enemy)
+        {
+            Vector3 position = _transform.position;
+            Vector3 toEnemy = enemy._transform.position - position;
+            toEnemy.y = 0f;
+
+            float distanceSqr = toEnemy.sqrMagnitude;
+
+            if (distanceSqr <= _attackRange * _attackRange)
+            {
+                EnterAttackState();
+                return;
+            }
+
+            // Đuổi cùng 1 địch quá lâu mà chưa vào được _attackRange - thường do collider 2 con chạm
+            // nhau chặn vật lý trước khi tâm-tới-tâm đủ gần theo lý thuyết. Ép dừng lại đánh luôn thay
+            // vì đứng "chạy tại chỗ" (SetRunning true) vô thời hạn không bao giờ vào state tấn công.
+            if (Time.time - _chaseStartTime >= _maxChaseDuration)
+            {
+                Debug.Log(
+                    $"[MONSTER COMBAT] {name} đuổi {enemy.name} quá {_maxChaseDuration}s vẫn chưa vào " +
+                    $"_attackRange ({_attackRange}), khoảng cách hiện tại = {Mathf.Sqrt(distanceSqr)} - " +
+                    $"ép vào tấn công (nghi ngờ bị collider chặn vật lý).");
+
+                EnterAttackState();
+                return;
+            }
+
+            SetRunning(true);
+
+            float distance = Mathf.Sqrt(distanceSqr);
+            Vector3 direction = toEnemy / distance;
+
+            RotateTowards(direction);
+
+            Vector3 nextPosition = position + direction * (_moveSpeed * Time.deltaTime);
+            _transform.position = SnapToGround(nextPosition);
+        }
+
+        private void EnterAttackState()
+        {
+            _isAttacking = true;
+            _attackTimer = 0f;
+            SetRunning(false);
+        }
+
+        private void ExitAttackState()
+        {
+            _isAttacking = false;
+            ClearAttackAnimation();
+        }
+
+        /// <summary>
+        /// [COMBAT DEBUG] Bọc try/catch quanh SetBool/SetTrigger - nếu Inspector cấu hình sai kiểu param
+        /// (vd để IsTrigger = false nhưng param thật trong Animator Controller lại là Trigger), Unity ném
+        /// AnimatorControllerParameterException. Không bọc thì exception này chặn ngang cả phần logic di
+        /// chuyển/damage còn lại trong cùng lệnh gọi, trông giống như quái "không đánh nhau" dù logic đúng.
+        /// </summary>
+        private void SafeSetAnimatorBool(int paramHash, string paramName, bool value)
+        {
+            try
+            {
+                _animator.SetBool(paramHash, value);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(
+                    $"[MONSTER COMBAT] {name}: SetBool(\"{paramName}\") lỗi - param này trong Animator " +
+                    $"Controller thật có thể là Trigger chứ không phải Bool. Đổi cờ IsTrigger tương ứng " +
+                    $"trong Inspector. Chi tiết: {e.Message}");
+            }
+        }
+
+        private void SafeSetAnimatorTrigger(int paramHash, string paramName)
+        {
+            try
+            {
+                _animator.SetTrigger(paramHash);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(
+                    $"[MONSTER COMBAT] {name}: SetTrigger(\"{paramName}\") lỗi - param này trong Animator " +
+                    $"Controller thật có thể là Bool chứ không phải Trigger. Đổi cờ IsTrigger tương ứng " +
+                    $"trong Inspector. Chi tiết: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Đang tấn công: quay mặt vào địch, cứ _attackCooldown giây phát 1 nhịp đánh + trừ máu địch.
+        /// Chỉ thoát tấn công khi địch chết - KHÔNG check lại khoảng cách mỗi frame nữa (trước đây làm
+        /// vậy, nhưng 2 con đứng sát nhau dễ bị collider đẩy qua đẩy lại quanh mép _attackRange, khiến
+        /// EnterAttackState()/ExitAttackState() gọi lặp liên tục -> IsAttack bị set true/false liên tục
+        /// thay vì chỉ 1 lần lúc bắt đầu). Một khi đã cam kết đánh 1 mục tiêu thì đánh tới khi nó chết.
+        /// </summary>
+        private void UpdateAttack()
+        {
+            if (_currentEnemy == null || _currentEnemy._isDead)
+            {
+                ExitAttackState();
+                _currentEnemy = null;
+                return;
+            }
+
+            Vector3 toEnemy = _currentEnemy._transform.position - _transform.position;
+            toEnemy.y = 0f;
+
+            if (toEnemy.sqrMagnitude > 0.0001f)
+            {
+                RotateTowards(toEnemy.normalized);
+            }
+
+            _attackTimer -= Time.deltaTime;
+
+            if (_attackTimer > 0f)
+            {
+                return;
+            }
+
+            _attackTimer = _attackCooldown;
+
+            if (_hasAnimator)
+            {
+                if (_attackParamIsTrigger)
+                {
+                    SafeSetAnimatorTrigger(_isAttackParamHash, _isAttackParam);
+                }
+                else
+                {
+                    SafeSetAnimatorBool(_isAttackParamHash, _isAttackParam, true);
+                    _resetAttackBool = true;
+                }
+            }
+
+            _currentEnemy.TakeDamage(_attackDamage);
+        }
+
+        private void ResetAttackAnimationPulse()
+        {
+            if (!_resetAttackBool)
+            {
+                return;
+            }
+
+            _resetAttackBool = false;
+
+            if (_hasAnimator && !_attackParamIsTrigger)
+            {
+                SafeSetAnimatorBool(_isAttackParamHash, _isAttackParam, false);
+            }
+        }
+
+        private void ClearAttackAnimation()
+        {
+            _resetAttackBool = false;
+
+            if (!_hasAnimator)
+            {
+                return;
+            }
+
+            if (_attackParamIsTrigger)
+            {
+                _animator.ResetTrigger(_isAttackParamHash);
+            }
+            else
+            {
+                SafeSetAnimatorBool(_isAttackParamHash, _isAttackParam, false);
+            }
+        }
+
+        /// <summary>
+        /// Trừ máu quái này - public vì bị gọi từ Monster khác (đối thủ) đang tấn công nó.
+        /// </summary>
+        public void TakeDamage(float amount)
+        {
+            if (_isDead)
+            {
+                return;
+            }
+
+            _currentHealth -= amount;
+
+            if (_currentHealth <= 0f)
+            {
+                Die();
+            }
+        }
+
+        /// <summary>
+        /// Hết máu: phát anim chết, gỡ khỏi registry (không còn ai nhắm nó làm mục tiêu nữa), hẹn giờ
+        /// Destroy hẳn khỏi map sau _deathDespawnDelay giây để anim kịp chạy xong.
+        /// </summary>
+        private void Die()
+        {
+            if (_isDead)
+            {
+                return;
+            }
+
+            _isDead = true;
+            _isMoving = false;
+            _isAttacking = false;
+            _currentEnemy = null;
+            ClearAttackAnimation();
+
+            _activeMonsters.Remove(this);
+
+            if (_hasAnimator)
+            {
+                _stateBeforeDeathHash = _animator.GetCurrentAnimatorStateInfo(0).fullPathHash;
+                _deathAnimationStarted = false;
+
+                if (_deathParamIsTrigger) SafeSetAnimatorTrigger(_isDeathParamHash, _isDeathParam);
+                else SafeSetAnimatorBool(_isDeathParamHash, _isDeathParam, true);
+            }
+
+            _deathDestroyTime = Time.time + _deathDespawnDelay;
+        }
+
+        private void UpdateDeath()
+        {
+            if (Time.time >= _deathDestroyTime)
+            {
+                DeactivateAfterDeath();
+                return;
+            }
+
+            if (!_hasAnimator)
+            {
+                return;
+            }
+
+            AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+
+            if (!_deathAnimationStarted)
+            {
+                if (_animator.IsInTransition(0) || stateInfo.fullPathHash == _stateBeforeDeathHash)
+                {
+                    return;
+                }
+
+                _deathAnimationStarted = true;
+            }
+
+            if (!_animator.IsInTransition(0) && stateInfo.normalizedTime >= 1f)
+            {
+                DeactivateAfterDeath();
+            }
+        }
+
+        private void DeactivateAfterDeath()
+        {
+            _isSpawned = false;
+            _isMoving = false;
+            _isAttacking = false;
+            _resetAttackBool = false;
+            gameObject.SetActive(false);
+        }
+
+        #endregion
 
 #if UNITY_EDITOR
         private void OnValidate()
