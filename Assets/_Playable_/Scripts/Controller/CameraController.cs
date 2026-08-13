@@ -17,6 +17,7 @@ namespace Playable
         [SerializeField] private Transform _yawPivot;
         [SerializeField] private Transform _pitchPivot;
         [SerializeField] private Transform _followTarget;
+        [SerializeField] private Camera _targetCamera;
 
         [Header("View")] [SerializeField] private ViewMode _viewMode = ViewMode.ThirdPerson;
         [SerializeField] private Vector3 _thirdPersonOffset = new Vector3(0f, 1.6f, -3.5f);
@@ -24,15 +25,24 @@ namespace Playable
         [SerializeField] private float _followSmooth = 14f;
 
         [Header("Look")] [SerializeField] private float _lookSensitivity = 0.18f;
+        [SerializeField] private float _initialYawOffset;
+        [SerializeField] private float _initialPitch;
         [SerializeField] private float _pitchMin = -35f;
         [SerializeField] private float _pitchMax = 75f;
 
-        private Camera _targetCamera;
         private float _yaw;
         private float _pitch;
 
         public Transform YawPivot => _yawPivot != null ? _yawPivot : transform;
         public ViewMode CurrentViewMode => _viewMode;
+
+        private void Awake()
+        {
+            if (_targetCamera == null)
+            {
+                _targetCamera = GetComponentInChildren<Camera>(true);
+            }
+        }
 
         private void OnEnable()
         {
@@ -102,6 +112,7 @@ namespace Playable
         public void SetViewMode(ViewMode viewMode)
         {
             _viewMode = viewMode;
+            SyncTargetRotation();
             UpdateCameraPosition(true);
         }
 
@@ -140,8 +151,8 @@ namespace Playable
         {
             Transform anchor = GetFollowAnchor();
             Vector3 targetEuler = anchor.rotation.eulerAngles;
-            _yaw = targetEuler.y;
-            _pitch = 0f;
+            _yaw = targetEuler.y + _initialYawOffset;
+            _pitch = Mathf.Clamp(_initialPitch, _pitchMin, _pitchMax);
             UpdateRigRotation();
             UpdateCameraPosition(true);
         }
@@ -169,6 +180,25 @@ namespace Playable
             if (_pitchPivot != null)
             {
                 _pitchPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
+            }
+
+            SyncTargetRotation();
+        }
+
+        private void SyncTargetRotation()
+        {
+            if (_target == null)
+            {
+                return;
+            }
+
+            if (_viewMode == ViewMode.FirstPerson)
+            {
+                _target.SetCameraYaw(_yaw);
+            }
+            else
+            {
+                _target.StopFollowingCameraYaw();
             }
         }
 

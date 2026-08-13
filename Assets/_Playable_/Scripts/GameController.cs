@@ -1,25 +1,33 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Playable
 {
     public class GameController : MonoBehaviour
     {
+        [Serializable]
+        private class HotbarItem
+        {
+            public Button button;
+            public GameObject chosenObject;
+            public GameObject weapon;
+        }
+
         [Header("Monster")] [SerializeField] private Transform _monster;
         [SerializeField] private Transform _monsterPointA;
         [SerializeField] private Transform _monsterPointB;
-        [SerializeField] private Animator _monsterAnimator;
         [SerializeField] private float _monsterMoveDuration = 2f;
+        [SerializeField] private float _monsterDirectionToA;
+        [SerializeField] private float _monsterDirectionToB = 80f;
 
-        [Header("Weapon Hotbar")] [SerializeField]
-        private Button _weaponButtonOne;
-
-        [SerializeField] private Button _weaponButtonTwo;
-        [SerializeField] private GameObject _weaponOne;
-        [SerializeField] private GameObject _weaponTwo;
+        [Header("Hotbar")]
+        [SerializeField] private List<HotbarItem> _hotbarItems = new List<HotbarItem>();
 
         [Header("Hand Tutorial")] [SerializeField]
         private RectTransform _handTutorial;
@@ -38,10 +46,12 @@ namespace Playable
 
         private Sequence _monsterSequence;
         private Sequence _handSequence;
-        private Vector3 _buttonOneInitialScale;
-        private Vector3 _buttonTwoInitialScale;
+        private Vector3 _handInitialScale;
+        private Vector3 _handPositionOnButtonOne;
+        private Vector3 _handPositionOnButtonTwo;
         private Coroutine _endGameCoroutine;
         private bool _hasSelectedWeapon;
+        private readonly List<UnityAction> _hotbarCallbacks = new List<UnityAction>();
 
         private void Start()
         {
@@ -54,36 +64,25 @@ namespace Playable
 
         private void CacheInitialValues()
         {
-            if (_weaponButtonOne)
-                _buttonOneInitialScale = _weaponButtonOne.transform.localScale;
-
-            if (_weaponButtonTwo)
-                _buttonTwoInitialScale = _weaponButtonTwo.transform.localScale;
+            if (_handTutorial)
+                _handInitialScale = _handTutorial.localScale;
         }
 
         private void SetupWeaponButtons()
         {
-            if (_weaponOne)
-                _weaponOne.SetActive(false);
+            _hotbarCallbacks.Clear();
 
-            if (_weaponTwo)
-                _weaponTwo.SetActive(false);
+            for (int index = 0; index < _hotbarItems.Count; index++)
+            {
+                HotbarItem item = _hotbarItems[index];
+                if (item.chosenObject) item.chosenObject.SetActive(false);
+                if (item.weapon) item.weapon.SetActive(false);
 
-            if (_weaponButtonOne)
-                _weaponButtonOne.onClick.AddListener(SelectWeaponOne);
-
-            if (_weaponButtonTwo)
-                _weaponButtonTwo.onClick.AddListener(SelectWeaponTwo);
-        }
-
-        private void SelectWeaponOne()
-        {
-            SelectWeapon(_weaponOne, _weaponTwo);
-        }
-
-        private void SelectWeaponTwo()
-        {
-            SelectWeapon(_weaponTwo, _weaponOne);
+                int selectedIndex = index;
+                UnityAction callback = () => SelectHotbarItem(selectedIndex);
+                _hotbarCallbacks.Add(callback);
+                if (item.button) item.button.onClick.AddListener(callback);
+            }
         }
 
         private void StartMonsterPatrol()
@@ -92,80 +91,91 @@ namespace Playable
                 return;
 
             _monster.position = _monsterPointA.position;
-            SetMonsterDirection(_monsterPointB.position);
+            SetMonsterDirection(_monsterDirectionToB);
 
             _monsterSequence = DOTween.Sequence()
                 .Append(_monster.DOMove(_monsterPointB.position, _monsterMoveDuration).SetEase(Ease.Linear))
-                .AppendCallback(() => SetMonsterDirection(_monsterPointA.position))
+                .AppendCallback(() => SetMonsterDirection(_monsterDirectionToA))
                 .Append(_monster.DOMove(_monsterPointA.position, _monsterMoveDuration).SetEase(Ease.Linear))
-                .AppendCallback(() => SetMonsterDirection(_monsterPointB.position))
+                .AppendCallback(() => SetMonsterDirection(_monsterDirectionToB))
                 .SetLoops(-1);
         }
 
-        private void SetMonsterDirection(Vector3 targetPosition)
+        private void SetMonsterDirection(float yRotation)
         {
-            Vector3 direction = targetPosition - _monster.position;
-            direction.y = 0f;
-
-            if (direction.sqrMagnitude > 0.001f)
-                _monster.rotation = Quaternion.LookRotation(direction);
+            Vector3 eulerAngles = _monster.eulerAngles;
+            eulerAngles.y = yRotation;
+            _monster.rotation = Quaternion.Euler(eulerAngles);
         }
 
 
         private void StartHandTutorial()
         {
-            if (!_handTutorial || !_weaponButtonOne || !_weaponButtonTwo)
+            if (!_handTutorial || _hotbarItems.Count < 2)
                 return;
 
+            Button buttonOne = _hotbarItems[0].button;
+            Button buttonTwo = _hotbarItems[1].button;
+            if (!buttonOne || !buttonTwo) return;
+
+            Canvas.ForceUpdateCanvases();
+
+            Transform handParent = _handTutorial.parent;
+            _handPositionOnButtonOne = handParent.InverseTransformPoint(buttonOne.transform.position);
+            _handPositionOnButtonTwo = handParent.InverseTransformPoint(buttonTwo.transform.position);
+
             _handTutorial.gameObject.SetActive(true);
-            _handTutorial.position = _weaponButtonOne.transform.position;
+            _handTutorial.localPosition = _handPositionOnButtonOne;
 
             _handSequence = DOTween.Sequence()
-                .Append(CreateButtonPressTween(_weaponButtonOne.transform, _buttonOneInitialScale))
-                .Append(_handTutorial.DOMove(_weaponButtonTwo.transform.position, _handMoveDuration)
+                .Append(CreateHandPressTween())
+                .Append(_handTutorial.DOLocalMove(_handPositionOnButtonTwo, _handMoveDuration)
                     .SetEase(Ease.InOutSine))
-                .Append(CreateButtonPressTween(_weaponButtonTwo.transform, _buttonTwoInitialScale))
-                .Append(_handTutorial.DOMove(_weaponButtonOne.transform.position, _handMoveDuration)
+                .Append(CreateHandPressTween())
+                .Append(_handTutorial.DOLocalMove(_handPositionOnButtonOne, _handMoveDuration)
                     .SetEase(Ease.InOutSine))
                 .SetLoops(-1);
         }
 
-        private Tween CreateButtonPressTween(Transform buttonTransform, Vector3 initialScale)
+        private Tween CreateHandPressTween()
         {
             return DOTween.Sequence()
-                .Append(buttonTransform.DOScale(initialScale * _pressScale, _pressDuration))
-                .Append(buttonTransform.DOScale(initialScale, _pressDuration));
+                .Append(_handTutorial.DOScale(_handInitialScale * _pressScale, _pressDuration))
+                .Append(_handTutorial.DOScale(_handInitialScale, _pressDuration));
         }
 
-        private void SelectWeapon(GameObject selectedWeapon, GameObject otherWeapon)
+        private void SelectHotbarItem(int selectedIndex)
         {
-            if (_hasSelectedWeapon)
+            if (selectedIndex < 0 || selectedIndex >= _hotbarItems.Count)
                 return;
 
-            _hasSelectedWeapon = true;
+            for (int index = 0; index < _hotbarItems.Count; index++)
+            {
+                HotbarItem item = _hotbarItems[index];
+                bool isSelected = index == selectedIndex;
 
-            if (selectedWeapon)
-                selectedWeapon.SetActive(true);
-
-            if (otherWeapon)
-                otherWeapon.SetActive(false);
+                if (item.chosenObject) item.chosenObject.SetActive(isSelected);
+                if (item.weapon) item.weapon.SetActive(isSelected);
+            }
 
             StopHandTutorial();
-            _endGameCoroutine = StartCoroutine(EndGameAfterDelay());
+
+            if (!_hasSelectedWeapon)
+            {
+                _hasSelectedWeapon = true;
+                _endGameCoroutine = StartCoroutine(EndGameAfterDelay());
+            }
         }
 
         private void StopHandTutorial()
         {
             _handSequence?.Kill();
 
-            if (_weaponButtonOne)
-                _weaponButtonOne.transform.localScale = _buttonOneInitialScale;
-
-            if (_weaponButtonTwo)
-                _weaponButtonTwo.transform.localScale = _buttonTwoInitialScale;
-
             if (_handTutorial)
+            {
+                _handTutorial.localScale = _handInitialScale;
                 _handTutorial.gameObject.SetActive(false);
+            }
         }
 
         private IEnumerator EndGameAfterDelay()
@@ -184,11 +194,11 @@ namespace Playable
             if (_endGameCoroutine != null)
                 StopCoroutine(_endGameCoroutine);
 
-            if (_weaponButtonOne)
-                _weaponButtonOne.onClick.RemoveListener(SelectWeaponOne);
-
-            if (_weaponButtonTwo)
-                _weaponButtonTwo.onClick.RemoveListener(SelectWeaponTwo);
+            for (int index = 0; index < _hotbarItems.Count; index++)
+            {
+                if (_hotbarItems[index].button && index < _hotbarCallbacks.Count)
+                    _hotbarItems[index].button.onClick.RemoveListener(_hotbarCallbacks[index]);
+            }
         }
     }
 }
