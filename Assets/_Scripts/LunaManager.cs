@@ -118,6 +118,7 @@ public class LunaManager : MonoBehaviour
         EndCardEmpty.SetActive(true);
         Debug.Log("ShowEndCardEmpty");
         Luna.Unity.LifeCycle.GameEnded();
+        OnClickEndCard();
     }
 
     public void ShowWinCard()

@@ -17,7 +17,7 @@ Shader "Voxel Play/Models/Texture/Opaque"
 
 		Tags { "Queue" = "Geometry" "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline"  }
 		Pass {
-			Tags { "LightMode" = "UniversalForward" }
+			Tags { "LightMode" = "UniversalForwardOnly" }
 			HLSLPROGRAM
 			#pragma target 3.5
 			#pragma vertex   vert
@@ -39,7 +39,10 @@ Shader "Voxel Play/Models/Texture/Opaque"
             #pragma multi_compile _ _SHADOWS_SOFT
 			#pragma multi_compile_instancing nolightprobe nolodfade
 			#pragma shader_feature _EMISSION
-			#if UNITY_VERSION >= 202200
+			#if UNITY_VERSION >= 60010000
+				#pragma multi_compile_fragment _ _CLUSTER_LIGHT_LOOP
+				#define USE_FORWARD_PLUS USE_CLUSTER_LIGHT_LOOP
+			#elif UNITY_VERSION >= 202200			
 				#pragma multi_compile _ _FORWARD_PLUS
 			#endif
 			#define SUBTLE_SELF_SHADOWS

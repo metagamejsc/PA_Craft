@@ -6,6 +6,7 @@ float3 _VPFogData;
 half3 _VPSkyTint, _VPFogTint;
 half _VPExposure;
 half3 _VPGroundColor;
+half _VPLightIntensity;
 
 fixed3 getSkyColor(float3 ray) {
 	float3 delta  = _WorldSpaceLightPos0.xyz - ray;
@@ -33,8 +34,8 @@ fixed3 getSkyColor(float3 ray) {
 	half daylight = saturate(dayLightDir - dist * 0.03);
 	skyColor *= daylight;
 
-	// exposure
-	skyColor *= _VPExposure * _LightColor0.rgb;
+	// exposure - use light color without intensity to match skybox
+	skyColor *= _VPExposure * _LightColor0.rgb / _VPLightIntensity;
 
 	// gamma
 	#if defined(UNITY_COLORSPACE_GAMMA) && !defined(SHADER_API_MOBILE)

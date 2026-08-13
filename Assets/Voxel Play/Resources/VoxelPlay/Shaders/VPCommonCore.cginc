@@ -50,6 +50,61 @@ float4 _vp_matProps;
 #define VOXELPLAY_INITIALIZE_MATPROPS(o, uv) { int __iuvz = (int)uv.z; float __uvz = (float)(__iuvz & 16383); o.matProps = _vp_matProps = tex2Dlod(_VPMatProps, float4((__uvz + 0.5) * _VPMatProps_TexelSize.x, 0.5, 0, 0)) * 255; }
 #define VOXELPLAY_READ_MATPROPS(i) _vp_matProps = i.matProps;
 
+// Tint Gradient system =====================================================================
+
+sampler2D _VPGradientLUT;
+float4 _VPGradientLUT_TexelSize; // x=1/64, y=1/textureCount, z=64, w=textureCount
+
+#define VOXELPLAY_GRADIENT_WPOS_DATA(idx) float3 gradWpos : TEXCOORD##idx;
+#define VOXELPLAY_SET_GRADIENT_WPOS(o, wpos) o.gradWpos = wpos;
+
+float vpGradientHash(float2 p) {
+    float3 p3 = frac(float3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return frac((p3.x + p3.y) * p3.z);
+}
+
+float vpGradientNoise(float2 p) {
+    float2 i = floor(p);
+    float2 f = frac(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = vpGradientHash(i);
+    float b = vpGradientHash(i + float2(1, 0));
+    float c = vpGradientHash(i + float2(0, 1));
+    float d = vpGradientHash(i + float2(1, 1));
+    return lerp(lerp(a, b, f.x), lerp(c, d, f.x), f.y);
+}
+
+float vpGradientNoise3D(float3 p) {
+    float xy = vpGradientNoise(p.xy);
+    float yz = vpGradientNoise(p.yz + 17.0);
+    float xz = vpGradientNoise(p.xz + 31.0);
+    return (xy + yz + xz) / 3.0;
+}
+
+#define VOXELPLAY_APPLY_GRADIENT_TINT(color, uv, wpos) { \
+    float __gp = _vp_matProps.w; \
+    UNITY_BRANCH if (__gp > 0.5) { \
+        float __v = floor(__gp + 0.5) - 1.0; \
+        float __mode = floor(__v / 85.0); \
+        float __rem = __v - __mode * 85.0; \
+        float __scale = floor(__rem / 9.0) / 8.0 * 0.5; \
+        float __intensity = (__rem - floor(__rem / 9.0) * 9.0) / 8.0; \
+        float __noise; \
+        if (__mode < 0.5) { \
+            __noise = vpGradientNoise3D(wpos * __scale * 4.0); \
+        } else if (__mode < 1.5) { \
+            __noise = vpGradientNoise(float2(wpos.y * __scale * 10.0, 0.5)); \
+        } else { \
+            __noise = vpGradientNoise(wpos.xz * __scale * 4.0); \
+        } \
+        float __t = lerp(0.5, __noise, __intensity); \
+        int __ti = (int)(uv.z + 0.5); \
+        float __uvz = (float)(__ti & 16383); \
+        float2 __lutUV = float2(__t, (__uvz + 0.5) * _VPGradientLUT_TexelSize.y); \
+        color.rgb *= tex2D(_VPGradientLUT, __lutUV).rgb; \
+    } \
+}
 
 // Globals  =====================================================================
 
@@ -63,6 +118,15 @@ fixed2 _VPDiffuseWrap;
 
 fixed _VPGrassWindSpeed, _VPTreeWindSpeed;
 float3 _VPWorldPivot;
+
+inline float3 VPGetWorldUVPosition(float3 wpos) {
+    return wpos - _VPWorldPivot;
+}
+
+inline float2 VPGetWorldSpaceUV(float3 wpos, float3 normal) {
+    float3 uvWPos = VPGetWorldUVPosition(wpos);
+    return uvWPos.xz * float2(abs(normal.y), normal.y) + uvWPos.xy * float2(-normal.z, abs(normal.z)) + uvWPos.zy * float2(normal.x, abs(normal.x));
+}
 
 // Tinting =====================================================================
 
