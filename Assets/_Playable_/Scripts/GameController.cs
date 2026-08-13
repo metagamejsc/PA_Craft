@@ -50,16 +50,31 @@ namespace Playable
         private Vector3 _handPositionOnButtonOne;
         private Vector3 _handPositionOnButtonTwo;
         private Coroutine _endGameCoroutine;
+        private Coroutine _handLayoutCoroutine;
         private bool _hasSelectedWeapon;
         private readonly List<UnityAction> _hotbarCallbacks = new List<UnityAction>();
+        private Vector2Int _lastScreenSize;
 
         private void Start()
         {
             CacheInitialValues();
             SetupWeaponButtons();
             StartMonsterPatrol();
-            StartHandTutorial();
             _txtTitle.color = _colorText;
+            _lastScreenSize = new Vector2Int(Screen.width, Screen.height);
+            ScheduleHandTutorial();
+        }
+
+        private void Update()
+        {
+            Vector2Int screenSize = new Vector2Int(Screen.width, Screen.height);
+            if (screenSize == _lastScreenSize)
+                return;
+
+            _lastScreenSize = screenSize;
+
+            if (!_hasSelectedWeapon)
+                ScheduleHandTutorial();
         }
 
         private void CacheInitialValues()
@@ -126,6 +141,7 @@ namespace Playable
 
             _handTutorial.gameObject.SetActive(true);
             _handTutorial.localPosition = _handPositionOnButtonOne;
+            _handTutorial.localScale = _handInitialScale;
 
             _handSequence = DOTween.Sequence()
                 .Append(CreateHandPressTween())
@@ -134,7 +150,39 @@ namespace Playable
                 .Append(CreateHandPressTween())
                 .Append(_handTutorial.DOLocalMove(_handPositionOnButtonOne, _handMoveDuration)
                     .SetEase(Ease.InOutSine))
-                .SetLoops(-1);
+                .SetLoops(-1)
+                .SetUpdate(true);
+        }
+
+        private void ScheduleHandTutorial()
+        {
+            _handSequence?.Kill();
+
+            if (_handLayoutCoroutine != null)
+                StopCoroutine(_handLayoutCoroutine);
+
+            _handLayoutCoroutine = StartCoroutine(StartHandTutorialAfterLayout());
+        }
+
+        private IEnumerator StartHandTutorialAfterLayout()
+        {
+            Vector2Int screenSize;
+
+            do
+            {
+                screenSize = new Vector2Int(Screen.width, Screen.height);
+                yield return new WaitForEndOfFrame();
+            }
+            while (screenSize != new Vector2Int(Screen.width, Screen.height));
+
+            if (_hasSelectedWeapon)
+            {
+                _handLayoutCoroutine = null;
+                yield break;
+            }
+
+            StartHandTutorial();
+            _handLayoutCoroutine = null;
         }
 
         private Tween CreateHandPressTween()
@@ -169,6 +217,12 @@ namespace Playable
 
         private void StopHandTutorial()
         {
+            if (_handLayoutCoroutine != null)
+            {
+                StopCoroutine(_handLayoutCoroutine);
+                _handLayoutCoroutine = null;
+            }
+
             _handSequence?.Kill();
 
             if (_handTutorial)
@@ -193,6 +247,9 @@ namespace Playable
 
             if (_endGameCoroutine != null)
                 StopCoroutine(_endGameCoroutine);
+
+            if (_handLayoutCoroutine != null)
+                StopCoroutine(_handLayoutCoroutine);
 
             for (int index = 0; index < _hotbarItems.Count; index++)
             {
