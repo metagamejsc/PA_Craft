@@ -31,7 +31,6 @@ public class PlayerController : MonoBehaviour
     public float touchOrbitSensitivity = 0.08f;
     public float orbitSmoothSpeed = 12f;
     public Vector2 pitchClamp = new Vector2(8f, 45f);
-    public bool onlyZoomWhenAimHitsEnemy = true;
 
     [Header("Recoil")]
     public float recoilPitch = 1.5f;
@@ -390,13 +389,7 @@ public class PlayerController : MonoBehaviour
 
     void UpdateZoomState()
     {
-        bool shouldZoom = isPointerTracking;
-        if (shouldZoom && onlyZoomWhenAimHitsEnemy)
-        {
-            shouldZoom = IsAimHittingZoomEnemy();
-        }
-
-        SetZoomState(shouldZoom);
+        SetZoomState(isPointerTracking);
     }
 
     void SetZoomState(bool shouldZoom)
@@ -538,22 +531,6 @@ public class PlayerController : MonoBehaviour
         }
 
         return null;
-    }
-
-    EnemyController FindZoomEnemyFromAimRay(Ray ray)
-    {
-        EnemyController enemy = FindEnemyFromAimRay(ray);
-        if (enemy == null || !enemy.CanTriggerZoom())
-        {
-            return null;
-        }
-
-        return enemy;
-    }
-
-    bool IsAimHittingZoomEnemy()
-    {
-        return FindZoomEnemyFromAimRay(GetAimRay()) != null;
     }
 
     EnemyController GetAttackTarget()

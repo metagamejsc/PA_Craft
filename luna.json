@@ -8,7 +8,7 @@
         "‐⁘": true
     },
     "unity": {
-        "environmentID": -775808609,
+        "environmentID": 1494052013,
         "scripts": {
             "excludes": [
                 "**/Editor/",
@@ -1845,6 +1845,18 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Assets.Shader",
+                "excluded": false
+            },
+            {
+                "name": "UnityEngine.Rendering.Universal.CameraRenderType",
+                "excluded": false
+            },
+            {
+                "name": "Luna.Unity.Analytics.Applovin",
+                "excluded": false
+            },
+            {
+                "name": "UnityEngine.PhysicMaterialCombine",
                 "excluded": false
             },
             {
@@ -6212,10 +6224,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.Rendering.Universal.CameraRenderType",
-                "excluded": false
-            },
-            {
                 "name": "UnityEngine.Rendering.Universal.SoftShadowQuality",
                 "excluded": true
             },
@@ -8274,14 +8282,6 @@
             {
                 "name": "IAmAnEmptyScriptJustToMakeCodelessProjectsCompileProperty",
                 "excluded": true
-            },
-            {
-                "name": "Luna.Unity.Analytics.Applovin",
-                "excluded": false
-            },
-            {
-                "name": "UnityEngine.PhysicMaterialCombine",
-                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -15670,6 +15670,10 @@
                         "excluded": false
                     },
                     {
+                        "name": "timeScale#set",
+                        "excluded": false
+                    },
+                    {
                         "name": "timeAsDouble#get",
                         "excluded": true
                     },
@@ -15700,10 +15704,6 @@
                     {
                         "name": "maximumDeltaTime#set",
                         "excluded": true
-                    },
-                    {
-                        "name": "timeScale#set",
-                        "excluded": false
                     },
                     {
                         "name": "realtimeSinceStartupAsDouble#get",
@@ -16946,6 +16946,10 @@
                         "excluded": false
                     },
                     {
+                        "name": "GetUniversalAdditionalCameraData",
+                        "excluded": false
+                    },
+                    {
                         "name": "current#get",
                         "excluded": true
                     },
@@ -17236,10 +17240,6 @@
                     {
                         "name": "ResetAspect",
                         "excluded": true
-                    },
-                    {
-                        "name": "GetUniversalAdditionalCameraData",
-                        "excluded": false
                     }
                 ]
             },
@@ -20610,6 +20610,10 @@
                         "excluded": false
                     },
                     {
+                        "name": "mixedBakeMode#get",
+                        "excluded": false
+                    },
+                    {
                         "name": "Scene#get",
                         "excluded": true
                     },
@@ -20644,10 +20648,6 @@
                     {
                         "name": "ambientMode#set",
                         "excluded": true
-                    },
-                    {
-                        "name": "mixedBakeMode#get",
-                        "excluded": false
                     },
                     {
                         "name": "ambientIntensity#get",
@@ -21684,12 +21684,20 @@
                 "staticMethods": [],
                 "instanceMethods": [
                     {
-                        "name": "defaultAdditionalCameraData#get",
-                        "excluded": true
-                    },
-                    {
                         "name": "renderType#get",
                         "excluded": false
+                    },
+                    {
+                        "name": "cameraStack#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "defaultAdditionalCameraData#get",
+                        "excluded": true
                     },
                     {
                         "name": "renderType#set",
@@ -21702,14 +21710,6 @@
                     {
                         "name": "clearDepth#set",
                         "excluded": true
-                    },
-                    {
-                        "name": "cameraStack#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "init",
-                        "excluded": false
                     }
                 ]
             },
@@ -35390,14 +35390,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "FindZoomEnemyFromAimRay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsAimHittingZoomEnemy",
-                        "excluded": false
-                    },
-                    {
                         "name": "OnDisable",
                         "excluded": true
                     },
@@ -38172,12 +38164,24 @@
                 "staticMethods": [],
                 "instanceMethods": [
                     {
-                        "name": "getDefaultValue",
-                        "excluded": true
-                    },
-                    {
                         "name": "glyphIndex#get",
                         "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
                     },
                     {
                         "name": "glyphIndex#set",
@@ -38192,16 +38196,8 @@
                         "excluded": true
                     },
                     {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
                         "name": "$ctor1",
                         "excluded": true
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": false
                     },
                     {
                         "name": "getHashCode",
@@ -38210,10 +38206,6 @@
                     {
                         "name": "equals",
                         "excluded": true
-                    },
-                    {
-                        "name": "$clone",
-                        "excluded": false
                     }
                 ]
             },
@@ -38230,28 +38222,28 @@
                         "excluded": false
                     },
                     {
-                        "name": "firstAdjustmentRecord#set",
-                        "excluded": true
-                    },
-                    {
                         "name": "secondAdjustmentRecord#get",
                         "excluded": false
-                    },
-                    {
-                        "name": "secondAdjustmentRecord#set",
-                        "excluded": true
                     },
                     {
                         "name": "init",
                         "excluded": false
                     },
                     {
-                        "name": "$ctor1",
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "firstAdjustmentRecord#set",
                         "excluded": true
                     },
                     {
-                        "name": "ctor",
-                        "excluded": false
+                        "name": "secondAdjustmentRecord#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
                     },
                     {
                         "name": "getHashCode",
@@ -38271,6 +38263,14 @@
                 "className": "UnityEngine.TextCore.LowLevel.GlyphValueRecord",
                 "staticMethods": [],
                 "instanceMethods": [
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    },
                     {
                         "name": "op_Addition",
                         "excluded": true
@@ -38316,20 +38316,12 @@
                         "excluded": true
                     },
                     {
-                        "name": "ctor",
-                        "excluded": false
-                    },
-                    {
                         "name": "getHashCode",
                         "excluded": true
                     },
                     {
                         "name": "equals",
                         "excluded": true
-                    },
-                    {
-                        "name": "$clone",
-                        "excluded": false
                     }
                 ]
             }
