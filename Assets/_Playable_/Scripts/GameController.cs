@@ -1,149 +1,71 @@
-using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Playable
 {
     public class GameController : MonoBehaviour
     {
-        [Header("Hand Tutorial")] [SerializeField]
-        private RectTransform _handTutorial;
+        [Header("Moving Blocks")] [SerializeField]
+        private List<GameObject> _blocks = new List<GameObject>();
 
-        [SerializeField] private List<Button> _hotbarButtons = new List<Button>();
-        [SerializeField] private float _handMoveDuration = 0.6f;
-        [SerializeField] private float _handPressScale = 0.85f;
-        [SerializeField] private float _ctaScaleMultiplier = 1.15f;
-        [SerializeField] private float _pressDuration = 0.15f;
-        [SerializeField] private List<Button> _btnCTA = new List<Button>();
-        [SerializeField] private GameObject _cta;
+        [SerializeField] private float _moveDistanceX = 1f;
+        [SerializeField] private float _moveDuration = 1f;
 
-        private readonly List<Vector3> _buttonPositions = new List<Vector3>();
-        private Sequence _handSequence;
-        private Tween _ctaTween;
-        private Coroutine _layoutCoroutine;
-        private Vector3 _handInitialScale;
-        private Vector2Int _lastScreenSize;
+        private readonly List<Tween> _blockTweens = new List<Tween>();
 
         private void Start()
         {
-            if (_handTutorial != null)
-            {
-                _handInitialScale = _handTutorial.localScale;
-            }
-
-            _cta.transform.DOScale(1.2f,1).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
-
-            _lastScreenSize = new Vector2Int(Screen.width, Screen.height);
-            ScheduleTutorial();
-
-            foreach (Button button in _btnCTA)
-            {
-                button.onClick.AddListener(() => { GameManager.Instance.EndGame(); });
-            }
+            StartBlockMovement();
         }
 
-        private void Update()
+        private void StartBlockMovement()
         {
-            Vector2Int screenSize = new Vector2Int(Screen.width, Screen.height);
-            if (screenSize == _lastScreenSize)
+            for (int index = 0; index < _blocks.Count; index++)
             {
-                return;
-            }
-
-            _lastScreenSize = screenSize;
-            ScheduleTutorial();
-        }
-
-        private void ScheduleTutorial()
-        {
-            _handSequence?.Kill();
-
-            if (_layoutCoroutine != null)
-            {
-                StopCoroutine(_layoutCoroutine);
-            }
-
-            _layoutCoroutine = StartCoroutine(StartTutorialAfterLayout());
-        }
-
-        private IEnumerator StartTutorialAfterLayout()
-        {
-            yield return new WaitForEndOfFrame();
-            Canvas.ForceUpdateCanvases();
-            StartHandTutorial();
-            _layoutCoroutine = null;
-        }
-
-        private void StartHandTutorial()
-        {
-            if (_handTutorial == null || _handTutorial.parent == null)
-            {
-                return;
-            }
-
-            Transform handParent = _handTutorial.parent;
-            _buttonPositions.Clear();
-
-            for (int index = 0; index < _hotbarButtons.Count; index++)
-            {
-                Button button = _hotbarButtons[index];
-                if (button != null && button.gameObject.activeInHierarchy)
+                GameObject block = _blocks[index];
+                if (block == null)
                 {
-                    _buttonPositions.Add(handParent.InverseTransformPoint(button.transform.position));
+                    continue;
                 }
-            }
 
-            if (_buttonPositions.Count == 0)
+                float initialX = block.transform.position.x;
+                bool isEvenIndex = index % 2 == 0;
+                float firstTargetX = initialX + (isEvenIndex ? -_moveDistanceX : _moveDistanceX);
+                float oppositeTargetX = initialX + (isEvenIndex ? _moveDistanceX : -_moveDistanceX);
+
+                Tween initialMove = block.transform
+                    .DOMoveX(firstTargetX, _moveDuration)
+                    .SetEase(Ease.Linear)
+                    .OnComplete(() => StartBlockOscillation(block.transform, oppositeTargetX));
+
+                _blockTweens.Add(initialMove);
+            }
+        }
+
+        private void StartBlockOscillation(Transform block, float targetX)
+        {
+            if (block == null)
             {
-                _handTutorial.gameObject.SetActive(false);
                 return;
             }
 
-            _handTutorial.gameObject.SetActive(true);
-            _handTutorial.localPosition = _buttonPositions[0];
-            _handTutorial.localScale = _handInitialScale;
+            Tween oscillation = block
+                .DOMoveX(targetX, _moveDuration * 2f)
+                .SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Yoyo);
 
-            _handSequence = DOTween.Sequence();
-            _handSequence.Append(CreateHandPressTween());
-
-            for (int index = 1; index < _buttonPositions.Count; index++)
-            {
-                _handSequence
-                    .Append(_handTutorial.DOLocalMove(_buttonPositions[index], _handMoveDuration)
-                        .SetEase(Ease.InOutSine))
-                    .Append(CreateHandPressTween());
-            }
-
-            if (_buttonPositions.Count > 1)
-            {
-                _handSequence.Append(_handTutorial.DOLocalMove(_buttonPositions[0], _handMoveDuration)
-                    .SetEase(Ease.InOutSine));
-            }
-
-            _handSequence.SetLoops(-1).SetUpdate(true);
+            _blockTweens.Add(oscillation);
         }
-
-        private Tween CreateHandPressTween()
-        {
-            return _handTutorial
-                .DOScale(_handInitialScale * _handPressScale, _pressDuration)
-                .SetLoops(2, LoopType.Yoyo)
-                .SetEase(Ease.InOutSine);
-        }
-        
 
         private void OnDestroy()
         {
-            _handSequence?.Kill();
-            _ctaTween?.Kill();
-            
-
-            if (_layoutCoroutine != null)
+            for (int index = 0; index < _blockTweens.Count; index++)
             {
-                StopCoroutine(_layoutCoroutine);
+                _blockTweens[index]?.Kill();
             }
+
+            _blockTweens.Clear();
         }
     }
 }

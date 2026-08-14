@@ -37,7 +37,7 @@ namespace Playable
         private void Start()
         {
             _btnBlock.onClick.AddListener(EndGame);
-            _btnBlock.gameObject.SetActive(false);
+            // _btnBlock.gameObject.SetActive(false);
 
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
             if (_backgroundMusic) AudioManager.Instance.PlayMusic(_backgroundMusic);
