@@ -1,260 +1,148 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Playable
 {
     public class GameController : MonoBehaviour
     {
-        [Serializable]
-        private class HotbarItem
-        {
-            public Button button;
-            public GameObject chosenObject;
-            public GameObject weapon;
-        }
-
-        [Header("Monster")] [SerializeField] private Transform _monster;
-        [SerializeField] private Transform _monsterPointA;
-        [SerializeField] private Transform _monsterPointB;
-        [SerializeField] private float _monsterMoveDuration = 2f;
-        [SerializeField] private float _monsterDirectionToA;
-        [SerializeField] private float _monsterDirectionToB = 80f;
-
-        [Header("Hotbar")]
-        [SerializeField] private List<HotbarItem> _hotbarItems = new List<HotbarItem>();
-
         [Header("Hand Tutorial")] [SerializeField]
         private RectTransform _handTutorial;
 
+        [SerializeField] private List<Button> _hotbarButtons = new List<Button>();
         [SerializeField] private float _handMoveDuration = 0.6f;
-        [SerializeField] private float _pressScale = 0.85f;
+        [SerializeField] private float _handPressScale = 0.85f;
+        [SerializeField] private float _ctaScaleMultiplier = 1.15f;
         [SerializeField] private float _pressDuration = 0.15f;
+        [SerializeField] private List<Button> _btnCTA = new List<Button>();
+        [SerializeField] private GameObject _cta;
 
-        [Header("Game Flow")] [LunaPlaygroundField("End Game Delay")] [SerializeField]
-        private float _endGameDelay = 5f;
-
-        [LunaPlaygroundField("Color Text")] [SerializeField]
-        private Color _colorText;
-
-        [SerializeField] private TMP_Text _txtTitle;
-
-        private Sequence _monsterSequence;
+        private readonly List<Vector3> _buttonPositions = new List<Vector3>();
         private Sequence _handSequence;
+        private Tween _ctaTween;
+        private Coroutine _layoutCoroutine;
         private Vector3 _handInitialScale;
-        private Vector3 _handPositionOnButtonOne;
-        private Vector3 _handPositionOnButtonTwo;
-        private Coroutine _endGameCoroutine;
-        private Coroutine _handLayoutCoroutine;
-        private bool _hasSelectedWeapon;
-        private readonly List<UnityAction> _hotbarCallbacks = new List<UnityAction>();
         private Vector2Int _lastScreenSize;
 
         private void Start()
         {
-            CacheInitialValues();
-            SetupWeaponButtons();
-            StartMonsterPatrol();
-            _txtTitle.color = _colorText;
+            if (_handTutorial != null)
+            {
+                _handInitialScale = _handTutorial.localScale;
+            }
+
+            _cta.transform.DOScale(1.2f,1).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+
             _lastScreenSize = new Vector2Int(Screen.width, Screen.height);
-            ScheduleHandTutorial();
+            ScheduleTutorial();
+
+            foreach (Button button in _btnCTA)
+            {
+                button.onClick.AddListener(() => { GameManager.Instance.EndGame(); });
+            }
         }
 
         private void Update()
         {
             Vector2Int screenSize = new Vector2Int(Screen.width, Screen.height);
             if (screenSize == _lastScreenSize)
+            {
                 return;
+            }
 
             _lastScreenSize = screenSize;
-
-            if (!_hasSelectedWeapon)
-                ScheduleHandTutorial();
+            ScheduleTutorial();
         }
 
-        private void CacheInitialValues()
-        {
-            if (_handTutorial)
-                _handInitialScale = _handTutorial.localScale;
-        }
-
-        private void SetupWeaponButtons()
-        {
-            _hotbarCallbacks.Clear();
-
-            for (int index = 0; index < _hotbarItems.Count; index++)
-            {
-                HotbarItem item = _hotbarItems[index];
-                if (item.chosenObject) item.chosenObject.SetActive(false);
-                if (item.weapon) item.weapon.SetActive(false);
-
-                int selectedIndex = index;
-                UnityAction callback = () => SelectHotbarItem(selectedIndex);
-                _hotbarCallbacks.Add(callback);
-                if (item.button) item.button.onClick.AddListener(callback);
-            }
-        }
-
-        private void StartMonsterPatrol()
-        {
-            if (!_monster || !_monsterPointA || !_monsterPointB)
-                return;
-
-            _monster.position = _monsterPointA.position;
-            SetMonsterDirection(_monsterDirectionToB);
-
-            _monsterSequence = DOTween.Sequence()
-                .Append(_monster.DOMove(_monsterPointB.position, _monsterMoveDuration).SetEase(Ease.Linear))
-                .AppendCallback(() => SetMonsterDirection(_monsterDirectionToA))
-                .Append(_monster.DOMove(_monsterPointA.position, _monsterMoveDuration).SetEase(Ease.Linear))
-                .AppendCallback(() => SetMonsterDirection(_monsterDirectionToB))
-                .SetLoops(-1);
-        }
-
-        private void SetMonsterDirection(float yRotation)
-        {
-            Vector3 eulerAngles = _monster.eulerAngles;
-            eulerAngles.y = yRotation;
-            _monster.rotation = Quaternion.Euler(eulerAngles);
-        }
-
-
-        private void StartHandTutorial()
-        {
-            if (!_handTutorial || _hotbarItems.Count < 2)
-                return;
-
-            Button buttonOne = _hotbarItems[0].button;
-            Button buttonTwo = _hotbarItems[1].button;
-            if (!buttonOne || !buttonTwo) return;
-
-            Canvas.ForceUpdateCanvases();
-
-            Transform handParent = _handTutorial.parent;
-            _handPositionOnButtonOne = handParent.InverseTransformPoint(buttonOne.transform.position);
-            _handPositionOnButtonTwo = handParent.InverseTransformPoint(buttonTwo.transform.position);
-
-            _handTutorial.gameObject.SetActive(true);
-            _handTutorial.localPosition = _handPositionOnButtonOne;
-            _handTutorial.localScale = _handInitialScale;
-
-            _handSequence = DOTween.Sequence()
-                .Append(CreateHandPressTween())
-                .Append(_handTutorial.DOLocalMove(_handPositionOnButtonTwo, _handMoveDuration)
-                    .SetEase(Ease.InOutSine))
-                .Append(CreateHandPressTween())
-                .Append(_handTutorial.DOLocalMove(_handPositionOnButtonOne, _handMoveDuration)
-                    .SetEase(Ease.InOutSine))
-                .SetLoops(-1)
-                .SetUpdate(true);
-        }
-
-        private void ScheduleHandTutorial()
+        private void ScheduleTutorial()
         {
             _handSequence?.Kill();
 
-            if (_handLayoutCoroutine != null)
-                StopCoroutine(_handLayoutCoroutine);
+            if (_layoutCoroutine != null)
+            {
+                StopCoroutine(_layoutCoroutine);
+            }
 
-            _handLayoutCoroutine = StartCoroutine(StartHandTutorialAfterLayout());
+            _layoutCoroutine = StartCoroutine(StartTutorialAfterLayout());
         }
 
-        private IEnumerator StartHandTutorialAfterLayout()
+        private IEnumerator StartTutorialAfterLayout()
         {
-            Vector2Int screenSize;
-
-            do
-            {
-                screenSize = new Vector2Int(Screen.width, Screen.height);
-                yield return new WaitForEndOfFrame();
-            }
-            while (screenSize != new Vector2Int(Screen.width, Screen.height));
-
-            if (_hasSelectedWeapon)
-            {
-                _handLayoutCoroutine = null;
-                yield break;
-            }
-
+            yield return new WaitForEndOfFrame();
+            Canvas.ForceUpdateCanvases();
             StartHandTutorial();
-            _handLayoutCoroutine = null;
+            _layoutCoroutine = null;
+        }
+
+        private void StartHandTutorial()
+        {
+            if (_handTutorial == null || _handTutorial.parent == null)
+            {
+                return;
+            }
+
+            Transform handParent = _handTutorial.parent;
+            _buttonPositions.Clear();
+
+            for (int index = 0; index < _hotbarButtons.Count; index++)
+            {
+                Button button = _hotbarButtons[index];
+                if (button != null && button.gameObject.activeInHierarchy)
+                {
+                    _buttonPositions.Add(handParent.InverseTransformPoint(button.transform.position));
+                }
+            }
+
+            if (_buttonPositions.Count == 0)
+            {
+                _handTutorial.gameObject.SetActive(false);
+                return;
+            }
+
+            _handTutorial.gameObject.SetActive(true);
+            _handTutorial.localPosition = _buttonPositions[0];
+            _handTutorial.localScale = _handInitialScale;
+
+            _handSequence = DOTween.Sequence();
+            _handSequence.Append(CreateHandPressTween());
+
+            for (int index = 1; index < _buttonPositions.Count; index++)
+            {
+                _handSequence
+                    .Append(_handTutorial.DOLocalMove(_buttonPositions[index], _handMoveDuration)
+                        .SetEase(Ease.InOutSine))
+                    .Append(CreateHandPressTween());
+            }
+
+            if (_buttonPositions.Count > 1)
+            {
+                _handSequence.Append(_handTutorial.DOLocalMove(_buttonPositions[0], _handMoveDuration)
+                    .SetEase(Ease.InOutSine));
+            }
+
+            _handSequence.SetLoops(-1).SetUpdate(true);
         }
 
         private Tween CreateHandPressTween()
         {
-            return DOTween.Sequence()
-                .Append(_handTutorial.DOScale(_handInitialScale * _pressScale, _pressDuration))
-                .Append(_handTutorial.DOScale(_handInitialScale, _pressDuration));
+            return _handTutorial
+                .DOScale(_handInitialScale * _handPressScale, _pressDuration)
+                .SetLoops(2, LoopType.Yoyo)
+                .SetEase(Ease.InOutSine);
         }
-
-        private void SelectHotbarItem(int selectedIndex)
-        {
-            if (selectedIndex < 0 || selectedIndex >= _hotbarItems.Count)
-                return;
-
-            for (int index = 0; index < _hotbarItems.Count; index++)
-            {
-                HotbarItem item = _hotbarItems[index];
-                bool isSelected = index == selectedIndex;
-
-                if (item.chosenObject) item.chosenObject.SetActive(isSelected);
-                if (item.weapon) item.weapon.SetActive(isSelected);
-            }
-
-            StopHandTutorial();
-
-            if (!_hasSelectedWeapon)
-            {
-                _hasSelectedWeapon = true;
-                _endGameCoroutine = StartCoroutine(EndGameAfterDelay());
-            }
-        }
-
-        private void StopHandTutorial()
-        {
-            if (_handLayoutCoroutine != null)
-            {
-                StopCoroutine(_handLayoutCoroutine);
-                _handLayoutCoroutine = null;
-            }
-
-            _handSequence?.Kill();
-
-            if (_handTutorial)
-            {
-                _handTutorial.localScale = _handInitialScale;
-                _handTutorial.gameObject.SetActive(false);
-            }
-        }
-
-        private IEnumerator EndGameAfterDelay()
-        {
-            yield return new WaitForSeconds(_endGameDelay);
-
-            if (GameManager.Instance)
-                GameManager.Instance.EndGame();
-        }
+        
 
         private void OnDestroy()
         {
-            _monsterSequence?.Kill();
             _handSequence?.Kill();
+            _ctaTween?.Kill();
+            
 
-            if (_endGameCoroutine != null)
-                StopCoroutine(_endGameCoroutine);
-
-            if (_handLayoutCoroutine != null)
-                StopCoroutine(_handLayoutCoroutine);
-
-            for (int index = 0; index < _hotbarItems.Count; index++)
+            if (_layoutCoroutine != null)
             {
-                if (_hotbarItems[index].button && index < _hotbarCallbacks.Count)
-                    _hotbarItems[index].button.onClick.RemoveListener(_hotbarCallbacks[index]);
+                StopCoroutine(_layoutCoroutine);
             }
         }
     }
