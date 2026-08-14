@@ -58,6 +58,8 @@ public class EnemyController : MonoBehaviour
     private Vector3 patrolDestination;
     private float patrolIdleTimer;
     private bool isPatrolWaiting;
+    private bool isAimLocked;
+    private Transform aimLookTarget;
 
     void Awake()
     {
@@ -104,6 +106,13 @@ public class EnemyController : MonoBehaviour
 
         ResolvePlayer();
         UpdateHealthBarTransform();
+
+        if (isAimLocked)
+        {
+            SetMovingAnimation(false);
+            RotateTowardsAimTarget();
+            return;
+        }
 
         if (player == null || (playerController != null && playerController.IsDead()))
         {
@@ -412,6 +421,17 @@ public class EnemyController : MonoBehaviour
         return canTriggerZoom && !isDead;
     }
 
+    public void SetAimLocked(bool locked, Transform lookTarget = null)
+    {
+        isAimLocked = locked && !isDead;
+        aimLookTarget = isAimLocked ? lookTarget : null;
+
+        if (isAimLocked)
+        {
+            SetMovingAnimation(false);
+        }
+    }
+
     public void Die()
     {
         if (isDead)
@@ -424,6 +444,8 @@ public class EnemyController : MonoBehaviour
         hitTween?.Kill();
         isHitReacting = false;
         isAttacking = false;
+        isAimLocked = false;
+        aimLookTarget = null;
         canAttack = false;
         SetMovingAnimation(false);
 
@@ -636,5 +658,15 @@ public class EnemyController : MonoBehaviour
 
         Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+    }
+
+    void RotateTowardsAimTarget()
+    {
+        if (aimLookTarget == null)
+        {
+            return;
+        }
+
+        RotateTowards(aimLookTarget.position - transform.position);
     }
 }

@@ -58,6 +58,7 @@ public class PlayerController : MonoBehaviour
     private float recoilPitchOffset;
     private Vector2 lastMousePosition;
     private Vector2 defaultReticleAnchoredPosition;
+    private EnemyController aimedEnemy;
 
     void Start()
     {
@@ -104,6 +105,7 @@ public class PlayerController : MonoBehaviour
         }
 
         HandleAimInput();
+        UpdateAimedEnemyLock();
         UpdateZoomState();
         UpdateAimCamera();
         UpdateScopeReticle();
@@ -372,8 +374,39 @@ public class PlayerController : MonoBehaviour
 
         isPointerTracking = false;
         hasLastMousePosition = false;
+        ClearAimedEnemyLock();
         SetScopeVisible(false);
         SetZoomState(false);
+    }
+
+    void UpdateAimedEnemyLock()
+    {
+        EnemyController enemyUnderAim = isPointerTracking
+            ? FindEnemyFromAimRay(GetAimRay())
+            : null;
+
+        if (aimedEnemy == enemyUnderAim)
+        {
+            return;
+        }
+
+        ClearAimedEnemyLock();
+        aimedEnemy = enemyUnderAim;
+
+        if (aimedEnemy != null)
+        {
+            Transform lookTarget = gameplayCamera != null ? gameplayCamera.transform : transform;
+            aimedEnemy.SetAimLocked(true, lookTarget);
+        }
+    }
+
+    void ClearAimedEnemyLock()
+    {
+        if (aimedEnemy != null)
+        {
+            aimedEnemy.SetAimLocked(false);
+            aimedEnemy = null;
+        }
     }
 
     void ApplyOrbitInput(Vector2 lookDelta)
