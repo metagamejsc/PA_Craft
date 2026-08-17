@@ -13436,17 +13436,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e888da625cc2473f9cc16341f7ab9f4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _blocks:
-  - {fileID: 1132632151}
-  - {fileID: 992170638}
-  - {fileID: 1010761413}
-  - {fileID: 1377135951}
-  - {fileID: 1806743867}
-  - {fileID: 451315168}
-  - {fileID: 118172224}
-  _moveDistanceX: 1
-  _moveDuration: 1
-  _objRank: {fileID: 1237338468}
 --- !u!4 &726936419
 Transform:
   m_ObjectHideFlags: 0
@@ -16331,6 +16320,64 @@ Transform:
   - {fileID: 2106288035}
   m_Father: {fileID: 1132632152}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &913888797
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 913888798}
+  - component: {fileID: 913888799}
+  m_Layer: 5
+  m_Name: Cherry
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &913888798
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 913888797}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6729007643241931456}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &913888799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 913888797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 299d591d96bf4d20a3d1fd93e95438ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _spawnArea: {fileID: 913888798}
+  _useParentCanvasViewport: 1
+  _petalSprite: {fileID: 0}
+  _petalCount: 50
+  _fallSpeedRange: {x: 80, y: 160}
+  _diagonalAngle: 20
+  _swayAmplitudeRange: {x: 10, y: 30}
+  _swayFrequencyRange: {x: 0.5, y: 1.5}
+  _rotationSpeedRange: {x: -90, y: 90}
+  _petalSizeRange: {x: 30, y: 50}
 --- !u!1 &919789952
 GameObject:
   m_ObjectHideFlags: 0
@@ -36349,6 +36396,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 913888798}
   - {fileID: 152962305}
   - {fileID: 253805229}
   - {fileID: 1955053674}
