@@ -13,11 +13,11 @@ namespace Playable
         [Header("References")] [SerializeField]
         private PlayerController _target;
 
-        [SerializeField] private Camera _targetCamera;
         [SerializeField] private TouchController _touchController;
         [SerializeField] private Transform _yawPivot;
         [SerializeField] private Transform _pitchPivot;
         [SerializeField] private Transform _followTarget;
+        [SerializeField] private Camera _targetCamera;
 
         [Header("View")] [SerializeField] private ViewMode _viewMode = ViewMode.ThirdPerson;
         [SerializeField] private Vector3 _thirdPersonOffset = new Vector3(0f, 1.6f, -3.5f);
@@ -25,29 +25,22 @@ namespace Playable
         [SerializeField] private float _followSmooth = 14f;
 
         [Header("Look")] [SerializeField] private float _lookSensitivity = 0.18f;
+        [SerializeField] private float _initialYawOffset;
+        [SerializeField] private float _initialPitch;
         [SerializeField] private float _pitchMin = -35f;
         [SerializeField] private float _pitchMax = 75f;
 
         private float _yaw;
         private float _pitch;
-        private Transform _transform;
-        private Transform _cameraTransform;
 
-        public Transform YawPivot => _yawPivot != null ? _yawPivot : _transform;
+        public Transform YawPivot => _yawPivot != null ? _yawPivot : transform;
         public ViewMode CurrentViewMode => _viewMode;
 
         private void Awake()
         {
-            _transform = transform;
-
             if (_targetCamera == null)
             {
-                _targetCamera = GetComponentInChildren<Camera>();
-            }
-
-            if (_targetCamera != null)
-            {
-                _cameraTransform = _targetCamera.transform;
+                _targetCamera = GetComponentInChildren<Camera>(true);
             }
         }
 
@@ -119,6 +112,7 @@ namespace Playable
         public void SetViewMode(ViewMode viewMode)
         {
             _viewMode = viewMode;
+            SyncTargetRotation();
             UpdateCameraPosition(true);
         }
 
@@ -141,26 +135,24 @@ namespace Playable
             UpdateCameraPosition(instant);
         }
 
-        private void OnLookDelta(Vector2 delta)
+        public void AddLookInput(Vector2 delta)
         {
-#if UNITY_EDITOR
-            if (Input.GetMouseButton(1))
-            {
-                delta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * 20f;
-            }
-#endif
-
             _yaw += delta.x * _lookSensitivity;
             _pitch -= delta.y * _lookSensitivity;
             _pitch = Mathf.Clamp(_pitch, _pitchMin, _pitchMax);
+        }
+
+        private void OnLookDelta(Vector2 delta)
+        {
+            AddLookInput(delta);
         }
 
         private void SnapToTarget()
         {
             Transform anchor = GetFollowAnchor();
             Vector3 targetEuler = anchor.rotation.eulerAngles;
-            _yaw = targetEuler.y;
-            _pitch = 0f;
+            _yaw = targetEuler.y + _initialYawOffset;
+            _pitch = Mathf.Clamp(_initialPitch, _pitchMin, _pitchMax);
             UpdateRigRotation();
             UpdateCameraPosition(true);
         }
@@ -172,7 +164,7 @@ namespace Playable
                 return _followTarget;
             }
 
-            return _target != null ? _target.transform : _transform;
+            return _target != null ? _target.transform : transform;
         }
 
         private void UpdateRigRotation()
@@ -189,11 +181,30 @@ namespace Playable
             {
                 _pitchPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
             }
+
+            SyncTargetRotation();
+        }
+
+        private void SyncTargetRotation()
+        {
+            if (_target == null)
+            {
+                return;
+            }
+
+            if (_viewMode == ViewMode.FirstPerson)
+            {
+                _target.SetCameraYaw(_yaw);
+            }
+            else
+            {
+                _target.StopFollowingCameraYaw();
+            }
         }
 
         private void UpdateCameraPosition(bool instant = false)
         {
-            if (_cameraTransform == null)
+            if (_targetCamera == null)
             {
                 return;
             }
@@ -204,13 +215,13 @@ namespace Playable
             Quaternion desiredRotation = anchor.rotation;
             float lerpFactor = instant ? 1f : Time.deltaTime * _followSmooth;
 
-            _cameraTransform.position = Vector3.Lerp(
-                _cameraTransform.position,
+            _targetCamera.transform.position = Vector3.Lerp(
+                _targetCamera.transform.position,
                 desiredPosition,
                 lerpFactor);
 
-            _cameraTransform.rotation = Quaternion.Slerp(
-                _cameraTransform.rotation,
+            _targetCamera.transform.rotation = Quaternion.Slerp(
+                _targetCamera.transform.rotation,
                 desiredRotation,
                 lerpFactor);
         }
