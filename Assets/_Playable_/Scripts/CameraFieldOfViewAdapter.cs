@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Playable
 {
@@ -7,8 +8,16 @@ namespace Playable
     public sealed class CameraFieldOfViewAdapter : MonoBehaviour
     {
         [SerializeField] private Camera _targetCamera;
-        [SerializeField] private Vector2 _referenceResolution = new Vector2(1080f, 1920f);
-        [SerializeField] private float _referenceFieldOfView = 60f;
+
+        [Header("Portrait")]
+        [FormerlySerializedAs("_referenceResolution")]
+        [SerializeField] private Vector2 _portraitReferenceResolution = new Vector2(1080f, 1920f);
+        [FormerlySerializedAs("_referenceFieldOfView")]
+        [SerializeField, Range(1f, 179f)] private float _portraitFieldOfView = 60f;
+
+        [Header("Landscape")]
+        [SerializeField] private Vector2 _landscapeReferenceResolution = new Vector2(1920f, 1080f);
+        [SerializeField, Range(1f, 179f)] private float _landscapeFieldOfView = 60f;
 
         private Vector2Int _lastScreenSize;
         private ScreenOrientation _lastOrientation;
@@ -62,22 +71,46 @@ namespace Playable
                 return;
             }
 
-            if (_referenceResolution.x <= 0f || _referenceResolution.y <= 0f || Screen.width <= 0 || Screen.height <= 0)
+            Vector2 currentResolution = GetCurrentResolution();
+            if (currentResolution.x <= 0f || currentResolution.y <= 0f)
             {
                 return;
             }
 
-            float referenceAspect = _referenceResolution.x / _referenceResolution.y;
-            float currentAspect = Screen.width / (float)Screen.height;
+            bool isLandscape = currentResolution.x >= currentResolution.y;
+            Vector2 referenceResolution = isLandscape
+                ? _landscapeReferenceResolution
+                : _portraitReferenceResolution;
+            float referenceFieldOfView = isLandscape
+                ? _landscapeFieldOfView
+                : _portraitFieldOfView;
+
+            if (referenceResolution.x <= 0f || referenceResolution.y <= 0f)
+            {
+                return;
+            }
+
+            float referenceAspect = referenceResolution.x / referenceResolution.y;
+            float currentAspect = currentResolution.x / currentResolution.y;
 
             float referenceHorizontal = 2f * Mathf.Atan(
-                Mathf.Tan(_referenceFieldOfView * 0.5f * Mathf.Deg2Rad) * referenceAspect);
+                Mathf.Tan(referenceFieldOfView * 0.5f * Mathf.Deg2Rad) * referenceAspect);
 
             float newFieldOfView = 2f * Mathf.Atan(
                 Mathf.Tan(referenceHorizontal * 0.5f) / currentAspect) * Mathf.Rad2Deg;
 
             _targetCamera.fieldOfView = newFieldOfView;
             CacheDisplayState();
+        }
+
+        private Vector2 GetCurrentResolution()
+        {
+            if (_targetCamera != null && _targetCamera.pixelWidth > 0 && _targetCamera.pixelHeight > 0)
+            {
+                return new Vector2(_targetCamera.pixelWidth, _targetCamera.pixelHeight);
+            }
+
+            return new Vector2(Screen.width, Screen.height);
         }
 
         private bool HasDisplayChanged()
@@ -97,7 +130,7 @@ namespace Playable
         {
             _lastScreenSize = new Vector2Int(Screen.width, Screen.height);
             _lastOrientation = Screen.orientation;
-            _lastPixelRect = _targetCamera != null ? _targetCamera.pixelRect : default;
+            _lastPixelRect = _targetCamera != null ? _targetCamera.pixelRect : default(Rect);
         }
     }
 }

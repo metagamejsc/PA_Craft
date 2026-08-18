@@ -7,41 +7,36 @@ namespace Playable
     [RequireComponent(typeof(CapsuleCollider))]
     public class PlayerController : MonoBehaviour
     {
-        [SerializeField] private bool _isWorking = true;
+        [Header("References")] [SerializeField]
+        private Rigidbody _rigidbody;
 
-        [Header("References")]
-        [SerializeField] private Rigidbody _rigidbody;
         [SerializeField] private CapsuleCollider _capsuleCollider;
         [SerializeField] private UltimateJoystick _moveJoystick;
         [SerializeField] private CameraController _cameraController;
         [SerializeField] private Animator _animator;
 
-        [Header("Animation")]
-        [SerializeField] private string _isJumpParam = "isJump";
+        [Header("Animation")] [SerializeField] private string _isJumpParam = "isJump";
 
-        [Header("Input")]
-        [SerializeField] private Button _btnJump;
+        [Header("Input")] [SerializeField] private Button _btnJump;
 
-        [Header("Movement")]
-        [SerializeField] private float _moveRate = 4f;
+        [Header("Movement")] [SerializeField] private float _moveRate = 4f;
         [SerializeField] private float _rotationSmooth = 12f;
         [SerializeField] private float _airControlMultiplier = 0.6f;
         [SerializeField, Range(0f, 0.5f)] private float _inputDeadZone = 0.1f;
 
-        [Header("Jump")]
-        [SerializeField] private float _jumpHeight = 1.2f;
+        [Header("Jump")] [SerializeField] private float _jumpHeight = 1.2f;
         [SerializeField] private float _gravity = -20f;
         [SerializeField] private float _coyoteTime = 0.15f;
         [SerializeField] private float _jumpBufferTime = 0.15f;
         [SerializeField] private float _maxFallRate = 25f;
         [SerializeField] private float _jumpAnimGrace = 0.12f;
 
-        [Header("Ground Check")]
-        [SerializeField] private LayerMask _groundMask = ~0;
+        [Header("Ground Check")] [SerializeField]
+        private LayerMask _groundMask = ~0;
+
         [SerializeField] private float _groundCheckDistance = 0.1f;
 
-        [Header("Physics")]
-        [SerializeField] private bool _useContinuousCollision;
+        [Header("Physics")] [SerializeField] private bool _useContinuousCollision;
         [SerializeField] private bool _allowSleepWhenIdle = true;
 
         private Vector2 _moveInput;
@@ -61,11 +56,6 @@ namespace Playable
         public bool IsGrounded => _isGrounded;
         public Vector3 Velocity { get; private set; }
 
-        public bool IsWorking
-        {
-            get => _isWorking;
-            set => _isWorking = value;
-        }
 
         private void Awake()
         {
@@ -95,8 +85,6 @@ namespace Playable
 
         private void Update()
         {
-            if (!_isWorking) return;
-
 #if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Space)) OnJumpButtonPressed();
 #endif
@@ -122,8 +110,6 @@ namespace Playable
 
         private void FixedUpdate()
         {
-            if (!_isWorking) return;
-
             CheckGround();
             HandleJump();
             ApplyGravity();
@@ -132,7 +118,7 @@ namespace Playable
 
         public void OnJumpButtonPressed()
         {
-            if (_isWorking) _jumpBufferTimer = _jumpBufferTime;
+            _jumpBufferTimer = _jumpBufferTime;
         }
 
         public void SetMoveJoystick(UltimateJoystick joystick)

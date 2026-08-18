@@ -7,7 +7,7 @@ namespace Playable
 {
     public class AnimationMergerWindow : EditorWindow
     {
-        private List<AnimationClip> clips = new();
+        private List<AnimationClip> clips = new List<AnimationClip>();
 
         [MenuItem("Tools/Animation/Merge Animation Clips")]
         static void Open()

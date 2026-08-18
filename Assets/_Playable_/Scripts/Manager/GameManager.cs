@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,8 +22,12 @@ namespace Playable
         [LunaPlaygroundAsset("Background Texture")] [SerializeField]
         private Texture2D _backgroundTexture;
 
+        [LunaPlaygroundField("Color Light")] [SerializeField]
+        private Color _colorLight;
+
         [SerializeField] private Button _btnBlock;
         [SerializeField] private Image _background;
+        [SerializeField] private List<Light> _lights;
 
         [Header("UI Field")] [SerializeField] private FailPanel _failPanel;
         [SerializeField] private WinPanel _winPanel;
@@ -36,8 +41,13 @@ namespace Playable
 
         private void Start()
         {
+            foreach (var l in _lights)
+            {
+                l.color = _colorLight;
+            }
+
             _btnBlock.onClick.AddListener(EndGame);
-            // _btnBlock.gameObject.SetActive(false);
+            _btnBlock.gameObject.SetActive(false);
 
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
             if (_backgroundMusic) AudioManager.Instance.PlayMusic(_backgroundMusic);
@@ -54,7 +64,7 @@ namespace Playable
             Luna.Unity.Playable.InstallFullGame();
         }
 
-        protected void CountEvent()
+        public void CountEvent()
         {
             _quantityEvent++;
             if (_quantityEvent >= _totalEvent)

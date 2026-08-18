@@ -1,8 +1,8 @@
 {
     "version": "7.2.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 29023,
-    "creativeName": "UAC_V73_ThuLH_HuyNQ",
+    "applicationID": 39768,
+    "creativeName": "CBBW2_V22_YenTTH_HuyNQ",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -1865,10 +1865,6 @@
             },
             {
                 "name": "System.TypeCodeValues",
-                "excluded": true
-            },
-            {
-                "name": "System.Type",
                 "excluded": true
             },
             {
@@ -8312,18 +8308,6 @@
                 "excluded": true
             },
             {
-                "name": "Playable.CameraController",
-                "excluded": true
-            },
-            {
-                "name": "Playable.PlayerController",
-                "excluded": true
-            },
-            {
-                "name": "Playable.TouchController",
-                "excluded": true
-            },
-            {
                 "name": "TankAndHealerStudioAssets.BasicInputDisplay",
                 "excluded": true
             },
@@ -8345,7 +8329,7 @@
             },
             {
                 "name": "Playable.CameraController.ViewMode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "TankAndHealerStudioAssets.RelativeCameraRotationExample.MovementCalculations",
@@ -8365,6 +8349,14 @@
             },
             {
                 "name": "UltimateJoystick.TensionType",
+                "excluded": false
+            },
+            {
+                "name": "CherryBlossomFallEffect.Petal",
+                "excluded": false
+            },
+            {
+                "name": "Playable.BaseEvent",
                 "excluded": false
             }
         ],
@@ -17163,11 +17155,11 @@
                     },
                     {
                         "name": "pixelWidth#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pixelHeight#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "_aspect#get",
@@ -17759,7 +17751,7 @@
                     },
                     {
                         "name": "OnDidApplyAnimationProperties",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -18737,7 +18729,7 @@
                     },
                     {
                         "name": "maskable#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "rootCanvasRect#get",
@@ -18891,7 +18883,7 @@
                     },
                     {
                         "name": "preserveAspect#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "material#set",
@@ -18903,7 +18895,7 @@
                     },
                     {
                         "name": "enabled#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pixelsPerUnitMultiplier#get",
@@ -20211,7 +20203,7 @@
                     },
                     {
                         "name": "SphereCast$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SphereCastAll$1",
@@ -21983,7 +21975,7 @@
                     },
                     {
                         "name": "bounds#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isTrigger#get",
@@ -37973,7 +37965,7 @@
                     },
                     {
                         "name": "CountEvent",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "IECountdownEndGame",
@@ -37998,35 +37990,43 @@
                 "staticMethods": [],
                 "instanceMethods": [
                     {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
                         "name": "Start",
                         "excluded": false
                     },
                     {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "StartBlockMovement",
+                        "name": "OnEnable",
                         "excluded": false
                     },
                     {
-                        "name": "StartBlockOscillation",
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GirlMoveToCenter",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetupPhase2",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SelectBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BuildBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CompleteTut",
                         "excluded": false
                     },
                     {
                         "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CacheRankPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateRankPosition",
                         "excluded": false
                     }
                 ]
@@ -38340,32 +38340,6 @@
                 ]
             },
             {
-                "className": "Playable.TutHand",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayTutorial",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayArrivalIcon",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
                 "className": "UltimateJoystick",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -38403,7 +38377,7 @@
                     },
                     {
                         "name": "GetDistance",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetInputActive",
@@ -38515,31 +38489,31 @@
                     },
                     {
                         "name": "OnPointerDown",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnInputDown",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDrag",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnInputDrag",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnPointerUp",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnInputUp",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ProcessInput",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "UpdateJoystickCenter",
@@ -38547,7 +38521,7 @@
                     },
                     {
                         "name": "TensionAccentDisplay",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TensionAccentReset",
@@ -38637,6 +38611,502 @@
                     },
                     {
                         "name": "EvaluateAndApply",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "System.Type",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "$is",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getTypeCode",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "CherryBlossomFallEffect",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnRectTransformDimensionsChange",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RefreshViewportBounds",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveViewport",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RedistributeAllPetals",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CreatePetal",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RandomizePosition",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.CameraController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "YawPivot#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CurrentViewMode#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "LateUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetTarget",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetTouchController",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ToggleView",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetViewMode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LookAtPoint",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AddLookInput",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnLookDelta",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SnapToTarget",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetFollowAnchor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateRigRotation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SyncTargetRotation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateCameraPosition",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.EventBus",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Subscribe",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Unsubscribe",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Publish",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.Hotbar",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnCollectItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SelectItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Contains",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshSelectionVisuals",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.HotbarItem",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ItemPrefab#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CanSpawn#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CollectItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ConsumeOne",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetSelected",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshDataVisuals",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.HotbarItemData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ItemPrefab#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Icon#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Amount#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ConsumeOne",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.PlayerAction",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "GetFaceDirection",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryGetBlockBounds",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BuildBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnCollectItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetSelectedBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryGetBuildHit",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.PlayerController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "IsGrounded#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FixedUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnJumpButtonPressed",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetMoveJoystick",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetCameraController",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetCameraYaw",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopFollowingCameraYaw",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CheckGround",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ProbeGround",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HandleJump",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Move",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ComputeMoveDirection",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RotateTowards",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyGravity",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateAnimator",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.TouchController",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnRectTransformDimensionsChange",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RefreshLayout",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerDown",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDrag",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerUp",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheRectTransform",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.CollectItemEvent",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.CameraFieldOfViewAdapter",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFieldOfView",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetCurrentResolution",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasDisplayChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheDisplayState",
                         "excluded": false
                     }
                 ]
