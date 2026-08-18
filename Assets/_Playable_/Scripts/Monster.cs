@@ -518,11 +518,6 @@ namespace Playable
             // vì đứng "chạy tại chỗ" (SetRunning true) vô thời hạn không bao giờ vào state tấn công.
             if (Time.time - _chaseStartTime >= _maxChaseDuration)
             {
-                Debug.Log(
-                    $"[MONSTER COMBAT] {name} đuổi {enemy.name} quá {_maxChaseDuration}s vẫn chưa vào " +
-                    $"_attackRange ({_attackRange}), khoảng cách hiện tại = {Mathf.Sqrt(distanceSqr)} - " +
-                    $"ép vào tấn công (nghi ngờ bị collider chặn vật lý).");
-
                 EnterAttackState();
                 return;
             }

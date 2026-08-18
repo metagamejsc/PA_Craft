@@ -146,6 +146,8 @@ namespace Playable
         private bool _isTakingOff;
         private bool _isTransformed;
         private bool _pendingTransformAfterLanding;
+        private bool _followCameraYaw;
+        private float _cameraYaw;
         private float _lastFlyPressTime = float.NegativeInfinity;
         private float _lastSpeedPressTime = float.NegativeInfinity;
         private float _lastTransformPressTime = float.NegativeInfinity;
@@ -157,12 +159,7 @@ namespace Playable
 
         private float CurrentSpeedMultiplier =>
             _isSpeedBoost ? _speedMultiplier : 1f;
-
-        public bool IsWorking
-        {
-            get => _isWorking;
-            set => _isWorking = value;
-        }
+        
 
 
         private void Awake()
@@ -385,6 +382,17 @@ namespace Playable
             _cameraController = cameraController;
         }
 
+        public void SetCameraYaw(float yaw)
+        {
+            _followCameraYaw = true;
+            _cameraYaw = yaw;
+        }
+
+        public void StopFollowingCameraYaw()
+        {
+            _followCameraYaw = false;
+        }
+
         private void CheckGround()
         {
             if (_isFlying)
@@ -471,6 +479,11 @@ namespace Playable
         {
             bool hasInput = input.sqrMagnitude > 0.0001f;
 
+            if (_followCameraYaw)
+            {
+                RotateTowards(Quaternion.Euler(0f, _cameraYaw, 0f));
+            }
+
             /*
              * PLAYER ĐỨNG YÊN TRÊN GROUND
              */
@@ -511,7 +524,7 @@ namespace Playable
              */
             Vector3 moveDirection = ComputeMoveDirection(input);
 
-            if (hasInput)
+            if (!_followCameraYaw && hasInput)
             {
                 RotateTowards(moveDirection);
             }
@@ -602,7 +615,11 @@ namespace Playable
 
         private void RotateTowards(Vector3 moveDirection)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            RotateTowards(Quaternion.LookRotation(moveDirection, Vector3.up));
+        }
+
+        private void RotateTowards(Quaternion targetRotation)
+        {
             Quaternion smoothedRotation = Quaternion.Slerp(
                 _rigidbody.rotation,
                 targetRotation,
@@ -875,7 +892,11 @@ namespace Playable
              */
             Vector3 moveDirection = ComputeMoveDirection(_moveInput);
 
-            if (moveDirection.sqrMagnitude > 0.0001f)
+            if (_followCameraYaw)
+            {
+                RotateTowards(Quaternion.Euler(0f, _cameraYaw, 0f));
+            }
+            else if (moveDirection.sqrMagnitude > 0.0001f)
             {
                 RotateTowards(moveDirection);
             }
@@ -987,5 +1008,6 @@ namespace Playable
                 _horse.SetActive(false);
             }
         }
+
     }
 }

@@ -12,6 +12,9 @@ namespace Playable
         [Header("Luna Field")] [LunaPlaygroundField("Total Event For CTA")] [SerializeField]
         private int _totalEvent;
 
+        [LunaPlaygroundField("Ignore Count Event")] [SerializeField]
+        private bool _ignoreCountEvent;
+
         [LunaPlaygroundField("End Time")] [SerializeField]
         private int _endTime = 30;
 
@@ -41,6 +44,7 @@ namespace Playable
 
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
             if (_backgroundMusic) AudioManager.Instance.PlayMusic(_backgroundMusic);
+            CountdownEndGame();
         }
 
 
@@ -50,11 +54,11 @@ namespace Playable
             _btnBlock.gameObject.SetActive(true);
             Luna.Unity.LifeCycle.GameEnded();
             Luna.Unity.Playable.InstallFullGame();
-            CountdownEndGame();
         }
 
-        protected void CountEvent()
+        public void CountEvent()
         {
+            if (_ignoreCountEvent) return;
             _quantityEvent++;
             if (_quantityEvent >= _totalEvent)
             {

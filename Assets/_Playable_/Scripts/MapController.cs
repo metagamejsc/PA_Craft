@@ -36,6 +36,11 @@ namespace Playable
         [SerializeField] private LayerMask _groundMask = ~0;
         [SerializeField] private GameObject _vfxSpawn;
 
+        [Tooltip("Ngón tay/chuột di chuyển quá khoảng cách này (pixel) trước khi nhấc lên thì tính là vuốt " +
+                 "(look/swipe), không spawn quái")]
+        [SerializeField]
+        private float _swipeThreshold = 30f;
+
         [Tooltip("Camera dùng để raycast/quy đổi tọa độ UI -> ground. " +
                  "Bỏ trống sẽ lấy Camera.main (yêu cầu camera có tag MainCamera)")]
         [SerializeField]
@@ -64,10 +69,6 @@ namespace Playable
         [Tooltip("PlayerController của player, dùng để biết khi nào player transform xong")] [SerializeField]
         private PlayerController _playerController;
 
-        [Tooltip("Sau khi tutorial xong, có cho player thao tác (di chuyển/nhảy/fly/transform...) không. " +
-                 "Tắt = khoá toàn bộ input player (PlayerController.IsWorking = false) ngay khi vào Gameplay.")]
-        [SerializeField]
-        private bool _enablePlayerControlAfterTutorial = true;
 
         [Tooltip("RectTransform của nút Transform trên player, để trỏ tay tutorial tới")] [SerializeField]
         private RectTransform _transformButtonTarget;
@@ -99,11 +100,6 @@ namespace Playable
 
         [SerializeField] private float _refreshInterval = 0.1f;
 
-        [Header("Free Spawn Limit")]
-        [Tooltip("Giới hạn TỔNG số quái spawn trong toàn game, tính cả 2 quái spawn lúc tutorial. " +
-                 "Phải >= 2 nếu muốn tutorial luôn hoàn thành được. 0 = không giới hạn.")]
-        [SerializeField]
-        private int _maxTotalMonsters = 5;
 
         private readonly List<RaycastResult> _raycastResults = new List<RaycastResult>();
 
@@ -122,6 +118,10 @@ namespace Playable
         private Quaternion _lastCameraRotation;
         private int _spawnedMonsterCount;
         private bool _limitReachedNotified;
+
+        private Vector2 _pointerDownPosition;
+        private bool _isPointerDown;
+        private bool _isSwipe;
 
         // --- [SCALE DEBUG] tạm thời, xoá sau khi xác định xong nguyên nhân ---
         private float _screenSizeLogUntil;
@@ -517,13 +517,6 @@ namespace Playable
 
             HideVfx();
             HideHintText();
-
-            if (_playerController != null)
-            {
-                _playerController.IsWorking = _enablePlayerControlAfterTutorial;
-            }
-
-            // GameManager.Instance?.CountdownEndGame();
         }
 
         /// <summary>
@@ -607,17 +600,10 @@ namespace Playable
                 return false;
             }
 
-
-            if (_maxTotalMonsters > 0 && _spawnedMonsterCount >= _maxTotalMonsters)
-            {
-                NotifyMonsterLimitReached();
-                return false;
-            }
-
             Monster monster = Instantiate(_prefabMonster);
             monster.Spawn(worldPosition, _monsterWanderRadius);
             _spawnedMonsterCount++;
-            if (_spawnedMonsterCount >= _maxTotalMonsters) GameManager.Instance.EndGame();
+            GameManager.Instance.CountEvent();
 
             return true;
         }
@@ -626,16 +612,6 @@ namespace Playable
         /// Điểm mở rộng: gọi đúng 1 lần khi vừa spawn đủ số quái tối đa (_maxTotalMonsters).
         /// Thêm logic của bạn ở đây (hiện popup, mở màn kế tiếp, khoá nút spawn, v.v.)
         /// </summary>
-        private void NotifyMonsterLimitReached()
-        {
-            if (_limitReachedNotified)
-            {
-                return;
-            }
-
-            _limitReachedNotified = true;
-        }
-
         private void ShowVfx(Vector3 worldPosition)
         {
             if (_vfxSpawn == null)
@@ -663,6 +639,12 @@ namespace Playable
 
         #region Input / Raycast
 
+        /// <summary>
+        /// Tap chỉ được tính khi nhấc tay lên (Ended/mouse up) VÀ trong lúc chạm không di chuyển quá
+        /// _swipeThreshold. Nếu di chuyển quá ngưỡng thì coi là vuốt (look/swipe qua TouchController) -
+        /// không spawn quái. Không thể quyết định ngay lúc chạm xuống vì lúc đó chưa biết ngón tay có
+        /// vuốt hay không.
+        /// </summary>
         private bool TryGetTapPosition(out Vector2 screenPosition)
         {
             screenPosition = Vector2.zero;
@@ -671,22 +653,85 @@ namespace Playable
             {
                 Touch touch = Input.GetTouch(0);
 
-                if (touch.phase != TouchPhase.Began)
+                switch (touch.phase)
                 {
-                    return false;
-                }
+                    case TouchPhase.Began:
+                        BeginPointerTracking(touch.position);
+                        return false;
 
-                screenPosition = touch.position;
-                return true;
+                    case TouchPhase.Ended:
+                        return EndPointerTracking(touch.position, out screenPosition);
+
+                    case TouchPhase.Canceled:
+                        _isPointerDown = false;
+                        _isSwipe = false;
+                        return false;
+
+                    default:
+                        UpdateSwipeState(touch.position);
+                        return false;
+                }
             }
 
             if (Input.GetMouseButtonDown(0))
             {
-                screenPosition = Input.mousePosition;
-                return true;
+                BeginPointerTracking(Input.mousePosition);
+                return false;
+            }
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                return EndPointerTracking(Input.mousePosition, out screenPosition);
+            }
+
+            if (_isPointerDown && Input.GetMouseButton(0))
+            {
+                UpdateSwipeState(Input.mousePosition);
             }
 
             return false;
+        }
+
+        private void BeginPointerTracking(Vector2 position)
+        {
+            _pointerDownPosition = position;
+            _isPointerDown = true;
+            _isSwipe = false;
+        }
+
+        private void UpdateSwipeState(Vector2 currentPosition)
+        {
+            if (!_isPointerDown || _isSwipe)
+            {
+                return;
+            }
+
+            _isSwipe = (currentPosition - _pointerDownPosition).sqrMagnitude
+                       > _swipeThreshold * _swipeThreshold;
+        }
+
+        private bool EndPointerTracking(Vector2 position, out Vector2 screenPosition)
+        {
+            screenPosition = Vector2.zero;
+
+            if (!_isPointerDown)
+            {
+                return false;
+            }
+
+            UpdateSwipeState(position);
+
+            bool wasSwipe = _isSwipe;
+            _isPointerDown = false;
+            _isSwipe = false;
+
+            if (wasSwipe)
+            {
+                return false;
+            }
+
+            screenPosition = position;
+            return true;
         }
 
         private bool IsPointerOverUI(Vector2 screenPosition)
@@ -709,13 +754,31 @@ namespace Playable
 
             for (int i = 0; i < _raycastResults.Count; i++)
             {
-                if (_raycastResults[i].gameObject.GetComponentInParent<Selectable>() != null)
+                GameObject hitObject = _raycastResults[i].gameObject;
+
+                if (hitObject.GetComponentInParent<Selectable>() != null)
+                {
+                    return true;
+                }
+
+                GameObject pointerDownHandler = ExecuteEvents.GetEventHandler<IPointerDownHandler>(hitObject);
+                GameObject dragHandler = ExecuteEvents.GetEventHandler<IDragHandler>(hitObject);
+                GameObject clickHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(hitObject);
+
+                if (IsBlockedUiHandler(pointerDownHandler) ||
+                    IsBlockedUiHandler(dragHandler) ||
+                    IsBlockedUiHandler(clickHandler))
                 {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private static bool IsBlockedUiHandler(GameObject handlerObject)
+        {
+            return handlerObject != null && handlerObject.GetComponent<TouchController>() == null;
         }
 
         private void ResolveUiCamera()

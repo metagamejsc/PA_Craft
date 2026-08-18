@@ -278,7 +278,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 1
@@ -735,6 +735,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3791338694366148034, guid: 9a89fdbf8bed5f8419b6bd3f462ec664,
         type: 3}
+      propertyPath: _initialPitch
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3791338694366148034, guid: 9a89fdbf8bed5f8419b6bd3f462ec664,
+        type: 3}
       propertyPath: _targetCamera
       value: 
       objectReference: {fileID: 701375208}
@@ -1175,7 +1180,6 @@ MonoBehaviour:
   _handOffset: {x: 30, y: -30}
   _extraTapRadius: 0.5
   _playerController: {fileID: 1283703292}
-  _enablePlayerControlAfterTutorial: 0
   _transformButtonTarget: {fileID: 3697654327612837496}
   _transformButtonCanvas: {fileID: 8029132629905725528}
   _transformButtonHighlightSortingOrder: 3
@@ -1184,7 +1188,6 @@ MonoBehaviour:
   _monsterNameHintColor: {r: 1, g: 0.94731724, b: 0, a: 1}
   _refreshWhileCameraMoves: 1
   _refreshInterval: 0.1
-  _maxTotalMonsters: 5
 --- !u!1 &787542720 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 154162, guid: 4ecc9a5d9157efc4d9beaecf154e25f4,
@@ -1232,7 +1235,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e6d2841340647899d31ba371e259a31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _totalEvent: 0
+  _totalEvent: 3
+  _ignoreCountEvent: 0
   _endTime: 30
   _backgroundMusic: {fileID: 8300000, guid: 18dc0a6f9614c9a4598a01f08c9c0a1e, type: 3}
   _backgroundTexture: {fileID: 0}
@@ -1287,7 +1291,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -456, y: -252}
+  m_AnchoredPosition: {x: -400, y: -12}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1156745256
@@ -1344,7 +1348,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0.6067653
+  m_MatchWidthOrHeight: 0.4
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -1728,7 +1732,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1330250080
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2153,12 +2157,12 @@ PrefabInstance:
     - target: {fileID: 224359097860930428, guid: db11844ca22a56c4c8acfe5ce99da848,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 270.01553
+      value: 270.0237
       objectReference: {fileID: 0}
     - target: {fileID: 224359097860930428, guid: db11844ca22a56c4c8acfe5ce99da848,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 270.01553
+      value: 270.0237
       objectReference: {fileID: 0}
     - target: {fileID: 224359097860930428, guid: db11844ca22a56c4c8acfe5ce99da848,
         type: 3}
@@ -2198,12 +2202,12 @@ PrefabInstance:
     - target: {fileID: 224359097860930428, guid: db11844ca22a56c4c8acfe5ce99da848,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 257.346
+      value: 257.35382
       objectReference: {fileID: 0}
     - target: {fileID: 224359097860930428, guid: db11844ca22a56c4c8acfe5ce99da848,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 297.0171
+      value: 297.0261
       objectReference: {fileID: 0}
     - target: {fileID: 224359097860930428, guid: db11844ca22a56c4c8acfe5ce99da848,
         type: 3}
@@ -2233,12 +2237,12 @@ PrefabInstance:
     - target: {fileID: 224549901600871832, guid: db11844ca22a56c4c8acfe5ce99da848,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 270.01553
+      value: 270.0237
       objectReference: {fileID: 0}
     - target: {fileID: 224549901600871832, guid: db11844ca22a56c4c8acfe5ce99da848,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 270.01553
+      value: 270.0237
       objectReference: {fileID: 0}
     - target: {fileID: 224549901600871832, guid: db11844ca22a56c4c8acfe5ce99da848,
         type: 3}
@@ -2392,7 +2396,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 329, y: -177}
+  m_AnchoredPosition: {x: 329, y: -12}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1818075948
@@ -2547,10 +2551,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 258886863}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000011444, y: 218.2}
-  m_SizeDelta: {x: 839.839, y: 111.354}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -335.65}
+  m_SizeDelta: {x: 839.839, y: 111.354004}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1875075482
 MonoBehaviour:

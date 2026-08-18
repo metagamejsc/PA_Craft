@@ -45,7 +45,7 @@ namespace Playable
 
         public void TurnOnCanvas(bool active)
         {
-            _canvas.sortingOrder = active ? _highlightSortingOrder : 0;
+            _canvas.sortingOrder = active ? _highlightSortingOrder : 1;
         }
     }
 }
