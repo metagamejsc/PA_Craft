@@ -9,52 +9,45 @@ namespace Playable
     {
         [SerializeField] private bool _isWorking = true;
 
-        [Header("References")]
-        [SerializeField] private Rigidbody _rigidbody;
+        [Header("References")] [SerializeField]
+        private Rigidbody _rigidbody;
+
         [SerializeField] private CapsuleCollider _capsuleCollider;
         [SerializeField] private UltimateJoystick _moveJoystick;
         [SerializeField] private CameraController _cameraController;
         [SerializeField] private Animator _animator;
 
-        [Header("Animation")]
-        [SerializeField] private string _isJumpParam = "isJump";
+        [Header("Animation")] [SerializeField] private string _isJumpParam = "isJump";
+        [SerializeField] private string _speedParam = "speed";
 
-        [Header("Input")]
-        [SerializeField] private Button _btnJump;
+        [Header("Input")] [SerializeField] private Button _btnJump;
 
-        [Header("Movement")]
-        [SerializeField] private float _moveRate = 4f;
+        [Header("Movement")] [SerializeField] private float _moveRate = 4f;
         [SerializeField] private float _rotationSmooth = 12f;
         [SerializeField] private float _airControlMultiplier = 0.6f;
         [SerializeField, Range(0f, 0.5f)] private float _inputDeadZone = 0.1f;
 
-        [Header("Jump")]
-        [SerializeField] private float _jumpHeight = 1.2f;
+        [Header("Jump")] [SerializeField] private float _jumpHeight = 1.2f;
         [SerializeField] private float _gravity = -20f;
-        [SerializeField] private float _coyoteTime = 0.15f;
-        [SerializeField] private float _jumpBufferTime = 0.15f;
+        [SerializeField, Min(1f)] private float _fallGravityMultiplier = 2f;
         [SerializeField] private float _maxFallRate = 25f;
-        [SerializeField] private float _jumpAnimGrace = 0.12f;
 
-        [Header("Ground Check")]
-        [SerializeField] private LayerMask _groundMask = ~0;
+        [Header("Ground Check")] [SerializeField]
+        private LayerMask _groundMask = ~0;
+
         [SerializeField] private float _groundCheckDistance = 0.1f;
 
-        [Header("Physics")]
-        [SerializeField] private bool _useContinuousCollision;
-        [SerializeField] private bool _allowSleepWhenIdle = true;
 
         private Vector2 _moveInput;
         private Vector3 _verticalVelocity;
         private bool _isGrounded;
         private int _isJumpParamHash;
+        private int _speedParamHash;
         private bool _hasAnimator;
         private float _scaledGroundRadius;
         private float _scaledCapsuleHeight;
         private bool _appliedJump;
-        private float _coyoteTimer;
-        private float _jumpBufferTimer;
-        private float _airborneTime;
+        private bool _jumpRequested;
         private bool _followCameraYaw;
         private float _cameraYaw;
 
@@ -64,24 +57,44 @@ namespace Playable
         public bool IsWorking
         {
             get => _isWorking;
-            set => _isWorking = value;
+            set
+            {
+                _isWorking = value;
+                if (_isWorking) return;
+
+                _moveInput = Vector2.zero;
+                _jumpRequested = false;
+
+                // Giữ lại vận tốc trục y để nhân vật không treo lơ lửng nếu đang ở trên không.
+                Vector3 stopped = _rigidbody.linearVelocity;
+                stopped.x = 0f;
+                stopped.z = 0f;
+                _rigidbody.linearVelocity = stopped;
+                Velocity = stopped;
+
+                // Update() sẽ không chạy nữa, phải ép animator về idle ngay tại đây.
+                UpdateAnimator();
+            }
         }
+
 
         private void Awake()
         {
             if (_rigidbody == null) _rigidbody = GetComponent<Rigidbody>();
             if (_capsuleCollider == null) _capsuleCollider = GetComponent<CapsuleCollider>();
 
-            _rigidbody.useGravity = true;
+            _rigidbody.useGravity = false;
             _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-            _rigidbody.collisionDetectionMode = _useContinuousCollision
-                ? CollisionDetectionMode.Continuous
-                : CollisionDetectionMode.Discrete;
+            _rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
             _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
 
             if (_animator == null) _animator = GetComponentInChildren<Animator>();
             _hasAnimator = _animator != null;
-            if (_hasAnimator) _isJumpParamHash = Animator.StringToHash(_isJumpParam);
+            if (_hasAnimator)
+            {
+                _isJumpParamHash = Animator.StringToHash(_isJumpParam);
+                _speedParamHash = Animator.StringToHash(_speedParam);
+            }
 
             Vector3 scale = transform.lossyScale;
             _scaledGroundRadius = _capsuleCollider.radius * Mathf.Max(scale.x, scale.z);
@@ -122,17 +135,22 @@ namespace Playable
 
         private void FixedUpdate()
         {
-            if (!_isWorking) return;
-
             CheckGround();
-            HandleJump();
             ApplyGravity();
+
+            if (!_isWorking)
+            {
+                ApplyLockedVelocity();
+                return;
+            }
+
+            HandleJump();
             Move(_moveInput);
         }
 
         public void OnJumpButtonPressed()
         {
-            if (_isWorking) _jumpBufferTimer = _jumpBufferTime;
+            if (_isWorking) _jumpRequested = true;
         }
 
         public void SetMoveJoystick(UltimateJoystick joystick)
@@ -161,14 +179,7 @@ namespace Playable
             bool grounded = ProbeGround();
             if (grounded)
             {
-                _coyoteTimer = _coyoteTime;
-                _airborneTime = 0f;
                 if (_verticalVelocity.y < 0f) _verticalVelocity.y = 0f;
-            }
-            else
-            {
-                _coyoteTimer -= Time.fixedDeltaTime;
-                _airborneTime += Time.fixedDeltaTime;
             }
 
             _isGrounded = grounded;
@@ -176,6 +187,8 @@ namespace Playable
 
         private bool ProbeGround()
         {
+            if (_verticalVelocity.y > 0f) return false;
+
             Vector3 center = transform.TransformPoint(_capsuleCollider.center);
             float bottom = _scaledCapsuleHeight * 0.5f - _scaledGroundRadius;
             Vector3 origin = center + Vector3.down * bottom + Vector3.up * 0.02f;
@@ -194,14 +207,13 @@ namespace Playable
 
         private void HandleJump()
         {
-            _jumpBufferTimer -= Time.fixedDeltaTime;
-            if (_jumpBufferTimer <= 0f || _coyoteTimer <= 0f) return;
+            if (!_jumpRequested) return;
 
-            _jumpBufferTimer = 0f;
-            _coyoteTimer = 0f;
+            _jumpRequested = false;
+            if (!_isGrounded) return;
+
             _verticalVelocity.y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
             _isGrounded = false;
-            _airborneTime = _jumpAnimGrace;
         }
 
         private void Move(Vector2 input)
@@ -217,7 +229,7 @@ namespace Playable
             {
                 Vector3 velocity = _rigidbody.linearVelocity;
                 bool alreadyAtRest = velocity.x == 0f && velocity.y == 0f && velocity.z == 0f;
-                if (_allowSleepWhenIdle && alreadyAtRest)
+                if (alreadyAtRest)
                 {
                     Velocity = velocity;
                     return;
@@ -280,15 +292,31 @@ namespace Playable
                 return;
             }
 
-            _verticalVelocity.y += _gravity * Time.fixedDeltaTime;
+            float gravityMultiplier = _verticalVelocity.y < 0f ? _fallGravityMultiplier : 1f;
+            _verticalVelocity.y += _gravity * gravityMultiplier * Time.fixedDeltaTime;
             _verticalVelocity.y = Mathf.Max(_verticalVelocity.y, -_maxFallRate);
+        }
+
+        private void ApplyLockedVelocity()
+        {
+            Vector3 velocity = _rigidbody.linearVelocity;
+            velocity.x = 0f;
+            velocity.z = 0f;
+            velocity.y = _isGrounded ? 0f : _verticalVelocity.y;
+
+            _rigidbody.linearVelocity = velocity;
+            Velocity = velocity;
         }
 
         private void UpdateAnimator()
         {
             if (!_hasAnimator) return;
 
-            bool isJumping = _airborneTime >= _jumpAnimGrace;
+            Vector3 horizontalVelocity = Velocity;
+            horizontalVelocity.y = 0f;
+            _animator.SetFloat(_speedParamHash, horizontalVelocity.magnitude);
+
+            bool isJumping = !_isGrounded;
             if (_appliedJump == isJumping) return;
 
             _appliedJump = isJumping;

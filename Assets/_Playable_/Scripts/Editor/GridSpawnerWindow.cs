@@ -5,9 +5,12 @@ namespace Playable.EditorTools
 {
     public class GridSpawnerWindow : EditorWindow
     {
+        private const int ConfirmThreshold = 1000;
+
         private GameObject _sourceObject;
         private int _lengthCount = 5;
         private int _widthCount = 5;
+        private int _heightCount = 1;
         private float _distance = 1f;
         private string _parentName = "Grid Root";
         private bool _centerGrid = true;
@@ -27,8 +30,10 @@ namespace Playable.EditorTools
             EditorGUILayout.LabelField("Layout", EditorStyles.boldLabel);
             _lengthCount = Mathf.Max(1, EditorGUILayout.IntField("Length Count", _lengthCount));
             _widthCount = Mathf.Max(1, EditorGUILayout.IntField("Width Count", _widthCount));
+            _heightCount = Mathf.Max(1, EditorGUILayout.IntField("Height Count", _heightCount));
             _distance = Mathf.Max(0f, EditorGUILayout.FloatField("Distance", _distance));
             _centerGrid = EditorGUILayout.Toggle("Center Grid", _centerGrid);
+            EditorGUILayout.LabelField("Total Objects", GetTotalCount().ToString());
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Output", EditorStyles.boldLabel);
@@ -44,12 +49,29 @@ namespace Playable.EditorTools
             }
         }
 
+        private int GetTotalCount()
+        {
+            return _lengthCount * _widthCount * _heightCount;
+        }
+
         private void CreateGridCopies()
         {
             if (_sourceObject == null)
             {
                 EditorUtility.DisplayDialog("Missing Source", "Assign an object first.", "OK");
                 return;
+            }
+
+            int totalCount = GetTotalCount();
+            if (totalCount > ConfirmThreshold)
+            {
+                bool confirmed = EditorUtility.DisplayDialog(
+                    "Large Grid",
+                    "About to create " + totalCount + " objects. The Editor may freeze for a while. Continue?",
+                    "Create",
+                    "Cancel");
+
+                if (!confirmed) return;
             }
 
             GameObject parentObject = new GameObject(string.IsNullOrWhiteSpace(_parentName) ? "Grid Root" : _parentName);
@@ -65,20 +87,26 @@ namespace Playable.EditorTools
 
             for (int x = 0; x < _lengthCount; x++)
             {
-                for (int z = 0; z < _widthCount; z++)
+                for (int y = 0; y < _heightCount; y++)
                 {
-                    GameObject clone = (GameObject)PrefabUtility.InstantiatePrefab(_sourceObject);
-                    if (clone == null)
+                    for (int z = 0; z < _widthCount; z++)
                     {
-                        clone = Instantiate(_sourceObject);
-                    }
+                        GameObject clone = (GameObject)PrefabUtility.InstantiatePrefab(_sourceObject);
+                        if (clone == null)
+                        {
+                            clone = Instantiate(_sourceObject);
+                        }
 
-                    Undo.RegisterCreatedObjectUndo(clone, "Create Grid Copy");
-                    clone.name = _sourceObject.name + "_" + x + "_" + z;
-                    clone.transform.SetParent(parentObject.transform);
-                    clone.transform.localRotation = _sourceObject.transform.localRotation;
-                    clone.transform.localScale = _sourceObject.transform.localScale;
-                    clone.transform.localPosition = basePosition + new Vector3(x * _distance, 0f, z * _distance);
+                        Undo.RegisterCreatedObjectUndo(clone, "Create Grid Copy");
+                        clone.name = _sourceObject.name + "_" + x + "_" + y + "_" + z;
+                        clone.transform.SetParent(parentObject.transform);
+                        clone.transform.localRotation = _sourceObject.transform.localRotation;
+                        clone.transform.localScale = _sourceObject.transform.localScale;
+                        clone.transform.localPosition = basePosition + new Vector3(
+                            x * _distance,
+                            y * _distance,
+                            z * _distance);
+                    }
                 }
             }
 

@@ -29,6 +29,8 @@ namespace Playable
 
         private int _quantityEvent = 0;
 
+        public int EndTime => _endTime;
+
         private void Awake()
         {
             Instance = this;
