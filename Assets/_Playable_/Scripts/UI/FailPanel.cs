@@ -1,9 +1,11 @@
 using DG.Tweening;
+using Playable;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FailPanel : MonoBehaviour
 {
-    [SerializeField] private GameObject _button;
+    [SerializeField] private Button _button;
     [SerializeField] private float _buttonPulseScale = 1.12f;
     [SerializeField] private float _buttonPulseDuration = 0.4f;
 
@@ -14,8 +16,9 @@ public class FailPanel : MonoBehaviour
     {
         gameObject.SetActive(true);
         PlayButtonPulse();
+        _button.onClick.AddListener(() => { GameManager.Instance.EndGame(); });
     }
-    
+
 
     private void PlayButtonPulse()
     {

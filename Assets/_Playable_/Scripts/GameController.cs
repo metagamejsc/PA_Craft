@@ -1,5 +1,5 @@
-using System;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 namespace Playable
@@ -11,14 +11,20 @@ namespace Playable
         [SerializeField] private PlayerAction _playerAction;
         [SerializeField, Min(0f)] private float _winPanelDelay = 1.5f;
         [SerializeField] private GameObject _hand;
+        [SerializeField] private GameObject _text;
         [SerializeField] private GameObject _infinity;
+
+        [Header("Diamond")] [SerializeField] private TMP_Text _diamondText;
 
         private Tween _lavaTween;
         private Tween _winDelayTween;
+        private int _diamondCount;
+        private bool _isInfinite;
 
         private void Start()
         {
             if (_playerAction != null) _playerAction.OnFired += StopLava;
+            UpdateDiamondText();
 
             if (!_lava || !_targetLava) return;
 
@@ -27,7 +33,6 @@ namespace Playable
             _lavaTween = _lava
                 .DOMoveY(_targetLava.position.y, duration)
                 .OnComplete(OnLavaArrived);
-            _hand.transform.DOScale(1.2f, 0.5f).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
         }
 
         private void OnDestroy()
@@ -53,7 +58,10 @@ namespace Playable
 
         public void PlayWinSequence(Monster monster)
         {
-            monster?.PlayDeath();
+            if (monster != null && monster.PlayDeath())
+            {
+                AddDiamonds(monster.DiamondReward);
+            }
 
             _winDelayTween?.Kill();
             _winDelayTween = DOVirtual
@@ -64,12 +72,26 @@ namespace Playable
                 .OnKill(() => _winDelayTween = null);
         }
 
+        private void AddDiamonds(int amount)
+        {
+            _diamondCount += Mathf.Max(0, amount);
+            UpdateDiamondText();
+        }
+
+        private void UpdateDiamondText()
+        {
+            if (_diamondText != null) _diamondText.text = _diamondCount.ToString();
+        }
+
         private void Update()
         {
-            if (Input.GetMouseButton(0))
+            if (Input.GetMouseButton(0) && !_isInfinite)
             {
-                _hand.transform.DOKill();
-                _hand.SetActive(false);
+                _isInfinite = true;
+
+                _hand.gameObject.SetActive(true);
+                _text.gameObject.SetActive(true);
+                _hand.transform.DOScale(1.2f, 0.5f).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
                 _infinity.SetActive(false);
             }
         }

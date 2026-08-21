@@ -98,6 +98,8 @@ namespace Playable
         {
             if (_hasFired || _aimCamera == null) return;
 
+            _btnFire.transform.GetChild(0).gameObject.SetActive(false);
+            _btnFire.transform.GetChild(1).gameObject.SetActive(false);
             _hasFired = true;
             OnFired?.Invoke();
 
