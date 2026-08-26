@@ -11,11 +11,19 @@ namespace Playable
     [DisallowMultipleComponent]
     public class MonsterHealth : MonoBehaviour
     {
+        [Header("Animator - Stun (optional, dùng chung cho cả đẩy lùi lẫn đứng yên tại chỗ)")]
+        [SerializeField]
+        private string _stunTriggerParam = "";
+
+        [SerializeField] private string _stunnedBoolParam = "";
+
         public event Action<Monster, float> Damaged;
         public event Action Died;
 
         private Monster _monster;
         private Transform _transform;
+        private int _stunTriggerHash;
+        private int _stunnedBoolHash;
 
         private float _maxHealth;
         private float _currentHealth;
@@ -46,13 +54,22 @@ namespace Playable
         {
             _monster = GetComponent<Monster>();
             _transform = transform;
+            _stunTriggerHash = Animator.StringToHash(_stunTriggerParam);
+            _stunnedBoolHash = Animator.StringToHash(_stunnedBoolParam);
         }
 
         private void Update()
         {
+            bool wasStaggered = IsStaggered;
+
             UpdateKnockback();
             UpdateLaunch();
             UpdatePoison();
+
+            if (wasStaggered && !IsStaggered && !string.IsNullOrEmpty(_stunnedBoolParam) && _monster != null)
+            {
+                _monster.SetAnimatorBool(_stunnedBoolHash, _stunnedBoolParam, false);
+            }
         }
 
         /// <summary>Gọi từ Monster.Spawn() để reset máu về đầu trận.</summary>
@@ -121,6 +138,7 @@ namespace Playable
 
             _knockbackDuration = duration;
             _knockbackTimer = duration;
+            PlayStunReaction();
 
             if (knockbackDistance <= 0f)
             {
@@ -139,6 +157,25 @@ namespace Playable
 
             _knockbackStartPosition = position;
             _knockbackTargetPosition = position + direction * knockbackDistance;
+        }
+
+        /// <summary>Bắn 1 lần lúc bắt đầu bị CC (đẩy lùi hoặc đứng yên) + giữ bool true suốt thời gian bị CC.</summary>
+        private void PlayStunReaction()
+        {
+            if (_monster == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(_stunTriggerParam))
+            {
+                _monster.PlayAnimatorTrigger(_stunTriggerHash, _stunTriggerParam);
+            }
+
+            if (!string.IsNullOrEmpty(_stunnedBoolParam))
+            {
+                _monster.SetAnimatorBool(_stunnedBoolHash, _stunnedBoolParam, true);
+            }
         }
 
         public void ApplyPoison(float damagePerTick, float tickInterval, float duration)

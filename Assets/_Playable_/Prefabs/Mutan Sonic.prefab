@@ -4103,6 +4103,9 @@ GameObject:
   - component: {fileID: 809483914874773751}
   - component: {fileID: 8706493415140554014}
   - component: {fileID: 413842024506301496}
+  - component: {fileID: -8821857866675942041}
+  - component: {fileID: 1633986204744716690}
+  - component: {fileID: -4417279470466464106}
   m_Layer: 0
   m_Name: Mutan Sonic
   m_TagString: Untagged
@@ -4124,6 +4127,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8812815889843619953}
+  - {fileID: 4198757319117274601}
+  - {fileID: 7780742418606180480}
+  - {fileID: 6625973098785964924}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &809483914874773751
@@ -4139,17 +4145,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 5124108175486017599}
+  _monsterType: 0
+  _statsTable: {fileID: 0}
   _isRunParam: IsRun
-  _isAttackParam: IsAttack
-  _attackParamIsTrigger: 0
   _isDeathParam: IsDeath
   _deathParamIsTrigger: 0
-  _maxHealth: 100
-  _attackDamage: 20
-  _attackRange: 3
-  _attackCooldown: 1.5
   _deathDespawnDelay: 1.5
-  _maxChaseDuration: 2.5
   _moveSpeed: 1.5
   _rotationSmooth: 8
   _wanderRadius: 3
@@ -4221,6 +4222,54 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &-8821857866675942041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7655316995303295397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31739bf87e30fcf41a402ceaed5b4082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1633986204744716690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7655316995303295397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a4d0b5589becd44cbdcc3e0d8cad067, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _attackTriggerParam: IsAttack
+  _attackParamIsTrigger: 0
+  _throwBombTriggerParam: 
+  _throwBombParamIsTrigger: 0
+  _bombProjectilePrefab: {fileID: 4752433026568376435, guid: fd80e7bc7b2a10b4294efe45a0c960ff,
+    type: 3}
+  _maxChaseDuration: 2.5
+--- !u!114 &-4417279470466464106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7655316995303295397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17d90b47c228c094b86c229f5b8b4d3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stage1TriggerParam: 
+  _stage2TriggerParam: 
+  _baseVisual: {fileID: 0}
+  _stage1Visual: {fileID: 0}
+  _stage2Visual: {fileID: 0}
 --- !u!1 &7673195435897779715
 GameObject:
   m_ObjectHideFlags: 0
@@ -4515,3 +4564,240 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1001 &4453570698710030850
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1869441280165289635}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_Name
+      value: gojidraw_shin_sonic_phase2
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793, type: 3}
+--- !u!4 &4198757319117274601 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2a6a8c9cdfcb7b249a4cb6d30f0e7793,
+    type: 3}
+  m_PrefabInstance: {fileID: 4453570698710030850}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6664929494334432407
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1869441280165289635}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_Name
+      value: gojidraw_shin_sonic_phase4
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 51f865f2595a5d841a8e94a6f58a1816,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 51f865f2595a5d841a8e94a6f58a1816, type: 3}
+--- !u!4 &6625973098785964924 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 51f865f2595a5d841a8e94a6f58a1816,
+    type: 3}
+  m_PrefabInstance: {fileID: 6664929494334432407}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &7813878927296343915
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1869441280165289635}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_Name
+      value: gojidraw_shin_sonic_phase3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 112cc62f49a2b904bbb4ca16278b7b9c, type: 3}
+--- !u!4 &7780742418606180480 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 112cc62f49a2b904bbb4ca16278b7b9c,
+    type: 3}
+  m_PrefabInstance: {fileID: 7813878927296343915}
+  m_PrefabAsset: {fileID: 0}

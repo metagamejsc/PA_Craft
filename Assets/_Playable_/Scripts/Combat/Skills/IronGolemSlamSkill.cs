@@ -19,7 +19,7 @@ namespace Playable
         [SerializeField] private GameObject _slamVfxPrefab;
 
         private Monster _self;
-        private MonsterStatsEntry _stats;
+        private IronGolemData _stats;
         private int _slamTriggerHash;
 
         private float _cooldownTimer;
@@ -37,11 +37,11 @@ namespace Playable
             _slamTriggerHash = Animator.StringToHash(_slamTriggerParam);
         }
 
-        public void Init(Monster self, MonsterStatsEntry stats)
+        public void Init(Monster self)
         {
             _self = self;
-            _stats = stats;
-            _cooldownTimer = stats.SlamCooldown;
+            _stats = self.IronGolemStats;
+            _cooldownTimer = _stats.SlamCooldown;
             _isChanneling = false;
         }
 

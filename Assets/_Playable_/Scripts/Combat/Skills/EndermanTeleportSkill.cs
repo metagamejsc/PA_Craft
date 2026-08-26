@@ -17,7 +17,7 @@ namespace Playable
         [SerializeField] private GameObject _teleportVfxPrefab;
 
         private Monster _self;
-        private MonsterStatsEntry _stats;
+        private EndermanData _stats;
         private int _teleportTriggerHash;
 
         private float _cooldownTimer;
@@ -37,11 +37,11 @@ namespace Playable
             _teleportTriggerHash = Animator.StringToHash(_teleportTriggerParam);
         }
 
-        public void Init(Monster self, MonsterStatsEntry stats)
+        public void Init(Monster self)
         {
             _self = self;
-            _stats = stats;
-            _cooldownTimer = stats.TeleportCooldown;
+            _stats = self.EndermanStats;
+            _cooldownTimer = _stats.TeleportCooldown;
             _isChanneling = false;
         }
 

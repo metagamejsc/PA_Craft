@@ -74,6 +74,7 @@ namespace Playable
             _health = GetComponent<MonsterHealth>();
             _transform = transform;
 
+            _type = _monster.Type;
             _attackParamHash = Animator.StringToHash(_attackTriggerParam);
             _throwBombParamHash = Animator.StringToHash(_throwBombTriggerParam);
 
@@ -86,9 +87,8 @@ namespace Playable
             _activeCombats.Remove(this);
         }
 
-        public void Init(MonsterStatsEntry stats)
+        internal void Init(MonsterCommonStats stats)
         {
-            _type = stats.Type;
             _attackDamage = stats.AttackDamage;
             _attackRange = stats.AttackRange;
             _attackCooldown = stats.AttackCooldown;

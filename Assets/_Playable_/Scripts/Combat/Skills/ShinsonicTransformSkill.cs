@@ -24,7 +24,7 @@ namespace Playable
 
         private Monster _self;
         private MonsterHealth _health;
-        private MonsterStatsEntry _stats;
+        private ShinsonicData _stats;
         private int _stage1TriggerHash;
         private int _stage2TriggerHash;
 
@@ -41,11 +41,11 @@ namespace Playable
             _stage2TriggerHash = Animator.StringToHash(_stage2TriggerParam);
         }
 
-        public void Init(Monster self, MonsterStatsEntry stats)
+        public void Init(Monster self)
         {
             _self = self;
             _health = self.Health;
-            _stats = stats;
+            _stats = self.ShinsonicStats;
             _hasTransformedStage1 = false;
             _hasTransformedStage2 = false;
             _isChanneling = false;

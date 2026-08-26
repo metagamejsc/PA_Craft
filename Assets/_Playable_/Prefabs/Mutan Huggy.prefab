@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 5790654607863072867}
   - component: {fileID: 6861391228785206866}
   - component: {fileID: 2025708454621178795}
+  - component: {fileID: 7301038781400872011}
+  - component: {fileID: -1757632840148402281}
+  - component: {fileID: 8920590170027876475}
   m_Layer: 0
   m_Name: Mutan Huggy
   m_TagString: Untagged
@@ -48,17 +51,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 7154333720980796715}
+  _monsterType: 0
+  _statsTable: {fileID: 0}
   _isRunParam: IsRun
-  _isAttackParam: IsAttack
-  _attackParamIsTrigger: 0
   _isDeathParam: IsDeath
   _deathParamIsTrigger: 0
-  _maxHealth: 100
-  _attackDamage: 20
-  _attackRange: 3
-  _attackCooldown: 1.5
   _deathDespawnDelay: 1.5
-  _maxChaseDuration: 2.5
   _moveSpeed: 1.5
   _rotationSmooth: 8
   _wanderRadius: 3
@@ -130,6 +128,49 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &7301038781400872011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2123962901884279086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31739bf87e30fcf41a402ceaed5b4082, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-1757632840148402281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2123962901884279086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a4d0b5589becd44cbdcc3e0d8cad067, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _attackTriggerParam: IsAttack
+  _attackParamIsTrigger: 0
+  _throwBombTriggerParam: 
+  _throwBombParamIsTrigger: 0
+  _bombProjectilePrefab: {fileID: 4752433026568376435, guid: fd80e7bc7b2a10b4294efe45a0c960ff,
+    type: 3}
+  _maxChaseDuration: 2.5
+--- !u!114 &8920590170027876475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2123962901884279086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76d63e3f075689546bffc153f42ac2bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7750040937769752036
 PrefabInstance:
   m_ObjectHideFlags: 0

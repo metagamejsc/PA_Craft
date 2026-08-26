@@ -18,7 +18,7 @@ namespace Playable
         [SerializeField] private Vector3 _armVfxOffset = Vector3.zero;
 
         private Monster _self;
-        private MonsterStatsEntry _stats;
+        private EndermanData _stats;
         private int _armReachTriggerHash;
 
         private float _cooldownTimer;
@@ -35,11 +35,11 @@ namespace Playable
             _armReachTriggerHash = Animator.StringToHash(_armReachTriggerParam);
         }
 
-        public void Init(Monster self, MonsterStatsEntry stats)
+        public void Init(Monster self)
         {
             _self = self;
-            _stats = stats;
-            _cooldownTimer = stats.ArmReachCooldown;
+            _stats = self.EndermanStats;
+            _cooldownTimer = _stats.ArmReachCooldown;
             _isChanneling = false;
         }
 

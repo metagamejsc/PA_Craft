@@ -10,12 +10,26 @@ namespace Playable
         private Animator _animator;
 
         [Header("Type & Data")]
-        [Tooltip("Loại quái - dùng để tra MonsterStatsTable và tự gắn đúng skill component lúc Awake.")]
+        [Tooltip("Loại quái - quyết định dùng struct data nào bên dưới và tự gắn đúng skill component lúc Awake.")]
         [SerializeField]
         private MonsterType _monsterType;
 
-        [Tooltip("Bảng số liệu chung (HP, damage, tốc độ, skill...) cho cả 5 loại quái.")] [SerializeField]
-        private MonsterStatsTable _statsTable;
+        [Tooltip("Chỉ điền đúng 1 trong 5 struct bên dưới khớp Monster Type - 4 struct còn lại bỏ trống, không dùng tới.")]
+        [Header("Enderman Data")]
+        [SerializeField]
+        private EndermanData _endermanData;
+
+        [Header("Iron Golem Data")] [SerializeField]
+        private IronGolemData _ironGolemData;
+
+        [Header("Creeper Data")] [SerializeField]
+        private CreeperData _creeperData;
+
+        [Header("Huggy Data")] [SerializeField]
+        private HuggyData _huggyData;
+
+        [Header("Shinsonic Data")] [SerializeField]
+        private ShinsonicData _shinsonicData;
 
         [Header("Animation")] [SerializeField] private string _isRunParam = "IsRun";
 
@@ -28,7 +42,10 @@ namespace Playable
         [Tooltip("Phát anim death xong đợi ngần này rồi Destroy hẳn khỏi map")] [SerializeField]
         private float _deathDespawnDelay = 1.5f;
 
-        [Header("Wander")] [SerializeField] private float _moveSpeed = 1.5f;
+        [Header("Wander")]
+        [Tooltip("Không set trực tiếp - luôn bị Spawn() ghi đè bằng MoveSpeed trong struct data đúng loại quái.")]
+        private float _moveSpeed = 1.5f;
+
         [SerializeField] private float _rotationSmooth = 8f;
         [SerializeField] private float _wanderRadius = 3f;
         [SerializeField] private Vector2 _idleDurationRange = new Vector2(0.8f, 2.5f);
@@ -90,6 +107,13 @@ namespace Playable
         public MonsterHealth Health => _health;
         public MonsterCombat Combat => _combat;
         public Vector3 Position => _transform.position;
+        public MonsterType Type => _monsterType;
+
+        public EndermanData EndermanStats => _endermanData;
+        public IronGolemData IronGolemStats => _ironGolemData;
+        public CreeperData CreeperStats => _creeperData;
+        public HuggyData HuggyStats => _huggyData;
+        public ShinsonicData ShinsonicStats => _shinsonicData;
 
         private void Awake()
         {
@@ -144,15 +168,11 @@ namespace Playable
 
                 case MonsterType.IronGolem:
                     EnsureSkill<IronGolemSlamSkill>();
+                    EnsureSkill<IronGolemTntBarrageSkill>();
                     break;
 
-                case MonsterType.Creeper:
-                    EnsureSkill<CreeperPoisonSkill>();
-                    break;
-
-                case MonsterType.Huggy:
-                    EnsureSkill<HuggyRegenSkill>();
-                    break;
+                // Creeper và Huggy không có skill - đòn attack thường của chúng (ném TNT / gây stun)
+                // đạt được hoàn toàn bằng cấu hình CreeperData/HuggyData, không cần skill component.
 
                 case MonsterType.Shinsonic:
                     EnsureSkill<ShinsonicTransformSkill>();
@@ -243,6 +263,73 @@ namespace Playable
         }
 
         /// <summary>
+        /// Đọc đúng struct data khớp _monsterType, gán _moveSpeed + đẩy số liệu chung (đánh thường/
+        /// knockback/bomb) vào MonsterCombat. Trả về MaxHealth để Spawn() truyền cho MonsterHealth.
+        /// </summary>
+        private float ApplyStatsForType()
+        {
+            float maxHealth;
+            MonsterCommonStats common;
+
+            switch (_monsterType)
+            {
+                case MonsterType.Enderman:
+                    _moveSpeed = _endermanData.MoveSpeed;
+                    maxHealth = _endermanData.MaxHealth;
+                    common = new MonsterCommonStats(
+                        _endermanData.AttackDamage, _endermanData.AttackRange, _endermanData.AttackCooldown,
+                        _endermanData.KnockbackForce, _endermanData.KnockbackDuration,
+                        0f, 0f, 0f, 0f, 0f);
+                    break;
+
+                case MonsterType.IronGolem:
+                    _moveSpeed = _ironGolemData.MoveSpeed;
+                    maxHealth = _ironGolemData.MaxHealth;
+                    common = new MonsterCommonStats(
+                        _ironGolemData.AttackDamage, _ironGolemData.AttackRange, _ironGolemData.AttackCooldown,
+                        _ironGolemData.KnockbackForce, _ironGolemData.KnockbackDuration,
+                        0f, 0f, 0f, 0f, 0f);
+                    break;
+
+                case MonsterType.Creeper:
+                    _moveSpeed = _creeperData.MoveSpeed;
+                    maxHealth = _creeperData.MaxHealth;
+                    common = new MonsterCommonStats(
+                        _creeperData.AttackDamage, _creeperData.AttackRange, _creeperData.AttackCooldown,
+                        _creeperData.KnockbackForce, _creeperData.KnockbackDuration,
+                        _creeperData.BombDamage, _creeperData.BombRange, _creeperData.BombCooldown,
+                        _creeperData.BombSpeed, _creeperData.BombKnockbackForce);
+                    break;
+
+                case MonsterType.Huggy:
+                    _moveSpeed = _huggyData.MoveSpeed;
+                    maxHealth = _huggyData.MaxHealth;
+                    common = new MonsterCommonStats(
+                        _huggyData.AttackDamage, _huggyData.AttackRange, _huggyData.AttackCooldown,
+                        _huggyData.KnockbackForce, _huggyData.KnockbackDuration,
+                        0f, 0f, 0f, 0f, 0f);
+                    break;
+
+                case MonsterType.Shinsonic:
+                    _moveSpeed = _shinsonicData.MoveSpeed;
+                    maxHealth = _shinsonicData.MaxHealth;
+                    common = new MonsterCommonStats(
+                        _shinsonicData.AttackDamage, _shinsonicData.AttackRange, _shinsonicData.AttackCooldown,
+                        _shinsonicData.KnockbackForce, _shinsonicData.KnockbackDuration,
+                        0f, 0f, 0f, 0f, 0f);
+                    break;
+
+                default:
+                    maxHealth = 100f;
+                    common = default;
+                    break;
+            }
+
+            _combat.Init(common);
+            return maxHealth;
+        }
+
+        /// <summary>
         /// Đặt quái xuống map tại vị trí world tương ứng với điểm player tap trên màn hình.
         /// </summary>
         public void Spawn(Vector3 worldPosition, float wanderRadiusOverride = -1f)
@@ -258,18 +345,13 @@ namespace Playable
             _homePosition = _transform.position;
             _isSpawned = true;
 
-            MonsterStatsEntry stats = _statsTable != null
-                ? _statsTable.GetEntry(_monsterType)
-                : new MonsterStatsEntry();
+            float maxHealth = ApplyStatsForType();
 
-            _moveSpeed = stats.MoveSpeed;
-
-            _health.Init(stats.MaxHealth);
-            _combat.Init(stats);
+            _health.Init(maxHealth);
 
             for (int i = 0; i < _skills.Length; i++)
             {
-                _skills[i].Init(this, stats);
+                _skills[i].Init(this);
             }
 
             IsAnySkillChanneling = false;
@@ -684,5 +766,40 @@ namespace Playable
             Gizmos.DrawWireSphere(center, _wanderRadius);
         }
 #endif
+    }
+
+    /// <summary>
+    /// Số liệu chung (đánh thường/knockback/bomb) gom từ đúng struct data của loại quái đang spawn -
+    /// DTO nội bộ, không [Serializable]/không hiện Inspector, chỉ dùng để truyền cho MonsterCombat.Init().
+    /// </summary>
+    internal readonly struct MonsterCommonStats
+    {
+        public readonly float AttackDamage;
+        public readonly float AttackRange;
+        public readonly float AttackCooldown;
+        public readonly float KnockbackForce;
+        public readonly float KnockbackDuration;
+        public readonly float BombDamage;
+        public readonly float BombRange;
+        public readonly float BombCooldown;
+        public readonly float BombSpeed;
+        public readonly float BombKnockbackForce;
+
+        public MonsterCommonStats(
+            float attackDamage, float attackRange, float attackCooldown,
+            float knockbackForce, float knockbackDuration,
+            float bombDamage, float bombRange, float bombCooldown, float bombSpeed, float bombKnockbackForce)
+        {
+            AttackDamage = attackDamage;
+            AttackRange = attackRange;
+            AttackCooldown = attackCooldown;
+            KnockbackForce = knockbackForce;
+            KnockbackDuration = knockbackDuration;
+            BombDamage = bombDamage;
+            BombRange = bombRange;
+            BombCooldown = bombCooldown;
+            BombSpeed = bombSpeed;
+            BombKnockbackForce = bombKnockbackForce;
+        }
     }
 }

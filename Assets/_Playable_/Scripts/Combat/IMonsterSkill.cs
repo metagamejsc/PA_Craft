@@ -11,8 +11,9 @@ namespace Playable
         /// quái không được bắt đầu channel song song.</summary>
         bool IsChanneling { get; }
 
-        /// <summary>Gọi 1 lần lúc Monster.Spawn() để cache tham chiếu + số liệu.</summary>
-        void Init(Monster self, MonsterStatsEntry stats);
+        /// <summary>Gọi 1 lần lúc Monster.Spawn() để cache tham chiếu. Tự đọc số liệu riêng của mình
+        /// qua property tương ứng trên Monster (vd self.EndermanStats, self.IronGolemStats...).</summary>
+        void Init(Monster self);
 
         /// <summary>Gọi mỗi frame. target có thể null nếu quái đang không giao chiến ai.</summary>
         void Tick(Monster target);
