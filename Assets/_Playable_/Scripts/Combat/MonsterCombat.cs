@@ -21,12 +21,6 @@ namespace Playable
         [SerializeField]
         private string _attackTriggerParam = "IsAttack";
 
-        [SerializeField] private bool _attackParamIsTrigger = false;
-
-        [Header("Animator - Bomb Throw (optional)")]
-        [SerializeField] private string _throwBombTriggerParam = "";
-        [SerializeField] private bool _throwBombParamIsTrigger = true;
-
         [Header("Bomb Visual (optional)")]
         [Tooltip("Prefab quả bom (phải có/tự động được gắn component MonsterProjectile). Để trống = quái " +
                  "này không ném bom, chỉ đánh cận chiến.")]
@@ -55,7 +49,6 @@ namespace Playable
         private float _knockbackDuration;
 
         private int _attackParamHash;
-        private int _throwBombParamHash;
         private bool _resetAttackBool;
 
         private Monster _currentEnemy;
@@ -76,7 +69,6 @@ namespace Playable
 
             _type = _monster.Type;
             _attackParamHash = Animator.StringToHash(_attackTriggerParam);
-            _throwBombParamHash = Animator.StringToHash(_throwBombTriggerParam);
 
             _health.Damaged += OnDamaged;
         }
@@ -260,7 +252,7 @@ namespace Playable
                 if (MonsterDebug.VerboseLoggingEnabled)
                 {
                     MonsterDebug.Log(Tag, name + " đuổi " + _currentEnemy.name + " quá " + _maxChaseDuration +
-                        "s chưa vào tầm đánh - ép tấn công.");
+                                          "s chưa vào tầm đánh - ép tấn công.");
                 }
 
                 UpdateMeleeAttack();
@@ -313,7 +305,7 @@ namespace Playable
             }
 
             _bombTimer = _bombCooldown;
-            PlayThrowBombAnim();
+            PlayAttackAnim();
 
             MonsterProjectile.Spawn(
                 _bombProjectilePrefab,
@@ -333,32 +325,8 @@ namespace Playable
                 return;
             }
 
-            if (_attackParamIsTrigger)
-            {
-                _monster.PlayAnimatorTrigger(_attackParamHash, _attackTriggerParam);
-            }
-            else
-            {
-                _monster.SetAnimatorBool(_attackParamHash, _attackTriggerParam, true);
-                _resetAttackBool = true;
-            }
-        }
-
-        private void PlayThrowBombAnim()
-        {
-            if (!_monster.HasAnimator || string.IsNullOrEmpty(_throwBombTriggerParam))
-            {
-                return;
-            }
-
-            if (_throwBombParamIsTrigger)
-            {
-                _monster.PlayAnimatorTrigger(_throwBombParamHash, _throwBombTriggerParam);
-            }
-            else
-            {
-                _monster.SetAnimatorBool(_throwBombParamHash, _throwBombTriggerParam, true);
-            }
+            _monster.SetAnimatorBool(_attackParamHash, _attackTriggerParam, true);
+            _resetAttackBool = true;
         }
 
         private static float FlatDistanceSqr(Vector3 a, Vector3 b)

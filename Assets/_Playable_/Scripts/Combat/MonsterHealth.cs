@@ -12,8 +12,6 @@ namespace Playable
     public class MonsterHealth : MonoBehaviour
     {
         [Header("Animator - Stun (optional, dùng chung cho cả đẩy lùi lẫn đứng yên tại chỗ)")]
-        [SerializeField]
-        private string _stunTriggerParam = "";
 
         [SerializeField] private string _stunnedBoolParam = "";
 
@@ -58,7 +56,6 @@ namespace Playable
         {
             _monster = GetComponent<Monster>();
             _transform = transform;
-            _stunTriggerHash = Animator.StringToHash(_stunTriggerParam);
             _stunnedBoolHash = Animator.StringToHash(_stunnedBoolParam);
         }
 
@@ -169,11 +166,6 @@ namespace Playable
             if (_monster == null)
             {
                 return;
-            }
-
-            if (!string.IsNullOrEmpty(_stunTriggerParam))
-            {
-                _monster.PlayAnimatorTrigger(_stunTriggerHash, _stunTriggerParam);
             }
 
             if (!string.IsNullOrEmpty(_stunnedBoolParam))

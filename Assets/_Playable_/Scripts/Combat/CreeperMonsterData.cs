@@ -9,8 +9,7 @@ namespace Playable
     [DisallowMultipleComponent]
     public class CreeperMonsterData : MonoBehaviour
     {
-        [SerializeField]
-        private CreeperData _data = new CreeperData
+        [SerializeField] private CreeperData _data = new CreeperData
         {
             MaxHealth = 90f, // máu giấy, đổi lại DPS tầm xa ổn định
             MoveSpeed = 1.8f,
