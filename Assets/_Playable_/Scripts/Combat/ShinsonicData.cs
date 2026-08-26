@@ -20,12 +20,13 @@ namespace Playable
         public float KnockbackForce;
         public float KnockbackDuration;
 
-        [Header("Skill - Transform")]
-        public float TransformStage1HpThreshold;
-        public float TransformStage2HpThreshold;
+        [Header("Skill - Transform (3 lần, dùng chung 1 ngưỡng % máu cho cả 3 mốc)")]
+        public float TransformHpThreshold;
         public float TransformStage1BonusMaxHealth;
         public float TransformStage1BonusDamage;
         public float TransformStage2BonusMaxHealth;
         public float TransformStage2BonusDamage;
+        public float TransformStage3BonusMaxHealth;
+        public float TransformStage3BonusDamage;
     }
 }
