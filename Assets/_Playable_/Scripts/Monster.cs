@@ -123,9 +123,49 @@ namespace Playable
                 _combat = gameObject.AddComponent<MonsterCombat>();
             }
 
+            AutoAttachSkills();
             _skills = GetComponents<IMonsterSkill>();
 
             _health.Died += OnHealthDied;
+        }
+
+        /// <summary>
+        /// Tự gắn đúng skill component theo _monsterType nếu prefab chưa gắn sẵn trong Editor - không cần
+        /// chỉnh tay từng prefab, chỉ cần đặt đúng _monsterType.
+        /// </summary>
+        private void AutoAttachSkills()
+        {
+            switch (_monsterType)
+            {
+                case MonsterType.Enderman:
+                    EnsureSkill<EndermanArmReachSkill>();
+                    EnsureSkill<EndermanTeleportSkill>();
+                    break;
+
+                case MonsterType.IronGolem:
+                    EnsureSkill<IronGolemSlamSkill>();
+                    break;
+
+                case MonsterType.Creeper:
+                    EnsureSkill<CreeperPoisonSkill>();
+                    break;
+
+                case MonsterType.Huggy:
+                    EnsureSkill<HuggyRegenSkill>();
+                    break;
+
+                case MonsterType.Shinsonic:
+                    EnsureSkill<ShinsonicTransformSkill>();
+                    break;
+            }
+        }
+
+        private void EnsureSkill<T>() where T : Component
+        {
+            if (GetComponent<T>() == null)
+            {
+                gameObject.AddComponent<T>();
+            }
         }
 
         private void Update()
