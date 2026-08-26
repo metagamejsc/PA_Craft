@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +20,7 @@ namespace Playable
 
         [Header("Animation")] [SerializeField] private string _isJumpParam = "isJump";
         [SerializeField] private string _speedParam = "speed";
+        [SerializeField, Min(0f)] private float _airborneAnimationDelay = 0.08f;
 
         [Header("Input")] [SerializeField] private Button _btnJump;
 
@@ -31,6 +33,9 @@ namespace Playable
         [SerializeField] private float _gravity = -20f;
         [SerializeField, Min(1f)] private float _fallGravityMultiplier = 2f;
         [SerializeField] private float _maxFallRate = 25f;
+        [SerializeField, Min(0f)] private float _jumpGroundIgnoreDuration = 0.12f;
+        [SerializeField, Min(0f)] private float _jumpBufferDuration = 0.12f;
+        [SerializeField, Min(0f)] private float _coyoteTime = 0.1f;
 
         [Header("Ground Check")] [SerializeField]
         private LayerMask _groundMask = ~0;
@@ -50,9 +55,14 @@ namespace Playable
         private bool _jumpRequested;
         private bool _followCameraYaw;
         private float _cameraYaw;
+        private float _lastGroundContactTime = float.NegativeInfinity;
+        private float _lastGroundedTime;
+        private float _lastJumpRequestTime = float.NegativeInfinity;
+        private float _ignoreGroundUntil = float.NegativeInfinity;
 
         public bool IsGrounded => _isGrounded;
         public Vector3 Velocity { get; private set; }
+        public event Action MovementRequested;
 
         public bool IsWorking
         {
@@ -108,27 +118,37 @@ namespace Playable
 
         private void Update()
         {
-            if (!_isWorking) return;
-
 #if UNITY_EDITOR
-            if (Input.GetKeyDown(KeyCode.Space)) OnJumpButtonPressed();
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                if (!_isWorking) MovementRequested?.Invoke();
+                else OnJumpButtonPressed();
+            }
 #endif
 
-            _moveInput = _moveJoystick != null
+            Vector2 requestedInput = _moveJoystick != null
                 ? new Vector2(_moveJoystick.HorizontalAxis, _moveJoystick.VerticalAxis)
                 : Vector2.zero;
 
-            if (_moveInput.sqrMagnitude < _inputDeadZone * _inputDeadZone)
+            if (requestedInput.sqrMagnitude < _inputDeadZone * _inputDeadZone)
             {
-                _moveInput = Vector2.zero;
+                requestedInput = Vector2.zero;
             }
 
 #if UNITY_EDITOR
             Vector2 keyboardInput = new Vector2(
                 Input.GetAxisRaw("Horizontal"),
                 Input.GetAxisRaw("Vertical"));
-            if (keyboardInput.sqrMagnitude > 0.0001f) _moveInput = keyboardInput;
+            if (keyboardInput.sqrMagnitude > 0.0001f) requestedInput = keyboardInput;
 #endif
+
+            if (!_isWorking)
+            {
+                if (requestedInput.sqrMagnitude > 0.0001f) MovementRequested?.Invoke();
+                return;
+            }
+
+            _moveInput = requestedInput;
 
             UpdateAnimator();
         }
@@ -148,9 +168,26 @@ namespace Playable
             Move(_moveInput);
         }
 
+        private void OnCollisionEnter(Collision collision)
+        {
+            RegisterGroundContact(collision);
+        }
+
+        private void OnCollisionStay(Collision collision)
+        {
+            RegisterGroundContact(collision);
+        }
+
         public void OnJumpButtonPressed()
         {
-            if (_isWorking) _jumpRequested = true;
+            if (!_isWorking)
+            {
+                MovementRequested?.Invoke();
+                return;
+            }
+
+            _jumpRequested = true;
+            _lastJumpRequestTime = Time.time;
         }
 
         public void SetMoveJoystick(UltimateJoystick joystick)
@@ -161,6 +198,21 @@ namespace Playable
         public void SetCameraController(CameraController cameraController)
         {
             _cameraController = cameraController;
+        }
+
+        public void Teleport(Transform destination)
+        {
+            if (destination == null) return;
+
+            _moveInput = Vector2.zero;
+            _verticalVelocity = Vector3.zero;
+            _jumpRequested = false;
+            _rigidbody.linearVelocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;
+            _rigidbody.position = destination.position;
+            _rigidbody.rotation = destination.rotation;
+            transform.SetPositionAndRotation(destination.position, destination.rotation);
+            Velocity = Vector3.zero;
         }
 
         public void SetCameraYaw(float yaw)
@@ -176,13 +228,52 @@ namespace Playable
 
         private void CheckGround()
         {
-            bool grounded = ProbeGround();
+            if (Time.time < _ignoreGroundUntil)
+            {
+                _isGrounded = false;
+                return;
+            }
+
+            bool hasRecentGroundContact = Time.time - _lastGroundContactTime <= Time.fixedDeltaTime * 1.5f;
+            bool grounded = hasRecentGroundContact || ProbeGround();
             if (grounded)
             {
                 if (_verticalVelocity.y < 0f) _verticalVelocity.y = 0f;
+
+                Vector3 velocity = _rigidbody.linearVelocity;
+                if (velocity.y > 0f && !_jumpRequested)
+                {
+                    velocity.y = 0f;
+                    _rigidbody.linearVelocity = velocity;
+                }
             }
 
             _isGrounded = grounded;
+            if (_isGrounded) _lastGroundedTime = Time.time;
+        }
+
+        private void RegisterGroundContact(Collision collision)
+        {
+            if (Time.time < _ignoreGroundUntil) return;
+
+            for (int index = 0; index < collision.contactCount; index++)
+            {
+                if (Vector3.Dot(collision.GetContact(index).normal, Vector3.up) < 0.55f) continue;
+
+                _lastGroundContactTime = Time.time;
+                _verticalVelocity.y = 0f;
+                _isGrounded = true;
+                _lastGroundedTime = Time.time;
+
+                Vector3 velocity = _rigidbody.linearVelocity;
+                if (velocity.y < 0f)
+                {
+                    velocity.y = 0f;
+                    _rigidbody.linearVelocity = velocity;
+                }
+
+                return;
+            }
         }
 
         private bool ProbeGround()
@@ -193,14 +284,19 @@ namespace Playable
             float bottom = _scaledCapsuleHeight * 0.5f - _scaledGroundRadius;
             Vector3 origin = center + Vector3.down * bottom + Vector3.up * 0.02f;
             float radius = _scaledGroundRadius * 0.85f;
-            float fallDistance = Mathf.Max(0f, -_verticalVelocity.y) * Time.fixedDeltaTime;
 
+            // Không cộng thêm quãng đường rơi của frame hiện tại vào tầm quét.
+            // Nếu cộng, nhân vật bị coi là "đã chạm đất" khi vẫn còn lơ lửng cách mặt đất
+            // vài chục cm, vận tốc rơi bị xoá giữa không trung, rồi frame sau lại rơi tiếp
+            // -> isJump bật true thêm một lần nữa ngay sau khi vừa tiếp đất.
+            // Rigidbody đã dùng CollisionDetectionMode.Continuous nên không lo xuyên đất,
+            // và OnCollisionEnter vẫn bắt được thời điểm chạm đất thật.
             return Physics.SphereCast(
                 origin,
                 radius,
                 Vector3.down,
                 out _,
-                _groundCheckDistance + 0.05f + fallDistance,
+                _groundCheckDistance + 0.05f,
                 _groundMask,
                 QueryTriggerInteraction.Ignore);
         }
@@ -209,11 +305,20 @@ namespace Playable
         {
             if (!_jumpRequested) return;
 
-            _jumpRequested = false;
-            if (!_isGrounded) return;
+            if (Time.time - _lastJumpRequestTime > _jumpBufferDuration)
+            {
+                _jumpRequested = false;
+                return;
+            }
 
+            bool canJump = _isGrounded || Time.time - _lastGroundedTime <= _coyoteTime;
+            if (!canJump) return;
+
+            _jumpRequested = false;
             _verticalVelocity.y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
             _isGrounded = false;
+            _lastGroundContactTime = float.NegativeInfinity;
+            _ignoreGroundUntil = Time.time + _jumpGroundIgnoreDuration;
         }
 
         private void Move(Vector2 input)
@@ -316,7 +421,9 @@ namespace Playable
             horizontalVelocity.y = 0f;
             _animator.SetFloat(_speedParamHash, horizontalVelocity.magnitude);
 
-            bool isJumping = !_isGrounded;
+            bool isRising = _verticalVelocity.y > 0.1f;
+            bool hasBeenAirborneLongEnough = Time.time - _lastGroundedTime >= _airborneAnimationDelay;
+            bool isJumping = !_isGrounded && (isRising || hasBeenAirborneLongEnough);
             if (_appliedJump == isJumping) return;
 
             _appliedJump = isJumping;

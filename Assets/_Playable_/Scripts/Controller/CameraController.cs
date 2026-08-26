@@ -32,6 +32,9 @@ namespace Playable
 
         private float _yaw;
         private float _pitch;
+        private Transform _followOverride;
+        private CarController _vehicleController;
+        private bool _isFollowingVehicle;
 
         public Transform YawPivot => _yawPivot != null ? _yawPivot : transform;
         public ViewMode CurrentViewMode => _viewMode;
@@ -62,7 +65,7 @@ namespace Playable
 
         private void LateUpdate()
         {
-            if (_target == null)
+            if (_target == null && _followOverride == null)
             {
                 return;
             }
@@ -87,6 +90,54 @@ namespace Playable
             {
                 SnapToTarget();
             }
+        }
+
+        public void SetFollowTarget(Transform followTarget)
+        {
+            _followOverride = followTarget;
+            if (followTarget != null) SnapToTarget();
+        }
+
+        public void FollowVehicle(CarController vehicleController)
+        {
+            _target = null;
+            _vehicleController = vehicleController;
+            _isFollowingVehicle = vehicleController != null;
+            _followOverride = vehicleController != null ? vehicleController.CameraTarget : null;
+            if (_followOverride != null)
+            {
+                SnapToTarget(vehicleController.CameraInitialYaw, vehicleController.CameraInitialPitch);
+            }
+        }
+
+        public void FollowPlayer(
+            PlayerController playerController,
+            Transform followTarget,
+            float initialYaw,
+            float initialPitch)
+        {
+            _isFollowingVehicle = false;
+            _vehicleController = null;
+            _target = playerController;
+            _followOverride = followTarget;
+            if (_target != null || _followOverride != null)
+            {
+                SnapToTarget(initialYaw, initialPitch);
+            }
+        }
+
+        public void FollowPlayer(PlayerController playerController)
+        {
+            _isFollowingVehicle = false;
+            _vehicleController = null;
+            _followOverride = null;
+            SetTarget(playerController);
+        }
+
+        public void ClearFollowTarget()
+        {
+            _followOverride = null;
+            if (_target != null) SnapToTarget();
         }
 
         public void SetTouchController(TouchController touchController)
@@ -147,18 +198,23 @@ namespace Playable
             AddLookInput(delta);
         }
 
-        private void SnapToTarget()
+        private void SnapToTarget(float? initialYaw = null, float? initialPitch = null)
         {
             Transform anchor = GetFollowAnchor();
             Vector3 targetEuler = anchor.rotation.eulerAngles;
-            _yaw = targetEuler.y + _initialYawOffset;
-            _pitch = Mathf.Clamp(_initialPitch, _pitchMin, _pitchMax);
+            _yaw = targetEuler.y + (initialYaw ?? _initialYawOffset);
+            _pitch = Mathf.Clamp(initialPitch ?? _initialPitch, _pitchMin, _pitchMax);
             UpdateRigRotation();
             UpdateCameraPosition(true);
         }
 
         private Transform GetFollowAnchor()
         {
+            if (_followOverride != null)
+            {
+                return _followOverride;
+            }
+
             if (_followTarget != null)
             {
                 return _followTarget;
@@ -210,7 +266,11 @@ namespace Playable
             }
 
             Transform anchor = _pitchPivot != null ? _pitchPivot : YawPivot;
-            Vector3 localOffset = _viewMode == ViewMode.FirstPerson ? _firstPersonOffset : _thirdPersonOffset;
+            Vector3 localOffset = _isFollowingVehicle
+                ? _vehicleController.CameraOffset
+                : _viewMode == ViewMode.FirstPerson
+                    ? _firstPersonOffset
+                    : _thirdPersonOffset;
             Vector3 desiredPosition = anchor.TransformPoint(localOffset);
             Quaternion desiredRotation = anchor.rotation;
             float lerpFactor = instant ? 1f : Time.deltaTime * _followSmooth;

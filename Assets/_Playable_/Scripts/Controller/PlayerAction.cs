@@ -1,296 +1,288 @@
 using System;
-using System.Collections;
-using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Playable
 {
     public class PlayerAction : MonoBehaviour
     {
         [Header("References")] [SerializeField]
-        private Camera _aimCamera;
+        private PlayerController _playerController;
 
+        [SerializeField] private Camera _interactionCamera;
+        [SerializeField] private GameObject _playerVisual;
+        [SerializeField] private Collider _playerCollider;
         [SerializeField] private Animator _animator;
-        [SerializeField] private PlayerController _playerController;
-        [SerializeField] private CameraController _cameraController;
-        [SerializeField] private GameController _gameController;
-        [SerializeField] private Button _btnFire;
-        [SerializeField] private GameObject _crosshair;
 
-        [Header("Weapon")] [SerializeField] private GameObject _weaponInHand;
-        [SerializeField] private GameObject _weaponOnBack;
-        [SerializeField] private Transform _muzzle;
-        [SerializeField] private float _runSpeedThreshold = 0.1f;
+        [Header("Interaction")] [SerializeField]
+        private LayerMask _interactionMask = ~0;
 
-        [Header("Aim")] [SerializeField] private float _maxRange = 50f;
-        [SerializeField] private float _aimAssistRadius = 0.35f;
-        [SerializeField] private LayerMask _monsterMask;
+        [SerializeField] private LayerMask _gymInteractionMask = ~0;
+        [SerializeField, Min(0.1f)] private float _interactionDistance = 6f;
+        [SerializeField, Min(1f)] private float _tapMaxMovement = 25f;
+        [SerializeField, Min(0.05f)] private float _tapMaxDuration = 0.4f;
+        [SerializeField] private Collider _carInteraction;
 
-        [Header("Shot Camera")] [SerializeField]
-        private Transform _shotCameraAnchor;
+        [Header("Car")] [SerializeField] private Transform _carExitPoint;
 
-        [SerializeField] private float _cameraMoveDuration = 0.5f;
-        [SerializeField] private Ease _cameraEase = Ease.OutCubic;
-        [SerializeField] private float _shootYawOffset = 40f;
-        [SerializeField] private float _playerRotateDuration = 0.4f;
+        [Header("Gym")] [SerializeField] private GymFurniture[] _gymFurniture;
+        [SerializeField] private string _isGymParam = "IsGym";
 
-        [Header("Bullet")] [SerializeField] private Bullet _bulletPrefab;
-        [SerializeField] private float _bulletSpeed = 60f;
-        [SerializeField] private ParticleSystem _impactVfx;
+        private bool _canInteract;
+        private bool _isInCar;
+        private bool _isUsingTreadmill;
+        private GymFurniture _activeGymFurniture;
+        private GymFurniture _blockedGymFurniture;
+        private int _isGymParamHash;
+        private bool _hasUsedAnyGymFurniture;
+        private bool _isTrackingTap;
+        private int _trackedFingerId = -1;
+        private Vector2 _tapStartPosition;
+        private float _tapStartTime;
 
-        [Header("Feedback")] [SerializeField] private string _shootTriggerParam = "shoot";
-        [SerializeField] private AudioClip _shootClip;
-        [SerializeField] private float _shootAnimDelay = 0.2f;
-        [SerializeField] private float _resultDelay = 0.15f;
-
-        private int _shootTriggerHash;
-        private bool _hasShootTrigger;
-        private bool _hasFired;
-        private bool _isWin;
-        private bool _isWeaponOnBack;
-        private Vector3 _impactPoint;
-        private Monster _hitMonster;
-        private Sequence _cameraSequence;
-        private Tween _playerRotateTween;
-        private Coroutine _shotRoutine;
-
-        public event Action OnFired;
-
-        public bool HasFired => _hasFired;
+        public event Action CarEntered;
+        public event Action TreadmillUsed;
+        public PlayerController PlayerController => _playerController;
+        public bool IsInCar => _isInCar;
+        public bool IsUsingTreadmill => _isUsingTreadmill;
 
         private void Awake()
         {
-            if (_aimCamera == null) _aimCamera = Camera.main;
             if (_playerController == null) _playerController = GetComponent<PlayerController>();
-            if (_gameController == null) _gameController = FindObjectOfType<GameController>();
-
-            _hasShootTrigger = _animator != null && !string.IsNullOrEmpty(_shootTriggerParam);
-            if (_hasShootTrigger) _shootTriggerHash = Animator.StringToHash(_shootTriggerParam);
-        }
-
-        private void Start()
-        {
-            if (_btnFire != null) _btnFire.onClick.AddListener(Fire);
-
-            ApplyWeaponSlot(false);
-        }
-
-        private void Update()
-        {
-#if UNITY_EDITOR
-            if (Input.GetKeyDown(KeyCode.F)) Fire();
-#endif
-
-            UpdateWeaponSlot();
+            if (_playerCollider == null) _playerCollider = GetComponent<Collider>();
+            if (_animator == null) _animator = GetComponentInChildren<Animator>();
+            if (_interactionCamera == null) _interactionCamera = Camera.main;
+            _isGymParamHash = Animator.StringToHash(_isGymParam);
+            if (_playerController != null) _playerController.MovementRequested += StopUsingTreadmill;
         }
 
         private void OnDestroy()
         {
-            if (_btnFire != null) _btnFire.onClick.RemoveListener(Fire);
-
-            _cameraSequence?.Kill();
-            _playerRotateTween?.Kill();
-            if (_shotRoutine != null) StopCoroutine(_shotRoutine);
+            if (_playerController != null) _playerController.MovementRequested -= StopUsingTreadmill;
         }
 
-        public void Fire()
+        private void Update()
         {
-            if (_hasFired || _aimCamera == null) return;
+            if (!_canInteract || _isInCar) return;
 
-            _btnFire.transform.GetChild(0).gameObject.SetActive(false);
-            _btnFire.transform.GetChild(1).gameObject.SetActive(false);
-            _hasFired = true;
-            OnFired?.Invoke();
+            if (_blockedGymFurniture != null && !_blockedGymFurniture.ContainsPoint(transform.position))
+            {
+                _blockedGymFurniture = null;
+            }
 
-            Aim();
-            LockInput();
+            if (_isUsingTreadmill)
+            {
+                return;
+            }
 
-            _shotRoutine = StartCoroutine(ShotSequence());
+            if (TryGetCompletedTap(out Vector2 tapPosition)) TryInteract(tapPosition);
         }
 
-        private void UpdateWeaponSlot()
+        public void SetInteractionEnabled(bool enabled)
         {
-            if (_hasFired || _playerController == null) return;
-
-            Vector3 horizontalVelocity = _playerController.Velocity;
-            horizontalVelocity.y = 0f;
-
-            bool shouldBeOnBack = horizontalVelocity.magnitude > _runSpeedThreshold;
-            if (shouldBeOnBack == _isWeaponOnBack) return;
-
-            ApplyWeaponSlot(shouldBeOnBack);
+            _canInteract = enabled;
+            if (!enabled) _isTrackingTap = false;
         }
 
-        private void ApplyWeaponSlot(bool onBack)
+        public void SetInteractionCamera(Camera interactionCamera)
         {
-            _isWeaponOnBack = onBack;
-
-            if (_weaponOnBack != null) _weaponOnBack.SetActive(onBack);
-            if (_weaponInHand != null) _weaponInHand.SetActive(!onBack);
+            _interactionCamera = interactionCamera;
         }
 
-        private void LockInput()
+        public void SetGymFurniture(GymFurniture[] gymFurniture)
         {
-            if (_btnFire != null) _btnFire.interactable = false;
-            if (_crosshair != null) _crosshair.SetActive(false);
+            _gymFurniture = gymFurniture;
+        }
+
+      
+
+        public void ExitCar()
+        {
+            if (!_isInCar) return;
+
+            _isInCar = false;
+            if (_carExitPoint != null)
+            {
+                transform.SetPositionAndRotation(_carExitPoint.position, _carExitPoint.rotation);
+            }
+
+            SetPlayerAvailable(true);
+        }
+
+        public void StopUsingTreadmill()
+        {
+            if (!_isUsingTreadmill) return;
+
+            _isUsingTreadmill = false;
+            _blockedGymFurniture = _activeGymFurniture;
+            _activeGymFurniture = null;
+            SetPlayerAvailable(true);
+            if (_animator != null) _animator.SetBool(_isGymParamHash, false);
+        }
+
+        private void TryInteract(Vector2 screenPosition)
+        {
+            if (_interactionCamera == null) return;
+
+            Ray ray = _interactionCamera.ScreenPointToRay(screenPosition);
+            if (Physics.Raycast(ray, out RaycastHit interactionHit, _interactionCamera.farClipPlane,
+                    _interactionMask, QueryTriggerInteraction.Collide)
+                && BelongsTo(interactionHit.collider, _carInteraction))
+            {
+                if (!IsWithinInteractionDistance(_carInteraction)) return;
+                EnterCar();
+                return;
+            }
+
+            if (!Physics.Raycast(ray, out RaycastHit gymHit, _interactionCamera.farClipPlane,
+                    _gymInteractionMask, QueryTriggerInteraction.Collide)) return;
+
+            GymFurniture gymFurniture = FindGymFurniture(gymHit.collider);
+            if (_blockedGymFurniture == null
+                && gymFurniture != null
+                && IsWithinInteractionDistance(gymHit.collider))
+            {
+                UseGymFurniture(gymFurniture);
+            }
+        }
+
+        private bool IsWithinInteractionDistance(Collider interactionCollider)
+        {
+            if (interactionCollider == null) return false;
+
+            Vector3 closestPoint = interactionCollider.ClosestPoint(transform.position);
+            return (closestPoint - transform.position).sqrMagnitude
+                   <= _interactionDistance * _interactionDistance;
+        }
+
+        private void EnterCar()
+        {
+            _isInCar = true;
+            SetPlayerAvailable(false);
+            CarEntered?.Invoke();
+        }
+
+        private void UseGymFurniture(GymFurniture gymFurniture)
+        {
+            if (!_hasUsedAnyGymFurniture)
+            {
+                _hasUsedAnyGymFurniture = true;
+                DeactivateAllGymArrows();
+            }
+
+            _isUsingTreadmill = true;
+            _activeGymFurniture = gymFurniture;
             if (_playerController != null) _playerController.IsWorking = false;
-        }
 
-        private IEnumerator ShotSequence()
-        {
-            yield return RotatePlayerForShot();
-
-            yield return MoveCameraToShotAnchor();
-
-            ApplyWeaponSlot(false);
-            PlayShootFeedback();
-
-            if (_shootAnimDelay > 0f) yield return new WaitForSeconds(_shootAnimDelay);
-
-            LaunchBullet();
-            _shotRoutine = null;
-        }
-
-        private IEnumerator RotatePlayerForShot()
-        {
-            Vector3 shootDirection = _impactPoint - transform.position;
-            shootDirection.y = 0f;
-
-            float shootYaw = shootDirection.sqrMagnitude > 0.0001f
-                ? Mathf.Atan2(shootDirection.x, shootDirection.z) * Mathf.Rad2Deg
-                : transform.eulerAngles.y;
-
-            _playerRotateTween = transform
-                .DORotate(
-                    new Vector3(0f, shootYaw + _shootYawOffset, 0f),
-                    _playerRotateDuration,
-                    RotateMode.Fast)
-                .SetEase(_cameraEase);
-
-            yield return _playerRotateTween.WaitForCompletion();
-        }
-
-        private IEnumerator MoveCameraToShotAnchor()
-        {
-            if (_shotCameraAnchor == null) yield break;
-
-            if (_cameraController != null) _cameraController.SetTarget(null);
-
-            Transform cameraTransform = _aimCamera.transform;
-
-            _cameraSequence = DOTween.Sequence()
-                .Append(cameraTransform
-                    .DOMove(_shotCameraAnchor.position, _cameraMoveDuration)
-                    .SetEase(_cameraEase))
-                .Join(cameraTransform
-                    .DORotateQuaternion(_shotCameraAnchor.rotation, _cameraMoveDuration)
-                    .SetEase(_cameraEase));
-
-            yield return _cameraSequence.WaitForCompletion();
-        }
-
-        private void PlayShootFeedback()
-        {
-            if (_hasShootTrigger) _animator.SetTrigger(_shootTriggerHash);
-
-            if (_shootClip != null && AudioManager.Instance != null)
+            if (gymFurniture.PosPlayer != null)
             {
-                AudioManager.Instance.PlaySound(_shootClip);
+                if (_playerController != null)
+                {
+                    _playerController.Teleport(gymFurniture.PosPlayer);
+                }
+                else
+                {
+                    transform.SetPositionAndRotation(gymFurniture.PosPlayer.position, gymFurniture.PosPlayer.rotation);
+                }
+            }
+
+            if (_animator != null)
+            {
+                _animator.SetBool(_isGymParamHash, true);
+            }
+
+            TreadmillUsed?.Invoke();
+        }
+
+        private void DeactivateAllGymArrows()
+        {
+            if (_gymFurniture == null) return;
+
+            foreach (GymFurniture gymFurniture in _gymFurniture)
+            {
+                if (gymFurniture != null) gymFurniture.DeactivateArrow();
             }
         }
 
-
-        private void Aim()
+        private GymFurniture FindGymFurniture(Collider hitCollider)
         {
-            Transform cameraTransform = _aimCamera.transform;
-            Vector3 origin = cameraTransform.position;
-            Vector3 direction = cameraTransform.forward;
+            if (_gymFurniture == null) return null;
 
-            int castMask = _monsterMask.value;
-
-            RaycastHit[] hits = Physics.SphereCastAll(
-                origin,
-                _aimAssistRadius,
-                direction,
-                _maxRange,
-                castMask,
-                QueryTriggerInteraction.Ignore);
-
-            bool hasHit = false;
-            float nearestDistance = float.MaxValue;
-            RaycastHit nearestHit = default;
-
-            for (int index = 0; index < hits.Length; index++)
+            foreach (GymFurniture gymFurniture in _gymFurniture)
             {
-                RaycastHit candidate = hits[index];
-
-                if (candidate.collider.transform.IsChildOf(transform)) continue;
-                if (candidate.distance >= nearestDistance) continue;
-
-                nearestDistance = candidate.distance;
-                nearestHit = candidate;
-                hasHit = true;
+                if (gymFurniture != null && gymFurniture.Contains(hitCollider)) return gymFurniture;
             }
 
-            if (!hasHit)
-            {
-                _isWin = false;
-                _hitMonster = null;
-                _impactPoint = origin + direction * _maxRange;
-                return;
-            }
-
-            _isWin = IsMonster(nearestHit.collider);
-            _hitMonster = _isWin
-                ? nearestHit.collider.GetComponentInParent<Monster>()
-                : null;
-
-            _impactPoint = nearestHit.distance > 0f
-                ? nearestHit.point
-                : nearestHit.collider.bounds.center;
+            return null;
         }
 
-        private bool IsMonster(Collider hitCollider)
+        private void SetPlayerAvailable(bool available)
         {
-            return (_monsterMask.value & (1 << hitCollider.gameObject.layer)) != 0;
+            if (_playerController != null) _playerController.IsWorking = available;
+            if (_playerCollider != null) _playerCollider.enabled = available;
+            if (_playerVisual != null) _playerVisual.SetActive(available);
         }
 
-        private void LaunchBullet()
+        private static bool BelongsTo(Collider hitCollider, Collider interactionCollider)
         {
-            if (_bulletPrefab == null || _muzzle == null)
-            {
-                Invoke(nameof(ResolveResult), _resultDelay);
-                return;
-            }
-
-            Bullet bullet = Instantiate(_bulletPrefab, _muzzle.position, _muzzle.rotation);
-            bullet.Launch(_impactPoint, _bulletSpeed, ResolveResult);
+            if (hitCollider == null || interactionCollider == null) return false;
+            return hitCollider == interactionCollider
+                   || hitCollider.transform.IsChildOf(interactionCollider.transform)
+                   || interactionCollider.transform.IsChildOf(hitCollider.transform);
         }
 
-        private void ResolveResult()
+        private bool TryGetCompletedTap(out Vector2 tapPosition)
         {
-            if (_impactVfx != null)
+            tapPosition = Vector2.zero;
+#if UNITY_EDITOR || UNITY_STANDALONE
+            if (Input.GetMouseButtonDown(0))
             {
-                _impactVfx.Play();
+                BeginTap(Input.mousePosition, -1);
             }
 
-            if (GameManager.Instance == null)
+            if (!Input.GetMouseButtonUp(0) || !_isTrackingTap) return false;
+
+            tapPosition = Input.mousePosition;
+            return CompleteTap(tapPosition);
+#else
+            for (int touchIndex = 0; touchIndex < Input.touchCount; touchIndex++)
             {
-                Debug.LogWarning("GameManager not found, cannot show result panel.");
-                return;
+                Touch touch = Input.GetTouch(touchIndex);
+                if (!_isTrackingTap && touch.phase == TouchPhase.Began)
+                {
+                    BeginTap(touch.position, touch.fingerId);
+                    continue;
+                }
+
+                if (!_isTrackingTap || touch.fingerId != _trackedFingerId) continue;
+                if (touch.phase == TouchPhase.Canceled)
+                {
+                    _isTrackingTap = false;
+                    return false;
+                }
+
+                if (touch.phase != TouchPhase.Ended) continue;
+                tapPosition = touch.position;
+                return CompleteTap(tapPosition);
             }
 
-            if (_isWin && _gameController != null)
-            {
-                _gameController.PlayWinSequence(_hitMonster);
-            }
-            else if (_isWin)
-            {
-                _hitMonster?.PlayDeath();
-                GameManager.Instance.ShowWinPanel();
-            }
-            else GameManager.Instance.ShowFailPanel();
+            return false;
+#endif
+        }
+
+        private void BeginTap(Vector2 position, int fingerId)
+        {
+            _isTrackingTap = true;
+            _trackedFingerId = fingerId;
+            _tapStartPosition = position;
+            _tapStartTime = Time.unscaledTime;
+        }
+
+        private bool CompleteTap(Vector2 position)
+        {
+            _isTrackingTap = false;
+            float maxMovementSqr = _tapMaxMovement * _tapMaxMovement;
+            return (position - _tapStartPosition).sqrMagnitude <= maxMovementSqr
+                   && Time.unscaledTime - _tapStartTime <= _tapMaxDuration;
         }
     }
 }
