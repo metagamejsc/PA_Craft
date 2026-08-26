@@ -27,6 +27,18 @@ namespace Playable
         [Tooltip("Phát anim death xong đợi ngần này rồi Destroy hẳn khỏi map")] [SerializeField]
         private float _deathDespawnDelay = 1.5f;
 
+        [Header("Death - VFX + Scale (thay cho animator death, tuỳ chọn)")]
+        [Tooltip("Bật: bỏ qua animator death, chỉ phát VFX 1 lần rồi scale model nhỏ dần về 0. " +
+                 "Tắt (mặc định): chết theo animator như hiện tại.")]
+        [SerializeField]
+        private bool _useScaleDeath = false;
+
+        [SerializeField] private GameObject _deathVfxPrefab;
+        [SerializeField] private Vector3 _deathVfxOffset = Vector3.zero;
+        [SerializeField] private float _deathVfxLifeTime = 2f;
+        [SerializeField] private float _deathScaleDuration = 0.6f;
+        [SerializeField] private Ease _deathScaleEase = Ease.InBack;
+
         [Header("Wander")]
         [Tooltip("Không set trực tiếp - luôn bị Spawn() ghi đè bằng MoveSpeed trong struct data đúng loại quái.")]
         private float _moveSpeed = 1.5f;
@@ -76,6 +88,11 @@ namespace Playable
         private GameObject _spawnVfxInstance;
         private ParticleSystem[] _spawnVfxParticles;
         private float _spawnVfxHideTime;
+
+        private Tween _deathScaleTween;
+        private GameObject _deathVfxInstance;
+        private ParticleSystem[] _deathVfxParticles;
+        private float _deathVfxHideTime;
 
         private MonsterHealth _health;
         private MonsterCombat _combat;
@@ -229,6 +246,16 @@ namespace Playable
                 }
             }
 
+            if (_deathVfxHideTime > 0f && Time.time >= _deathVfxHideTime)
+            {
+                _deathVfxHideTime = 0f;
+
+                if (_deathVfxInstance != null)
+                {
+                    _deathVfxInstance.SetActive(false);
+                }
+            }
+
             if (_health.IsDead)
             {
                 UpdateDeath();
@@ -274,6 +301,7 @@ namespace Playable
         private void OnDestroy()
         {
             _spawnTween?.Kill();
+            _deathScaleTween?.Kill();
 
             if (_health != null)
             {
@@ -413,9 +441,16 @@ namespace Playable
             _isSpawned = false;
             _isMoving = false;
             _spawnTween?.Kill();
+            _deathScaleTween?.Kill();
             _transform.localScale = _baseScale;
 
             _combat.OnRemovedFromPlay();
+
+            if (_deathVfxInstance != null)
+            {
+                _deathVfxHideTime = 0f;
+                _deathVfxInstance.SetActive(false);
+            }
 
             if (_spawnVfxInstance != null)
             {
@@ -745,6 +780,19 @@ namespace Playable
             _isMoving = false;
             _combat.OnRemovedFromPlay();
 
+            if (_useScaleDeath)
+            {
+                PlayDeathVfx();
+
+                _deathScaleTween?.Kill();
+                _deathScaleTween = _transform
+                    .DOScale(Vector3.zero, _deathScaleDuration)
+                    .SetEase(_deathScaleEase)
+                    .OnComplete(DeactivateAfterDeath);
+
+                return;
+            }
+
             if (_hasAnimator)
             {
                 _stateBeforeDeathHash = _animator.GetCurrentAnimatorStateInfo(0).fullPathHash;
@@ -757,8 +805,45 @@ namespace Playable
             _deathDestroyTime = Time.time + _deathDespawnDelay;
         }
 
+        /// <summary>
+        /// Bật VFX chết ngay tại vị trí quái (vị trí đã snap ground lúc sống) - instance tạo 1 lần rồi tái
+        /// sử dụng qua các lần chết sau (pooled), không Instantiate/Destroy mỗi lần chết.
+        /// </summary>
+        private void PlayDeathVfx()
+        {
+            if (_deathVfxPrefab == null)
+            {
+                return;
+            }
+
+            if (_deathVfxInstance == null)
+            {
+                _deathVfxInstance = Instantiate(_deathVfxPrefab, _transform.position + _deathVfxOffset, Quaternion.identity);
+                _deathVfxParticles = _deathVfxInstance.GetComponentsInChildren<ParticleSystem>(true);
+            }
+            else
+            {
+                _deathVfxInstance.transform.position = _transform.position + _deathVfxOffset;
+                _deathVfxInstance.SetActive(true);
+            }
+
+            for (int i = 0; i < _deathVfxParticles.Length; i++)
+            {
+                _deathVfxParticles[i].Clear();
+                _deathVfxParticles[i].Play();
+            }
+
+            _deathVfxHideTime = _deathVfxLifeTime > 0f ? Time.time + _deathVfxLifeTime : 0f;
+        }
+
         private void UpdateDeath()
         {
+            if (_useScaleDeath)
+            {
+                // DeactivateAfterDeath() được gọi qua OnComplete của _deathScaleTween, không cần poll ở đây.
+                return;
+            }
+
             if (Time.time >= _deathDestroyTime)
             {
                 DeactivateAfterDeath();
