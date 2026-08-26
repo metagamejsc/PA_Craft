@@ -10,26 +10,11 @@ namespace Playable
         private Animator _animator;
 
         [Header("Type & Data")]
-        [Tooltip("Loại quái - quyết định dùng struct data nào bên dưới và tự gắn đúng skill component lúc Awake.")]
+        [Tooltip("Loại quái - quyết định gắn component data + skill nào lúc Awake. Component data tương " +
+                 "ứng (vd EndermanMonsterData) tự thêm nếu thiếu, nhưng nên tự Add Component + điền tay " +
+                 "trên từng prefab để dễ chỉnh.")]
         [SerializeField]
         private MonsterType _monsterType;
-
-        [Tooltip("Chỉ điền đúng 1 trong 5 struct bên dưới khớp Monster Type - 4 struct còn lại bỏ trống, không dùng tới.")]
-        [Header("Enderman Data")]
-        [SerializeField]
-        private EndermanData _endermanData;
-
-        [Header("Iron Golem Data")] [SerializeField]
-        private IronGolemData _ironGolemData;
-
-        [Header("Creeper Data")] [SerializeField]
-        private CreeperData _creeperData;
-
-        [Header("Huggy Data")] [SerializeField]
-        private HuggyData _huggyData;
-
-        [Header("Shinsonic Data")] [SerializeField]
-        private ShinsonicData _shinsonicData;
 
         [Header("Animation")] [SerializeField] private string _isRunParam = "IsRun";
 
@@ -96,6 +81,12 @@ namespace Playable
         private MonsterCombat _combat;
         private IMonsterSkill[] _skills = new IMonsterSkill[0];
 
+        private EndermanMonsterData _endermanDataHolder;
+        private IronGolemMonsterData _ironGolemDataHolder;
+        private CreeperMonsterData _creeperDataHolder;
+        private HuggyMonsterData _huggyDataHolder;
+        private ShinsonicMonsterData _shinsonicDataHolder;
+
         private float _deathDestroyTime;
         private int _stateBeforeDeathHash;
         private bool _deathAnimationStarted;
@@ -109,11 +100,11 @@ namespace Playable
         public Vector3 Position => _transform.position;
         public MonsterType Type => _monsterType;
 
-        public EndermanData EndermanStats => _endermanData;
-        public IronGolemData IronGolemStats => _ironGolemData;
-        public CreeperData CreeperStats => _creeperData;
-        public HuggyData HuggyStats => _huggyData;
-        public ShinsonicData ShinsonicStats => _shinsonicData;
+        public EndermanData EndermanStats => _endermanDataHolder != null ? _endermanDataHolder.Data : default;
+        public IronGolemData IronGolemStats => _ironGolemDataHolder != null ? _ironGolemDataHolder.Data : default;
+        public CreeperData CreeperStats => _creeperDataHolder != null ? _creeperDataHolder.Data : default;
+        public HuggyData HuggyStats => _huggyDataHolder != null ? _huggyDataHolder.Data : default;
+        public ShinsonicData ShinsonicStats => _shinsonicDataHolder != null ? _shinsonicDataHolder.Data : default;
 
         private void Awake()
         {
@@ -147,10 +138,48 @@ namespace Playable
                 _combat = gameObject.AddComponent<MonsterCombat>();
             }
 
+            EnsureDataHolder();
+            _endermanDataHolder = GetComponent<EndermanMonsterData>();
+            _ironGolemDataHolder = GetComponent<IronGolemMonsterData>();
+            _creeperDataHolder = GetComponent<CreeperMonsterData>();
+            _huggyDataHolder = GetComponent<HuggyMonsterData>();
+            _shinsonicDataHolder = GetComponent<ShinsonicMonsterData>();
+
             AutoAttachSkills();
             _skills = GetComponents<IMonsterSkill>();
 
             _health.Died += OnHealthDied;
+        }
+
+        /// <summary>
+        /// Tự gắn đúng component data (vd EndermanMonsterData) theo _monsterType nếu prefab chưa gắn sẵn -
+        /// nên tự Add Component + điền tay trên từng prefab để dễ chỉnh, đây chỉ là lưới an toàn tránh
+        /// NullReferenceException nếu quên gắn (khi đó số liệu về 0, sẽ thấy rõ ngay lúc playtest).
+        /// </summary>
+        private void EnsureDataHolder()
+        {
+            switch (_monsterType)
+            {
+                case MonsterType.Enderman:
+                    EnsureComponent<EndermanMonsterData>();
+                    break;
+
+                case MonsterType.IronGolem:
+                    EnsureComponent<IronGolemMonsterData>();
+                    break;
+
+                case MonsterType.Creeper:
+                    EnsureComponent<CreeperMonsterData>();
+                    break;
+
+                case MonsterType.Huggy:
+                    EnsureComponent<HuggyMonsterData>();
+                    break;
+
+                case MonsterType.Shinsonic:
+                    EnsureComponent<ShinsonicMonsterData>();
+                    break;
+            }
         }
 
         /// <summary>
@@ -162,25 +191,25 @@ namespace Playable
             switch (_monsterType)
             {
                 case MonsterType.Enderman:
-                    EnsureSkill<EndermanArmReachSkill>();
-                    EnsureSkill<EndermanTeleportSkill>();
+                    EnsureComponent<EndermanArmReachSkill>();
+                    EnsureComponent<EndermanTeleportSkill>();
                     break;
 
                 case MonsterType.IronGolem:
-                    EnsureSkill<IronGolemSlamSkill>();
-                    EnsureSkill<IronGolemTntBarrageSkill>();
+                    EnsureComponent<IronGolemSlamSkill>();
+                    EnsureComponent<IronGolemTntBarrageSkill>();
                     break;
 
                 // Creeper và Huggy không có skill - đòn attack thường của chúng (ném TNT / gây stun)
                 // đạt được hoàn toàn bằng cấu hình CreeperData/HuggyData, không cần skill component.
 
                 case MonsterType.Shinsonic:
-                    EnsureSkill<ShinsonicTransformSkill>();
+                    EnsureComponent<ShinsonicTransformSkill>();
                     break;
             }
         }
 
-        private void EnsureSkill<T>() where T : Component
+        private void EnsureComponent<T>() where T : Component
         {
             if (GetComponent<T>() == null)
             {
@@ -274,50 +303,65 @@ namespace Playable
             switch (_monsterType)
             {
                 case MonsterType.Enderman:
-                    _moveSpeed = _endermanData.MoveSpeed;
-                    maxHealth = _endermanData.MaxHealth;
+                {
+                    EndermanData data = EndermanStats;
+                    _moveSpeed = data.MoveSpeed;
+                    maxHealth = data.MaxHealth;
                     common = new MonsterCommonStats(
-                        _endermanData.AttackDamage, _endermanData.AttackRange, _endermanData.AttackCooldown,
-                        _endermanData.KnockbackForce, _endermanData.KnockbackDuration,
+                        data.AttackDamage, data.AttackRange, data.AttackCooldown,
+                        data.KnockbackForce, data.KnockbackDuration,
                         0f, 0f, 0f, 0f, 0f);
                     break;
+                }
 
                 case MonsterType.IronGolem:
-                    _moveSpeed = _ironGolemData.MoveSpeed;
-                    maxHealth = _ironGolemData.MaxHealth;
+                {
+                    IronGolemData data = IronGolemStats;
+                    _moveSpeed = data.MoveSpeed;
+                    maxHealth = data.MaxHealth;
                     common = new MonsterCommonStats(
-                        _ironGolemData.AttackDamage, _ironGolemData.AttackRange, _ironGolemData.AttackCooldown,
-                        _ironGolemData.KnockbackForce, _ironGolemData.KnockbackDuration,
+                        data.AttackDamage, data.AttackRange, data.AttackCooldown,
+                        data.KnockbackForce, data.KnockbackDuration,
                         0f, 0f, 0f, 0f, 0f);
                     break;
+                }
 
                 case MonsterType.Creeper:
-                    _moveSpeed = _creeperData.MoveSpeed;
-                    maxHealth = _creeperData.MaxHealth;
+                {
+                    CreeperData data = CreeperStats;
+                    _moveSpeed = data.MoveSpeed;
+                    maxHealth = data.MaxHealth;
                     common = new MonsterCommonStats(
-                        _creeperData.AttackDamage, _creeperData.AttackRange, _creeperData.AttackCooldown,
-                        _creeperData.KnockbackForce, _creeperData.KnockbackDuration,
-                        _creeperData.BombDamage, _creeperData.BombRange, _creeperData.BombCooldown,
-                        _creeperData.BombSpeed, _creeperData.BombKnockbackForce);
+                        data.AttackDamage, data.AttackRange, data.AttackCooldown,
+                        data.KnockbackForce, data.KnockbackDuration,
+                        data.BombDamage, data.BombRange, data.BombCooldown,
+                        data.BombSpeed, data.BombKnockbackForce);
                     break;
+                }
 
                 case MonsterType.Huggy:
-                    _moveSpeed = _huggyData.MoveSpeed;
-                    maxHealth = _huggyData.MaxHealth;
+                {
+                    HuggyData data = HuggyStats;
+                    _moveSpeed = data.MoveSpeed;
+                    maxHealth = data.MaxHealth;
                     common = new MonsterCommonStats(
-                        _huggyData.AttackDamage, _huggyData.AttackRange, _huggyData.AttackCooldown,
-                        _huggyData.KnockbackForce, _huggyData.KnockbackDuration,
+                        data.AttackDamage, data.AttackRange, data.AttackCooldown,
+                        data.KnockbackForce, data.KnockbackDuration,
                         0f, 0f, 0f, 0f, 0f);
                     break;
+                }
 
                 case MonsterType.Shinsonic:
-                    _moveSpeed = _shinsonicData.MoveSpeed;
-                    maxHealth = _shinsonicData.MaxHealth;
+                {
+                    ShinsonicData data = ShinsonicStats;
+                    _moveSpeed = data.MoveSpeed;
+                    maxHealth = data.MaxHealth;
                     common = new MonsterCommonStats(
-                        _shinsonicData.AttackDamage, _shinsonicData.AttackRange, _shinsonicData.AttackCooldown,
-                        _shinsonicData.KnockbackForce, _shinsonicData.KnockbackDuration,
+                        data.AttackDamage, data.AttackRange, data.AttackCooldown,
+                        data.KnockbackForce, data.KnockbackDuration,
                         0f, 0f, 0f, 0f, 0f);
                     break;
+                }
 
                 default:
                     maxHealth = 100f;
