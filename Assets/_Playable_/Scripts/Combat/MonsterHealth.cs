@@ -50,6 +50,10 @@ namespace Playable
         public bool IsDead => _isDead;
         public bool IsStaggered => _knockbackTimer > 0f || _launchTimer > 0f;
 
+        /// <summary>Số giây còn lại đang bị stun/CC (0 nếu không bị) - dùng để code khác (skill, UI,
+        /// target priority...) kiểm tra thời lượng thực tế thay vì chỉ true/false như IsStaggered.</summary>
+        public float StunTimeRemaining => Mathf.Max(_knockbackTimer, _launchTimer);
+
         private void Awake()
         {
             _monster = GetComponent<Monster>();
