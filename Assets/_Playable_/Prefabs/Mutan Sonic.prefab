@@ -4100,6 +4100,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1869441280165289635}
+  - component: {fileID: 3933979105236982760}
   - component: {fileID: 809483914874773751}
   - component: {fileID: 8706493415140554014}
   - component: {fileID: 413842024506301496}
@@ -4132,6 +4133,33 @@ Transform:
   - {fileID: 6625973098785964924}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3933979105236982760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7655316995303295397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e26dcce420634c54db82bb563822587a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data:
+    MaxHealth: 100
+    MoveSpeed: 2
+    AttackDamage: 10
+    AttackRange: 1.5
+    AttackCooldown: 1.2
+    KnockbackForce: 0.4
+    KnockbackDuration: 0.3
+    TransformHpThreshold: 0.7
+    TransformStage1BonusMaxHealth: 40
+    TransformStage1BonusDamage: 8
+    TransformStage2BonusMaxHealth: 60
+    TransformStage2BonusDamage: 12
+    TransformStage3BonusMaxHealth: 80
+    TransformStage3BonusDamage: 15
 --- !u!114 &809483914874773751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4145,13 +4173,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 5124108175486017599}
-  _monsterType: 0
-  _statsTable: {fileID: 0}
+  _monsterType: 4
   _isRunParam: IsRun
   _isDeathParam: IsDeath
   _deathParamIsTrigger: 0
   _deathDespawnDelay: 1.5
-  _moveSpeed: 1.5
   _rotationSmooth: 8
   _wanderRadius: 3
   _idleDurationRange: {x: 0.8, y: 2.5}
@@ -4234,6 +4260,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31739bf87e30fcf41a402ceaed5b4082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _stunTriggerParam: 
+  _stunnedBoolParam: 
 --- !u!114 &1633986204744716690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4267,9 +4295,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _stage1TriggerParam: 
   _stage2TriggerParam: 
+  _stage3TriggerParam: 
   _baseVisual: {fileID: 0}
   _stage1Visual: {fileID: 0}
   _stage2Visual: {fileID: 0}
+  _stage3Visual: {fileID: 0}
 --- !u!1 &7673195435897779715
 GameObject:
   m_ObjectHideFlags: 0

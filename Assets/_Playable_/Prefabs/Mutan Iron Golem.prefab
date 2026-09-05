@@ -9,12 +9,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5535218278314301314}
+  - component: {fileID: 6120275236910677037}
   - component: {fileID: 7858913768030975918}
   - component: {fileID: 91679534588394144}
   - component: {fileID: 8935215176868854455}
   - component: {fileID: 2534148306405668583}
   - component: {fileID: -4505604175055721363}
   - component: {fileID: -5929688227257178959}
+  - component: {fileID: 3197574169796101682}
   m_Layer: 0
   m_Name: Mutan Iron Golem
   m_TagString: Untagged
@@ -39,6 +41,37 @@ Transform:
   - {fileID: 2575508213784896573}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6120275236910677037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2479749635512123698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66f876c021eca5e45b1a2382584be0f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data:
+    MaxHealth: 220
+    MoveSpeed: 1.3
+    AttackDamage: 20
+    AttackRange: 5
+    AttackCooldown: 3
+    KnockbackForce: 0.5
+    KnockbackDuration: 0.35
+    SlamCooldown: 10
+    SlamDamage: 30
+    SlamLaunchHeight: 2.5
+    SlamAirTime: 1
+    SlamStunDuration: 1
+    TntBarrageCooldown: 14
+    TntBarrageRange: 6
+    TntBarrageDamage: 8
+    TntBarrageDuration: 1.5
+    TntBarrageSpeed: 7
+    TntBarrageKnockbackForce: 0.3
 --- !u!114 &7858913768030975918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52,13 +85,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 5340548559077012129}
-  _monsterType: 0
-  _statsTable: {fileID: 0}
+  _monsterType: 1
+  _stayStillOnSpawn: 1
   _isRunParam: IsRun
   _isDeathParam: IsDeath
   _deathParamIsTrigger: 0
   _deathDespawnDelay: 1.5
-  _moveSpeed: 1.5
+  _useScaleDeath: 0
+  _deathVfxPrefab: {fileID: 0}
+  _deathVfxOffset: {x: 0, y: 0, z: 0}
+  _deathVfxLifeTime: 2
+  _deathScaleDuration: 0.6
+  _deathScaleEase: 26
   _rotationSmooth: 8
   _wanderRadius: 3
   _idleDurationRange: {x: 0.8, y: 2.5}
@@ -141,6 +179,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31739bf87e30fcf41a402ceaed5b4082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _stunnedBoolParam: 
 --- !u!114 &-4505604175055721363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,9 +193,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _attackTriggerParam: IsAttack
-  _attackParamIsTrigger: 0
-  _throwBombTriggerParam: 
-  _throwBombParamIsTrigger: 0
+  _useAttackHitAnimationEvent: 0
   _bombProjectilePrefab: {fileID: 4752433026568376435, guid: fd80e7bc7b2a10b4294efe45a0c960ff,
     type: 3}
   _maxChaseDuration: 2.5
@@ -173,7 +210,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _slamTriggerParam: 
-  _slamVfxPrefab: {fileID: 0}
+  _slamVfxPrefab: {fileID: 7829065371017662876}
+--- !u!114 &3197574169796101682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2479749635512123698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28af512052932514f816280fde8d16ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _skillBoolParam: 
+  _tntPrefab: {fileID: 0}
+  _leftHandFirePoint: {fileID: 0}
+  _rightHandFirePoint: {fileID: 0}
+  _leftHandFallbackOffset: {x: -0.9, y: 2.2, z: 0.4}
+  _rightHandFallbackOffset: {x: 0.9, y: 2.2, z: 0.4}
 --- !u!1001 &7946476493570570082
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -262,7 +317,7 @@ Animator:
   m_GameObject: {fileID: 7099616490324675123}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 2ac56d4243d1c0349b8c63e023fe484f, type: 2}
+  m_Controller: {fileID: 9100000, guid: fe8340396418c554ebb545e43b49240f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -288,10 +343,45 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5535218278314301314}
     m_Modifications:
+    - target: {fileID: 1503706678210020793, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2456444350559109447, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3196547498755922340, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3906786834456868839, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4005404612240487812, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4102446199997542472, guid: 4816f9eaf6f72a245980fb59087652e7,
         type: 3}
       propertyPath: m_Name
       value: wave_stone
+      objectReference: {fileID: 0}
+    - target: {fileID: 4557797793620324330, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5334051253634463427, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6613073344918548504, guid: 4816f9eaf6f72a245980fb59087652e7,
         type: 3}
@@ -343,6 +433,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6839472181515146516, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7118952474621883596, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8107267603217689826, guid: 4816f9eaf6f72a245980fb59087652e7,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -351,6 +456,12 @@ PrefabInstance:
 --- !u!4 &2575508213784896573 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6613073344918548504, guid: 4816f9eaf6f72a245980fb59087652e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 8680776484476326949}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &7829065371017662876 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1503706678210020793, guid: 4816f9eaf6f72a245980fb59087652e7,
     type: 3}
   m_PrefabInstance: {fileID: 8680776484476326949}
   m_PrefabAsset: {fileID: 0}

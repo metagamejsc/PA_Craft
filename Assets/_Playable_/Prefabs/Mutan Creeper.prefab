@@ -9,12 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5947972320453701471}
+  - component: {fileID: 3043819456426717411}
   - component: {fileID: 5378140741055346350}
   - component: {fileID: 8007666484964146641}
   - component: {fileID: 80253626980865332}
   - component: {fileID: 8847175304520780675}
   - component: {fileID: 5245321157858648370}
-  - component: {fileID: 2334833840753735707}
   m_Layer: 0
   m_Name: Mutan Creeper
   m_TagString: Untagged
@@ -38,6 +38,31 @@ Transform:
   - {fileID: 584135094359744760}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3043819456426717411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 869486114952240991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77dcf336b66d0f9448ef5542644029fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data:
+    MaxHealth: 90
+    MoveSpeed: 1.8
+    AttackDamage: 5
+    AttackRange: 0.1
+    AttackCooldown: 1
+    KnockbackForce: 0.4
+    KnockbackDuration: 0.3
+    BombDamage: 16
+    BombRange: 5
+    BombCooldown: 1.8
+    BombSpeed: 7
+    BombKnockbackForce: 0.4
 --- !u!114 &5378140741055346350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -51,13 +76,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 7920127604652863319}
-  _monsterType: 0
-  _statsTable: {fileID: 0}
+  _monsterType: 2
   _isRunParam: IsRun
   _isDeathParam: IsDeath
   _deathParamIsTrigger: 0
   _deathDespawnDelay: 1.5
-  _moveSpeed: 1.5
   _rotationSmooth: 8
   _wanderRadius: 3
   _idleDurationRange: {x: 0.8, y: 2.5}
@@ -140,6 +163,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31739bf87e30fcf41a402ceaed5b4082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _stunTriggerParam: 
+  _stunnedBoolParam: 
 --- !u!114 &5245321157858648370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,19 +184,6 @@ MonoBehaviour:
   _bombProjectilePrefab: {fileID: 4752433026568376435, guid: fd80e7bc7b2a10b4294efe45a0c960ff,
     type: 3}
   _maxChaseDuration: 2.5
---- !u!114 &2334833840753735707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 869486114952240991}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b45392fdef2769a4a8783a1a6ced5ff5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _poisonTriggerParam: 
 --- !u!1001 &1121953465381914387
 PrefabInstance:
   m_ObjectHideFlags: 0

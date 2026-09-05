@@ -49,8 +49,7 @@ namespace Playable
         [SerializeField] private Sprite _iconTransformNormal;
         [SerializeField] private Sprite _iconTransformActive;
 
-        [Tooltip("Image con của ButtonSpeed. Bỏ trống thì tự lấy Image đầu tiên trong con của nút")]
-        [SerializeField]
+        [Tooltip("Image con của ButtonSpeed. Bỏ trống thì tự lấy Image đầu tiên trong con của nút")] [SerializeField]
         private Image _iconSpeed;
 
         [SerializeField] private Sprite _iconSpeedNormal;
