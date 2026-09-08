@@ -1,207 +1,297 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Playable
 {
     public class GameController : MonoBehaviour
     {
-        [SerializeField] private GameObject _objAnimal;
-        [SerializeField] private Button _btnDog;
-        [SerializeField] private Button _btnCat;
-        [SerializeField] private GameObject _objDog;
-        [SerializeField] private Button _btnHouseDog1;
-        [SerializeField] private Button _btnHouseDog2;
-        [SerializeField] private GameObject _objCat;
-        [SerializeField] private Button _btnHouseCat1;
-        [SerializeField] private Button _btnHouseCat2;
-        [SerializeField] private GameObject _hand;
-        [SerializeField] private float _duration;
-        [SerializeField] private float _pressScale = 0.9f;
-        [SerializeField] private float _pressDuration = 0.2f;
-        [SerializeField] private float _buttonPressedScale = 1.1f;
-        [SerializeField] private float _buttonScaleDuration = 0.12f;
-        [SerializeField] private AudioClip _clickSound;
-        [SerializeField] private List<Transform> _texts;
+        [SerializeField] private GameObject _gameplay;
+        [SerializeField] private GameObject _titleCTA;
+        [SerializeField] private GameObject _btnCTA;
+        [SerializeField] private TMP_Text _title;
+        [SerializeField] private GameObject _tut;
+        [SerializeField] private List<ObjectActive> _objects;
+        [Header("Tutorial")] [SerializeField] private float _tutMoveDuration = 0.5f;
+        [SerializeField] private float _tutPressScale = 0.8f;
+        [SerializeField] private float _tutPressDuration = 0.15f;
 
-        private Vector3 _handDefaultScale;
-        private Sequence _handSequence;
-        private Transform _handStart;
-        private Transform _handEnd;
-        private int _screenWidth;
-        private int _screenHeight;
-        private Coroutine _refreshHandCoroutine;
+        [Header("Camera End Pose")] [SerializeField]
+        private Transform _cameraTransform;
 
-        private void Awake()
-        {
-            _handDefaultScale = _hand.transform.localScale;
-        }
+        [SerializeField] private Vector3 _cameraEndPosition;
+        [SerializeField] private Vector3 _cameraEndRotation;
+        [SerializeField] private float _cameraMoveDuration = 1f;
+
+        [Header("CTA")] [SerializeField] private float _gameplayToCtaDelay = 1.5f;
+        [SerializeField] private Vector3 _ctaPunchScale = new Vector3(1.2f, 1.2f, 1.2f);
+        [SerializeField] private float _ctaScaleUpDuration = 0.5f;
+        [SerializeField] private float _ctaScaleDownDuration = 0.15f;
+
+        private Sequence _tutorialSequence;
+        private Sequence _cameraSequence;
+        private Sequence _ctaSequence;
+        private Tween _ctaDelayTween;
+        private readonly HashSet<Button> _clickedButtons = new HashSet<Button>();
+        private int _buttonCount;
+        private Vector3 _tutOriginalScale;
+        private Vector3 _tutPressedScale;
+        private int _lastScreenWidth;
+        private int _lastScreenHeight;
 
         private void Start()
         {
-            _btnCat.onClick.AddListener(HandleClickCat);
-            _btnDog.onClick.AddListener(HandleClickDog);
-            AddButtonScaleEffect(_btnCat);
-            AddButtonScaleEffect(_btnDog);
-            _screenWidth = Screen.width;
-            _screenHeight = Screen.height;
-            AnimateHand(_btnCat.transform, _btnDog.transform);
-            foreach (var t in _texts)
+            _title.transform.DOScale(new Vector3(1.2f, 1.2f, 1.2f), 1f).SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Yoyo);
+            foreach (var t in _objects)
             {
-                DoScaleText(t);
-            }
-        }
+                if (t.BtnActive != null)
+                {
+                    _buttonCount++;
+                }
 
-        private void DoScaleText(Transform text)
-        {
-            text.DOScale(new Vector3(1.2f, 1.2f, 1.2f), 0.5f).SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+                ActiveObject(t);
+            }
+
+            PlayTutorial();
+
+            _lastScreenWidth = Screen.width;
+            _lastScreenHeight = Screen.height;
         }
 
         private void Update()
         {
-            if (_screenWidth == Screen.width && _screenHeight == Screen.height)
+            if (Screen.width == _lastScreenWidth && Screen.height == _lastScreenHeight)
             {
                 return;
             }
 
-            _screenWidth = Screen.width;
-            _screenHeight = Screen.height;
+            _lastScreenWidth = Screen.width;
+            _lastScreenHeight = Screen.height;
+            RestartTutorialAfterScreenChange();
+        }
 
-            if (_refreshHandCoroutine == null)
+        private void PlayTutorial()
+        {
+            if (_tut == null || _buttonCount == 0)
             {
-                _refreshHandCoroutine = StartCoroutine(RefreshHandPosition());
+                MoveCameraToEndPose();
+                return;
             }
-        }
 
-        private void HandleClickDog()
-        {
-            AudioManager.Instance.PlaySound(_clickSound);
-            _objAnimal.SetActive(false);
-            _objDog.SetActive(true);
-            _btnHouseDog1.onClick.AddListener(() =>
-            {
-                AudioManager.Instance.PlaySound(_clickSound);
-                GameManager.Instance.EndGame();
-            });
-            _btnHouseDog2.onClick.AddListener(() =>
-            {
-                AudioManager.Instance.PlaySound(_clickSound);
-                GameManager.Instance.EndGame();
-            });
-            AnimateHand(_btnHouseDog2.transform, _btnHouseDog1.transform);
-        }
-
-        private void HandleClickCat()
-        {
-            AudioManager.Instance.PlaySound(_clickSound);
-            _objAnimal.SetActive(false);
-            _objCat.SetActive(true);
-            _btnHouseCat1.onClick.AddListener(() =>
-            {
-                AudioManager.Instance.PlaySound(_clickSound);
-                GameManager.Instance.EndGame();
-            });
-            _btnHouseCat2.onClick.AddListener(() =>
-            {
-                AudioManager.Instance.PlaySound(_clickSound);
-                GameManager.Instance.EndGame();
-            });
-            AnimateHand(_btnHouseCat2.transform, _btnHouseCat1.transform);
-        }
-
-        private void AnimateHand(Transform start, Transform end)
-        {
-            _handSequence?.Kill();
-            _handStart = start;
-            _handEnd = end;
-
-            Transform handTransform = _hand.transform;
-            handTransform.position = start.position;
-            handTransform.localScale = _handDefaultScale;
-
-            _handSequence = DOTween.Sequence()
-                .Append(CreateHandPressTween(handTransform))
-                .Append(handTransform.DOMove(end.position, _duration).SetEase(Ease.InOutSine))
-                .Append(CreateHandPressTween(handTransform))
-                .Append(handTransform.DOMove(start.position, _duration).SetEase(Ease.InOutSine))
-                .SetLoops(-1, LoopType.Restart);
-        }
-
-        private IEnumerator RefreshHandPosition()
-        {
-            yield return new WaitForEndOfFrame();
             Canvas.ForceUpdateCanvases();
+            Transform tutTransform = _tut.transform;
+            _tutOriginalScale = tutTransform.localScale;
+            _tutPressedScale = _tutOriginalScale * _tutPressScale;
 
-            if (_handStart != null && _handEnd != null)
-            {
-                AnimateHand(_handStart, _handEnd);
-            }
-
-            _refreshHandCoroutine = null;
+            CreateTutorialPass(tutTransform, _tutOriginalScale, _tutPressedScale, true, false);
         }
 
-        private Sequence CreateHandPressTween(Transform handTransform)
+        private void RestartTutorialAfterScreenChange()
         {
-            float halfDuration = _pressDuration * 0.5f;
-            Vector3 pressedScale = _handDefaultScale * _pressScale;
+            if (_tut == null || !_tut.activeSelf)
+            {
+                return;
+            }
 
-            return DOTween.Sequence()
-                .Append(handTransform.DOScale(pressedScale, halfDuration).SetEase(Ease.InOutSine))
-                .Append(handTransform.DOScale(_handDefaultScale, halfDuration).SetEase(Ease.InOutSine));
+            _tutorialSequence?.Kill();
+            Canvas.ForceUpdateCanvases();
+            Transform tutTransform = _tut.transform;
+            tutTransform.localScale = _tutOriginalScale;
+
+            CreateTutorialPass(tutTransform, _tutOriginalScale, _tutPressedScale, true, false);
         }
 
-        private void AddButtonScaleEffect(Button button)
+        private void CreateTutorialPass(Transform tutTransform, Vector3 originalScale, Vector3 pressedScale,
+            bool moveForward, bool skipFirstButton)
         {
-            Transform buttonTransform = button.transform;
-            Vector3 defaultScale = buttonTransform.localScale;
-            EventTrigger eventTrigger = button.GetComponent<EventTrigger>();
+            _tutorialSequence = DOTween.Sequence();
+            int startIndex = moveForward ? 0 : _objects.Count - 1;
+            int endIndex = moveForward ? _objects.Count : -1;
+            int step = moveForward ? 1 : -1;
+            bool skippedFirstButton = false;
 
-            if (eventTrigger == null)
+            for (int index = startIndex; index != endIndex; index += step)
             {
-                eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+                ObjectActive objectActive = _objects[index];
+                if (objectActive.BtnActive == null)
+                {
+                    continue;
+                }
+
+                if (skipFirstButton && _buttonCount > 1 && !skippedFirstButton)
+                {
+                    skippedFirstButton = true;
+                    continue;
+                }
+
+                Button button = objectActive.BtnActive;
+                _tutorialSequence.Append(CreateTutMoveTween(tutTransform, button));
+                _tutorialSequence.Append(tutTransform.DOScale(pressedScale, _tutPressDuration)
+                    .SetEase(Ease.InOutQuad)
+                    .SetLoops(2, LoopType.Yoyo));
             }
 
-            if (eventTrigger.triggers == null)
+            _tutorialSequence.OnComplete(() =>
+                CreateTutorialPass(tutTransform, originalScale, pressedScale, !moveForward, true));
+        }
+
+        private Tween CreateTutMoveTween(Transform tutTransform, Button button)
+        {
+            if (!(tutTransform is RectTransform tutRect) || !(button.transform is RectTransform buttonRect) ||
+                !(tutRect.parent is RectTransform tutParent))
             {
-                eventTrigger.triggers = new List<EventTrigger.Entry>();
+                return tutTransform.DOMove(button.transform.position, _tutMoveDuration)
+                    .SetEase(Ease.InOutQuad);
             }
 
-            AddEventTrigger(eventTrigger, EventTriggerType.PointerDown, () =>
+            Canvas buttonCanvas = button.GetComponentInParent<Canvas>();
+            Canvas tutCanvas = tutRect.GetComponentInParent<Canvas>();
+            Camera buttonCamera = buttonCanvas != null && buttonCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? buttonCanvas.worldCamera
+                : null;
+            Camera tutCamera = tutCanvas != null && tutCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? tutCanvas.worldCamera
+                : null;
+            Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(buttonCamera, buttonRect.position);
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                tutParent,
+                screenPosition,
+                tutCamera,
+                out Vector2 localPosition);
+
+            return tutRect.DOLocalMove(
+                    new Vector3(localPosition.x, localPosition.y, tutRect.localPosition.z),
+                    _tutMoveDuration)
+                .SetEase(Ease.InOutQuad);
+        }
+
+        private void MoveCameraToEndPose()
+        {
+            Transform cameraTransform = _cameraTransform != null
+                ? _cameraTransform
+                : Camera.main != null
+                    ? Camera.main.transform
+                    : null;
+
+            if (cameraTransform == null)
             {
-                buttonTransform.DOKill();
-                buttonTransform.DOScale(defaultScale * _buttonPressedScale, _buttonScaleDuration)
-                    .SetEase(Ease.OutBack);
+                return;
+            }
+
+            if (_gameplay != null)
+            {
+                _gameplay.SetActive(false);
+            }
+
+            _cameraSequence = DOTween.Sequence();
+            _cameraSequence.Join(
+                cameraTransform.DOMove(_cameraEndPosition, _cameraMoveDuration).SetEase(Ease.InOutQuad));
+            _cameraSequence.Join(cameraTransform.DORotate(_cameraEndRotation, _cameraMoveDuration)
+                .SetEase(Ease.InOutQuad));
+            _cameraSequence.OnComplete(PlayCTASequence);
+        }
+
+        private void PlayCTASequence()
+        {
+            _ctaDelayTween = DOVirtual.DelayedCall(_gameplayToCtaDelay, () =>
+            {
+                _ctaSequence = DOTween.Sequence();
+                AppendCtaPunch(_ctaSequence, _titleCTA);
+                AppendCtaPunch(_ctaSequence, _btnCTA);
+                _ctaSequence.OnComplete(() =>
+                {
+                    DOVirtual.DelayedCall(0.25f, () => { GameManager.Instance.EndGame(); });
+                });
             });
-            AddEventTrigger(eventTrigger, EventTriggerType.PointerUp, () =>
-            {
-                buttonTransform.DOKill();
-                buttonTransform.DOScale(defaultScale, _buttonScaleDuration)
-                    .SetEase(Ease.OutSine);
-            });
         }
 
-        private static void AddEventTrigger(EventTrigger eventTrigger, EventTriggerType eventType,
-            UnityEngine.Events.UnityAction action)
+        private void AppendCtaPunch(Sequence sequence, GameObject cta)
         {
-            EventTrigger.Entry entry = new EventTrigger.Entry
+            if (cta == null)
             {
-                eventID = eventType
-            };
-            entry.callback.AddListener(_ => action());
-            eventTrigger.triggers.Add(entry);
+                return;
+            }
+
+            cta.SetActive(true);
+            Transform ctaTransform = cta.transform;
+            ctaTransform.localScale = Vector3.zero;
+            sequence.Append(ctaTransform.DOScale(_ctaPunchScale, _ctaScaleUpDuration).SetEase(Ease.OutBack));
+            sequence.Append(ctaTransform.DOScale(Vector3.one, _ctaScaleDownDuration).SetEase(Ease.OutBack));
         }
 
         private void OnDestroy()
         {
-            _handSequence?.Kill();
-
-            if (_refreshHandCoroutine != null)
-            {
-                StopCoroutine(_refreshHandCoroutine);
-            }
+            _tutorialSequence?.Kill();
+            _cameraSequence?.Kill();
+            _ctaSequence?.Kill();
+            _ctaDelayTween?.Kill();
         }
+
+        private void ActiveObject(ObjectActive obj)
+        {
+            if (obj.BtnActive == null)
+            {
+                return;
+            }
+
+            obj.BtnActive.onClick.AddListener(() =>
+            {
+                _tutorialSequence?.Kill();
+                if (_tut != null)
+                {
+                    _tut.SetActive(false);
+                }
+
+                foreach (ObjectActive objectActive in _objects)
+                {
+                    if (objectActive.Chose != null)
+                    {
+                        objectActive.Chose.SetActive(false);
+                    }
+                }
+
+                if (obj.Chose != null)
+                {
+                    obj.Chose.SetActive(true);
+                }
+
+                bool activatedObject = false;
+                foreach (GameObject objectToActivate in obj.Objects)
+                {
+                    if (objectToActivate == null || objectToActivate.activeSelf)
+                    {
+                        continue;
+                    }
+
+                    objectToActivate.SetActive(true);
+                }
+
+
+                OnButtonClicked(obj.BtnActive);
+            });
+        }
+
+        private void OnButtonClicked(Button button)
+        {
+            if (!_clickedButtons.Add(button) || _clickedButtons.Count < _buttonCount)
+            {
+                return;
+            }
+
+            MoveCameraToEndPose();
+        }
+    }
+
+    [Serializable]
+    public struct ObjectActive
+    {
+        public Button BtnActive;
+        public GameObject Chose;
+        public List<GameObject> Objects;
     }
 }

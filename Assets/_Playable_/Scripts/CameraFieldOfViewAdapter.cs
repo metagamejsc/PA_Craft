@@ -7,8 +7,14 @@ namespace Playable
     public sealed class CameraFieldOfViewAdapter : MonoBehaviour
     {
         [SerializeField] private Camera _targetCamera;
-        [SerializeField] private Vector2 _referenceResolution = new Vector2(1080f, 1920f);
+
+        [Header("Portrait")] [SerializeField] private Vector2 _referenceResolution = new Vector2(1080f, 1920f);
         [SerializeField] private float _referenceFieldOfView = 60f;
+
+        [Header("Landscape")] [SerializeField]
+        private Vector2 _landscapeReferenceResolution = new Vector2(1920f, 1080f);
+
+        [SerializeField] private float _landscapeReferenceFieldOfView = 60f;
 
         private Vector2Int _lastScreenSize;
         private ScreenOrientation _lastOrientation;
@@ -62,16 +68,29 @@ namespace Playable
                 return;
             }
 
-            if (_referenceResolution.x <= 0f || _referenceResolution.y <= 0f || Screen.width <= 0 || Screen.height <= 0)
+            if (Screen.width <= 0 || Screen.height <= 0)
             {
                 return;
             }
 
-            float referenceAspect = _referenceResolution.x / _referenceResolution.y;
+            bool isLandscape = Screen.width >= Screen.height;
+            Vector2 referenceResolution = isLandscape
+                ? _landscapeReferenceResolution
+                : _referenceResolution;
+            float referenceFieldOfView = isLandscape
+                ? _landscapeReferenceFieldOfView
+                : _referenceFieldOfView;
+
+            if (referenceResolution.x <= 0f || referenceResolution.y <= 0f)
+            {
+                return;
+            }
+
+            float referenceAspect = referenceResolution.x / referenceResolution.y;
             float currentAspect = Screen.width / (float)Screen.height;
 
             float referenceHorizontal = 2f * Mathf.Atan(
-                Mathf.Tan(_referenceFieldOfView * 0.5f * Mathf.Deg2Rad) * referenceAspect);
+                Mathf.Tan(referenceFieldOfView * 0.5f * Mathf.Deg2Rad) * referenceAspect);
 
             float newFieldOfView = 2f * Mathf.Atan(
                 Mathf.Tan(referenceHorizontal * 0.5f) / currentAspect) * Mathf.Rad2Deg;

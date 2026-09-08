@@ -1,8 +1,8 @@
 {
     "version": "7.2.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
-    "applicationID": 33333,
-    "creativeName": "CWBC_V08_NgocBTU_HuyNQ",
+    "applicationID": 42554,
+    "creativeName": "PCL_V01_HoaiTT_HuyNQ",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -11897,7 +11897,7 @@
                     },
                     {
                         "name": "Count#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "IsReadOnly#get",
@@ -37782,27 +37782,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
                         "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleClickDog",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleClickCat",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AnimateHand",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CreateHandPressTween",
                         "excluded": false
                     },
                     {
@@ -37810,23 +37790,43 @@
                         "excluded": true
                     },
                     {
+                        "name": "PlayTutorial",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CreateTutorialPass",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CreateTutMoveTween",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MoveCameraToEndPose",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayCTASequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AppendCtaPunch",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ActiveObject",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnButtonClicked",
+                        "excluded": false
+                    },
+                    {
                         "name": "Update",
                         "excluded": false
                     },
                     {
-                        "name": "RefreshHandPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AddEventTrigger",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DoScaleText",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AddButtonScaleEffect",
+                        "name": "RestartTutorialAfterScreenChange",
                         "excluded": false
                     }
                 ]
@@ -38184,6 +38184,74 @@
                     {
                         "name": "TryParseHtmlString",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.CameraFieldOfViewAdapter",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnValidate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFieldOfView",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasDisplayChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheDisplayState",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.ObjectActive",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
                     }
                 ]
             }
