@@ -28,6 +28,12 @@ namespace Playable
         [SerializeField] private float _pitchMin = -35f;
         [SerializeField] private float _pitchMax = 75f;
 
+        [Header("Initial Look")]
+        [Tooltip("Starting pitch in degrees, clamped to the pitch limits.")]
+        [SerializeField] private float _initialPitch;
+        [Tooltip("Starting yaw offset in degrees relative to the follow target's heading.")]
+        [SerializeField] private float _initialYaw;
+
         private float _yaw;
         private float _pitch;
         private Transform _transform;
@@ -159,8 +165,8 @@ namespace Playable
         {
             Transform anchor = GetFollowAnchor();
             Vector3 targetEuler = anchor.rotation.eulerAngles;
-            _yaw = targetEuler.y;
-            _pitch = 0f;
+            _yaw = targetEuler.y + _initialYaw;
+            _pitch = Mathf.Clamp(_initialPitch, _pitchMin, _pitchMax);
             UpdateRigRotation();
             UpdateCameraPosition(true);
         }

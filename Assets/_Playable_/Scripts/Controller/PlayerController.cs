@@ -140,6 +140,7 @@ namespace Playable
             if (_btnJump != null) _btnJump.gameObject.SetActive(true);
 
             UpdateAnimator();
+            if (_cameraController != null) _cameraController.SetTarget(this);
         }
 
         private static bool HasAnimatorParameter(Animator animator, int parameterHash)

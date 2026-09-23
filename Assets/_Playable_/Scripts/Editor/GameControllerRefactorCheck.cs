@@ -43,7 +43,7 @@ public static class GameControllerRefactorCheck
             var controller = root.AddComponent<GameController>();
             Set(controller, "_player", player); Set(controller, "_monster", monster);
             Set(controller, "_egg", egg); Set(controller, "_eggHoldPoint", hold.transform); Set(controller, "_home", home.transform);
-            Set(controller, "_stealButton", button); Set(controller, "_showTutorialTrail", false);
+            Set(controller, "_stealButton", button);
             Call(controller, "Awake"); Call(controller, "OnEnable"); Call(controller, "Start");
             var trigger = egg.GetComponentInChildren<EggPickupTrigger>(true);
             Physics.SyncTransforms();
@@ -68,10 +68,26 @@ public static class GameControllerRefactorCheck
             button.onClick.Invoke(); controller.StealEgg();
             Check(egg.IsHeld && controller.State == GameController.GameState.Escaping && egg.transform.parent == hold.transform, "Pick up once via button");
             Check(!buttonObject.activeSelf && !trigger.gameObject.activeSelf && body.isKinematic && !solid.enabled && !disabled.enabled, "Held egg disables pickup and physics");
-            controller.ResetGame(); Physics.SyncTransforms();
+            Set(controller, "_restartDelay", 0f);
+            p.transform.position = Vector3.right * 5;
+            m.transform.position = Vector3.right * 4;
+            Call(monster, "Attack");
+            Check(controller.State == GameController.GameState.Lost && !player.IsWorking &&
+                  monster.State == Monster.MonsterState.Attacking, "Caught player waits while monster attacks");
+            Call(controller, "Update"); Physics.SyncTransforms();
+            Check(controller.State == GameController.GameState.LookingForEgg && player.IsWorking &&
+                  monster.State == Monster.MonsterState.Patrolling, "Caught round automatically restarts into patrol");
+            Check(p.transform.position == Vector3.zero && m.transform.position == Vector3.zero,
+                  "Restart restores player and monster positions");
             Check(!egg.IsHeld && !egg.CanSteal && !buttonObject.activeSelf && trigger.gameObject.activeSelf, "Reset clears pickup contacts");
             Check(solid.enabled && !disabled.enabled && !body.isKinematic && body.useGravity && egg.transform.localScale == new Vector3(2, 3, 4), "Restore original egg physics and scale");
             Call(trigger, "OnTriggerStay", primary); Check(buttonObject.activeSelf, "Stay restores overlap after reset");
+            button.onClick.Invoke();
+            Check(egg.IsHeld && controller.State == GameController.GameState.Escaping, "Can steal again after being caught");
+            Call(monster, "Attack"); Call(controller, "Update"); Physics.SyncTransforms();
+            Check(!egg.IsHeld && player.IsWorking && monster.State == Monster.MonsterState.Patrolling,
+                  "Automatic restart works on consecutive rounds");
+            Call(trigger, "OnTriggerStay", primary);
             Call(controller, "OnDisable"); Check(!buttonObject.activeSelf, "Disabled controller hides button");
             Call(controller, "OnEnable"); Check(buttonObject.activeSelf, "Enable restores current trigger state");
             egg.enabled = false; Call(egg, "OnDisable"); Check(!buttonObject.activeSelf, "Disabled egg hides button");

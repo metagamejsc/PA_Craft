@@ -85,7 +85,7 @@ float vpGradientNoise3D(float3 p) {
 #define VOXELPLAY_APPLY_GRADIENT_TINT(color, uv, wpos) { \
     float __gp = _vp_matProps.w; \
     UNITY_BRANCH if (__gp > 0.5) { \
-        float __v = __gp - 1.0; \
+        float __v = floor(__gp + 0.5) - 1.0; \
         float __mode = floor(__v / 85.0); \
         float __rem = __v - __mode * 85.0; \
         float __scale = floor(__rem / 9.0) / 8.0 * 0.5; \
@@ -99,7 +99,7 @@ float vpGradientNoise3D(float3 p) {
             __noise = vpGradientNoise(wpos.xz * __scale * 4.0); \
         } \
         float __t = lerp(0.5, __noise, __intensity); \
-        int __ti = (int)uv.z; \
+        int __ti = (int)(uv.z + 0.5); \
         float __uvz = (float)(__ti & 16383); \
         float2 __lutUV = float2(__t, (__uvz + 0.5) * _VPGradientLUT_TexelSize.y); \
         color.rgb *= tex2D(_VPGradientLUT, __lutUV).rgb; \
