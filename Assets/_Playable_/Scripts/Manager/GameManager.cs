@@ -36,7 +36,7 @@ namespace Playable
 
         private void Start()
         {
-            _btnBlock.onClick.AddListener(EndGame);
+            _btnBlock.onClick.AddListener(ShowCTA);
             _btnBlock.gameObject.SetActive(false);
 
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
@@ -49,6 +49,11 @@ namespace Playable
             Debug.Log("End Game");
             _btnBlock.gameObject.SetActive(true);
             Luna.Unity.LifeCycle.GameEnded();
+        }
+
+        public void ShowCTA()
+        {
+            Debug.Log("Show CTA");
             Luna.Unity.Playable.InstallFullGame();
         }
 
@@ -72,7 +77,7 @@ namespace Playable
             EndGame();
         }
 
-        protected Sprite CreateSprite(Texture2D texture)
+        private Sprite CreateSprite(Texture2D texture)
         {
             return Sprite.Create(
                 texture,
@@ -82,14 +87,18 @@ namespace Playable
 
         public void ShowWinPanel()
         {
+            if (_winPanel == null) return;
             _winPanel.Show();
-            DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
+            EndGame();
+            DOVirtual.DelayedCall(1, ShowCTA);
         }
 
         public void ShowFailPanel()
         {
+            if (_failPanel == null) return;
             _failPanel.Show();
-            DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
+            EndGame();
+            DOVirtual.DelayedCall(1, ShowCTA);
         }
     }
 }

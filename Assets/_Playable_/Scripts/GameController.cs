@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using DG.Tweening;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,289 +5,356 @@ namespace Playable
 {
     public class GameController : MonoBehaviour
     {
-        [SerializeField] private GameObject _gameplay;
-        [SerializeField] private GameObject _titleCTA;
-        [SerializeField] private GameObject _btnCTA;
-        [SerializeField] private TMP_Text _title;
-        [SerializeField] private GameObject _tut;
-        [SerializeField] private List<ObjectActive> _objects;
-        [Header("Tutorial")] [SerializeField] private float _tutMoveDuration = 0.5f;
-        [SerializeField] private float _tutPressScale = 0.8f;
-        [SerializeField] private float _tutPressDuration = 0.15f;
+        public enum GameState
+        {
+            LookingForEgg,
+            CanStealEgg,
+            Escaping,
+            Lost,
+            Won
+        }
 
-        [Header("Camera End Pose")] [SerializeField]
-        private Transform _cameraTransform;
+        [Header("Gameplay References")] [SerializeField]
+        private PlayerController _player;
 
-        [SerializeField] private Vector3 _cameraEndPosition;
-        [SerializeField] private Vector3 _cameraEndRotation;
-        [SerializeField] private float _cameraMoveDuration = 1f;
+        [SerializeField] private Monster _monster;
+        [SerializeField] private Egg _egg;
+        [SerializeField] private Transform _eggHoldPoint;
+        [Tooltip("Finish flag. Reach or pass within Home Distance while carrying the egg to win.")]
+        [SerializeField] private Transform _home;
 
-        [Header("CTA")] [SerializeField] private float _gameplayToCtaDelay = 1.5f;
-        [SerializeField] private Vector3 _ctaPunchScale = new Vector3(1.2f, 1.2f, 1.2f);
-        [SerializeField] private float _ctaScaleUpDuration = 0.5f;
-        [SerializeField] private float _ctaScaleDownDuration = 0.15f;
+        [Header("UI")] [SerializeField] private Button _stealButton;
+        [SerializeField] private GameObject _runUI;
 
-        private Sequence _tutorialSequence;
-        private Sequence _cameraSequence;
-        private Sequence _ctaSequence;
-        private Tween _ctaDelayTween;
-        private readonly HashSet<Button> _clickedButtons = new HashSet<Button>();
-        private int _buttonCount;
-        private Vector3 _tutOriginalScale;
-        private Vector3 _tutPressedScale;
-        private int _lastScreenWidth;
-        private int _lastScreenHeight;
+        [Header("Distances")]
+        [SerializeField] private float _homeDistance = 2f;
+
+
+        [Header("Tutorial Trail")] [SerializeField]
+        private bool _showTutorialTrail = true;
+
+        [Tooltip("Optional scene TrailRenderer. A default trail is created when empty.")] [SerializeField]
+        private TrailRenderer _tutorialTrail;
+
+        [SerializeField, Min(0.1f)] private float _tutorialTrailSpeed = 8f;
+        [SerializeField, Min(0.01f)] private float _tutorialTrailLifetime = 0.5f;
+        [SerializeField, Min(0.01f)] private float _tutorialTrailWidth = 0.18f;
+        [SerializeField] private float _tutorialTrailHeight = 0.3f;
+        [SerializeField, Min(0f)] private float _tutorialTrailRepeatDelay = 0.3f;
+
+        private Transform _tutorialTarget;
+        private float _tutorialTravel;
+        private float _tutorialWait;
+
+        private Vector3 _playerStartPosition;
+        private Quaternion _playerStartRotation;
+        private Vector3 _monsterStartPosition;
+        private Quaternion _monsterStartRotation;
+        private Transform _playerTransform;
+        private Rigidbody _playerBody;
+        private bool _initialized;
+        private bool _started;
+        private Vector3 _previousEscapePosition;
+
+        public GameState State { get; private set; }
+
+        private void Awake()
+        {
+            CacheInitialState();
+        }
+
+        private void OnEnable()
+        {
+            if (!_initialized) return;
+            _previousEscapePosition = _playerTransform.position;
+            if (_stealButton != null)
+            {
+                _stealButton.onClick.AddListener(StealEgg);
+            }
+
+            if (_monster != null)
+            {
+                _monster.OnPlayerReached += HandlePlayerCaught;
+            }
+
+            _egg.RangeChanged += RefreshEggState;
+            RefreshEggState();
+            RefreshUI();
+        }
 
         private void Start()
         {
-            _title.transform.DOScale(new Vector3(1.2f, 1.2f, 1.2f), 1f).SetEase(Ease.Linear)
-                .SetLoops(-1, LoopType.Yoyo);
-            foreach (var t in _objects)
-            {
-                if (t.BtnActive != null)
-                {
-                    _buttonCount++;
-                }
+            _started = true;
+            ResetGame();
+        }
 
-                ActiveObject(t);
+        private void OnDisable()
+        {
+            HideTutorialTrail();
+            if (_egg != null) _egg.RangeChanged -= RefreshEggState;
+            if (_stealButton != null) SetActiveIfChanged(_stealButton.gameObject, false);
+            if (_stealButton != null)
+            {
+                _stealButton.onClick.RemoveListener(StealEgg);
             }
 
-            PlayTutorial();
-
-            _lastScreenWidth = Screen.width;
-            _lastScreenHeight = Screen.height;
+            if (_monster != null)
+            {
+                _monster.OnPlayerReached -= HandlePlayerCaught;
+            }
         }
 
         private void Update()
         {
-            if (Screen.width == _lastScreenWidth && Screen.height == _lastScreenHeight)
+            if (!_initialized || !_started)
             {
                 return;
             }
 
-            _lastScreenWidth = Screen.width;
-            _lastScreenHeight = Screen.height;
-            RestartTutorialAfterScreenChange();
+            CheckFinishFlag();
         }
 
-        private void PlayTutorial()
+        private void CheckFinishFlag()
         {
-            if (_tut == null || _buttonCount == 0)
-            {
-                MoveCameraToEndPose();
-                return;
-            }
+            if (State != GameState.Escaping || _egg == null || !_egg.IsHeld ||
+                _playerTransform == null || _home == null) return;
 
-            Canvas.ForceUpdateCanvases();
-            Transform tutTransform = _tut.transform;
-            _tutOriginalScale = tutTransform.localScale;
-            _tutPressedScale = _tutOriginalScale * _tutPressScale;
-
-            CreateTutorialPass(tutTransform, _tutOriginalScale, _tutPressedScale, true, false);
+            Vector3 currentPosition = _playerTransform.position;
+            bool reachedFlag = HorizontalSegmentSqrDistance(_previousEscapePosition, currentPosition, _home.position)
+                               <= _homeDistance * _homeDistance;
+            _previousEscapePosition = currentPosition;
+            if (reachedFlag) Win();
         }
 
-        private void RestartTutorialAfterScreenChange()
+        public void StealEgg()
         {
-            if (_tut == null || !_tut.activeSelf)
+            if (!_initialized || !_started || !isActiveAndEnabled ||
+                State != GameState.CanStealEgg || _eggHoldPoint == null ||
+                _egg == null || _player == null || _monster == null)
             {
                 return;
             }
 
-            _tutorialSequence?.Kill();
-            Canvas.ForceUpdateCanvases();
-            Transform tutTransform = _tut.transform;
-            tutTransform.localScale = _tutOriginalScale;
-
-            CreateTutorialPass(tutTransform, _tutOriginalScale, _tutPressedScale, true, false);
-        }
-
-        private void CreateTutorialPass(Transform tutTransform, Vector3 originalScale, Vector3 pressedScale,
-            bool moveForward, bool skipFirstButton)
-        {
-            _tutorialSequence = DOTween.Sequence();
-            int startIndex = moveForward ? 0 : _objects.Count - 1;
-            int endIndex = moveForward ? _objects.Count : -1;
-            int step = moveForward ? 1 : -1;
-            bool skippedFirstButton = false;
-
-            for (int index = startIndex; index != endIndex; index += step)
+            if (!_egg.TryPickUp(_player, _eggHoldPoint))
             {
-                ObjectActive objectActive = _objects[index];
-                if (objectActive.BtnActive == null)
-                {
-                    continue;
-                }
-
-                if (skipFirstButton && _buttonCount > 1 && !skippedFirstButton)
-                {
-                    skippedFirstButton = true;
-                    continue;
-                }
-
-                Button button = objectActive.BtnActive;
-                _tutorialSequence.Append(CreateTutMoveTween(tutTransform, button));
-                _tutorialSequence.Append(tutTransform.DOScale(pressedScale, _tutPressDuration)
-                    .SetEase(Ease.InOutQuad)
-                    .SetLoops(2, LoopType.Yoyo));
+                RefreshEggState();
+                return;
             }
 
-            _tutorialSequence.OnComplete(() =>
-                CreateTutorialPass(tutTransform, originalScale, pressedScale, !moveForward, true));
+            _player.SetCarryingEgg(true);
+            _monster.StartChasing(_playerTransform);
+            _previousEscapePosition = _playerTransform.position;
+            SetState(GameState.Escaping);
+            CheckFinishFlag();
         }
 
-        private Tween CreateTutMoveTween(Transform tutTransform, Button button)
+        public void ResetGame()
         {
-            if (!(tutTransform is RectTransform tutRect) || !(button.transform is RectTransform buttonRect) ||
-                !(tutRect.parent is RectTransform tutParent))
-            {
-                return tutTransform.DOMove(button.transform.position, _tutMoveDuration)
-                    .SetEase(Ease.InOutQuad);
-            }
+            // Start runs after Player/Monster Awake, avoiding initialization-order dependencies.
+            if (!_initialized || !_started || _player == null || _monster == null || _egg == null) return;
 
-            Canvas buttonCanvas = button.GetComponentInParent<Canvas>();
-            Canvas tutCanvas = tutRect.GetComponentInParent<Canvas>();
-            Camera buttonCamera = buttonCanvas != null && buttonCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-                ? buttonCanvas.worldCamera
-                : null;
-            Camera tutCamera = tutCanvas != null && tutCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-                ? tutCanvas.worldCamera
-                : null;
-            Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(buttonCamera, buttonRect.position);
+            _player.ResetPlayer(_playerStartPosition, _playerStartRotation);
+            _player.IsWorking = true;
+            _previousEscapePosition = _playerTransform.position;
+            _monster.ResetMonster(_monsterStartPosition, _monsterStartRotation);
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                tutParent,
-                screenPosition,
-                tutCamera,
-                out Vector2 localPosition);
-
-            return tutRect.DOLocalMove(
-                    new Vector3(localPosition.x, localPosition.y, tutRect.localPosition.z),
-                    _tutMoveDuration)
-                .SetEase(Ease.InOutQuad);
+            _egg.ResetEgg();
+            HideTutorialTrail();
+            SetState(GameState.LookingForEgg);
+            RefreshUI();
+            RefreshTutorialTrail();
         }
 
-        private void MoveCameraToEndPose()
+        private void HandlePlayerCaught()
         {
-            Transform cameraTransform = _cameraTransform != null
-                ? _cameraTransform
-                : Camera.main != null
-                    ? Camera.main.transform
-                    : null;
-
-            if (cameraTransform == null)
+            if (!_initialized || !_started || !isActiveAndEnabled || State != GameState.Escaping)
             {
                 return;
             }
 
-            if (_gameplay != null)
+            // Resolve arrival first if the monster callback runs before our Update this frame.
+            CheckFinishFlag();
+            if (State != GameState.Escaping) return;
+            SetState(GameState.Lost);
+            StopPlayer();
+            _monster.Stop();
+            if (GameManager.Instance != null) GameManager.Instance.ShowFailPanel();
+            else Debug.LogError("GameManager is required to show the lose panel.", this);
+        }
+
+        private void Win()
+        {
+            if (State != GameState.Escaping) return;
+            SetState(GameState.Won);
+            StopPlayer();
+            _monster.Stop();
+            if (GameManager.Instance != null) GameManager.Instance.ShowWinPanel();
+            else Debug.LogError("GameManager is required to show the win panel.", this);
+        }
+
+        private void SetState(GameState newState)
+        {
+            if (State == newState) return;
+            State = newState;
+            RefreshUI();
+            RefreshTutorialTrail();
+        }
+
+        private void LateUpdate()
+        {
+            RefreshTutorialTrail();
+            if (_tutorialTarget == null || _tutorialTrail == null) return;
+
+            if (_tutorialWait > 0f)
             {
-                _gameplay.SetActive(false);
+                _tutorialWait -= Time.deltaTime;
+                if (_tutorialWait > 0f) return;
+                _tutorialTravel = 0f;
+                _tutorialTrail.Clear();
             }
 
-            _cameraSequence = DOTween.Sequence();
-            _cameraSequence.Join(
-                cameraTransform.DOMove(_cameraEndPosition, _cameraMoveDuration).SetEase(Ease.InOutQuad));
-            _cameraSequence.Join(cameraTransform.DORotate(_cameraEndRotation, _cameraMoveDuration)
-                .SetEase(Ease.InOutQuad));
-            _cameraSequence.OnComplete(PlayCTASequence);
+            Vector3 start = _playerTransform.position + Vector3.up * _tutorialTrailHeight;
+            Vector3 end = _tutorialTarget.position;
+            // Keep the guide at the player's feet, even if the egg pivot is raised.
+            end.y = start.y;
+            float distance = Vector3.Distance(start, end);
+            _tutorialTravel += Mathf.Max(0.1f, _tutorialTrailSpeed) * Time.deltaTime;
+            _tutorialTrail.transform.position = Vector3.Lerp(start, end,
+                distance > 0.001f ? _tutorialTravel / distance : 1f);
+            _tutorialTrail.emitting = true;
+            if (_tutorialTravel >= distance)
+            {
+                _tutorialTrail.emitting = false;
+                _tutorialWait = Mathf.Max(0.01f, _tutorialTrailLifetime + _tutorialTrailRepeatDelay);
+            }
         }
 
-        private void PlayCTASequence()
+        private void RefreshTutorialTrail()
         {
-            _ctaDelayTween = DOVirtual.DelayedCall(_gameplayToCtaDelay, () =>
+            Transform target = null;
+            if (_showTutorialTrail && _initialized && _started && isActiveAndEnabled && _playerTransform != null)
             {
-                _ctaSequence = DOTween.Sequence();
-                AppendCtaPunch(_ctaSequence, _titleCTA);
-                AppendCtaPunch(_ctaSequence, _btnCTA);
-                _ctaSequence.OnComplete(() =>
-                {
-                    DOVirtual.DelayedCall(0.25f, () => { GameManager.Instance.EndGame(); });
-                });
-            });
-        }
+                if (State == GameState.LookingForEgg || State == GameState.CanStealEgg) target = _egg != null ? _egg.transform : null;
+                else if (State == GameState.Escaping) target = _home;
+            }
 
-        private void AppendCtaPunch(Sequence sequence, GameObject cta)
-        {
-            if (cta == null)
+            if (target == null)
             {
+                HideTutorialTrail();
                 return;
             }
 
-            cta.SetActive(true);
-            Transform ctaTransform = cta.transform;
-            ctaTransform.localScale = Vector3.zero;
-            sequence.Append(ctaTransform.DOScale(_ctaPunchScale, _ctaScaleUpDuration).SetEase(Ease.OutBack));
-            sequence.Append(ctaTransform.DOScale(Vector3.one, _ctaScaleDownDuration).SetEase(Ease.OutBack));
-        }
-
-        private void OnDestroy()
-        {
-            _tutorialSequence?.Kill();
-            _cameraSequence?.Kill();
-            _ctaSequence?.Kill();
-            _ctaDelayTween?.Kill();
-        }
-
-        private void ActiveObject(ObjectActive obj)
-        {
-            if (obj.BtnActive == null)
+            if (_tutorialTrail == null)
             {
+                var guide = new GameObject("Tutorial Trail");
+                guide.transform.SetParent(transform, false);
+                _tutorialTrail = guide.AddComponent<TrailRenderer>();
+                _tutorialTrail.sharedMaterial = Resources.Load<Material>("TutorialTrail");
+                _tutorialTrail.startColor = new Color(1f, 0.85f, 0.15f, 1f);
+                _tutorialTrail.endColor = new Color(1f, 0.85f, 0.15f, 0f);
+                _tutorialTrail.startWidth = _tutorialTrailWidth;
+                _tutorialTrail.endWidth = 0f;
+                _tutorialTrail.minVertexDistance = 0.05f;
+                _tutorialTrail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                _tutorialTrail.receiveShadows = false;
+            }
+
+            _tutorialTrail.autodestruct = false;
+            _tutorialTrail.time = Mathf.Max(0.01f, _tutorialTrailLifetime);
+            if (_tutorialTarget == target) return;
+            _tutorialTarget = target;
+            _tutorialTravel = 0f;
+            _tutorialWait = 0f;
+            _tutorialTrail.emitting = false;
+            _tutorialTrail.Clear();
+            _tutorialTrail.transform.position = _playerTransform.position + Vector3.up * _tutorialTrailHeight;
+            _tutorialTrail.enabled = true;
+        }
+
+        private void HideTutorialTrail()
+        {
+            _tutorialTarget = null;
+            if (_tutorialTrail == null) return;
+            _tutorialTrail.emitting = false;
+            _tutorialTrail.Clear();
+            _tutorialTrail.enabled = false;
+        }
+
+        private void RefreshUI()
+        {
+            if (_stealButton != null)
+            {
+                SetActiveIfChanged(_stealButton.gameObject, State == GameState.CanStealEgg);
+            }
+
+            if (_runUI != null)
+            {
+                SetActiveIfChanged(_runUI, State == GameState.Escaping);
+            }
+        }
+
+        private void CacheInitialState()
+        {
+            if (_player == null || _monster == null || _egg == null || _eggHoldPoint == null || _home == null)
+            {
+                Debug.LogError("GameController requires Player, Monster, Egg, Egg Hold Point and Home references.",
+                    this);
+                if (_stealButton != null) SetActiveIfChanged(_stealButton.gameObject, false);
+                if (_runUI != null) SetActiveIfChanged(_runUI, false);
+                enabled = false;
                 return;
             }
 
-            obj.BtnActive.onClick.AddListener(() =>
-            {
-                _tutorialSequence?.Kill();
-                if (_tut != null)
-                {
-                    _tut.SetActive(false);
-                }
+            _playerTransform = _player.transform;
+            _playerBody = _player.GetComponent<Rigidbody>();
+            _playerStartPosition = _playerTransform.position;
+            _playerStartRotation = _playerTransform.rotation;
+            _monsterStartPosition = _monster.transform.position;
+            _monsterStartRotation = _monster.transform.rotation;
+            _egg.BindPlayer(_player);
 
-                foreach (ObjectActive objectActive in _objects)
-                {
-                    if (objectActive.Chose != null)
-                    {
-                        objectActive.Chose.SetActive(false);
-                    }
-                }
-
-                if (obj.Chose != null)
-                {
-                    obj.Chose.SetActive(true);
-                }
-
-                bool activatedObject = false;
-                foreach (GameObject objectToActivate in obj.Objects)
-                {
-                    if (objectToActivate == null || objectToActivate.activeSelf)
-                    {
-                        continue;
-                    }
-
-                    objectToActivate.SetActive(true);
-                }
-
-
-                OnButtonClicked(obj.BtnActive);
-            });
+            _initialized = true;
         }
 
-        private void OnButtonClicked(Button button)
+        private void RefreshEggState()
         {
-            if (!_clickedButtons.Add(button) || _clickedButtons.Count < _buttonCount)
-            {
-                return;
-            }
-
-            MoveCameraToEndPose();
+            if (!_initialized || !_started || !isActiveAndEnabled) return;
+            if (State != GameState.LookingForEgg && State != GameState.CanStealEgg) return;
+            SetState(_egg != null && _egg.CanSteal ? GameState.CanStealEgg : GameState.LookingForEgg);
         }
-    }
 
-    [Serializable]
-    public struct ObjectActive
-    {
-        public Button BtnActive;
-        public GameObject Chose;
-        public List<GameObject> Objects;
+        private void StopPlayer()
+        {
+            if (_player != null) _player.IsWorking = false;
+            if (_playerBody == null || _playerBody.isKinematic) return;
+            // Stopping input alone leaves the last horizontal physics velocity active.
+            Vector3 velocity = _playerBody.linearVelocity;
+            velocity.x = 0f;
+            velocity.z = 0f;
+            _playerBody.linearVelocity = velocity;
+        }
+
+        private static void SetActiveIfChanged(GameObject target, bool active)
+        {
+            if (target.activeSelf != active) target.SetActive(active);
+        }
+
+        private void OnValidate()
+        {
+            _homeDistance = Mathf.Max(0f, _homeDistance);
+        }
+
+        private static float HorizontalSegmentSqrDistance(Vector3 start, Vector3 end, Vector3 point)
+        {
+            start.y = 0f;
+            end.y = 0f;
+            point.y = 0f;
+            Vector3 segment = end - start;
+            float lengthSquared = segment.sqrMagnitude;
+            float t = lengthSquared > 0.000001f
+                ? Mathf.Clamp01(Vector3.Dot(point - start, segment) / lengthSquared)
+                : 0f;
+            return (point - (start + segment * t)).sqrMagnitude;
+        }
     }
 }
