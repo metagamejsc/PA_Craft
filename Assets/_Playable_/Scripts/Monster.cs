@@ -10,17 +10,14 @@ namespace Playable
             Idle,
             Chasing,
             Attacking,
-            Patrolling
+            WaitingToChase
         }
 
         [Header("Movement")]
         [SerializeField] private float _moveSpeed = 3.5f;
         [SerializeField] private float _rotationSpeed = 10f;
         [SerializeField] private float _attackDistance = 1.5f;
-
-        [Header("Patrol")]
-        [SerializeField, Min(0.1f)] private float _patrolRadius = 3f;
-        [SerializeField, Min(0f)] private float _patrolSpeed = 1.5f;
+        [SerializeField, Min(0f)] private float _chaseDelay = 1f;
 
         [Header("Animation")]
         [SerializeField] private Animator _animator;
@@ -28,7 +25,7 @@ namespace Playable
         [SerializeField] private string _attackTriggerParam = "Attack";
 
         private Transform _target;
-        private float _patrolAngle;
+        private float _chaseDelayRemaining;
         private int _isRunningHash;
         private int _attackTriggerHash;
         private bool _hasRunParameter;
@@ -53,16 +50,27 @@ namespace Playable
 
             _isRunningHash = Animator.StringToHash(_isRunningParam);
             _attackTriggerHash = Animator.StringToHash(_attackTriggerParam);
-            _hasRunParameter = HasParameter(_isRunningHash);
-            _hasAttackParameter = HasParameter(_attackTriggerHash);
+            // Luna returns an empty array for Animator.parameters. Use the configured
+            // parameter names instead so animation commands are not silently skipped.
+            _hasRunParameter = _animator != null && !string.IsNullOrEmpty(_isRunningParam);
+            _hasAttackParameter = _animator != null && !string.IsNullOrEmpty(_attackTriggerParam);
         }
 
         private void Update()
         {
-            if (State == MonsterState.Patrolling)
+            if (State == MonsterState.WaitingToChase)
             {
-                UpdatePatrol();
-                return;
+                if (_target == null)
+                {
+                    Stop();
+                    return;
+                }
+
+                _chaseDelayRemaining = Mathf.Max(0f, _chaseDelayRemaining - Time.deltaTime);
+                if (_chaseDelayRemaining > 0f) return;
+
+                State = MonsterState.Chasing;
+                SetRunning(true);
             }
 
             if (State != MonsterState.Chasing || _target == null)
@@ -89,60 +97,22 @@ namespace Playable
 
         public void StartChasing(Transform target)
         {
+            if (target == null)
+            {
+                Stop();
+                return;
+            }
+
             _target = target;
-            State = MonsterState.Chasing;
-            SetRunning(true);
-        }
-
-        public void StartPatrolling(Transform egg)
-        {
-            if (egg == null)
-            {
-                Stop();
-                return;
-            }
-
-            _target = egg;
-            Vector3 offset = transform.position - egg.position;
-            _patrolAngle = Mathf.Atan2(offset.z, offset.x);
-            State = MonsterState.Patrolling;
-            SetRunning(_patrolSpeed > 0f);
-        }
-
-        private void UpdatePatrol()
-        {
-            if (_target == null)
-            {
-                Stop();
-                return;
-            }
-
-            float radius = Mathf.Max(0.1f, _patrolRadius);
-            Vector3 destination = _target.position +
-                                  new Vector3(Mathf.Cos(_patrolAngle), 0f, Mathf.Sin(_patrolAngle)) * radius;
-            destination.y = transform.position.y;
-            Vector3 offset = destination - transform.position;
-
-            if (offset.sqrMagnitude <= 0.01f)
-            {
-                _patrolAngle = Mathf.Repeat(_patrolAngle + Mathf.PI / 4f, Mathf.PI * 2f);
-                return;
-            }
-
-            float speed = Mathf.Max(0f, _patrolSpeed);
-            SetRunning(speed > 0f);
-            if (speed <= 0f) return;
-
-            transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                Quaternion.LookRotation(offset),
-                _rotationSpeed * Time.deltaTime);
+            _chaseDelayRemaining = Mathf.Max(0f, _chaseDelay);
+            State = _chaseDelayRemaining > 0f ? MonsterState.WaitingToChase : MonsterState.Chasing;
+            SetRunning(State == MonsterState.Chasing);
         }
 
         public void Stop()
         {
             _target = null;
+            _chaseDelayRemaining = 0f;
             State = MonsterState.Idle;
             SetRunning(false);
         }
@@ -181,24 +151,5 @@ namespace Playable
             }
         }
 
-        private bool HasParameter(int parameterHash)
-        {
-            if (_animator == null)
-            {
-                return false;
-            }
-
-            AnimatorControllerParameter[] parameters = _animator.parameters;
-
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                if (parameters[i].nameHash == parameterHash)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
     }
 }

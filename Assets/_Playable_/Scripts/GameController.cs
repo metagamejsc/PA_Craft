@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,20 +22,20 @@ namespace Playable
         [SerializeField] private Egg _egg;
         [SerializeField] private Transform _eggHoldPoint;
 
-        [Tooltip("Finish flag. Reach or pass within Home Distance while carrying the egg to win.")] [SerializeField]
+        [Tooltip("Finish line across the world X axis at Home Z. Cross from the starting side while carrying the egg to win.")] [SerializeField]
         private Transform _home;
 
         [Header("UI")] [SerializeField] private Button _stealButton;
+        [SerializeField] private GameObject _title;
         [SerializeField] private GameObject _runUI;
 
-        [Header("Distances")] [SerializeField] private float _homeDistance = 2f;
-
-        [Header("Restart")]
-        [SerializeField, Min(0f)] private float _restartDelay = 1f;
+        [Header("Restart")] [SerializeField, Min(0f)]
+        private float _restartDelay = 1f;
 
 
         [Header("Tutorial")] [Tooltip("Guide from Player to Egg, then to the finish flag (Home).")] [SerializeField]
         private TutorialLineIndicator _tutorialLineIndicator;
+        [SerializeField] private HandTutorial _handTutorial;
 
         private Vector3 _playerStartPosition;
         private Quaternion _playerStartRotation;
@@ -44,7 +45,7 @@ namespace Playable
         private Rigidbody _playerBody;
         private bool _initialized;
         private bool _started;
-        private Vector3 _previousEscapePosition;
+        private float _homeApproachSign;
         private float _restartTimer;
 
         public GameState State { get; private set; }
@@ -58,7 +59,6 @@ namespace Playable
         private void OnEnable()
         {
             if (!_initialized) return;
-            _previousEscapePosition = _playerTransform.position;
             if (_stealButton != null)
             {
                 _stealButton.onClick.AddListener(StealEgg);
@@ -79,11 +79,14 @@ namespace Playable
         {
             _started = true;
             ResetGame();
+            _title.transform.DOScale(new Vector3(1.2f, 1.2f, 1.2f), 0.5f).SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Yoyo);
         }
 
         private void OnDisable()
         {
             HideTutorial();
+            if (_handTutorial != null) _handTutorial.HideAll();
             if (_egg != null) _egg.RangeChanged -= RefreshEggState;
             if (_stealButton != null) SetActiveIfChanged(_stealButton.gameObject, false);
             if (_stealButton != null)
@@ -119,11 +122,9 @@ namespace Playable
             if (State != GameState.Escaping || _egg == null || !_egg.IsHeld ||
                 _playerTransform == null || _home == null) return;
 
-            Vector3 currentPosition = _playerTransform.position;
-            bool reachedFlag = HorizontalSegmentSqrDistance(_previousEscapePosition, currentPosition, _home.position)
-                               <= _homeDistance * _homeDistance;
-            _previousEscapePosition = currentPosition;
-            if (reachedFlag) Win();
+            // The finish line spans the road, independent of lateral distance or jump height.
+            float distanceFromLine = (_playerTransform.position.z - _home.position.z) * _homeApproachSign;
+            if (distanceFromLine <= 0f) Win();
         }
 
         public void StealEgg()
@@ -143,8 +144,8 @@ namespace Playable
 
             _player.SetCarryingEgg(true);
             SetActiveIfChanged(_home.gameObject, true);
+            SetActiveIfChanged(_title, false);
             _monster.StartChasing(_playerTransform);
-            _previousEscapePosition = _playerTransform.position;
             SetState(GameState.Escaping);
             CheckFinishFlag();
         }
@@ -156,15 +157,15 @@ namespace Playable
 
             _restartTimer = 0f;
             if (_home != null) SetActiveIfChanged(_home.gameObject, false);
+            SetActiveIfChanged(_title, true);
             _player.ResetPlayer(_playerStartPosition, _playerStartRotation);
             _player.IsWorking = true;
-            _previousEscapePosition = _playerTransform.position;
             _monster.ResetMonster(_monsterStartPosition, _monsterStartRotation);
 
             _egg.ResetEgg();
-            _monster.StartPatrolling(_egg.transform);
             HideTutorial();
             SetState(GameState.LookingForEgg);
+            if (_handTutorial != null) _handTutorial.ShowMovementTutorial();
             RefreshUI();
             RefreshTutorial();
         }
@@ -227,6 +228,13 @@ namespace Playable
 
         private void RefreshUI()
         {
+            if (_handTutorial != null)
+            {
+                _handTutorial.SetStealHintVisible(State == GameState.CanStealEgg);
+                if (State == GameState.Escaping || State == GameState.Lost || State == GameState.Won)
+                    _handTutorial.HideMovementTutorial();
+            }
+
             if (_stealButton != null)
             {
                 SetActiveIfChanged(_stealButton.gameObject, State == GameState.CanStealEgg);
@@ -255,6 +263,7 @@ namespace Playable
                 _tutorialLineIndicator = GetComponentInChildren<TutorialLineIndicator>(true);
             _playerBody = _player.GetComponent<Rigidbody>();
             _playerStartPosition = _playerTransform.position;
+            _homeApproachSign = _playerStartPosition.z >= _home.position.z ? 1f : -1f;
             _playerStartRotation = _playerTransform.rotation;
             _monsterStartPosition = _monster.transform.position;
             _monsterStartRotation = _monster.transform.rotation;
@@ -286,22 +295,5 @@ namespace Playable
             if (target.activeSelf != active) target.SetActive(active);
         }
 
-        private void OnValidate()
-        {
-            _homeDistance = Mathf.Max(0f, _homeDistance);
-        }
-
-        private static float HorizontalSegmentSqrDistance(Vector3 start, Vector3 end, Vector3 point)
-        {
-            start.y = 0f;
-            end.y = 0f;
-            point.y = 0f;
-            Vector3 segment = end - start;
-            float lengthSquared = segment.sqrMagnitude;
-            float t = lengthSquared > 0.000001f
-                ? Mathf.Clamp01(Vector3.Dot(point - start, segment) / lengthSquared)
-                : 0f;
-            return (point - (start + segment * t)).sqrMagnitude;
-        }
     }
 }

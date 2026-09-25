@@ -41,6 +41,7 @@ namespace Playable
 
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
             if (_backgroundMusic) AudioManager.Instance.PlayMusic(_backgroundMusic);
+            CountdownEndGame();
         }
 
 
@@ -75,6 +76,8 @@ namespace Playable
         {
             yield return new WaitForSeconds(_endTime);
             EndGame();
+            yield return new WaitForSeconds(1);
+            ShowCTA();
         }
 
         private Sprite CreateSprite(Texture2D texture)
@@ -87,18 +90,18 @@ namespace Playable
 
         public void ShowWinPanel()
         {
-            if (_winPanel == null) return;
-            _winPanel.Show();
             EndGame();
             DOVirtual.DelayedCall(1, ShowCTA);
+            if (_winPanel == null) return;
+            _winPanel.Show();
         }
 
         public void ShowFailPanel()
         {
-            if (_failPanel == null) return;
-            _failPanel.Show();
             EndGame();
             DOVirtual.DelayedCall(1, ShowCTA);
+            if (_failPanel == null) return;
+            _failPanel.Show();
         }
     }
 }

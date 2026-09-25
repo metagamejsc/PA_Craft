@@ -76,7 +76,7 @@ public static class GameControllerRefactorCheck
                   monster.State == Monster.MonsterState.Attacking, "Caught player waits while monster attacks");
             Call(controller, "Update"); Physics.SyncTransforms();
             Check(controller.State == GameController.GameState.LookingForEgg && player.IsWorking &&
-                  monster.State == Monster.MonsterState.Patrolling, "Caught round automatically restarts into patrol");
+                  monster.State == Monster.MonsterState.Idle, "Caught round automatically restarts with an idle monster");
             Check(p.transform.position == Vector3.zero && m.transform.position == Vector3.zero,
                   "Restart restores player and monster positions");
             Check(!egg.IsHeld && !egg.CanSteal && !buttonObject.activeSelf && trigger.gameObject.activeSelf, "Reset clears pickup contacts");
@@ -85,7 +85,7 @@ public static class GameControllerRefactorCheck
             button.onClick.Invoke();
             Check(egg.IsHeld && controller.State == GameController.GameState.Escaping, "Can steal again after being caught");
             Call(monster, "Attack"); Call(controller, "Update"); Physics.SyncTransforms();
-            Check(!egg.IsHeld && player.IsWorking && monster.State == Monster.MonsterState.Patrolling,
+            Check(!egg.IsHeld && player.IsWorking && monster.State == Monster.MonsterState.Idle,
                   "Automatic restart works on consecutive rounds");
             Call(trigger, "OnTriggerStay", primary);
             Call(controller, "OnDisable"); Check(!buttonObject.activeSelf, "Disabled controller hides button");

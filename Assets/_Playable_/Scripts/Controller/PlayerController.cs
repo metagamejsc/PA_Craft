@@ -135,6 +135,8 @@ namespace Playable
             _isGrounded = false;
             _rigidbody.position = position;
             _rigidbody.rotation = rotation;
+            // Update the follow anchor immediately before the camera reads it.
+            _transform.SetPositionAndRotation(position, rotation);
             _rigidbody.Sleep();
 
             if (_btnJump != null) _btnJump.gameObject.SetActive(true);
