@@ -10,8 +10,8 @@ namespace Playable
     public class GameController : MonoBehaviour
     {
         [SerializeField] private GameObject _gameplay;
-        [SerializeField] private GameObject _titleCTA;
         [SerializeField] private GameObject _btnCTA;
+        [SerializeField] private RectTransform _line;
         [SerializeField] private TMP_Text _title;
         [SerializeField] private GameObject _tut;
         [SerializeField] private List<ObjectActive> _objects;
@@ -198,31 +198,15 @@ namespace Playable
 
         private void PlayCTASequence()
         {
-            _ctaDelayTween = DOVirtual.DelayedCall(_gameplayToCtaDelay, () =>
-            {
-                _ctaSequence = DOTween.Sequence();
-                AppendCtaPunch(_ctaSequence, _titleCTA);
-                AppendCtaPunch(_ctaSequence, _btnCTA);
-                _ctaSequence.OnComplete(() =>
-                {
-                    DOVirtual.DelayedCall(0.25f, () => { GameManager.Instance.EndGame(); });
-                });
-            });
+            _btnCTA.transform.parent.gameObject.SetActive(true);
+            _btnCTA.transform.DOScale(new Vector3(1.2f, 1.2f, 1.2f), 0.5f).SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Yoyo);
+            _line.DOAnchorPosX(570, 0.5f).SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Restart);
+
+            DOVirtual.DelayedCall(1f, () => { GameManager.Instance.EndGame(); });
         }
 
-        private void AppendCtaPunch(Sequence sequence, GameObject cta)
-        {
-            if (cta == null)
-            {
-                return;
-            }
-
-            cta.SetActive(true);
-            Transform ctaTransform = cta.transform;
-            ctaTransform.localScale = Vector3.zero;
-            sequence.Append(ctaTransform.DOScale(_ctaPunchScale, _ctaScaleUpDuration).SetEase(Ease.OutBack));
-            sequence.Append(ctaTransform.DOScale(Vector3.one, _ctaScaleDownDuration).SetEase(Ease.OutBack));
-        }
 
         private void OnDestroy()
         {

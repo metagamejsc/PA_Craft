@@ -83,13 +83,13 @@ namespace Playable
         public void ShowWinPanel()
         {
             _winPanel.Show();
-            DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
+            DOVirtual.DelayedCall(1, EndGame);
         }
 
         public void ShowFailPanel()
         {
             _failPanel.Show();
-            DOVirtual.DelayedCall(1, () => { GameManager.Instance.EndGame(); });
+            DOVirtual.DelayedCall(1, EndGame);
         }
     }
 }
