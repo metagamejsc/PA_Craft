@@ -98,7 +98,11 @@ namespace Playable
         private float _deathVfxHideTime;
 
         private MonsterHealth _health;
+        private Collider _bodyCollider;
         private MonsterCombat _combat;
+        private MonsterBattleFeedback _feedback;
+        private MonsterDeathSkill _deathSkill;
+        private bool _deathSkillRunning;
         private IMonsterSkill[] _skills = new IMonsterSkill[0];
 
         private EndermanMonsterData _endermanDataHolder;
@@ -117,9 +121,12 @@ namespace Playable
 
         public MonsterHealth Health => _health;
         public MonsterCombat Combat => _combat;
+        public MonsterBattleFeedback Feedback => _feedback;
         public Vector3 Position => _transform.position;
         public MonsterType Type => _monsterType;
         public bool StayStillOnSpawn => _stayStillOnSpawn;
+        public float BodyRadius => _bodyCollider != null
+            ? Mathf.Max(_bodyCollider.bounds.extents.x, _bodyCollider.bounds.extents.z) : 0f;
 
         public EndermanData EndermanStats => _endermanDataHolder != null ? _endermanDataHolder.Data : default;
         public IronGolemData IronGolemStats => _ironGolemDataHolder != null ? _ironGolemDataHolder.Data : default;
@@ -130,6 +137,7 @@ namespace Playable
         private void Awake()
         {
             _transform = transform;
+            _bodyCollider = GetComponent<Collider>();
 
             if (_animator == null)
             {
@@ -137,6 +145,8 @@ namespace Playable
             }
 
             _hasAnimator = _animator != null;
+            _feedback = GetComponent<MonsterBattleFeedback>();
+            _deathSkill = GetComponent<MonsterDeathSkill>();
 
             if (_hasAnimator)
             {
@@ -227,6 +237,8 @@ namespace Playable
 
                 case MonsterType.Shinsonic:
                     EnsureComponent<ShinsonicTransformSkill>();
+                    EnsureComponent<ShinsonicRoarSkill>();
+                    EnsureComponent<ShinsonicVortexSkill>();
                     break;
             }
         }
@@ -294,7 +306,7 @@ namespace Playable
 
             if (_health.IsDead)
             {
-                UpdateDeath();
+                if (!_deathSkillRunning) UpdateDeath();
                 return;
             }
 
@@ -312,7 +324,16 @@ namespace Playable
 
             _combat.RefreshTarget();
             Monster currentEnemy = _combat.CurrentEnemy;
-            bool anyChanneling = false;
+            if (_health.IsStaggered && !IsAnySkillChanneling)
+            {
+                SetRunning(false);
+                return;
+            }
+
+            // Preserve the owner of the channel before advancing cooldowns on every skill.
+            IsAnySkillChanneling = false;
+            for (int i = 0; i < _skills.Length; i++)
+                if (_skills[i].IsChanneling) IsAnySkillChanneling = true;
 
             for (int i = 0; i < _skills.Length; i++)
             {
@@ -320,15 +341,18 @@ namespace Playable
 
                 if (_skills[i].IsChanneling)
                 {
-                    anyChanneling = true;
-                    break;
+                    IsAnySkillChanneling = true;
                 }
             }
 
-            IsAnySkillChanneling = anyChanneling;
+            IsAnySkillChanneling = false;
+            for (int i = 0; i < _skills.Length; i++)
+                if (_skills[i].IsChanneling) IsAnySkillChanneling = true;
 
             if (IsAnySkillChanneling)
             {
+                SetRunning(false);
+                _combat.CancelPendingAttack();
                 return;
             }
 
@@ -465,6 +489,7 @@ namespace Playable
 
             _homePosition = _transform.position;
             _isSpawned = true;
+            _deathSkillRunning = false;
 
             float maxHealth = ApplyStatsForType();
 
@@ -477,9 +502,7 @@ namespace Playable
 
             IsAnySkillChanneling = false;
 
-            // EnterIdle();
-            // PlaySpawnScale();
-            // PlaySpawnVfx();
+            EnterIdle();
         }
 
         /// <summary>
@@ -739,8 +762,8 @@ namespace Playable
             Vector3 direction = toTarget / distance;
             RotateTowards(direction);
 
-            Vector3 nextPosition = position + direction * (_moveSpeed * Time.deltaTime);
-            _transform.position = SnapToGround(nextPosition);
+            Vector3 nextPosition = position + direction * Mathf.Min(distance, _moveSpeed * Time.deltaTime);
+            _transform.position = _raycastWhileMoving ? SnapToGround(nextPosition) : nextPosition;
         }
 
         /// <summary>Chỉ xoay mặt về hướng targetPosition, không di chuyển - dùng lúc đứng đánh/ném bom.</summary>
@@ -777,11 +800,20 @@ namespace Playable
         internal bool HasAnimator => _hasAnimator;
         internal GameObject AnimatorGameObject => _animator != null ? _animator.gameObject : null;
 
+        internal void SetVisualAnimator(Animator animator)
+        {
+            _animator = animator;
+            _hasAnimator = animator != null;
+            _isRunApplied = false;
+            EnsureAnimationEventReceiver();
+        }
+
         /// <summary>
         /// [COMBAT DEBUG] Bọc try/catch quanh SetTrigger - nếu Inspector cấu hình sai kiểu param (vd để
         /// IsTrigger = true nhưng param thật trong Animator Controller lại là Bool), Unity ném
-        /// AnimatorControllerParameterException. Dùng chung cho mọi component (Health/Combat/Skill) để
-        /// không lặp lại logic cache-hash + try/catch ở từng file.
+        /// exception, lúc đó fallback sang SetBool. Không dùng Animator.parameters
+        /// để dò kiểu trước vì build Luna (WebGL) chặn property này (trả về rỗng), khiến animation không
+        /// bao giờ được set dù di chuyển vẫn chạy bình thường.
         /// </summary>
         internal void PlayAnimatorTrigger(int paramHash, string paramName)
         {
@@ -794,11 +826,18 @@ namespace Playable
             {
                 _animator.SetTrigger(paramHash);
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
-                Debug.LogError(
-                    "[MONSTER COMBAT] " + name + ": SetTrigger(\"" + paramName + "\") lỗi - param này trong " +
-                    "Animator Controller thật có thể là Bool chứ không phải Trigger. Chi tiết: " + e.Message);
+                try
+                {
+                    _animator.SetBool(paramHash, true);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError(
+                        "[MONSTER COMBAT] " + name + ": SetTrigger(\"" + paramName + "\") lỗi - param này trong " +
+                        "Animator Controller thật có thể không tồn tại. Chi tiết: " + e.Message);
+                }
             }
         }
 
@@ -813,11 +852,23 @@ namespace Playable
             {
                 _animator.SetBool(paramHash, value);
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
-                Debug.LogError(
-                    "[MONSTER COMBAT] " + name + ": SetBool(\"" + paramName + "\") lỗi - param này trong " +
-                    "Animator Controller thật có thể là Trigger chứ không phải Bool. Chi tiết: " + e.Message);
+                if (!value)
+                {
+                    return;
+                }
+
+                try
+                {
+                    _animator.SetTrigger(paramHash);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError(
+                        "[MONSTER COMBAT] " + name + ": SetBool(\"" + paramName + "\") lỗi - param này trong " +
+                        "Animator Controller thật có thể không tồn tại. Chi tiết: " + e.Message);
+                }
             }
         }
 
@@ -829,6 +880,23 @@ namespace Playable
         {
             _isMoving = false;
             _combat.OnRemovedFromPlay();
+            IsAnySkillChanneling = false;
+            // Disable skill-local particle loops immediately; detached death effects have their own lifetime.
+            ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>(true);
+            for (int i = 0; i < particles.Length; i++) particles[i].Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            if (_deathSkill != null)
+            {
+                _deathSkillRunning = true;
+                _deathSkill.Begin(this);
+                return;
+            }
+            CompleteDeath();
+        }
+
+        internal void CompleteDeath()
+        {
+            _deathSkillRunning = false;
+            _feedback?.Death(Position);
 
             if (_useScaleDeath)
             {
@@ -918,7 +986,7 @@ namespace Playable
 
         public void OnDeathAnimationFinished()
         {
-            if (IsDead && !_useScaleDeath)
+            if (IsDead && !_useScaleDeath && !_deathSkillRunning)
             {
                 DeactivateAfterDeath();
             }

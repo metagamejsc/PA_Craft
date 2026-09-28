@@ -72,6 +72,25 @@ namespace Playable
         }
 
         public Monster CurrentEnemy => _currentEnemy;
+        internal static int ActiveCount => _activeCombats.Count;
+        internal static Monster ActiveMonster(int index) => index >= 0 && index < _activeCombats.Count ? _activeCombats[index]._monster : null;
+        private float _pendingHitTime;
+        private Monster _attackTarget;
+        private ShinsonicTransformSkill _sonicPhase;
+        private int _comboIndex, _pendingComboIndex;
+        private string _activeAttackParam;
+        private int _activeAttackHash;
+
+        public void CancelPendingAttack()
+        {
+            _pendingAttack = PendingAttack.None;
+            _attackTarget = null;
+            if (_resetAttackBool)
+            {
+                _monster.SetAnimatorBool(_activeAttackHash, _activeAttackParam, false);
+                _resetAttackBool = false;
+            }
+        }
 
         public void RefreshTarget()
         {
@@ -98,6 +117,8 @@ namespace Playable
 
         internal void Init(MonsterCommonStats stats)
         {
+            _sonicPhase = GetComponent<ShinsonicTransformSkill>();
+            _comboIndex = _pendingComboIndex = 0;
             _attackDamage = stats.AttackDamage;
             _attackRange = stats.AttackRange;
             _attackCooldown = stats.AttackCooldown;
@@ -156,10 +177,12 @@ namespace Playable
         /// channel. Trả về true nếu đang có target (đang chase/melee/bomb) - Monster không wander nữa.</summary>
         public bool TryUpdateCombat()
         {
+            if (_pendingAttack != PendingAttack.None && Time.time >= _pendingHitTime)
+                ApplyPendingAttack();
             if (_resetAttackBool)
             {
                 _resetAttackBool = false;
-                _monster.SetAnimatorBool(_attackParamHash, _attackTriggerParam, false);
+                _monster.SetAnimatorBool(_activeAttackHash, _activeAttackParam, false);
             }
 
             if (_health.IsStaggered)
@@ -176,12 +199,13 @@ namespace Playable
 
             float distanceSqr = FlatDistanceSqr(_transform.position, _currentEnemy.Position);
 
-            if (distanceSqr <= _attackRange * _attackRange)
+            float meleeRange = MeleeRange(_currentEnemy);
+            if (distanceSqr <= meleeRange * meleeRange)
             {
                 _isThrowingBomb = false;
                 UpdateMeleeAttack();
             }
-            else if (_bombProjectilePrefab != null && distanceSqr <= _bombRange * _bombRange)
+            else if (_bombProjectilePrefab != null && _bombDamage > 0f && distanceSqr <= _bombRange * _bombRange)
             {
                 _isAttacking = false;
                 UpdateBombStance();
@@ -237,7 +261,7 @@ namespace Playable
             {
                 MonsterCombat other = _activeCombats[i];
 
-                if (other == this || other == null || other._health.IsDead || other._type == _type)
+                if (other == this || other == null || !other.isActiveAndEnabled || !IsValidEnemy(other._monster))
                 {
                     continue;
                 }
@@ -256,7 +280,9 @@ namespace Playable
 
         private bool IsValidEnemy(Monster target)
         {
-            return target != null && !target.IsDead && target.Type != _type;
+            return target != null && target.isActiveAndEnabled && !target.IsDead && target.Type != _type
+                && target.Combat != null && target.Combat.isActiveAndEnabled
+                && _activeCombats.Contains(target.Combat);
         }
 
         private void UpdateChaseTarget()
@@ -296,8 +322,13 @@ namespace Playable
             }
 
             _attackTimer = _attackCooldown;
+            _pendingComboIndex = _comboIndex;
+            int comboLength = _type == MonsterType.IronGolem ? 3 : _sonicPhase != null && _sonicPhase.CurrentStage == 2 ? 2 : 1;
+            _comboIndex = (_comboIndex + 1) % comboLength;
             PlayAttackAnim();
             _pendingAttack = PendingAttack.Melee;
+            _attackTarget = _currentEnemy;
+            _pendingHitTime = Time.time + Mathf.Min(0.45f, _attackCooldown * 0.4f);
 
             if (!_useAttackHitAnimationEvent)
             {
@@ -326,6 +357,8 @@ namespace Playable
             _bombTimer = _bombCooldown;
             PlayAttackAnim();
             _pendingAttack = PendingAttack.Bomb;
+            _attackTarget = _currentEnemy;
+            _pendingHitTime = Time.time + 0.35f;
 
             if (!_useAttackHitAnimationEvent)
             {
@@ -348,23 +381,41 @@ namespace Playable
             PendingAttack attack = _pendingAttack;
             _pendingAttack = PendingAttack.None;
 
-            if (!IsValidEnemy(_currentEnemy))
+            Monster victim = _attackTarget;
+            _attackTarget = null;
+            if (_monster.IsDead || _monster.IsAnySkillChanneling || _health.IsStaggered || !IsValidEnemy(victim))
             {
                 return;
             }
 
             if (attack == PendingAttack.Melee)
             {
-                float distanceSqr = FlatDistanceSqr(_transform.position, _currentEnemy.Position);
+                float distanceSqr = FlatDistanceSqr(_transform.position, victim.Position);
 
-                if (distanceSqr > _attackRange * _attackRange)
+                float meleeRange = MeleeRange(victim);
+                if (distanceSqr > meleeRange * meleeRange)
                 {
                     return;
                 }
 
-                _currentEnemy.Health.TakeDamage(_monster, _attackDamage);
-                _currentEnemy.Health.ApplyCrowdControl(
-                    _transform.position, _knockbackForce, _knockbackDuration);
+                float damage = _attackDamage;
+                if (_type == MonsterType.IronGolem)
+                    damage *= _pendingComboIndex == 0 ? 0.9f : _pendingComboIndex == 1 ? 1.1f : 1.35f;
+                bool golemFinisher = _type == MonsterType.IronGolem && _pendingComboIndex == 2;
+                int sonicStage = _sonicPhase != null ? _sonicPhase.CurrentStage : 0;
+                if (golemFinisher || sonicStage >= 2)
+                {
+                    float cone = golemFinisher ? 90f : sonicStage == 2 ? 120f : 75f;
+                    MonsterAreaAttack.Apply(_monster, _monster.Position, meleeRange, damage,
+                        _knockbackForce, golemFinisher ? 0.8f : _knockbackDuration, cone,
+                        0f, golemFinisher ? 1f : 0f, golemFinisher ? 0.5f : 0f);
+                }
+                else
+                {
+                    victim.Health.TakeDamage(_monster, damage);
+                    victim.Health.ApplyCrowdControl(_transform.position, _knockbackForce, _knockbackDuration);
+                }
+                _monster.Feedback?.Attack(victim.Position);
                 return;
             }
 
@@ -374,11 +425,12 @@ namespace Playable
                     _bombProjectilePrefab,
                     _transform.position,
                     _monster,
-                    _currentEnemy,
+                    victim,
                     _bombDamage,
                     _bombSpeed,
                     _bombKnockbackForce,
                     _knockbackDuration);
+                _monster.Feedback?.Skill(_transform.position, false);
             }
         }
 
@@ -389,7 +441,11 @@ namespace Playable
                 return;
             }
 
-            _monster.SetAnimatorBool(_attackParamHash, _attackTriggerParam, true);
+            bool useCombo = _type == MonsterType.IronGolem || _sonicPhase != null && _sonicPhase.CurrentStage == 2;
+            _activeAttackParam = useCombo && _pendingComboIndex > 0
+                ? (_pendingComboIndex == 1 ? "IsAttack2" : "IsAttack3") : _attackTriggerParam;
+            _activeAttackHash = Animator.StringToHash(_activeAttackParam);
+            _monster.SetAnimatorBool(_activeAttackHash, _activeAttackParam, true);
             _resetAttackBool = true;
         }
 
@@ -398,6 +454,15 @@ namespace Playable
             float dx = a.x - b.x;
             float dz = a.z - b.z;
             return dx * dx + dz * dz;
+        }
+
+        private float MeleeRange(Monster target)
+        {
+            // Physical bodies must be able to touch before melee is considered out of range.
+            // Ranged Creeper keeps its deliberately small melee range so it still throws TNT.
+            float range = _sonicPhase != null && _sonicPhase.CurrentStage >= 2 ? Mathf.Max(4f, _attackRange) : _attackRange;
+            return _type == MonsterType.Creeper ? range
+                : Mathf.Max(range, _monster.BodyRadius + target.BodyRadius + 0.2f);
         }
     }
 }

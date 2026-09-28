@@ -38,6 +38,7 @@ namespace Playable
         private float _channelTimer;
 
         public bool IsChanneling => _isChanneling;
+        public int CurrentStage => _currentStage;
 
         private void Awake()
         {
@@ -71,7 +72,7 @@ namespace Playable
                 return;
             }
 
-            if (_currentStage >= 3 || _health == null || _health.IsDead || _health.MaxHealth <= 0f)
+            if (_currentStage >= 3 || _health == null || _health.IsDead || _health.MaxHealth <= 0f || _self.IsAnySkillChanneling)
             {
                 return;
             }
@@ -133,14 +134,17 @@ namespace Playable
             }
 
             SetVisual(visual);
+            _self.Feedback?.Skill(_self.Position);
         }
 
         private void SetVisual(GameObject activeVisual)
         {
+            if (activeVisual == null) return;
             if (_baseVisual != null) _baseVisual.SetActive(_baseVisual == activeVisual);
             if (_stage1Visual != null) _stage1Visual.SetActive(_stage1Visual == activeVisual);
             if (_stage2Visual != null) _stage2Visual.SetActive(_stage2Visual == activeVisual);
             if (_stage3Visual != null) _stage3Visual.SetActive(_stage3Visual == activeVisual);
+            _self.SetVisualAnimator(activeVisual.GetComponentInChildren<Animator>(true));
         }
 
         public void OnTransformFinishedAnimationEvent()

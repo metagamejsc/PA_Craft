@@ -24,6 +24,11 @@ namespace Playable
             Done
         }
 
+        [Tooltip("Sau khi tutorial xong, có cho player thao tác (di chuyển/nhảy/fly/transform...) không. " +
+                 "Tắt = khoá toàn bộ input player (PlayerController.IsWorking = false) ngay khi vào Gameplay.")]
+        [SerializeField]
+        private bool _enablePlayerControlAfterTutorial = true;
+
         [SerializeField] private List<HotbarItem> _hotbarItems = new List<HotbarItem>();
         [SerializeField] private Monster _prefabMonster;
 
@@ -64,10 +69,6 @@ namespace Playable
         [Tooltip("PlayerController của player, dùng để biết khi nào player transform xong")] [SerializeField]
         private PlayerController _playerController;
 
-        [Tooltip("Sau khi tutorial xong, có cho player thao tác (di chuyển/nhảy/fly/transform...) không. " +
-                 "Tắt = khoá toàn bộ input player (PlayerController.IsWorking = false) ngay khi vào Gameplay.")]
-        [SerializeField]
-        private bool _enablePlayerControlAfterTutorial = true;
 
         [Tooltip("RectTransform của nút Transform trên player, để trỏ tay tutorial tới")] [SerializeField]
         private RectTransform _transformButtonTarget;
@@ -99,11 +100,6 @@ namespace Playable
 
         [SerializeField] private float _refreshInterval = 0.1f;
 
-        [Header("Free Spawn Limit")]
-        [Tooltip("Giới hạn TỔNG số quái spawn trong toàn game, tính cả 2 quái spawn lúc tutorial. " +
-                 "Phải >= 2 nếu muốn tutorial luôn hoàn thành được. 0 = không giới hạn.")]
-        [SerializeField]
-        private int _maxTotalMonsters = 5;
 
         private readonly List<RaycastResult> _raycastResults = new List<RaycastResult>();
 
@@ -607,34 +603,14 @@ namespace Playable
                 return false;
             }
 
-
-            if (_maxTotalMonsters > 0 && _spawnedMonsterCount >= _maxTotalMonsters)
-            {
-                NotifyMonsterLimitReached();
-                return false;
-            }
-
             Monster monster = Instantiate(_prefabMonster);
             monster.Spawn(worldPosition, _monsterWanderRadius);
+            GameManager.Instance.CountEvent();
             _spawnedMonsterCount++;
-            if (_spawnedMonsterCount >= _maxTotalMonsters) GameManager.Instance.EndGame();
 
             return true;
         }
 
-        /// <summary>
-        /// Điểm mở rộng: gọi đúng 1 lần khi vừa spawn đủ số quái tối đa (_maxTotalMonsters).
-        /// Thêm logic của bạn ở đây (hiện popup, mở màn kế tiếp, khoá nút spawn, v.v.)
-        /// </summary>
-        private void NotifyMonsterLimitReached()
-        {
-            if (_limitReachedNotified)
-            {
-                return;
-            }
-
-            _limitReachedNotified = true;
-        }
 
         private void ShowVfx(Vector3 worldPosition)
         {

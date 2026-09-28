@@ -14,7 +14,9 @@ namespace Playable
         private string _armReachTriggerParam = "";
 
         [Header("VFX (optional)")] [SerializeField]
-        private ParticleSystem _armVfx;
+        private GameObject _armVfx;
+        private ParticleSystem[] _armParticles;
+        private Vector3 _armBaseScale;
 
         private Monster _self;
         private EndermanData _stats;
@@ -25,6 +27,7 @@ namespace Playable
         private float _channelTimer;
         private bool _hasAppliedHit;
         private Monster _channelTarget;
+        private float _hitTimer;
 
         public bool IsChanneling => _isChanneling;
 
@@ -37,7 +40,9 @@ namespace Playable
         {
             _self = self;
             _stats = self.EndermanStats;
-            _cooldownTimer = _stats.ArmReachCooldown;
+            _armParticles = _armVfx != null ? _armVfx.GetComponentsInChildren<ParticleSystem>(true) : new ParticleSystem[0];
+            if (_armVfx != null) _armBaseScale = _armVfx.transform.localScale;
+            _cooldownTimer = Random.Range(0.8f, 2f);
             _isChanneling = false;
         }
 
@@ -69,13 +74,15 @@ namespace Playable
         private void StartChannel(Monster target)
         {
             _isChanneling = true;
-            _channelTimer = Mathf.Max(1f, _stats.ArmReachDuration + 1f);
+            _channelTimer = Mathf.Max(0.8f, _stats.ArmReachDuration);
+            _hitTimer = 0.35f;
             _hasAppliedHit = false;
             _channelTarget = target;
 
             _self.FaceTowards(target.Position);
 
             PlayArmVfx();
+            _self.Feedback?.Skill(_self.Position, false);
 
             if (!string.IsNullOrEmpty(_armReachTriggerParam) && _self.HasAnimator)
             {
@@ -85,14 +92,22 @@ namespace Playable
 
         private void UpdateChannel()
         {
-            if (_channelTarget == null || _channelTarget.IsDead)
+            if (_channelTarget == null || !_channelTarget.isActiveAndEnabled || _channelTarget.IsDead)
             {
                 EndChannel();
                 return;
             }
 
             _self.FaceTowards(_channelTarget.Position);
+            UpdateBeam();
             _channelTimer -= Time.deltaTime;
+            _hitTimer -= Time.deltaTime;
+            if (_hitTimer <= 0f)
+            {
+                ApplyHit();
+                _hasAppliedHit = true;
+                _hitTimer = 0.5f;
+            }
 
             if (_channelTimer > 0f)
             {
@@ -111,16 +126,18 @@ namespace Playable
 
             _isChanneling = false;
             _cooldownTimer = _stats.ArmReachCooldown;
+            _self.SetAnimatorBool(_armReachTriggerHash, _armReachTriggerParam, false);
 
             if (_armVfx != null)
             {
-                _armVfx.gameObject.SetActive(false);
+                _armVfx.SetActive(false);
+                _armVfx.transform.localScale = _armBaseScale;
             }
         }
 
         private void ApplyHit()
         {
-            if (_channelTarget == null || _channelTarget.IsDead)
+            if (_channelTarget == null || !_channelTarget.isActiveAndEnabled || _channelTarget.IsDead)
             {
                 return;
             }
@@ -132,8 +149,8 @@ namespace Playable
                 return;
             }
 
-            _channelTarget.Health.TakeDamage(_self, _stats.ArmReachDamage);
-            _channelTarget.Health.ApplyCrowdControl(_self.Position, 0f, _stats.ArmReachStunDuration);
+            MonsterAreaAttack.Apply(_self, _self.Position, _stats.ArmReachRange,
+                _stats.ArmReachDamage * 0.4f, 0f, Mathf.Min(0.3f, _stats.ArmReachStunDuration), 120f);
         }
 
         private void PlayArmVfx()
@@ -143,19 +160,34 @@ namespace Playable
                 return;
             }
 
-            _armVfx.gameObject.SetActive(true);
-            _armVfx.Play();
+            _armVfx.SetActive(true);
+            UpdateBeam();
+            for (int i = 0; i < _armParticles.Length; i++)
+            {
+                _armParticles[i].Clear();
+                _armParticles[i].Play(true);
+            }
+        }
+
+        private void UpdateBeam()
+        {
+            if (_armVfx == null || _channelTarget == null) return;
+            Vector3 direction = _channelTarget.Position + Vector3.up * 1.5f - _armVfx.transform.position;
+            if (direction.sqrMagnitude < 0.01f) return;
+            _armVfx.transform.rotation = Quaternion.LookRotation(direction);
+            _armVfx.transform.localScale = _armBaseScale * Mathf.Max(0.5f, direction.magnitude / 5f);
         }
 
         public void OnHitAnimationEvent()
         {
-            if (!_isChanneling || _hasAppliedHit || _channelTarget == null || _channelTarget.IsDead)
+            if (!_isChanneling || _hasAppliedHit || _channelTarget == null || !_channelTarget.isActiveAndEnabled || _channelTarget.IsDead)
             {
                 return;
             }
 
             _hasAppliedHit = true;
             _self.FaceTowards(_channelTarget.Position);
+            _hitTimer = 0.5f;
             ApplyHit();
         }
 

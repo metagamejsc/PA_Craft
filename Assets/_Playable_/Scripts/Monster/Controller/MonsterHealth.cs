@@ -46,6 +46,7 @@ namespace Playable
         public float CurrentHealth => _currentHealth;
         public float MaxHealth => _maxHealth;
         public bool IsDead => _isDead;
+        public bool IsDamageImmune { get; set; }
         public bool IsStaggered => _knockbackTimer > 0f || _launchTimer > 0f;
 
         /// <summary>Số giây còn lại đang bị stun/CC (0 nếu không bị) - dùng để code khác (skill, UI,
@@ -79,6 +80,7 @@ namespace Playable
             _maxHealth = maxHealth;
             _currentHealth = maxHealth;
             _isDead = false;
+            IsDamageImmune = false;
             _knockbackTimer = 0f;
             _launchTimer = 0f;
             _isPoisoned = false;
@@ -87,7 +89,7 @@ namespace Playable
 
         public void TakeDamage(Monster attacker, float amount)
         {
-            if (_isDead || amount <= 0f)
+            if (_isDead || IsDamageImmune || amount <= 0f)
             {
                 return;
             }
@@ -191,7 +193,7 @@ namespace Playable
         /// <summary>Hất bay lên rồi rơi xuống thuần vị trí (không physics) - dùng cho Iron Golem slam.</summary>
         public void PlayLaunch(float height, float duration)
         {
-            if (_isDead || duration <= 0f)
+            if (_isDead || duration <= 0f || (_monster != null && _monster.IsAnySkillChanneling))
             {
                 return;
             }

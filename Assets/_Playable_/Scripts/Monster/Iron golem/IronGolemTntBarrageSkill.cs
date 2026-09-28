@@ -26,6 +26,9 @@ namespace Playable
         private float _skillTimer;
         private bool _isChanneling;
         private Monster _channelTarget;
+        private float _shotTimer;
+        private float _lastLeftShot;
+        private float _lastRightShot;
 
         public bool IsChanneling => _isChanneling;
 
@@ -38,7 +41,7 @@ namespace Playable
         {
             _self = self;
             _stats = self.IronGolemStats;
-            _cooldownTimer = _stats.TntBarrageCooldown;
+            _cooldownTimer = Random.Range(2f, 3f);
             _isChanneling = false;
         }
 
@@ -71,6 +74,9 @@ namespace Playable
             _isChanneling = true;
             _channelTarget = target;
             _skillTimer = Mathf.Max(0f, _stats.TntBarrageDuration);
+            _shotTimer = 0.65f;
+            _lastLeftShot = _lastRightShot = -100f;
+            _self.Feedback?.Skill(_self.Position, false);
 
             _self.FaceTowards(target.Position);
             SetSkillAnimation(true);
@@ -78,7 +84,7 @@ namespace Playable
 
         private void UpdateSkill()
         {
-            if (_channelTarget == null || _channelTarget.IsDead)
+            if (_channelTarget == null || !_channelTarget.isActiveAndEnabled || _channelTarget.IsDead)
             {
                 EndSkill();
                 return;
@@ -86,6 +92,13 @@ namespace Playable
 
             _self.FaceTowards(_channelTarget.Position);
             _skillTimer -= Time.deltaTime;
+            _shotTimer -= Time.deltaTime;
+            if (_shotTimer <= 0f)
+            {
+                FireTntFromLeftHand();
+                FireTntFromRightHand();
+                _shotTimer = 0.65f;
+            }
 
             if (_skillTimer <= 0f)
             {
@@ -95,11 +108,15 @@ namespace Playable
 
         public void FireTntFromLeftHand()
         {
+            if (Time.time - _lastLeftShot < 0.5f) return;
+            _lastLeftShot = Time.time;
             FireTnt(_leftHandFirePoint, _leftHandFallbackOffset);
         }
 
         public void FireTntFromRightHand()
         {
+            if (Time.time - _lastRightShot < 0.5f) return;
+            _lastRightShot = Time.time;
             FireTnt(_rightHandFirePoint, _rightHandFallbackOffset);
         }
 
@@ -110,7 +127,7 @@ namespace Playable
 
         private void FireTnt(Transform firePoint, Vector3 fallbackOffset)
         {
-            if (!_isChanneling || _channelTarget == null || _channelTarget.IsDead)
+            if (!_isChanneling || _channelTarget == null || !_channelTarget.isActiveAndEnabled || _channelTarget.IsDead)
             {
                 return;
             }

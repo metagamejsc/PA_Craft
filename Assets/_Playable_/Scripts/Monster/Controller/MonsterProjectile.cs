@@ -3,228 +3,69 @@ using UnityEngine;
 
 namespace Playable
 {
-    /// <summary>
-    /// Quả bom bay thẳng tới vị trí đối thủ lúc ném (không homing - nếu đối thủ né ra khỏi bán kính va
-    /// chạm thì bay hụt, không gây damage). Pool theo prefab (mỗi loại quái có thể dùng model bom khác
-    /// nhau) - không Instantiate/Destroy khi đang chơi sau lần đầu warm-up mỗi loại prefab.
-    /// </summary>
     [DisallowMultipleComponent]
     public class MonsterProjectile : MonoBehaviour
     {
-        private static readonly Dictionary<GameObject, List<MonsterProjectile>> _pools =
-            new Dictionary<GameObject, List<MonsterProjectile>>();
-
+        private static readonly List<MonsterProjectile> Pool = new List<MonsterProjectile>();
         [SerializeField] private GameObject _explosionVfxPrefab;
+        [SerializeField] private AudioClip _explosionSound;
         [SerializeField] private float _explosionVfxLifeTime = 1.5f;
-        [SerializeField] private float _hitRadius = 0.4f;
+        [SerializeField] private float _hitRadius = 2f;
         [SerializeField] private float _maxLifeTime = 4f;
-
-        private Transform _transform;
         private GameObject _sourcePrefab;
         private Monster _owner;
-        private Monster _target;
-        private Vector3 _targetPosition;
-        private Vector3 _direction;
-        private float _speed;
-        private float _damage;
-        private float _knockbackForce;
-        private float _knockbackDuration;
-        private float _lifeTimer;
-        private bool _isFlying;
-        private GameObject _explosionVfxInstance;
-        private ParticleSystem[] _explosionVfxParticles;
-        private float _explosionHideTime;
+        private Vector3 _destination;
+        private float _speed, _damage, _push, _stun, _expires;
 
-        /// <summary>Ném 1 quả bom từ origin bay thẳng tới target. prefab phải có (hoặc sẽ được gắn thêm)
-        /// component MonsterProjectile.</summary>
-        public static void Spawn(
-            GameObject prefab,
-            Vector3 origin,
-            Monster owner,
-            Monster target,
-            float damage,
-            float speed,
-            float knockbackForce,
-            float knockbackDuration)
+        public static void Spawn(GameObject prefab, Vector3 origin, Monster owner, Monster target,
+            float damage, float speed, float knockbackForce, float knockbackDuration)
         {
-            if (prefab == null || target == null)
+            if (prefab == null || owner == null || target == null || target.IsDead) return;
+            MonsterProjectile shot = null;
+            for (int i = Pool.Count - 1; i >= 0; i--)
             {
-                return;
+                if (Pool[i] == null) { Pool.RemoveAt(i); continue; }
+                if (Pool[i]._sourcePrefab == prefab && !Pool[i].gameObject.activeSelf) shot = Pool[i];
             }
-
-            MonsterProjectile projectile = GetFromPool(prefab);
-            projectile.Launch(origin, owner, target, damage, speed, knockbackForce, knockbackDuration);
-        }
-
-        private static MonsterProjectile GetFromPool(GameObject prefab)
-        {
-            if (!_pools.TryGetValue(prefab, out List<MonsterProjectile> pool))
+            if (shot == null)
             {
-                pool = new List<MonsterProjectile>();
-                _pools[prefab] = pool;
+                if (Pool.Count >= 32) return;
+                GameObject instance = Instantiate(prefab);
+                shot = instance.GetComponent<MonsterProjectile>();
+                if (shot == null) shot = instance.AddComponent<MonsterProjectile>();
+                shot._sourcePrefab = prefab;
+                Pool.Add(shot);
             }
-
-            while (pool.Count > 0)
-            {
-                int lastIndex = pool.Count - 1;
-                MonsterProjectile candidate = pool[lastIndex];
-                pool.RemoveAt(lastIndex);
-
-                if (candidate == null)
-                {
-                    continue;
-                }
-
-                candidate.gameObject.SetActive(true);
-                return candidate;
-            }
-
-            GameObject instance = Instantiate(prefab);
-            MonsterProjectile projectile = instance.GetComponent<MonsterProjectile>();
-
-            if (projectile == null)
-            {
-                projectile = instance.AddComponent<MonsterProjectile>();
-            }
-
-            projectile._sourcePrefab = prefab;
-            return projectile;
-        }
-
-        private void Awake()
-        {
-            _transform = transform;
-        }
-
-        private void Launch(
-            Vector3 origin,
-            Monster owner,
-            Monster target,
-            float damage,
-            float speed,
-            float knockbackForce,
-            float knockbackDuration)
-        {
-            _transform.position = origin;
-            _owner = owner;
-            _target = target;
-            _targetPosition = target.Position;
-            _damage = damage;
-            _speed = Mathf.Max(speed, 0.01f);
-            _knockbackForce = knockbackForce;
-            _knockbackDuration = knockbackDuration;
-            _lifeTimer = _maxLifeTime;
-
-            Vector3 toTarget = _targetPosition - origin;
-            _direction = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector3.forward;
-            _transform.rotation = Quaternion.LookRotation(_direction, Vector3.up);
-
-            _isFlying = true;
+            shot._owner = owner;
+            shot._destination = target.Position + Vector3.up * 0.5f;
+            shot._speed = Mathf.Max(0.1f, speed);
+            shot._damage = damage;
+            shot._push = knockbackForce;
+            shot._stun = knockbackDuration;
+            shot._expires = Time.time + shot._maxLifeTime;
+            shot.transform.position = origin + Vector3.up * 0.5f;
+            shot.gameObject.SetActive(true);
         }
 
         private void Update()
         {
-            if (_explosionHideTime > 0f && Time.time >= _explosionHideTime)
-            {
-                _explosionHideTime = 0f;
-
-                if (_explosionVfxInstance != null)
-                {
-                    _explosionVfxInstance.SetActive(false);
-                }
-            }
-
-            if (!_isFlying)
-            {
-                return;
-            }
-
-            _lifeTimer -= Time.deltaTime;
-
-            if (_lifeTimer <= 0f)
-            {
-                Despawn();
-                return;
-            }
-
-            Vector3 position = _transform.position;
+            Vector3 delta = _destination - transform.position;
             float step = _speed * Time.deltaTime;
-            float remainingDistance = Vector3.Distance(position, _targetPosition);
-
-            if (remainingDistance <= step)
+            if (delta.sqrMagnitude <= step * step)
             {
-                Explode();
+                transform.position = _destination;
+                if (_owner != null)
+                    MonsterAreaAttack.Apply(_owner, _destination, _hitRadius, _damage, _push, _stun,
+                        360f, 0f, 0f, 0f, _owner.Type == MonsterType.Creeper || _owner.Type == MonsterType.IronGolem ? 1.5f : 0f);
+                MonsterBattleEffects.Play(_explosionVfxPrefab, _destination, Quaternion.identity, _explosionVfxLifeTime);
+                MonsterBattleEffects.Sound(_explosionSound, 0.35f);
+                gameObject.SetActive(false);
+                _owner = null;
                 return;
             }
-
-            _transform.position = position + _direction * step;
-        }
-
-        private void Explode()
-        {
-            _isFlying = false;
-
-            if (_target != null && !_target.IsDead)
-            {
-                float distanceSqr = (_target.Position - _transform.position).sqrMagnitude;
-
-                if (distanceSqr <= _hitRadius * _hitRadius)
-                {
-                    _target.Health.TakeDamage(_owner, _damage);
-                    _target.Health.ApplyCrowdControl(_transform.position, _knockbackForce, _knockbackDuration);
-                }
-            }
-
-            PlayExplosionVfx();
-            Despawn();
-        }
-
-        private void PlayExplosionVfx()
-        {
-            if (_explosionVfxPrefab == null)
-            {
-                return;
-            }
-
-            if (_explosionVfxInstance == null)
-            {
-                _explosionVfxInstance = Instantiate(_explosionVfxPrefab, _transform.position, Quaternion.identity);
-                _explosionVfxParticles = _explosionVfxInstance.GetComponentsInChildren<ParticleSystem>(true);
-            }
-            else
-            {
-                _explosionVfxInstance.transform.position = _transform.position;
-                _explosionVfxInstance.SetActive(true);
-            }
-
-            for (int i = 0; i < _explosionVfxParticles.Length; i++)
-            {
-                _explosionVfxParticles[i].Clear();
-                _explosionVfxParticles[i].Play();
-            }
-
-            _explosionHideTime = Time.time + _explosionVfxLifeTime;
-        }
-
-        private void Despawn()
-        {
-            _isFlying = false;
-            _owner = null;
-            _target = null;
-            gameObject.SetActive(false);
-
-            if (_sourcePrefab == null)
-            {
-                return;
-            }
-
-            if (!_pools.TryGetValue(_sourcePrefab, out List<MonsterProjectile> pool))
-            {
-                pool = new List<MonsterProjectile>();
-                _pools[_sourcePrefab] = pool;
-            }
-
-            pool.Add(this);
+            if (Time.time >= _expires) { gameObject.SetActive(false); _owner = null; return; }
+            transform.position += delta.normalized * step;
+            transform.Rotate(120f * Time.deltaTime, 180f * Time.deltaTime, 0f);
         }
     }
 }

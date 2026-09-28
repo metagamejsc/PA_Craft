@@ -41,6 +41,7 @@ namespace Playable
 
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
             if (_backgroundMusic) AudioManager.Instance.PlayMusic(_backgroundMusic);
+            CountdownEndGame();
         }
 
 
@@ -50,10 +51,9 @@ namespace Playable
             _btnBlock.gameObject.SetActive(true);
             Luna.Unity.LifeCycle.GameEnded();
             Luna.Unity.Playable.InstallFullGame();
-            CountdownEndGame();
         }
 
-        protected void CountEvent()
+        public void CountEvent()
         {
             _quantityEvent++;
             if (_quantityEvent >= _totalEvent)

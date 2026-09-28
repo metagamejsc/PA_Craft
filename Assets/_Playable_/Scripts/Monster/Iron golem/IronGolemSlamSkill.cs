@@ -16,7 +16,7 @@ namespace Playable
         private string _slamTriggerParam = "";
 
         [Header("VFX (optional)")] [SerializeField]
-        private ParticleSystem _slamVfxPrefab;
+        private GameObject _slamVfxPrefab;
 
         private Monster _self;
         private IronGolemData _stats;
@@ -39,7 +39,7 @@ namespace Playable
         {
             _self = self;
             _stats = self.IronGolemStats;
-            _cooldownTimer = _stats.SlamCooldown;
+            _cooldownTimer = Random.Range(1f, 2.5f);
             _isChanneling = false;
         }
 
@@ -85,7 +85,7 @@ namespace Playable
 
         private void UpdateChannel()
         {
-            if (_channelTarget == null || _channelTarget.IsDead)
+            if (_channelTarget == null || !_channelTarget.isActiveAndEnabled || _channelTarget.IsDead)
             {
                 EndChannel();
                 return;
@@ -93,6 +93,7 @@ namespace Playable
 
             _self.FaceTowards(_channelTarget.Position);
             _channelTimer -= Time.deltaTime;
+            if (!_hasAppliedHit && _channelTimer <= ChannelTimeout - 0.65f) OnHitAnimationEvent();
 
             if (_channelTimer > 0f)
             {
@@ -111,17 +112,19 @@ namespace Playable
 
             _isChanneling = false;
             _cooldownTimer = _stats.SlamCooldown;
+            _self.SetAnimatorBool(_slamTriggerHash, _slamTriggerParam, false);
         }
 
         private void ApplyHit()
         {
-            if (_channelTarget == null || _channelTarget.IsDead)
+            if (_channelTarget == null || !_channelTarget.isActiveAndEnabled || _channelTarget.IsDead)
             {
                 return;
             }
 
             _self.FaceTowards(_channelTarget.Position);
             PlaySlamVfx();
+            _self.Feedback?.Skill(_self.Position, false);
 
             float distanceSqr = (_channelTarget.Position - _self.Position).sqrMagnitude;
 
@@ -130,10 +133,9 @@ namespace Playable
                 return;
             }
 
-            _channelTarget.Health.TakeDamage(_self, _stats.SlamDamage);
-            _channelTarget.Health.PlayLaunch(_stats.SlamLaunchHeight, _stats.SlamAirTime);
-            _channelTarget.Health.ApplyCrowdControl(
-                _self.Position, 0f, _stats.SlamAirTime + _stats.SlamStunDuration);
+            MonsterAreaAttack.Apply(_self, _self.Position, _stats.AttackRange, _stats.SlamDamage,
+                0f, _stats.SlamAirTime + _stats.SlamStunDuration, 360f, 0f,
+                _stats.SlamLaunchHeight, _stats.SlamAirTime);
         }
 
         private void PlaySlamVfx()
@@ -143,8 +145,7 @@ namespace Playable
                 return;
             }
 
-            _slamVfxPrefab.gameObject.SetActive(true);
-            _slamVfxPrefab.Play();
+            MonsterBattleEffects.Play(_slamVfxPrefab, _self.Position, Quaternion.identity, 1.5f);
         }
 
         public void OnHitAnimationEvent()

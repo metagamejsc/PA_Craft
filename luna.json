@@ -2,7 +2,7 @@
     "version": "7.2.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 40867,
-    "creativeName": "CBBW3_V03_DungNV_HuyNQ",
+    "creativeName": "CBBW3_V08_DungNV_HuyNQ",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -8366,6 +8366,26 @@
             {
                 "name": "Playable.Phase",
                 "excluded": false
+            },
+            {
+                "name": "Playable.IMonsterSkill",
+                "excluded": false
+            },
+            {
+                "name": "Playable.MonsterCombat.PendingAttack",
+                "excluded": false
+            },
+            {
+                "name": "Playable.MonsterType",
+                "excluded": false
+            },
+            {
+                "name": "Playable.CreeperAnimationEvents",
+                "excluded": false
+            },
+            {
+                "name": "Playable.HuggyAnimationEvents",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -14977,7 +14997,7 @@
                     },
                     {
                         "name": "PingPong",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SmoothDamp",
@@ -21983,7 +22003,7 @@
                     },
                     {
                         "name": "bounds#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isTrigger#get",
@@ -22397,7 +22417,7 @@
                     },
                     {
                         "name": "Play$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Pause",
@@ -22417,7 +22437,7 @@
                     },
                     {
                         "name": "Stop$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Emit",
@@ -22425,7 +22445,7 @@
                     },
                     {
                         "name": "Clear",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Simulate",
@@ -33673,7 +33693,7 @@
                     },
                     {
                         "name": "parameters#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "playableGraph#get",
@@ -37821,7 +37841,7 @@
                     },
                     {
                         "name": "CountEvent",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "IECountdownEndGame",
@@ -38401,50 +38421,6 @@
                     },
                     {
                         "name": "IsDead#get",
-                        "excluded": true
-                    },
-                    {
-                        "name": "TryFindNearestEnemy",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateChase",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EnterAttackState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ExitAttackState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SafeSetAnimatorBool",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SafeSetAnimatorTrigger",
-                        "excluded": true
-                    },
-                    {
-                        "name": "UpdateAttack",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ResetAttackAnimationPulse",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ClearAttackAnimation",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TakeDamage",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Die",
                         "excluded": false
                     },
                     {
@@ -38454,6 +38430,122 @@
                     {
                         "name": "DeactivateAfterDeath",
                         "excluded": false
+                    },
+                    {
+                        "name": "Health#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Combat#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Feedback#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Position#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Type#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StayStillOnSpawn#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BodyRadius#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EndermanStats#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IronGolemStats#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CreeperStats#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HuggyStats#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShinsonicStats#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasAnimator#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AnimatorGameObject#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EnsureDataHolder",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AutoAttachSkills",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsureComponent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsureAnimationEventReceiver",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyStatsForType",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ChaseTowards",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FaceTowards",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TeleportTo",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetVisualAnimator",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayAnimatorTrigger",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetAnimatorBool",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnHealthDied",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CompleteDeath",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayDeathVfx",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDeathAnimationFinished",
+                        "excluded": true
                     }
                 ]
             },
@@ -39010,10 +39102,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "NotifyMonsterLimitReached",
-                        "excluded": false
-                    },
-                    {
                         "name": "TryGetTapPosition",
                         "excluded": false
                     },
@@ -39280,6 +39368,962 @@
                     {
                         "name": "TryParseHtmlString",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterAnimationEvents",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AttackHit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DeathFinished",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.EndermanData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.EndermanMonsterData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Data#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterBattleFeedback",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Attack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Skill",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Death",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterCombat",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ActiveCount#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ActiveMonster",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FlatDistanceSqr",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CurrentEnemy#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CancelPendingAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefreshTarget",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnRemovedFromPlay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddAttackDamageBonus",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDamaged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryUpdateCombat",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryAcquireTarget",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FindPriorityTarget",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsValidEnemy",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateChaseTarget",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateMeleeAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateBombStance",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnAttackHitAnimationEvent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyPendingAttack",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayAttackAnim",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MeleeRange",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterDeathSkill",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Begin",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetBlink",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterHealth",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "CurrentHealth#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "MaxHealth#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsDead#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsStaggered#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StunTimeRemaining#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TakeDamage",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Heal",
+                        "excluded": true
+                    },
+                    {
+                        "name": "IncreaseMaxHealth",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyCrowdControl",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayStunReaction",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyPoison",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayLaunch",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateKnockback",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateLaunch",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdatePoison",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Die",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.EndermanAnimationEvents",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ArmReachHit",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ArmReachFinished",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.EndermanArmReachSkill",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "IsChanneling#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartChannel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateChannel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EndChannel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyHit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayArmVfx",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateBeam",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnHitAnimationEvent",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnFinishedAnimationEvent",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.EndermanTeleportSkill",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "IsChanneling#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartChannel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateChannel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ExecuteHop",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ExecuteFinalHit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetStepDelay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TeleportSelf",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayTeleportPuff",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EndChannel",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.CreeperMonsterData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Data#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.HuggyMonsterData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Data#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.IronGolemMonsterData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Data#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterCommonStats",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.ShinsonicMonsterData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Data#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.ShinsonicTransformSkill",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsChanneling#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CurrentStage#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TransformToNextStage",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetVisual",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTransformFinishedAnimationEvent",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.IronGolemData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.IronGolemSlamSkill",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsChanneling#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartChannel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateChannel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EndChannel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyHit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySlamVfx",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnHitAnimationEvent",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnFinishedAnimationEvent",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.IronGolemTntBarrageSkill",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "IsChanneling#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartSkill",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateSkill",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FireTntFromLeftHand",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FireTntFromRightHand",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnFinishedAnimationEvent",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FireTnt",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EndSkill",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetSkillAnimation",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.IronGolemAnimationEvents",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SlamHit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SlamFinished",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FireTntFromLeftHand",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FireTntFromRightHand",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TntBarrageFinished",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterBattleEffects",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Instance#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Play",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Sound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterAreaAttack",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Apply",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterDebug",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Log",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LogWarning",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LogError",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.ShinsonicData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.ShinsonicAnimationEvents",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TransformFinished",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.ShinsonicRoarSkill",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsChanneling#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EndRoar",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.ShinsonicVortexSkill",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "IsChanneling#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Playable.CreeperData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.MonsterProjectile",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Spawn",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "Playable.HuggyData",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
                     }
                 ]
             }
@@ -39722,6 +40766,146 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/_Playable_/Sound/423120__ogsoundfx__earthquake-1-big.wav"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:15.713",
+                        "lengthInSeconds": 15.713000297546387,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/Sound/Epic-Chase(chosic.com).mp3"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:08.480",
+                        "lengthInSeconds": 8.479999542236329,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/shin_sonic_angry.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:06.326",
+                        "lengthInSeconds": 6.326000213623047,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/shin_sonic_roar_phase4.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:02.234",
+                        "lengthInSeconds": 2.2339999675750734,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/huggy_wuggy_death.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.790",
+                        "lengthInSeconds": 1.7899999618530274,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/iron_golem_death.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.429",
+                        "lengthInSeconds": 1.4290000200271607,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/enderman_death.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.429",
+                        "lengthInSeconds": 1.4290000200271607,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/creeper_death.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.429",
+                        "lengthInSeconds": 1.4290000200271607,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/huggy_wuggy_idlescream1.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.429",
+                        "lengthInSeconds": 1.4290000200271607,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/iron_golem_hit1.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.429",
+                        "lengthInSeconds": 1.4290000200271607,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/enderman_portal.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.429",
+                        "lengthInSeconds": 1.4290000200271607,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/shin_sonic_hurt.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.429",
+                        "lengthInSeconds": 1.4290000200271607,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/iron_golem_hit2.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.429",
+                        "lengthInSeconds": 1.4290000200271607,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/enderman_hit1.ogg"
+                    },
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:01.429",
+                        "lengthInSeconds": 1.4290000200271607,
+                        "bitrate": 56,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/_Playable_/MonsterBattle/Audio/creeper_say1.ogg"
                     }
                 ]
             },
