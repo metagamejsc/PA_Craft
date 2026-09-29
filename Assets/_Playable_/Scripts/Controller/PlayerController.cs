@@ -109,8 +109,11 @@ namespace Playable
         private float _speedMultiplier = 2f;
 
         [Header("Transform")] [SerializeField] private GameObject _horse;
+        [SerializeField] private bool _startMounted = true;
         [SerializeField] private Transform _modelPlayer;
         [SerializeField] private Transform _mountPoint;
+        [Tooltip("Model position relative to the horse's mount point while seated.")]
+        [SerializeField] private Vector3 _mountedModelOffset = Vector3.zero;
 
         private Transform _transform;
         private Vector2 _moveInput;
@@ -152,6 +155,8 @@ namespace Playable
         private float _lastSpeedPressTime = float.NegativeInfinity;
         private float _lastTransformPressTime = float.NegativeInfinity;
         public bool IsGrounded => _isGrounded;
+        public bool IsMounted => _isTransformed;
+        public bool StartsMounted => _startMounted && _horse != null && _modelPlayer != null && _mountPoint != null;
         public Vector3 Velocity { get; private set; }
 
         /// <summary>Bắn đúng 1 lần khi player transform (cưỡi ngựa) chuyển từ tắt sang bật.</summary>
@@ -236,6 +241,7 @@ namespace Playable
             RefreshFlyIcon();
             RefreshTransformIcon();
             RefreshSpeedIcon();
+            if (StartsMounted && !_isTransformed) ToggleTransform();
         }
 
         /// <summary>
@@ -969,6 +975,7 @@ namespace Playable
 
         private void ToggleTransform()
         {
+            if (_horse == null || _modelPlayer == null || _mountPoint == null) return;
             // Đang bay thì không transform ngay - phải hạ cánh trước (đổi model tức thì nhưng độ cao
             // bay đổi dần dần sẽ lệch pha). Đặt cờ để FlyUpdate() tự gọi lại ToggleTransform() thật ngay
             // khi chạm đất (_isFlying đã về false lúc đó). ToggleFly() tự no-op nếu đã đang hạ cánh rồi.
@@ -995,7 +1002,7 @@ namespace Playable
 
                 _modelPlayer.SetParent(_mountPoint);
 
-                _modelPlayer.localPosition = Vector3.zero;
+                _modelPlayer.localPosition = _mountedModelOffset;
                 _modelPlayer.localRotation = Quaternion.identity;
 
                 OnTransformedOn?.Invoke();

@@ -48,6 +48,12 @@ namespace Playable
 
         [SerializeField] private float _monsterWanderRadius = 3f;
 
+        [Header("Animal Feeding")]
+        [Tooltip("Thời gian từ lúc spawn đến khi đói, tính bằng giây; áp dụng cho tất cả animal.")]
+        [LunaPlaygroundField("Time Animal Hungry")]
+        [SerializeField, Min(0f)]
+        private float _animalHungerDelay = 3f;
+
         [Header("Tutorial UI")]
         [Tooltip("Canvas chứa các spawn point. Bỏ trống sẽ tự tìm từ spawn point đầu tiên")]
         [SerializeField]
@@ -82,7 +88,7 @@ namespace Playable
         private int _transformButtonHighlightSortingOrder = 3;
 
         [Header("Tutorial Hint Text")]
-        [Tooltip("Chỉ dùng trong tutorial - text gợi ý hiện phía trên nút hotbar/spawn point")]
+        [Tooltip("Text hướng dẫn dùng chung cho tutorial và lời nhắc cho thú ăn trong gameplay")]
         [SerializeField]
         private TMP_Text _hintText;
 
@@ -116,30 +122,21 @@ namespace Playable
         private float _refreshTime;
         private Vector3 _lastCameraPosition;
         private Quaternion _lastCameraRotation;
-        private int _spawnedMonsterCount;
-        private bool _limitReachedNotified;
 
         private Vector2 _pointerDownPosition;
         private bool _isPointerDown;
         private bool _isSwipe;
+        private bool _pointerStartedOverUI;
 
-        // --- [SCALE DEBUG] tạm thời, xoá sau khi xác định xong nguyên nhân ---
-        private float _screenSizeLogUntil;
-        private int _lastLoggedScreenWidth = -1;
-        private int _lastLoggedScreenHeight = -1;
-        // -----------------------------------------------------------------
 
         public Phase CurrentPhase => _currentPhase;
 
         private void Start()
         {
-            // [SCALE DEBUG] theo dõi Screen.width/height trong 5s đầu xem có ổn định ngay không
-            _screenSizeLogUntil = Time.time + 5f;
-            LogScreenSizeIfChanged();
-
             foreach (var hotbarItem in _hotbarItems)
             {
                 hotbarItem.Init(this);
+                hotbarItem.SetSelected(false);
             }
 
             // Ưu tiên camera gán tay trong Inspector. Scene có thể không gắn tag MainCamera
@@ -177,17 +174,17 @@ namespace Playable
                 _blur.SetActive(true);
             }
 
-            GoToTransformStep();
+            // Start order is unspecified: StartsMounted also covers PlayerController.Start running later.
+            if (_playerController != null && (_playerController.IsMounted || _playerController.StartsMounted))
+            {
+                SetTransformButtonHighlighted(false);
+                GoToHotbarStep(0);
+            }
+            else GoToTransformStep();
         }
 
         private void Update()
         {
-            // [SCALE DEBUG] log mỗi khi Screen size đổi trong 5s đầu
-            if (Time.time <= _screenSizeLogUntil)
-            {
-                LogScreenSizeIfChanged();
-            }
-
             if (_currentPhase == Phase.Tutorial)
             {
                 // Bám vị trí target mỗi frame - bù resize màn hình (xem giải thích ở ShowHandAt).
@@ -204,6 +201,9 @@ namespace Playable
                 return;
             }
 
+            // A tap on a creature is always consumed, including non-feedable companions.
+            if (!IsPointerOverUI(screenPosition) && TryInteractWithPet(screenPosition)) return;
+
             if (_currentPhase == Phase.Tutorial)
             {
                 HandleTutorialTap(screenPosition);
@@ -216,7 +216,7 @@ namespace Playable
 
         private void OnDestroy()
         {
-            _tutorialPointer?.Stop();
+            if (_tutorialPointer != null) _tutorialPointer.Stop();
 
             if (_playerController != null)
             {
@@ -236,13 +236,14 @@ namespace Playable
                 return;
             }
 
+            if (_selectedHotbarItem != null)
+            {
+                _selectedHotbarItem.SetSelected(false);
+            }
+
             _prefabMonster = monster;
             _selectedHotbarItem = source;
-
-            foreach (var hotbarItem in _hotbarItems)
-            {
-                hotbarItem.SetSelected(hotbarItem == source);
-            }
+            source.SetSelected(true);
 
             if (_currentPhase != Phase.Tutorial)
             {
@@ -510,6 +511,12 @@ namespace Playable
 
             _tutorialPointer?.Stop();
 
+            // The existing hint belongs to the tutorial blur. Keep this same text visible
+            // in gameplay after the blur is hidden, preserving its screen position.
+            if (_hintText != null && _uiCanvas != null && _blur != null &&
+                _hintText.transform.IsChildOf(_blur.transform))
+                _hintText.transform.SetParent(_uiCanvas.transform, true);
+
             if (_blur != null)
             {
                 _blur.SetActive(false);
@@ -572,7 +579,7 @@ namespace Playable
         /// </summary>
         private void HandleTap(Vector2 screenPosition)
         {
-            if (IsPointerOverUI(screenPosition))
+            if (_prefabMonster == null || IsPointerOverUI(screenPosition))
             {
                 return;
             }
@@ -585,13 +592,49 @@ namespace Playable
             TrySpawnMonster(worldPosition);
         }
 
+        private void LateUpdate()
+        {
+            // Tutorial owns this text until it finishes; gameplay then uses the same hint.
+            if (_currentPhase != Phase.Gameplay) return;
+            if (PetNeeds.AnyHungry)
+            {
+                if (_hintText != null && (!_hintText.gameObject.activeSelf || _hintText.text != "Feed your pet"))
+                    ShowHintText("Feed your pet");
+            }
+            else HideHintText();
+        }
+
+        private bool TryInteractWithPet(Vector2 screenPosition)
+        {
+            if (_worldCamera == null) return false;
+            Ray ray = _worldCamera.ScreenPointToRay(screenPosition);
+            RaycastHit[] hits = Physics.RaycastAll(ray, _rayMaxDistance, ~0, QueryTriggerInteraction.Collide);
+            Collider closest = null;
+            float distance = float.MaxValue;
+            foreach (RaycastHit hit in hits)
+            {
+                // In third person the player's own capsule can sit between camera and pet.
+                if (_playerController != null &&
+                    hit.collider.transform.IsChildOf(_playerController.transform)) continue;
+                if (hit.distance >= distance) continue;
+                distance = hit.distance;
+                closest = hit.collider;
+            }
+
+            if (closest == null) return false;
+            Monster creature = closest.GetComponentInParent<Monster>();
+            if (creature == null) return false;
+            PetNeeds pet = creature.GetComponent<PetNeeds>();
+            if (pet != null) pet.TryFeed();
+            return true;
+        }
+
         #endregion
 
         #region Spawn
 
         /// <summary>
-        /// Spawn quái đang chọn tại vị trí world. Chưa chọn quái hoặc đã đạt _maxTotalMonsters
-        /// thì không spawn.
+        /// Spawn quái đang chọn tại vị trí world. Chưa chọn quái thì không spawn.
         /// </summary>
         private bool TrySpawnMonster(Vector3 worldPosition)
         {
@@ -601,16 +644,16 @@ namespace Playable
             }
 
             Monster monster = Instantiate(_prefabMonster);
+            PetNeeds pet = monster.GetComponent<PetNeeds>();
+            if (pet != null) pet.SetHungerDelay(_animalHungerDelay);
+            monster.SetPlayer(_playerController != null ? _playerController.transform : null, _worldCamera);
             monster.Spawn(worldPosition, _monsterWanderRadius);
-            _spawnedMonsterCount++;
-            GameManager.Instance.CountEvent();
 
             return true;
         }
 
         /// <summary>
-        /// Điểm mở rộng: gọi đúng 1 lần khi vừa spawn đủ số quái tối đa (_maxTotalMonsters).
-        /// Thêm logic của bạn ở đây (hiện popup, mở màn kế tiếp, khoá nút spawn, v.v.)
+        /// Hiện hiệu ứng tại vị trí spawn trong tutorial.
         /// </summary>
         private void ShowVfx(Vector3 worldPosition)
         {
@@ -695,6 +738,7 @@ namespace Playable
         private void BeginPointerTracking(Vector2 position)
         {
             _pointerDownPosition = position;
+            _pointerStartedOverUI = IsPointerOverUI(position);
             _isPointerDown = true;
             _isSwipe = false;
         }
@@ -725,7 +769,7 @@ namespace Playable
             _isPointerDown = false;
             _isSwipe = false;
 
-            if (wasSwipe)
+            if (wasSwipe || _pointerStartedOverUI)
             {
                 return false;
             }
@@ -761,13 +805,9 @@ namespace Playable
                     return true;
                 }
 
-                GameObject pointerDownHandler = ExecuteEvents.GetEventHandler<IPointerDownHandler>(hitObject);
-                GameObject dragHandler = ExecuteEvents.GetEventHandler<IDragHandler>(hitObject);
-                GameObject clickHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(hitObject);
-
-                if (IsBlockedUiHandler(pointerDownHandler) ||
-                    IsBlockedUiHandler(dragHandler) ||
-                    IsBlockedUiHandler(clickHandler))
+                if (IsBlockedUiHandler(ExecuteEvents.GetEventHandler<IPointerDownHandler>(hitObject)) ||
+                    IsBlockedUiHandler(ExecuteEvents.GetEventHandler<IDragHandler>(hitObject)) ||
+                    IsBlockedUiHandler(ExecuteEvents.GetEventHandler<IPointerClickHandler>(hitObject)))
                 {
                     return true;
                 }
@@ -854,18 +894,6 @@ namespace Playable
 
 
             return hitCollider || hitPlane;
-        }
-
-        // [SCALE DEBUG] tạm thời, xoá sau khi xác định xong nguyên nhân
-        private void LogScreenSizeIfChanged()
-        {
-            if (Screen.width == _lastLoggedScreenWidth && Screen.height == _lastLoggedScreenHeight)
-            {
-                return;
-            }
-
-            _lastLoggedScreenWidth = Screen.width;
-            _lastLoggedScreenHeight = Screen.height;
         }
 
         #endregion

@@ -6,7 +6,7 @@ namespace Playable
     /// <summary>
     /// Animation bàn tay hướng dẫn cho tutorial: hand di chuyển từ 1 offset về tâm rồi pulse
     /// scale+rotate liên tục, đồng thời efx (con của hand) scale 0→1 xuyên suốt 1 vòng lặp.
-    /// Cả 2 nằm chung 1 Sequence nên khi loop Restart, efx tự đồng bộ lại với hand.
+    /// Hand và efx lặp độc lập; cả hai tween được hủy khi dừng hoặc chạy lại hướng dẫn.
     /// </summary>
     public class TutorialPointer : MonoBehaviour
     {
@@ -40,6 +40,7 @@ namespace Playable
         [Header("Efx")] [SerializeField] private float _duration = 0.5f;
 
         private Sequence _animSequence;
+        private Tween _efxTween;
 
         public bool IsPlaying => gameObject.activeSelf;
 
@@ -47,7 +48,7 @@ namespace Playable
         {
             gameObject.SetActive(true);
 
-            _animSequence?.Kill();
+            KillAnimations();
             _animSequence = DOTween.Sequence();
 
             transform.localScale = Vector3.one;
@@ -68,14 +69,31 @@ namespace Playable
             _animSequence.SetLoops(-1, LoopType.Restart);
 
             _efx.localScale = Vector3.zero;
-            _efx.DOScale(Vector3.one, _duration).SetEase(Ease.Linear).SetLoops(-1, LoopType.Restart);
+            _efxTween = _efx.DOScale(Vector3.one, _duration).SetEase(Ease.Linear).SetLoops(-1, LoopType.Restart);
         }
 
         public void Stop()
         {
+            KillAnimations();
+            gameObject.SetActive(false);
+        }
+
+        private void OnDisable()
+        {
+            KillAnimations();
+        }
+
+        private void OnDestroy()
+        {
+            KillAnimations();
+        }
+
+        private void KillAnimations()
+        {
             _animSequence?.Kill();
             _animSequence = null;
-            gameObject.SetActive(false);
+            _efxTween?.Kill();
+            _efxTween = null;
         }
     }
 }
