@@ -90,7 +90,7 @@ public static class PetGameplayChecks
                     new SerializedObject(c.GetComponent<AnimalAudio>()).FindProperty("_calls").arraySize > 0), "All four pets have configured animal sounds");
                 initialRabbitPosition = rabbit.transform.position;
                 Check(!rabbit.IsHungry && !rabbit.TryFeed(), "Freshly spawned animal waits before accepting food");
-                Check(creatures[0].GetComponent<PetNeeds>() == null && creatures[1].GetComponent<PetNeeds>() == null, "Verity and Gugugaga are not feedable");
+                Check(creatures[0].GetComponent<PetNeeds>() == null && creatures[1].GetComponent<PetNeeds>() != null, "Verity is not feedable; Gugugaga is feedable");
                 started = Time.time; stage = 4;
             }
             else if (stage == 4 && Time.time - started > 0.75f)

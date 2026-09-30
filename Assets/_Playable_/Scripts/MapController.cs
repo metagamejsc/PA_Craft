@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -70,7 +71,7 @@ namespace Playable
 
         [Tooltip("Bán kính tap phụ (pixel) ngoài vùng spawn point. 0 = chỉ nhận tap trong RectTransform")]
         [SerializeField]
-        private float _extraTapRadius = 0f;
+        private float _extraTapRadius = 100f;
 
         [Tooltip("PlayerController của player, dùng để biết khi nào player transform xong")] [SerializeField]
         private PlayerController _playerController;
@@ -84,7 +85,7 @@ namespace Playable
         [SerializeField]
         private Canvas _transformButtonCanvas;
 
-        [Tooltip("SortingOrder khi nút Transform được highlight. Lúc không highlight thì về lại 0.")] [SerializeField]
+        [Tooltip("SortingOrder khi nút Transform được highlight. Khi tắt highlight, khôi phục thứ tự ban đầu của Canvas.")] [SerializeField]
         private int _transformButtonHighlightSortingOrder = 3;
 
         [Header("Tutorial Hint Text")]
@@ -97,6 +98,11 @@ namespace Playable
 
         [Tooltip("Màu tên quái trong text \"Tap to spawn <tên quái>\" (chữ nghiêng)")] [SerializeField]
         private Color _monsterNameHintColor = Color.yellow;
+
+        [Header("Movement Tutorial")]
+        [SerializeField] private UltimateJoystick _moveJoystick;
+        [SerializeField] private Vector2 _joystickDragOffset = new Vector2(70f, 45f);
+        private bool _movementTutorialActive;
 
         [Header("Camera Follow")]
         [Tooltip("Camera bám player nên cùng điểm màn hình sẽ trỏ tới chỗ khác trên ground. " +
@@ -122,6 +128,10 @@ namespace Playable
         private float _refreshTime;
         private Vector3 _lastCameraPosition;
         private Quaternion _lastCameraRotation;
+        private int _transformButtonNormalSortingOrder;
+        private Tween _feedingHintTween;
+        private bool _gameplaySpawnGuide;
+        private Vector2 _spawnGuideViewport;
 
         private Vector2 _pointerDownPosition;
         private bool _isPointerDown;
@@ -131,12 +141,19 @@ namespace Playable
 
         public Phase CurrentPhase => _currentPhase;
 
+        private void Awake()
+        {
+            if (_transformButtonCanvas != null)
+                _transformButtonNormalSortingOrder = _transformButtonCanvas.sortingOrder;
+        }
+
         private void Start()
         {
             foreach (var hotbarItem in _hotbarItems)
             {
                 hotbarItem.Init(this);
                 hotbarItem.SetSelected(false);
+                hotbarItem.TurnOnCanvas(false);
             }
 
             // Ưu tiên camera gán tay trong Inspector. Scene có thể không gắn tag MainCamera
@@ -185,6 +202,9 @@ namespace Playable
 
         private void Update()
         {
+            if (_movementTutorialActive) UpdateMovementTutorial();
+            if (_currentPhase == Phase.Gameplay && _gameplaySpawnGuide)
+                RefreshGameplaySpawnGuide();
             if (_currentPhase == Phase.Tutorial)
             {
                 // Bám vị trí target mỗi frame - bù resize màn hình (xem giải thích ở ShowHandAt).
@@ -216,6 +236,7 @@ namespace Playable
 
         private void OnDestroy()
         {
+            StopFeedingHintPulse();
             if (_tutorialPointer != null) _tutorialPointer.Stop();
 
             if (_playerController != null)
@@ -233,6 +254,11 @@ namespace Playable
                 _selectedHotbarItem = null;
                 _prefabMonster = null;
                 source.SetSelected(false);
+                if (_currentPhase == Phase.Gameplay)
+                {
+                    _gameplaySpawnGuide = false;
+                    HideVfx();
+                }
                 return;
             }
 
@@ -247,6 +273,7 @@ namespace Playable
 
             if (_currentPhase != Phase.Tutorial)
             {
+                ShowGameplaySpawnGuide();
                 return;
             }
 
@@ -296,7 +323,9 @@ namespace Playable
         {
             if (_transformButtonCanvas != null)
             {
-                _transformButtonCanvas.sortingOrder = active ? _transformButtonHighlightSortingOrder : 0;
+                _transformButtonCanvas.sortingOrder = active
+                    ? _transformButtonHighlightSortingOrder
+                    : (_currentPhase == Phase.Tutorial ? 0 : _transformButtonNormalSortingOrder);
             }
         }
 
@@ -362,6 +391,28 @@ namespace Playable
         {
             _tutorialStep = TutorialStep.Done;
             EnterGameplay();
+            if (_moveJoystick == null) return;
+
+            // This is a passive guide: gameplay and all other controls stay available.
+            _movementTutorialActive = true;
+            _currentHandTarget = _moveJoystick.JoystickBase;
+            RefreshHandPosition();
+            if (_tutorialPointer != null) _tutorialPointer.ShowDrag(_joystickDragOffset);
+        }
+
+        private void UpdateMovementTutorial()
+        {
+            RefreshHandPosition();
+            if (_moveJoystick == null || !_moveJoystick.isActiveAndEnabled || !_moveJoystick.Interactable)
+                return;
+
+            var input = new Vector2(_moveJoystick.HorizontalAxis, _moveJoystick.VerticalAxis);
+            if (!_moveJoystick.InputActive || input.sqrMagnitude <= 0.04f) return;
+
+            _movementTutorialActive = false;
+            _currentHandTarget = null;
+            // Do not reset hints, selection or spawn VFX belonging to ongoing gameplay.
+            if (_tutorialPointer != null) _tutorialPointer.Stop();
         }
 
         /// <summary>
@@ -448,6 +499,17 @@ namespace Playable
 
             _hintText.text = text;
 
+            if (text == "Feed your pet")
+            {
+                if (_feedingHintTween == null || !_feedingHintTween.IsActive())
+                {
+                    _hintText.rectTransform.localScale = Vector3.one;
+                    _feedingHintTween = _hintText.rectTransform.DOScale(1.2f, 0.5f)
+                        .SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
+                }
+            }
+            else StopFeedingHintPulse();
+
             if (!_hintText.gameObject.activeSelf)
             {
                 _hintText.gameObject.SetActive(true);
@@ -472,6 +534,7 @@ namespace Playable
 
         private void HideHintText()
         {
+            StopFeedingHintPulse();
             if (_hintText != null && _hintText.gameObject.activeSelf)
             {
                 _hintText.gameObject.SetActive(false);
@@ -481,6 +544,21 @@ namespace Playable
         /// <summary>
         /// Tap phải nằm trong RectTransform của spawn point hiện tại (hoặc trong bán kính phụ) mới tính.
         /// </summary>
+        private void StopFeedingHintPulse()
+        {
+            if (_feedingHintTween == null) return;
+            _feedingHintTween.Kill();
+            _feedingHintTween = null;
+            if (_hintText != null) _hintText.rectTransform.localScale = Vector3.one;
+        }
+
+        private void OnDisable()
+        {
+            StopFeedingHintPulse();
+            _gameplaySpawnGuide = false;
+            HideVfx();
+        }
+
         private bool IsTapOnTarget(Vector2 screenPosition)
         {
             RectTransform tapArea = GetSpawnPoint(_currentSpawnIndex);
@@ -508,6 +586,9 @@ namespace Playable
         private void EnterGameplay()
         {
             _currentPhase = Phase.Gameplay;
+            SetTransformButtonHighlighted(false);
+            foreach (var hotbarItem in _hotbarItems)
+                hotbarItem.RestoreCanvasSortingOrder();
 
             _tutorialPointer?.Stop();
 
@@ -573,6 +654,44 @@ namespace Playable
 
         #region Gameplay
 
+        private void ShowGameplaySpawnGuide()
+        {
+            _gameplaySpawnGuide = false;
+            HideVfx();
+            if (_worldCamera == null || _prefabMonster == null) return;
+            // Keep the suggestion away from screen edges and the bottom hotbar.
+            for (int i = 0; i < 32; i++)
+            {
+                _spawnGuideViewport = new Vector2(Random.Range(0.2f, 0.8f), Random.Range(0.3f, 0.65f));
+                if (!TryGetSpawnGuidePoint(out Vector3 point)) continue;
+                _gameplaySpawnGuide = true;
+                ShowVfx(point);
+                return;
+            }
+        }
+
+        private bool TryGetSpawnGuidePoint(out Vector3 point)
+        {
+            point = Vector3.zero;
+            if (_worldCamera == null) return false;
+            Vector2 screen = _worldCamera.ViewportToScreenPoint(_spawnGuideViewport);
+            if (IsPointerOverUI(screen)) return false;
+            Ray ray = _worldCamera.ScreenPointToRay(screen);
+            // Use real ground for the suggestion, never a creature or a point beyond the map.
+            if (!Physics.Raycast(ray, out RaycastHit hit, _rayMaxDistance, _groundMask,
+                    QueryTriggerInteraction.Ignore) || hit.normal.y < 0.5f ||
+                hit.collider.GetComponentInParent<Monster>() != null ||
+                (_playerController != null && hit.transform.IsChildOf(_playerController.transform))) return false;
+            point = hit.point;
+            return true;
+        }
+
+        private void RefreshGameplaySpawnGuide()
+        {
+            if (TryGetSpawnGuidePoint(out Vector3 point)) ShowVfx(point);
+            else ShowGameplaySpawnGuide();
+        }
+
         /// <summary>
         /// Tap trúng widget tương tác thật (Button...) thì bỏ qua (tránh vừa bấm UI vừa spawn). Tap
         /// trúng map thì bắn raycast từ điểm tap xuống ground, spawn quái đang chọn đúng tại điểm chạm.
@@ -589,16 +708,20 @@ namespace Playable
                 return;
             }
 
-            TrySpawnMonster(worldPosition);
+            if (TrySpawnMonster(worldPosition))
+            {
+                _gameplaySpawnGuide = false;
+                HideVfx();
+            }
         }
 
         private void LateUpdate()
         {
-            // Tutorial owns this text until it finishes; gameplay then uses the same hint.
             if (_currentPhase != Phase.Gameplay) return;
             if (PetNeeds.AnyHungry)
             {
-                if (_hintText != null && (!_hintText.gameObject.activeSelf || _hintText.text != "Feed your pet"))
+                if (_hintText != null && (!_hintText.gameObject.activeSelf || _hintText.text != "Feed your pet"
+                    || _feedingHintTween == null || !_feedingHintTween.IsActive()))
                     ShowHintText("Feed your pet");
             }
             else HideHintText();
@@ -648,6 +771,7 @@ namespace Playable
             if (pet != null) pet.SetHungerDelay(_animalHungerDelay);
             monster.SetPlayer(_playerController != null ? _playerController.transform : null, _worldCamera);
             monster.Spawn(worldPosition, _monsterWanderRadius);
+            if (GameManager.Instance != null) GameManager.Instance.CountEvent();
 
             return true;
         }

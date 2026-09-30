@@ -17,7 +17,9 @@ namespace Playable
         [SerializeField] private float _followDistance = 1.5f;
         private Vector3 _home, _destination;
         private Vector3 _followOffset;
+        private float _feedingScreenOffset;
         private Transform _player;
+        private Camera _worldCamera;
         private PetNeeds _pet;
         private float _idleUntil, _moveUntil;
         private bool _spawned, _moving;
@@ -40,7 +42,10 @@ namespace Playable
             transform.position = position;
             transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
             _home = position;
-            _followOffset = Quaternion.Euler(0, Random.Range(0f, 360f), 0) * Vector3.forward * _followDistance;
+            // Leave the middle of the screen clear for the player and horse.
+            float side = Random.value < 0.5f ? -1f : 1f;
+            _feedingScreenOffset = side * Random.Range(0.22f, 0.29f);
+            _followOffset = new Vector3(side * 2.2f, 0, Mathf.Max(3f, _followDistance));
             _spawned = true;
             EnterIdle();
             if (_pet != null) _pet.ResetNeeds();
@@ -49,6 +54,7 @@ namespace Playable
         public void SetPlayer(Transform player, Camera worldCamera)
         {
             _player = player;
+            _worldCamera = worldCamera;
             if (_pet != null) _pet.SetCamera(worldCamera);
         }
 
@@ -65,7 +71,7 @@ namespace Playable
             if (_pet != null && _pet.IsEating) { SetMoving(false); return; }
             if (_pet != null && _pet.IsHungry && _player != null)
             {
-                Vector3 target = _player.position + _followOffset;
+                Vector3 target = GetFeedingTarget();
                 Vector3 delta = target - transform.position;
                 delta.y = 0;
                 if (delta.sqrMagnitude <= 0.16f)
@@ -97,6 +103,43 @@ namespace Playable
             remaining.y = 0;
             if (remaining.sqrMagnitude < 0.04f || Time.time > _moveUntil || !MoveTo(_destination))
                 EnterIdle();
+        }
+
+        private Vector3 GetFeedingTarget()
+        {
+            Vector3 forward = _worldCamera != null ? _worldCamera.transform.forward : _player.forward;
+            forward.y = 0;
+            if (forward.sqrMagnitude < 0.001f)
+            {
+                forward = _worldCamera != null ? _worldCamera.transform.up : _player.forward;
+                forward.y = 0;
+            }
+            if (forward.sqrMagnitude < 0.001f) forward = Vector3.forward;
+            Vector3 target = _player.position + Quaternion.LookRotation(forward.normalized) * _followOffset;
+            if (_worldCamera != null)
+            {
+                // Keep a visible gap in screen space, including on narrow portrait screens.
+                // Project back onto the ground plane so camera pitch does not lift the pet.
+                float height = transform.position.y + 0.5f;
+                Vector3 viewport = _worldCamera.WorldToViewportPoint(new Vector3(target.x, height, target.z));
+                Vector3 playerViewport = _worldCamera.WorldToViewportPoint(_player.position + Vector3.up);
+                if (viewport.z > 0 && playerViewport.z > 0)
+                {
+                    // Landscape has more horizontal room: gather nearer the middle.
+                    // Keep the existing portrait spacing unchanged.
+                    float screenOffset = _feedingScreenOffset * (_worldCamera.aspect > 1f ? 0.5f : 1f);
+                    viewport.x = Mathf.Clamp(playerViewport.x + screenOffset, 0.12f, 0.88f);
+                    Ray ray = _worldCamera.ViewportPointToRay(viewport);
+                    Plane plane = new Plane(Vector3.up, new Vector3(0, height, 0));
+                    if (plane.Raycast(ray, out float distance) && distance < 50f)
+                    {
+                        Vector3 visibleTarget = ray.GetPoint(distance);
+                        target.x = visibleTarget.x;
+                        target.z = visibleTarget.z;
+                    }
+                }
+            }
+            return target;
         }
 
         private bool MoveTo(Vector3 target)

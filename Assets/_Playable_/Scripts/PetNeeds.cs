@@ -3,11 +3,25 @@ using UnityEngine;
 
 namespace Playable
 {
-    // Only the four feedable animals receive this component.
+    // Hunger and feeding shared by animals and Gugugaga.
     [DisallowMultipleComponent]
     public class PetNeeds : MonoBehaviour
     {
         private static readonly List<PetNeeds> ActivePets = new List<PetNeeds>();
+        public static event System.Action<PetNeeds> Fed;
+
+        public static PetNeeds FindVisibleHungry(Camera camera)
+        {
+            if (camera == null) return null;
+            foreach (var pet in ActivePets)
+            {
+                if (pet == null || !pet.IsHungry) continue;
+                Vector3 point = camera.WorldToViewportPoint(pet.transform.position + Vector3.up * 0.5f);
+                if (point.z > 0 && point.x > 0.05f && point.x < 0.95f && point.y > 0.1f && point.y < 0.9f)
+                    return pet;
+            }
+            return null;
+        }
         public static bool AnyHungry
         {
             get
@@ -28,7 +42,7 @@ namespace Playable
         [SerializeField] private bool _hasEatAnimation;
         private Material[][] _normalMaterials, _flashMaterials;
         private float _hungryAt, _eatUntil;
-        private bool _flashing, _initialized, _countedForGoal;
+        private bool _flashing, _initialized;
         private AnimalAudio _audio;
         public const int MealsToFill = 3;
         public int Food { get; private set; }
@@ -61,7 +75,6 @@ namespace Playable
             IsHungry = false;
             _eatUntil = 0;
             _hungryAt = Time.time + _hungerDelay;
-            _countedForGoal = false;
             SetFlash(false);
             if (_hearts != null) _hearts.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             RefreshStatus();
@@ -83,6 +96,7 @@ namespace Playable
         {
             if (!IsHungry || Food >= MealsToFill) return false;
             Food++;
+            Fed?.Invoke(this);
             if (_audio != null) _audio.OnFed();
             _eatUntil = Time.time + 0.4f;
             SetFlash(false);
@@ -91,11 +105,6 @@ namespace Playable
             {
                 IsHungry = false;
                 if (_hearts != null) _hearts.Play(true);
-                if (!_countedForGoal)
-                {
-                    _countedForGoal = true;
-                    if (GameManager.Instance != null) GameManager.Instance.CountEvent();
-                }
             }
             RefreshStatus();
             return true;

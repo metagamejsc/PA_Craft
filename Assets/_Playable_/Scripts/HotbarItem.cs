@@ -17,6 +17,13 @@ namespace Playable
         private int _highlightSortingOrder = 3;
 
         private IMonsterSelector _selector;
+        private int _normalSortingOrder;
+
+        private void Awake()
+        {
+            if (_canvas == null) _canvas = GetComponent<Canvas>();
+            if (_canvas != null) _normalSortingOrder = _canvas.sortingOrder;
+        }
 
         public RectTransform ButtonRect => _button != null ? (RectTransform)_button.transform : null;
 
@@ -45,7 +52,12 @@ namespace Playable
 
         public void TurnOnCanvas(bool active)
         {
-            _canvas.sortingOrder = active ? _highlightSortingOrder : 1;
+            if (_canvas != null) _canvas.sortingOrder = active ? _highlightSortingOrder : 0;
+        }
+
+        public void RestoreCanvasSortingOrder()
+        {
+            if (_canvas != null) _canvas.sortingOrder = _normalSortingOrder;
         }
     }
 }

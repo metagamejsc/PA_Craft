@@ -313,19 +313,20 @@ public static class PetSceneSetup
         if (flash == null) { flash = new Material(Shader.Find("Particles/Standard Unlit")); OpaqueUnlit(flash); AssetDatabase.CreateAsset(flash, flashPath); }
         foreach (string name in new[] { "Verity", "Gugugaga", "Rabbit", "Pig", "Fox", "Dog" })
         {
-            bool feedable = name != "Verity" && name != "Gugugaga";
-            string sourcePath = feedable ? Animals + "/" + name + ".prefab" : name == "Verity" ? "Assets/_Playable_/Prefabs/Mutant Ball Verity.prefab" : Gugu;
+            bool feedable = name != "Verity";
+            bool voxelAnimal = name != "Verity" && name != "Gugugaga";
+            string sourcePath = voxelAnimal ? Animals + "/" + name + ".prefab" : name == "Verity" ? "Assets/_Playable_/Prefabs/Mutant Ball Verity.prefab" : Gugu;
             var source = AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath);
             var sourceAnimator = source.GetComponentInChildren<Animator>(true);
             var root = new GameObject(name);
             try
             {
                 // Copy the animated model, leaving old combat scripts and old health widgets behind.
-                var visual = Object.Instantiate(feedable || name == "Verity" ? sourceAnimator.gameObject : source, root.transform);
+                var visual = Object.Instantiate(voxelAnimal || name == "Verity" ? sourceAnimator.gameObject : source, root.transform);
                 visual.name = "Model";
                 visual.transform.localPosition = Vector3.zero;
                 visual.transform.localRotation = Quaternion.identity;
-                if (feedable) visual.transform.localScale = sourceAnimator.transform.lossyScale;
+                if (voxelAnimal) visual.transform.localScale = sourceAnimator.transform.lossyScale;
                 foreach (Transform t in visual.GetComponentsInChildren<Transform>(true))
                     GameObjectUtility.RemoveMonoBehavioursWithMissingScript(t.gameObject);
                 foreach (MonoBehaviour c in visual.GetComponentsInChildren<MonoBehaviour>(true)) Object.DestroyImmediate(c);

@@ -16,6 +16,8 @@ namespace Playable
         [Tooltip("Hiệu ứng ánh sáng xung quanh bàn tay (con của hand)")] [SerializeField]
         private RectTransform _efx;
 
+        [SerializeField] private TMPro.TMP_Text _dragLabel;
+
         [Header("Hand Move")] [Tooltip("Vị trí khởi đầu của bàn tay, lệch so với tâm")] [SerializeField]
         private Vector3 _handStartOffset = new Vector3(25, -50, 0);
 
@@ -44,8 +46,16 @@ namespace Playable
 
         public bool IsPlaying => gameObject.activeSelf;
 
+        private void Awake()
+        {
+            // The guide must never intercept the tap it asks the player to make.
+            foreach (var graphic in GetComponentsInChildren<UnityEngine.UI.Graphic>(true))
+                graphic.raycastTarget = false;
+        }
+
         public void Show()
         {
+            if (_dragLabel != null) _dragLabel.gameObject.SetActive(false);
             gameObject.SetActive(true);
 
             KillAnimations();
@@ -70,6 +80,46 @@ namespace Playable
 
             _efx.localScale = Vector3.zero;
             _efxTween = _efx.DOScale(Vector3.one, _duration).SetEase(Ease.Linear).SetLoops(-1, LoopType.Restart);
+        }
+
+        public void ShowDrag(Vector2 offset)
+        {
+            if (_dragLabel != null) _dragLabel.gameObject.SetActive(true);
+            gameObject.SetActive(true);
+            KillAnimations();
+            transform.localScale = Vector3.one;
+            transform.localRotation = Quaternion.identity;
+            _hand.localPosition = Vector3.zero;
+            _hand.localRotation = Quaternion.identity;
+            _hand.localScale = Vector3.one;
+            _efx.localScale = Vector3.zero;
+            _efxTween = _efx.DOScale(Vector3.one, _duration).SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Restart);
+            _animSequence = DOTween.Sequence();
+            _animSequence.AppendInterval(_delayBeforePulse);
+            _animSequence.Append(_hand.DOLocalMove((Vector3)offset, _moveDuration).SetEase(Ease.InOutSine));
+            _animSequence.AppendInterval(_holdAfterPulse);
+            _animSequence.Append(_hand.DOLocalMove(Vector3.zero, _moveDuration).SetEase(Ease.InOutSine));
+            _animSequence.SetLoops(-1, LoopType.Restart);
+        }
+
+        public void ShowFollowing()
+        {
+            if (_dragLabel != null) _dragLabel.gameObject.SetActive(false);
+            gameObject.SetActive(true);
+            KillAnimations();
+            transform.localScale = Vector3.one;
+            transform.localRotation = Quaternion.identity;
+            _hand.localPosition = Vector3.zero;
+            _hand.localRotation = Quaternion.identity;
+            _hand.localScale = Vector3.one;
+            // Tracking owns the position. Pulse only, without restarting a move every loop.
+            _animSequence = DOTween.Sequence();
+            _animSequence.Append(_hand.DOScale(_pulseScale, _pulseDuration).SetEase(Ease.InOutSine));
+            _animSequence.SetLoops(-1, LoopType.Yoyo);
+            _efx.localScale = Vector3.zero;
+            _efxTween = _efx.DOScale(Vector3.one, _duration).SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Restart);
         }
 
         public void Stop()
