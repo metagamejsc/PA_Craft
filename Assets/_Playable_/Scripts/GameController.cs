@@ -1,450 +1,181 @@
-using System;
+using System.Collections;
 using DG.Tweening;
-using JetBrains.Annotations;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Playable
 {
+    [DefaultExecutionOrder(-100)]
     public class GameController : MonoBehaviour
     {
-        [Serializable]
-        private class MapOption
+        public static GameController Instance;
+
+        [Header("Game Brightness")]
+        [LunaPlaygroundField("Game Brightness")]
+        [SerializeField, Range(0f, 1f),
+         Tooltip("Unlit brightness: 0 = original colors, 0.6 = current look, 1 = brightest.")]
+        private float _gameBrightness = 0.6f;
+
+        private float _appliedBrightness = -1f;
+
+        private void OnEnable()
         {
-            public Button selectButton;
-            public GameObject mapRoot;
-            public GameObject playerRoot;
-            public PlayerAction playerAction;
-            public PlayerController cameraTarget;
-            public Transform cameraFollowTarget;
-            public float cameraInitialYaw;
-            public float cameraInitialPitch;
-            public Sprite avt;
-            public bool useCustomLayout;
-            public RectTransform optionRect;
-            public Vector2 portraitPosition;
-            public Vector2 portraitSize;
-            public Vector2 landscapePosition;
-            public Vector2 landscapeSize;
+            ApplyBrightness();
         }
 
-        [Header("Map Selection")] [SerializeField]
-        private GameObject _selectionPanel;
+        private void OnDisable()
+        {
+            if (Instance == this) Shader.SetGlobalVector("_PlayableBrightnessOverride", Vector4.zero);
+            _appliedBrightness = -1f;
+        }
 
-        [SerializeField] private TMP_Text _selectionText;
-        [SerializeField] private string _selectionMessage = "Please choose a map.";
-        [SerializeField] private MapOption _carOption;
-        [SerializeField] private MapOption _gymOption;
-        [SerializeField] private float _selectPulseScale = 1.08f;
-        [SerializeField] private float _selectPulseDuration = 0.55f;
+        private void ApplyBrightness()
+        {
+            _gameBrightness = Mathf.Clamp01(_gameBrightness);
+            // A global override updates all bright Unlit materials without cloning or scanning them.
+            Shader.SetGlobalVector("_PlayableBrightnessOverride", new Vector4(_gameBrightness, 1f, 0f, 0f));
+            _appliedBrightness = _gameBrightness;
+        }
 
-        [Header("Shared Controllers")] [SerializeField]
-        private CameraController _cameraController;
+        [Header("Minimap")] [LunaPlaygroundField("Time To Show Map")] [SerializeField, Min(0f)]
+        private float _timeToShowMap = 8f;
 
-        [SerializeField] private TouchController _touchController;
+        [SerializeField] private PlayerAction _playerAction;
+        [SerializeField] private GameObject _gamePanel;
+        [SerializeField] private GameObject _minimapPanel;
+        [SerializeField] private GameObject _textMinimap;
 
-        [Header("Game UI")] [SerializeField] private GameObject _gamePanel;
+        [Header("Player UI and Tutorials")] [SerializeField]
+        private PlayerController _player;
 
-        [SerializeField] private Image _avt;
-        [SerializeField] private GameObject _playerControlUi;
-        [SerializeField] private GameObject _infinityTut;
-        [SerializeField] private GameObject _textTut;
-        [SerializeField] private TMP_Text _instructionText;
-        [SerializeField] private string _carInstruction = "Tap to drive the car";
-        [SerializeField] private string _gymInstruction = "Tap to use the machine.";
-        [SerializeField] private float _tutorialPulseScale = 1.08f;
-        [SerializeField] private float _tutorialPulseDuration = 0.55f;
+        [SerializeField] private GameObject _playerUI;
+        [SerializeField] private GameObject _motorbikeUI;
+        [SerializeField] private GameObject _startTutorial;
+        [SerializeField] private GameObject _moveTutorial;
+        [SerializeField] private GameObject _drivingTutorial;
+        private bool _hasShownDrivingTutorial;
+        private bool _riding;
+        private Vector3 _rideStartPosition;
+        private bool _hasDrivingInput;
 
-        [LunaPlaygroundField("Show End Card On Car Or Gym")] [SerializeField]
-        private bool _endGameOnCarOrGymInteraction;
+        private bool _mapCountdownStarted;
 
-
-        [Header("Car Option")] [SerializeField]
-        private CarController _carController;
-
-        [SerializeField] private GameObject _carDrivingUi;
-        [SerializeField] [NotNull] private GameObject _carDrivingTut1;
-        [SerializeField] [NotNull] private GameObject _carDrivingTut2;
-
-        [Header("Gym Option")] [SerializeField]
-        private GymFurniture[] _gymFurniture;
-
-        private Tween _carButtonTween;
-        private Tween _gymButtonTween;
-        private Tween _instructionTween;
-        private Tween _carDrivingTut1Tween;
-        private Tween _carDrivingTut2Tween;
-        private PlayerAction _activePlayerAction;
-        private MapOption _activeOption;
-        private bool _mapSelected;
-        private bool _waitingToDismissInfinityTut;
-        private bool _waitingToDismissCarDrivingTut;
-        private bool _hasDismissedCarDrivingTut;
-        private int _carDrivingTutShownFrame = -1;
-        private int _lastScreenWidth = -1;
-        private int _lastScreenHeight = -1;
-        private bool _hasEndedFromInteraction;
+        private void Awake()
+        {
+            Instance = this;
+            if (_startTutorial != null) _startTutorial.SetActive(true);
+            if (_moveTutorial != null) _moveTutorial.SetActive(true);
+            SetRiding(false);
+        }
 
         private void Start()
         {
-            PrepareSelection();
-        }
-
-        private void Update()
-        {
-            UpdateSelectionLayout();
-            if (!WasScreenPressed()) return;
-
-            if (_waitingToDismissInfinityTut)
-            {
-                _waitingToDismissInfinityTut = false;
-                if (_infinityTut != null) _infinityTut.SetActive(false);
-                if (_textTut != null) _textTut.SetActive(false);
-            }
-
-            if (_waitingToDismissCarDrivingTut && Time.frameCount > _carDrivingTutShownFrame)
-            {
-                _waitingToDismissCarDrivingTut = false;
-                _hasDismissedCarDrivingTut = true;
-                KillCarDrivingTutorialTweens();
-                _carDrivingTut1.SetActive(false);
-                _carDrivingTut2.SetActive(false);
-            }
+            if (_minimapPanel != null) _minimapPanel.SetActive(false);
+            if (_playerAction != null) _playerAction.CarEntered += OnDrivingStarted;
         }
 
         private void OnDestroy()
         {
-            if (_carOption?.selectButton != null) _carOption.selectButton.onClick.RemoveListener(SelectCarMap);
-            if (_gymOption?.selectButton != null) _gymOption.selectButton.onClick.RemoveListener(SelectGymMap);
-            if (_carController != null) _carController.ExitRequested -= ExitCar;
-            UnsubscribePlayer();
-            KillSelectionTweens();
-            KillTutorialTweens();
+            if (_playerAction != null) _playerAction.CarEntered -= OnDrivingStarted;
+            if (Instance == this) Instance = null;
         }
 
-        public void SelectCarMap()
+        private void OnDrivingStarted()
         {
-            if (_mapSelected) return;
+            // A successful mount also switches tutorials immediately, including
+            // a bike press made while the opening tutorial is still visible.
+            SetRiding(true);
 
-            _avt.sprite = _carOption.avt;
-            ActivateOption(_carOption, _gymOption);
-            ShowInstruction(_carInstruction);
-            SetCarUi(false);
-            SetPlayerUi(true);
-
-            if (_carController != null)
-            {
-                _carController.SetDrivingEnabled(false);
-                _carController.ExitRequested -= ExitCar;
-                _carController.ExitRequested += ExitCar;
-            }
+            // Count from the first mount only; getting off/on does not reset the deadline.
+            if (_mapCountdownStarted || _minimapPanel == null) return;
+            _mapCountdownStarted = true;
+            StartCoroutine(IEShowMap());
         }
 
-        public void SelectGymMap()
+        private IEnumerator IEShowMap()
         {
-            if (_mapSelected) return;
-
-            _avt.sprite = _gymOption.avt;
-            ActivateOption(_gymOption, _carOption);
-            if (_activePlayerAction != null)
-            {
-                GymFurniture[] gymFurniture = _gymFurniture;
-                if ((gymFurniture == null || gymFurniture.Length == 0) && _gymOption?.mapRoot != null)
-                {
-                    gymFurniture = _gymOption.mapRoot.GetComponentsInChildren<GymFurniture>(true);
-                }
-
-                _activePlayerAction.SetGymFurniture(gymFurniture);
-            }
-
-            ShowInstruction(_gymInstruction);
-            SetCarUi(false);
-            SetPlayerUi(true);
-        }
-
-        private void PrepareSelection()
-        {
-            _mapSelected = false;
-            SetOptionActive(_carOption, false);
-            SetOptionActive(_gymOption, false);
-            SetCarUi(false);
-            SetPlayerUi(false);
-            _waitingToDismissInfinityTut = false;
-            if (_infinityTut != null) _infinityTut.SetActive(false);
-            if (_textTut != null) _textTut.SetActive(false);
-            _waitingToDismissCarDrivingTut = false;
-            _hasDismissedCarDrivingTut = false;
-            KillTutorialTweens();
-            _carDrivingTut1.SetActive(false);
-            _carDrivingTut2.SetActive(false);
+            if (_timeToShowMap > 0f) yield return new WaitForSeconds(_timeToShowMap);
             if (_gamePanel != null) _gamePanel.SetActive(false);
-            if (_selectionPanel != null) _selectionPanel.SetActive(true);
-            if (_selectionText != null) _selectionText.text = _selectionMessage;
-
-            BindSelectionButton(_carOption?.selectButton, SelectCarMap);
-            BindSelectionButton(_gymOption?.selectButton, SelectGymMap);
-            UpdateSelectionLayout(true);
-            StartSelectionTweens();
+            _minimapPanel.SetActive(true);
+            _textMinimap.transform.DOScale(new Vector3(1.2f, 1.2f, 1.2f), 0.5f).SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Yoyo);
         }
 
-        private void UpdateSelectionLayout(bool force = false)
+        private void Update()
         {
-            if (!force && Screen.width == _lastScreenWidth && Screen.height == _lastScreenHeight) return;
-
-            _lastScreenWidth = Screen.width;
-            _lastScreenHeight = Screen.height;
-            bool isPortrait = Screen.height >= Screen.width;
-            ApplyOptionLayout(_carOption, isPortrait);
-            ApplyOptionLayout(_gymOption, isPortrait);
-        }
-
-        private static void ApplyOptionLayout(MapOption option, bool isPortrait)
-        {
-            if (option == null || !option.useCustomLayout || option.optionRect == null) return;
-
-            Vector2 position = isPortrait ? option.portraitPosition : option.landscapePosition;
-            Vector2 size = isPortrait ? option.portraitSize : option.landscapeSize;
-            option.optionRect.anchoredPosition = position;
-            option.optionRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-            option.optionRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-        }
-
-        private void ActivateOption(MapOption selected, MapOption other)
-        {
-            _mapSelected = true;
-            SetOptionActive(other, false);
-            SetOptionActive(selected, true);
-            if (_selectionPanel != null) _selectionPanel.SetActive(false);
-            if (_gamePanel != null) _gamePanel.SetActive(true);
-            if (_infinityTut != null) _infinityTut.SetActive(true);
-            if (_textTut != null) _textTut.SetActive(true);
-            _waitingToDismissInfinityTut = true;
-            KillSelectionTweens();
-
-            UnsubscribePlayer();
-            _activeOption = selected;
-            _activePlayerAction = selected?.playerAction;
-            if (_activePlayerAction == null && selected?.playerRoot != null)
+            if (_appliedBrightness != _gameBrightness) ApplyBrightness();
+            // Handle the first press before dismissing the tutorial state.
+            if (!_riding && ((_startTutorial != null && _startTutorial.activeInHierarchy) ||
+                             (_moveTutorial != null && _moveTutorial.activeInHierarchy)))
             {
-                _activePlayerAction = selected.playerRoot.GetComponentInChildren<PlayerAction>(true);
-            }
-
-            if (_activePlayerAction != null)
-            {
-                _activePlayerAction.SetInteractionEnabled(true);
-                _activePlayerAction.CarEntered += EnterCar;
-                _activePlayerAction.TreadmillUsed += OnTreadmillUsed;
-            }
-
-            if (_cameraController != null)
-            {
-                PlayerController cameraTarget = selected?.cameraTarget;
-                if (cameraTarget == null && _activePlayerAction != null)
+                if (Input.touchCount > 0)
                 {
-                    cameraTarget = _activePlayerAction.PlayerController;
+                    for (int i = 0; i < Input.touchCount; i++)
+                    {
+                        var touch = Input.GetTouch(i);
+                        if (touch.phase != TouchPhase.Began) continue;
+                        HandleStartTutorialPress(touch.position);
+                        break;
+                    }
                 }
+                else if (Input.GetMouseButtonDown(0)) HandleStartTutorialPress(Input.mousePosition);
 
-                _cameraController.FollowPlayer(
-                    cameraTarget,
-                    selected?.cameraFollowTarget,
-                    selected != null ? selected.cameraInitialYaw : 0f,
-                    selected != null ? selected.cameraInitialPitch : 0f);
-                _cameraController.SetTouchController(_touchController);
+                // Walking is the other way to finish the opening tutorial.
+                if (!_riding && _player != null && _player.ReadMoveInput().sqrMagnitude > 0.001f)
+                    DismissStartTutorial();
             }
-        }
 
-        private void EnterCar()
-        {
-            if (_carController == null) return;
-
-            HideCarTutorial();
-            SetCarUi(true);
-            SetPlayerUi(false);
-            ShowCarDrivingTutorial();
-            _carController.SetDrivingEnabled(true);
-            if (_cameraController != null)
+            if (!_riding || _player == null || _drivingTutorial == null || !_drivingTutorial.activeSelf) return;
+            if (!_hasDrivingInput)
             {
-                _cameraController.FollowVehicle(_carController);
+                // Seating/physics settling is not the player's first driving action.
+                _rideStartPosition = _player.transform.position;
+                if (Mathf.Abs(_player.ReadDriveInput()) < 0.01f) return;
+                _hasDrivingInput = true;
             }
 
-            EndGameFromInteractionIfNeeded();
+            Vector3 travel = _player.transform.position - _rideStartPosition;
+            travel.y = 0;
+            if (travel.sqrMagnitude > 0.0025f) _drivingTutorial.SetActive(false);
         }
 
-        private void ExitCar()
+        public void DismissStartTutorial()
         {
-            if (_activePlayerAction == null) return;
+            if (_startTutorial != null) _startTutorial.SetActive(false);
+            if (_moveTutorial != null) _moveTutorial.SetActive(false);
+        }
 
-            _carController.SetDrivingEnabled(false);
-            _activePlayerAction.ExitCar();
-            SetCarUi(false);
-            SetPlayerUi(true);
-            KillCarDrivingTutorialTweens();
-            _carDrivingTut1.SetActive(false);
-            _carDrivingTut2.SetActive(false);
-            if (_cameraController != null)
+        private void HandleStartTutorialPress(Vector2 screen)
+        {
+            // Give the bike the press while the tutorial is still visible.
+            if (_player != null) _player.IsWorking = true;
+            if (_playerAction != null && _playerAction.PlayerController != null)
+                _playerAction.PlayerController.IsWorking = true;
+            if (_playerAction != null && _playerAction.TryMountFromTutorial(screen))
             {
-                _cameraController.FollowPlayer(
-                    _activePlayerAction.PlayerController,
-                    _activeOption?.cameraFollowTarget,
-                    _activeOption != null ? _activeOption.cameraInitialYaw : 0f,
-                    _activeOption != null ? _activeOption.cameraInitialPitch : 0f);
+                // Complete the UI transition in this press, even without the event subscription.
+                OnDrivingStarted();
             }
+            // A missed bike press must not dismiss the tutorial and lose its easy-mount path.
         }
 
-        private void OnTreadmillUsed()
+        public void SetRiding(bool riding)
         {
-            ShowInstruction(string.Empty);
-            EndGameFromInteractionIfNeeded();
-        }
-
-        private void EndGameFromInteractionIfNeeded()
-        {
-            if (!_endGameOnCarOrGymInteraction || _hasEndedFromInteraction || GameManager.Instance == null) return;
-
-            _hasEndedFromInteraction = true;
-            GameManager.Instance.EndGame();
-        }
-
-        private void ShowInstruction(string message)
-        {
-            if (_instructionText == null) return;
-
-            _instructionTween?.Kill();
-            _instructionTween = null;
-            _instructionText.transform.localScale = Vector3.one;
-            _instructionText.text = message;
-            _instructionText.gameObject.SetActive(!string.IsNullOrEmpty(message));
-            if (!string.IsNullOrEmpty(message))
+            bool firstRide = riding && !_riding && !_hasShownDrivingTutorial;
+            _riding = riding;
+            if (_playerUI != null) _playerUI.SetActive(!riding);
+            if (_motorbikeUI != null) _motorbikeUI.SetActive(riding);
+            if (!riding)
             {
-                _instructionTween = CreateTutorialTween(_instructionText.transform);
+                if (_drivingTutorial != null) _drivingTutorial.SetActive(false);
+                return;
             }
-        }
 
-        private void HideCarTutorial()
-        {
-            _carController.DeActiveArrow();
-            if (_instructionText != null)
-            {
-                _instructionTween?.Kill();
-                _instructionTween = null;
-                _instructionText.transform.localScale = Vector3.one;
-                _instructionText.gameObject.SetActive(false);
-            }
-        }
-
-        private void ShowCarDrivingTutorial()
-        {
-            if (_hasDismissedCarDrivingTut) return;
-
-            KillCarDrivingTutorialTweens();
-
-            _carDrivingTut1.SetActive(true);
-            _carDrivingTut2.SetActive(true);
-            _carDrivingTut1.transform.localScale = Vector3.one;
-            _carDrivingTut2.transform.localScale = Vector3.one;
-            _carDrivingTut1Tween = CreateTutorialTween(_carDrivingTut1.transform);
-            _carDrivingTut2Tween = CreateTutorialTween(_carDrivingTut2.transform);
-            _waitingToDismissCarDrivingTut = true;
-            _carDrivingTutShownFrame = Time.frameCount;
-        }
-
-        private void SetCarUi(bool active)
-        {
-            if (_carDrivingUi != null) _carDrivingUi.SetActive(active);
-        }
-
-        private void SetPlayerUi(bool active)
-        {
-            if (_playerControlUi != null) _playerControlUi.SetActive(active);
-        }
-
-        private static void SetOptionActive(MapOption option, bool active)
-        {
-            if (option == null) return;
-            if (option.mapRoot != null) option.mapRoot.SetActive(active);
-            if (option.playerRoot != null) option.playerRoot.SetActive(active);
-            if (option.playerAction != null) option.playerAction.SetInteractionEnabled(active);
-        }
-
-        private static void BindSelectionButton(Button button, UnityEngine.Events.UnityAction action)
-        {
-            if (button == null) return;
-            button.onClick.RemoveListener(action);
-            button.onClick.AddListener(action);
-        }
-
-        private void StartSelectionTweens()
-        {
-            KillSelectionTweens();
-            _carButtonTween = CreateSelectionTween(_carOption?.selectButton, 0f);
-            _gymButtonTween = CreateSelectionTween(_gymOption?.selectButton, _selectPulseDuration * 0.5f);
-        }
-
-        private Tween CreateSelectionTween(Button button, float delay)
-        {
-            if (button == null) return null;
-            button.transform.localScale = Vector3.one;
-            return button.transform
-                .DOScale(_selectPulseScale, Mathf.Max(0.05f, _selectPulseDuration))
-                .SetDelay(delay)
-                .SetEase(Ease.InOutSine)
-                .SetLoops(-1, LoopType.Yoyo)
-                .SetUpdate(true);
-        }
-
-        private void KillSelectionTweens()
-        {
-            _carButtonTween?.Kill();
-            _gymButtonTween?.Kill();
-            _carButtonTween = null;
-            _gymButtonTween = null;
-        }
-
-        private Tween CreateTutorialTween(Transform target)
-        {
-            if (target == null) return null;
-            target.localScale = Vector3.one;
-            return target
-                .DOScale(_tutorialPulseScale, Mathf.Max(0.05f, _tutorialPulseDuration))
-                .SetEase(Ease.InOutSine)
-                .SetLoops(-1, LoopType.Yoyo)
-                .SetUpdate(true);
-        }
-
-        private void KillTutorialTweens()
-        {
-            _instructionTween?.Kill();
-            _instructionTween = null;
-            if (_instructionText != null) _instructionText.transform.localScale = Vector3.one;
-            KillCarDrivingTutorialTweens();
-        }
-
-        private void KillCarDrivingTutorialTweens()
-        {
-            _carDrivingTut1Tween?.Kill();
-            _carDrivingTut2Tween?.Kill();
-            _carDrivingTut1Tween = null;
-            _carDrivingTut2Tween = null;
-            if (_carDrivingTut1 != null) _carDrivingTut1.transform.localScale = Vector3.one;
-            if (_carDrivingTut2 != null) _carDrivingTut2.transform.localScale = Vector3.one;
-        }
-
-        private void UnsubscribePlayer()
-        {
-            if (_activePlayerAction == null) return;
-            _activePlayerAction.CarEntered -= EnterCar;
-            _activePlayerAction.TreadmillUsed -= OnTreadmillUsed;
-            _activePlayerAction = null;
-        }
-
-        private static bool WasScreenPressed()
-        {
-#if UNITY_EDITOR || UNITY_STANDALONE
-            return Input.GetMouseButtonDown(0);
-#else
-            return Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began;
-#endif
+            DismissStartTutorial();
+            if (!firstRide) return;
+            _hasShownDrivingTutorial = true;
+            _hasDrivingInput = false;
+            if (_player != null) _rideStartPosition = _player.transform.position;
+            if (_drivingTutorial != null) _drivingTutorial.SetActive(true);
         }
     }
 }

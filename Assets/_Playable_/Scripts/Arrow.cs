@@ -9,6 +9,7 @@ namespace Playable
         private Camera _targetCamera;
 
         [SerializeField] private Transform _targetPosition;
+        [SerializeField] private bool _followTargetInWorldSpace;
 
         [Header("Movement")] [SerializeField, Min(0f)]
         private float _startHeight;
@@ -20,15 +21,37 @@ namespace Playable
         [Header("Facing")] [SerializeField] private float _yawOffset;
 
         private Tween _moveTween;
+        private float _height;
 
         private void Awake()
         {
             if (_targetCamera == null) _targetCamera = Camera.main;
         }
 
-        private void Start()
+        public void SetTarget(Transform target, Camera targetCamera)
         {
+            if (targetCamera != null) _targetCamera = targetCamera;
+            if (_targetPosition == target && _followTargetInWorldSpace) return;
+            _targetPosition = target;
+            _followTargetInWorldSpace = true;
+            if (isActiveAndEnabled) StartMovement();
+        }
+
+        private void OnEnable() { StartMovement(); }
+
+        private void StartMovement()
+        {
+            _moveTween?.Kill();
             if (_targetPosition == null) return;
+
+            if (_followTargetInWorldSpace)
+            {
+                _height = _startHeight;
+                transform.position = _targetPosition.position + Vector3.up * _height;
+                _moveTween = DOTween.To(() => _height, value => _height = value, _endHeight, _moveDuration)
+                    .SetEase(Ease.Linear).SetLoops(-1, LoopType.Yoyo);
+                return;
+            }
 
             Vector3 destination = _targetPosition.localPosition;
             transform.localPosition = new Vector3(destination.x, _startHeight, destination.z);
@@ -39,6 +62,8 @@ namespace Playable
 
         private void LateUpdate()
         {
+            if (_followTargetInWorldSpace && _targetPosition != null)
+                transform.position = _targetPosition.position + Vector3.up * _height;
             if (_targetCamera == null) return;
 
             Vector3 lookDirection = _targetCamera.transform.position - transform.position;
@@ -53,5 +78,6 @@ namespace Playable
         {
             _moveTween?.Kill();
         }
+        private void OnDisable() { _moveTween?.Kill(); }
     }
 }

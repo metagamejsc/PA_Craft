@@ -26,26 +26,25 @@ namespace Playable
         [Header("UI Field")] [SerializeField] private FailPanel _failPanel;
         [SerializeField] private WinPanel _winPanel;
 
-        private int _quantityEvent = 0;
-
+        private int _quantityEvent;
         public int EndTime => _endTime;
 
-        private void Awake()
-        {
-            Instance = this;
-        }
+        private void Awake() { Instance = this; }
 
         private void Start()
         {
             _btnBlock.onClick.AddListener(EndGame);
-            _btnBlock.gameObject.SetActive(false);
-
+            // _btnBlock.gameObject.SetActive(false);
             if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
             if (_backgroundMusic) AudioManager.Instance.PlayMusic(_backgroundMusic);
-
-            StartCoroutine(IECountdownEndGame());
+            CountdownEndGame();
         }
 
+        private void OnDestroy()
+        {
+            if (_btnBlock != null) _btnBlock.onClick.RemoveListener(EndGame);
+            if (Instance == this) Instance = null;
+        }
 
         public void EndGame()
         {
@@ -62,6 +61,11 @@ namespace Playable
             {
                 EndGame();
             }
+        }
+
+        public void CountdownEndGame()
+        {
+            StartCoroutine(IECountdownEndGame());
         }
 
         private IEnumerator IECountdownEndGame()

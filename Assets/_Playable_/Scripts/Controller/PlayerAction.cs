@@ -1,288 +1,221 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Playable
 {
     public class PlayerAction : MonoBehaviour
     {
-        [Header("References")] [SerializeField]
-        private PlayerController _playerController;
-
+        [SerializeField] private PlayerController _playerController;
         [SerializeField] private Camera _interactionCamera;
-        [SerializeField] private GameObject _playerVisual;
-        [SerializeField] private Collider _playerCollider;
-        [SerializeField] private Animator _animator;
-
-        [Header("Interaction")] [SerializeField]
-        private LayerMask _interactionMask = ~0;
-
-        [SerializeField] private LayerMask _gymInteractionMask = ~0;
-        [SerializeField, Min(0.1f)] private float _interactionDistance = 6f;
-        [SerializeField, Min(1f)] private float _tapMaxMovement = 25f;
-        [SerializeField, Min(0.05f)] private float _tapMaxDuration = 0.4f;
-        [SerializeField] private Collider _carInteraction;
-
-        [Header("Car")] [SerializeField] private Transform _carExitPoint;
-
-        [Header("Gym")] [SerializeField] private GymFurniture[] _gymFurniture;
-        [SerializeField] private string _isGymParam = "IsGym";
-
-        private bool _canInteract;
-        private bool _isInCar;
-        private bool _isUsingTreadmill;
-        private GymFurniture _activeGymFurniture;
-        private GymFurniture _blockedGymFurniture;
-        private int _isGymParamHash;
-        private bool _hasUsedAnyGymFurniture;
-        private bool _isTrackingTap;
-        private int _trackedFingerId = -1;
-        private Vector2 _tapStartPosition;
-        private float _tapStartTime;
-
-        public event Action CarEntered;
-        public event Action TreadmillUsed;
+        [SerializeField] private Button _exitButton;
+        [SerializeField] private Arrow _motorbikeArrow;
+        [SerializeField] private MotorbikeController[] _motorbikes;
+        [SerializeField, Min(0.1f)] private float _interactionDistance = 4f;
+        [SerializeField] private float _tapMaxMovement = 25f;
+        [SerializeField] private float _tapMaxDuration = 0.4f;
+        [Header("Tutorial Bike Tap")]
+        [SerializeField, Min(0f), Tooltip("Extra tap area around the bike, in pixels at a 1080px screen short side.")]
+        private float _tutorialTapPadding = 60f;
+        [SerializeField, Min(0f)] private float _tutorialMinTapSize = 120f;
+        private Collider[] _tutorialBikeColliders;
+        private readonly RaycastHit[] _tutorialHits = new RaycastHit[32];
+        private MotorbikeController _nearest, _mounted;
+        private bool _tracking, _dragged, _startedOnUI;
+        private int _fingerId;
+        private Vector2 _tapStart;
+        private float _tapTime;
+        private readonly List<RaycastResult> _uiHits = new List<RaycastResult>();
+        private PointerEventData _pointer;
         public PlayerController PlayerController => _playerController;
-        public bool IsInCar => _isInCar;
-        public bool IsUsingTreadmill => _isUsingTreadmill;
-
+        public bool IsInCar => _mounted != null;
+        public bool IsUsingTreadmill => false;
+        public event Action CarEntered;
         private void Awake()
         {
             if (_playerController == null) _playerController = GetComponent<PlayerController>();
-            if (_playerCollider == null) _playerCollider = GetComponent<Collider>();
-            if (_animator == null) _animator = GetComponentInChildren<Animator>();
+            if (_interactionCamera == null && _playerController.CameraController != null) _interactionCamera = _playerController.CameraController.OutputCamera;
             if (_interactionCamera == null) _interactionCamera = Camera.main;
-            _isGymParamHash = Animator.StringToHash(_isGymParam);
-            if (_playerController != null) _playerController.MovementRequested += StopUsingTreadmill;
+            if (_motorbikes == null) _motorbikes = new MotorbikeController[0];
+            _tutorialBikeColliders = new Collider[_motorbikes.Length];
+            for (int i = 0; i < _motorbikes.Length; i++)
+                if (_motorbikes[i] != null) _tutorialBikeColliders[i] = _motorbikes[i].GetComponent<Collider>();
+            if (_exitButton != null) _exitButton.onClick.AddListener(UseMotorbike);
         }
-
         private void OnDestroy()
         {
-            if (_playerController != null) _playerController.MovementRequested -= StopUsingTreadmill;
+            if (_exitButton != null) _exitButton.onClick.RemoveListener(UseMotorbike);
         }
-
         private void Update()
         {
-            if (!_canInteract || _isInCar) return;
-
-            if (_blockedGymFurniture != null && !_blockedGymFurniture.ContainsPoint(transform.position))
+            if (_mounted != null && _mounted.Rider != _playerController) _mounted = null;
+            FindNearestMotorbike();
+            if (_exitButton != null) _exitButton.gameObject.SetActive(_mounted != null);
+            if (_mounted == null && ReadTap(out Vector2 screen)) TryTapBike(screen);
+        }
+        private void FindNearestMotorbike()
+        {
+            _nearest = null; float best = float.PositiveInfinity;
+            MotorbikeController guide = null;
+            if (!_playerController.IsRiding && _playerController.IsWorking)
+                foreach (var bike in _motorbikes)
+                {
+                    if (bike == null || !bike.isActiveAndEnabled || bike.IsDriven) continue;
+                    float distance = (bike.transform.position - transform.position).sqrMagnitude;
+                    if (distance >= best) continue;
+                    guide = bike; best = distance;
+                }
+            if (best <= _interactionDistance * _interactionDistance) _nearest = guide;
+            if (_motorbikeArrow != null)
             {
-                _blockedGymFurniture = null;
-            }
-
-            if (_isUsingTreadmill)
-            {
-                return;
-            }
-
-            if (TryGetCompletedTap(out Vector2 tapPosition)) TryInteract(tapPosition);
-        }
-
-        public void SetInteractionEnabled(bool enabled)
-        {
-            _canInteract = enabled;
-            if (!enabled) _isTrackingTap = false;
-        }
-
-        public void SetInteractionCamera(Camera interactionCamera)
-        {
-            _interactionCamera = interactionCamera;
-        }
-
-        public void SetGymFurniture(GymFurniture[] gymFurniture)
-        {
-            _gymFurniture = gymFurniture;
-        }
-
-      
-
-        public void ExitCar()
-        {
-            if (!_isInCar) return;
-
-            _isInCar = false;
-            if (_carExitPoint != null)
-            {
-                transform.SetPositionAndRotation(_carExitPoint.position, _carExitPoint.rotation);
-            }
-
-            SetPlayerAvailable(true);
-        }
-
-        public void StopUsingTreadmill()
-        {
-            if (!_isUsingTreadmill) return;
-
-            _isUsingTreadmill = false;
-            _blockedGymFurniture = _activeGymFurniture;
-            _activeGymFurniture = null;
-            SetPlayerAvailable(true);
-            if (_animator != null) _animator.SetBool(_isGymParamHash, false);
-        }
-
-        private void TryInteract(Vector2 screenPosition)
-        {
-            if (_interactionCamera == null) return;
-
-            Ray ray = _interactionCamera.ScreenPointToRay(screenPosition);
-            if (Physics.Raycast(ray, out RaycastHit interactionHit, _interactionCamera.farClipPlane,
-                    _interactionMask, QueryTriggerInteraction.Collide)
-                && BelongsTo(interactionHit.collider, _carInteraction))
-            {
-                if (!IsWithinInteractionDistance(_carInteraction)) return;
-                EnterCar();
-                return;
-            }
-
-            if (!Physics.Raycast(ray, out RaycastHit gymHit, _interactionCamera.farClipPlane,
-                    _gymInteractionMask, QueryTriggerInteraction.Collide)) return;
-
-            GymFurniture gymFurniture = FindGymFurniture(gymHit.collider);
-            if (_blockedGymFurniture == null
-                && gymFurniture != null
-                && IsWithinInteractionDistance(gymHit.collider))
-            {
-                UseGymFurniture(gymFurniture);
+                _motorbikeArrow.SetTarget(guide != null ? guide.transform : null, _interactionCamera);
+                _motorbikeArrow.gameObject.SetActive(guide != null);
             }
         }
-
-        private bool IsWithinInteractionDistance(Collider interactionCollider)
+        public void UseMotorbike()
         {
-            if (interactionCollider == null) return false;
-
-            Vector3 closestPoint = interactionCollider.ClosestPoint(transform.position);
-            return (closestPoint - transform.position).sqrMagnitude
-                   <= _interactionDistance * _interactionDistance;
+            if (_mounted != null) { _mounted.RequestDismount(); return; }
+            FindNearestMotorbike();
+            if (_nearest != null && _nearest.TryMount(_playerController))
+            {
+                _mounted = _nearest;
+                if (_motorbikeArrow != null) _motorbikeArrow.gameObject.SetActive(false);
+                CarEntered?.Invoke();
+            }
+        }
+        public bool TryMountFromTutorial(Vector2 screen)
+        {
+            if (_mounted != null) return true;
+            _tracking = false;
+            TryTapBike(screen, true, true);
+            if (_mounted == null) TryTutorialTapArea(screen);
+            return _mounted != null;
         }
 
-        private void EnterCar()
+        private void TryTutorialTapArea(Vector2 screen)
         {
-            _isInCar = true;
-            SetPlayerAvailable(false);
+            if (_interactionCamera == null || !_interactionCamera.pixelRect.Contains(screen)) return;
+            float scale = Mathf.Min(Screen.width, Screen.height) / 1080f;
+            float padding = _tutorialTapPadding * scale;
+            float minSize = _tutorialMinTapSize * scale;
+            MotorbikeController selected = null;
+            float best = float.PositiveInfinity;
+            for (int i = 0; i < _motorbikes.Length; i++)
+            {
+                var bike = _motorbikes[i];
+                var collider = _tutorialBikeColliders[i];
+                if (bike == null || !bike.isActiveAndEnabled || bike.IsDriven || collider == null || !collider.enabled) continue;
+                Bounds bounds = collider.bounds;
+                Vector3 center = _interactionCamera.WorldToScreenPoint(bounds.center);
+                if (center.z <= _interactionCamera.nearClipPlane || center.z > 100f) continue;
+                Vector2 min = new Vector2(center.x, center.y), max = min;
+                bool clipped = false;
+                for (int corner = 0; corner < 8; corner++)
+                {
+                    Vector3 point = bounds.center + Vector3.Scale(bounds.extents,
+                        new Vector3((corner & 1) == 0 ? -1 : 1, (corner & 2) == 0 ? -1 : 1, (corner & 4) == 0 ? -1 : 1));
+                    Vector3 projected = _interactionCamera.WorldToScreenPoint(point);
+                    if (projected.z <= _interactionCamera.nearClipPlane) { clipped = true; break; }
+                    min = Vector2.Min(min, projected);
+                    max = Vector2.Max(max, projected);
+                }
+                if (clipped) continue;
+                Vector2 rectCenter = (min + max) * 0.5f;
+                Vector2 halfSize = Vector2.Max((max - min) * 0.5f + Vector2.one * padding, Vector2.one * (minSize * 0.5f));
+                if (Mathf.Abs(screen.x - rectCenter.x) > halfSize.x || Mathf.Abs(screen.y - rectCenter.y) > halfSize.y) continue;
+                float distance = (screen - rectCenter).sqrMagnitude;
+                if (distance >= best || !IsTutorialBikeVisible(bike, bounds.center)) continue;
+                selected = bike; best = distance;
+            }
+            if (selected == null || !selected.TryMount(_playerController, true)) return;
+            _mounted = selected;
+            if (_motorbikeArrow != null) _motorbikeArrow.gameObject.SetActive(false);
             CarEntered?.Invoke();
         }
 
-        private void UseGymFurniture(GymFurniture gymFurniture)
+        private bool IsTutorialBikeVisible(MotorbikeController bike, Vector3 center)
         {
-            if (!_hasUsedAnyGymFurniture)
+            Ray ray = _interactionCamera.ScreenPointToRay(_interactionCamera.WorldToScreenPoint(center));
+            int count = Physics.RaycastNonAlloc(ray, _tutorialHits, Vector3.Distance(ray.origin, center) + 0.1f, ~0, QueryTriggerInteraction.Ignore);
+            if (count == _tutorialHits.Length) return false;
+            float closest = float.PositiveInfinity;
+            Transform hitTransform = null;
+            for (int i = 0; i < count; i++)
             {
-                _hasUsedAnyGymFurniture = true;
-                DeactivateAllGymArrows();
+                var hit = _tutorialHits[i];
+                if (hit.collider.transform.IsChildOf(transform) || hit.distance >= closest) continue;
+                closest = hit.distance; hitTransform = hit.collider.transform;
             }
+            return hitTransform != null && hitTransform.IsChildOf(bike.transform);
+        }
 
-            _isUsingTreadmill = true;
-            _activeGymFurniture = gymFurniture;
-            if (_playerController != null) _playerController.IsWorking = false;
-
-            if (gymFurniture.PosPlayer != null)
+        private void TryTapBike(Vector2 screen, bool ignoreDistance = false, bool tutorialPress = false)
+        {
+            // The tutorial/joystick overlay must not consume a press on the bike.
+            if (_interactionCamera == null || (!tutorialPress && IsOverControls(screen))) return;
+            var hits = Physics.RaycastAll(_interactionCamera.ScreenPointToRay(screen), 100f, ~0, QueryTriggerInteraction.Ignore);
+            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            foreach (var hit in hits)
             {
-                if (_playerController != null)
+                if (hit.collider.transform.IsChildOf(transform)) continue;
+                var bike = hit.collider.GetComponentInParent<MotorbikeController>();
+                if (bike != null && (ignoreDistance || (bike.transform.position - transform.position).sqrMagnitude <= _interactionDistance * _interactionDistance) && bike.TryMount(_playerController, ignoreDistance))
                 {
-                    _playerController.Teleport(gymFurniture.PosPlayer);
+                    _mounted = bike;
+                    if (_motorbikeArrow != null) _motorbikeArrow.gameObject.SetActive(false);
+                    CarEntered?.Invoke();
                 }
-                else
-                {
-                    transform.SetPositionAndRotation(gymFurniture.PosPlayer.position, gymFurniture.PosPlayer.rotation);
-                }
-            }
-
-            if (_animator != null)
-            {
-                _animator.SetBool(_isGymParamHash, true);
-            }
-
-            TreadmillUsed?.Invoke();
-        }
-
-        private void DeactivateAllGymArrows()
-        {
-            if (_gymFurniture == null) return;
-
-            foreach (GymFurniture gymFurniture in _gymFurniture)
-            {
-                if (gymFurniture != null) gymFurniture.DeactivateArrow();
+                break; // A wall in front of the bike blocks interaction.
             }
         }
-
-        private GymFurniture FindGymFurniture(Collider hitCollider)
+        private bool IsOverControls(Vector2 screen)
         {
-            if (_gymFurniture == null) return null;
-
-            foreach (GymFurniture gymFurniture in _gymFurniture)
+            if (EventSystem.current == null) return false;
+            if (_pointer == null) _pointer = new PointerEventData(EventSystem.current);
+            _pointer.position = screen; _uiHits.Clear();
+            EventSystem.current.RaycastAll(_pointer, _uiHits);
+            foreach (var hit in _uiHits)
             {
-                if (gymFurniture != null && gymFurniture.Contains(hitCollider)) return gymFurniture;
+                if (hit.gameObject.GetComponentInParent<Selectable>() != null || hit.gameObject.GetComponentInParent<UltimateJoystick>() != null) return true;
             }
-
-            return null;
-        }
-
-        private void SetPlayerAvailable(bool available)
-        {
-            if (_playerController != null) _playerController.IsWorking = available;
-            if (_playerCollider != null) _playerCollider.enabled = available;
-            if (_playerVisual != null) _playerVisual.SetActive(available);
-        }
-
-        private static bool BelongsTo(Collider hitCollider, Collider interactionCollider)
-        {
-            if (hitCollider == null || interactionCollider == null) return false;
-            return hitCollider == interactionCollider
-                   || hitCollider.transform.IsChildOf(interactionCollider.transform)
-                   || interactionCollider.transform.IsChildOf(hitCollider.transform);
-        }
-
-        private bool TryGetCompletedTap(out Vector2 tapPosition)
-        {
-            tapPosition = Vector2.zero;
-#if UNITY_EDITOR || UNITY_STANDALONE
-            if (Input.GetMouseButtonDown(0))
-            {
-                BeginTap(Input.mousePosition, -1);
-            }
-
-            if (!Input.GetMouseButtonUp(0) || !_isTrackingTap) return false;
-
-            tapPosition = Input.mousePosition;
-            return CompleteTap(tapPosition);
-#else
-            for (int touchIndex = 0; touchIndex < Input.touchCount; touchIndex++)
-            {
-                Touch touch = Input.GetTouch(touchIndex);
-                if (!_isTrackingTap && touch.phase == TouchPhase.Began)
-                {
-                    BeginTap(touch.position, touch.fingerId);
-                    continue;
-                }
-
-                if (!_isTrackingTap || touch.fingerId != _trackedFingerId) continue;
-                if (touch.phase == TouchPhase.Canceled)
-                {
-                    _isTrackingTap = false;
-                    return false;
-                }
-
-                if (touch.phase != TouchPhase.Ended) continue;
-                tapPosition = touch.position;
-                return CompleteTap(tapPosition);
-            }
-
             return false;
-#endif
         }
-
-        private void BeginTap(Vector2 position, int fingerId)
+        private void BeginTap(Vector2 position, int finger)
         {
-            _isTrackingTap = true;
-            _trackedFingerId = fingerId;
-            _tapStartPosition = position;
-            _tapStartTime = Time.unscaledTime;
+            _tracking = true; _dragged = false; _tapStart = position;
+            _tapTime = Time.unscaledTime; _fingerId = finger; _startedOnUI = IsOverControls(position);
         }
-
-        private bool CompleteTap(Vector2 position)
+        private bool ReadTap(out Vector2 screen)
         {
-            _isTrackingTap = false;
-            float maxMovementSqr = _tapMaxMovement * _tapMaxMovement;
-            return (position - _tapStartPosition).sqrMagnitude <= maxMovementSqr
-                   && Time.unscaledTime - _tapStartTime <= _tapMaxDuration;
+            screen = Vector2.zero;
+            if (Input.touchCount > 0)
+            {
+                for (int i = 0; i < Input.touchCount; i++)
+                {
+                    var touch = Input.GetTouch(i);
+                    if (!_tracking && touch.phase == TouchPhase.Began) BeginTap(touch.position, touch.fingerId);
+                    if (!_tracking || touch.fingerId != _fingerId) continue;
+                    _dragged |= (touch.position - _tapStart).sqrMagnitude > _tapMaxMovement * _tapMaxMovement;
+                    if (touch.phase == TouchPhase.Canceled) { _tracking = false; return false; }
+                    if (touch.phase != TouchPhase.Ended) continue;
+                    _tracking = false; screen = touch.position;
+                    return !_startedOnUI && !_dragged && Time.unscaledTime - _tapTime <= _tapMaxDuration;
+                }
+                return false;
+            }
+            if (Input.GetMouseButtonDown(0)) BeginTap(Input.mousePosition, -1);
+            if (!_tracking) return false;
+            _dragged |= ((Vector2)Input.mousePosition - _tapStart).sqrMagnitude > _tapMaxMovement * _tapMaxMovement;
+            if (!Input.GetMouseButtonUp(0)) return false;
+            _tracking = false; screen = Input.mousePosition;
+            return !_startedOnUI && !_dragged && Time.unscaledTime - _tapTime <= _tapMaxDuration;
+        }
+        private void OnDisable()
+        {
+            _tracking = false;
+            if (_motorbikeArrow != null) _motorbikeArrow.gameObject.SetActive(false);
         }
     }
 }
