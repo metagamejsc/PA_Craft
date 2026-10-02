@@ -412,77 +412,9 @@ public static class PetSceneSetup
         return "Configured rabbit, pig, fox and happy puppy sounds on four pet prefabs.";
     }
 
-    public static string ConfigureFeedingPrompt()
-    {
-        foreach (string name in new[] { "Rabbit", "Pig", "Fox", "Dog" })
-        {
-            string path = Output + "/Prefabs/" + name + ".prefab";
-            var prefab = PrefabUtility.LoadPrefabContents(path);
-            try
-            {
-                var status = prefab.GetComponentInChildren<PetStatusView>(true);
-                foreach (var label in status.GetComponentsInChildren<TMP_Text>(true))
-                    Object.DestroyImmediate(label.gameObject);
-                PrefabUtility.SaveAsPrefabAsset(prefab, path);
-            }
-            finally { PrefabUtility.UnloadPrefabContents(prefab); }
-        }
-        var map = Object.FindFirstObjectByType<MapController>();
-        var canvas = (Canvas)new SerializedObject(map).FindProperty("_uiCanvas").objectReferenceValue;
-        if (canvas == null) throw new Exception("Gameplay canvas is missing");
-        var existing = canvas.transform.Find("Pet feeding prompt");
-        if (existing != null) Object.DestroyImmediate(existing.gameObject);
-        var text = (TMP_Text)new SerializedObject(map).FindProperty("_hintText").objectReferenceValue;
-        if (text == null) throw new Exception("MapController Hint Text is missing");
-        text.raycastTarget = false;
-        EditorSceneManager.MarkSceneDirty(map.gameObject.scene);
-        EditorSceneManager.SaveScene(map.gameObject.scene);
-        AssetDatabase.SaveAssets();
-        return "Pet feeding now uses the existing MapController Hint Text.";
-    }
 
-    public static string ConfigureScene()
-    {
-        var map = Object.FindFirstObjectByType<MapController>();
-        var items = Object.FindObjectsByType<HotbarItem>(FindObjectsInactive.Include, FindObjectsSortMode.None)
-            .OrderBy(x => x.transform.GetSiblingIndex()).ToArray();
-        if (items.Length != 6) throw new Exception("Expected six hotbar slots, found " + items.Length);
-        // Preserve the second Verity's icon, then replace the contents of the six existing slots.
-        var oldVerityIcon = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Playable_/2D Texture/Mutant Ball Verity_isometric.png");
-        string[] names = { "Verity", "Gugugaga", "Rabbit", "Pig", "Fox", "Dog" };
-        if (items.All(x => x.name.StartsWith("Hotbar ")))
-            items = names.Select(n => items.First(x => x.name == "Hotbar " + n)).ToArray();
-        for (int i = 0; i < names.Length; i++)
-        {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Output + "/Prefabs/" + names[i] + ".prefab");
-            Set(items[i], "_prefab", prefab.GetComponent<Monster>());
-            items[i].name = "Hotbar " + names[i];
-            items[i].transform.SetSiblingIndex(i);
-            var icon = items[i].GetComponentsInChildren<Image>(true).First(x => x.name == "Icon");
-            icon.sprite = i == 0 ? oldVerityIcon : RenderIcon(prefab, names[i]);
-            icon.preserveAspect = true;
-            PrefabUtility.RecordPrefabInstancePropertyModifications(icon);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(items[i].transform);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(items[i].gameObject);
-            items[i].SetSelected(false);
-            var label = items[i].transform.Find("Pet name");
-            if (label == null) label = Label(items[i].transform, "Pet name", names[i], new Vector2(0, -43), new Vector2(115, 24), 16).transform;
-            ((RectTransform)label).anchoredPosition = new Vector2(0, -43);
-            label.GetComponent<TMP_Text>().fontSize = 16;
-            EditorUtility.SetDirty(items[i]);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(items[i]);
-        }
-        SetObjects(map, "_hotbarItems", items);
-        Set(map, "_prefabMonster", null);
-        var mapSo = new SerializedObject(map);
-        mapSo.FindProperty("_selectHotbarHintText").stringValue = "Select a companion to summon";
-        mapSo.ApplyModifiedPropertiesWithoutUndo();
-        PrefabUtility.RecordPrefabInstancePropertyModifications(map);
-        EditorSceneManager.MarkSceneDirty(map.gameObject.scene);
-        EditorSceneManager.SaveScene(map.gameObject.scene);
-        AssetDatabase.SaveAssets();
-        return "Hotbar configured: Verity, Gugugaga, Rabbit, Pig, Fox, Dog.";
-    }
+
+
 
     public static Sprite RenderIcon(GameObject prefab, string name)
     {

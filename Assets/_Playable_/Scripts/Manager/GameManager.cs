@@ -12,16 +12,13 @@ namespace Playable
         [Header("Luna Field")] [LunaPlaygroundField("Total Event For CTA")] [SerializeField]
         private int _totalEvent;
 
-        [LunaPlaygroundField("Ignore Count Event")] [SerializeField]
-        private bool _ignoreCountEvent;
-
         [LunaPlaygroundField("End Time")] [SerializeField]
         private int _endTime = 30;
 
         [LunaPlaygroundAsset("Background Music")] [SerializeField]
         private AudioClip _backgroundMusic;
 
-        [LunaPlaygroundAsset("Background Texture")] [SerializeField]
+        [SerializeField]
         private Texture2D _backgroundTexture;
 
         [SerializeField] private Button _btnBlock;
@@ -31,6 +28,10 @@ namespace Playable
         [SerializeField] private WinPanel _winPanel;
 
         private int _quantityEvent = 0;
+        private Coroutine _endGameCountdown;
+        public int TotalEvents => Mathf.Max(0, _totalEvent);
+        public bool HasEnded { get; private set; }
+        public int EventCount => _quantityEvent;
 
         private void Awake()
         {
@@ -39,10 +40,9 @@ namespace Playable
 
         private void Start()
         {
-            _btnBlock.onClick.AddListener(EndGame);
-            _btnBlock.gameObject.SetActive(false);
+            if (_btnBlock != null) { _btnBlock.onClick.AddListener(EndGame); _btnBlock.gameObject.SetActive(false); }
 
-            if (_backgroundTexture) _background.sprite = CreateSprite(_backgroundTexture);
+            if (_backgroundTexture && _background != null) _background.sprite = CreateSprite(_backgroundTexture);
             if (_backgroundMusic) AudioManager.Instance.PlayMusic(_backgroundMusic);
             CountdownEndGame();
         }
@@ -50,15 +50,22 @@ namespace Playable
 
         public void EndGame()
         {
+            if (HasEnded) return;
+            HasEnded = true;
+            if (_endGameCountdown != null)
+            {
+                StopCoroutine(_endGameCountdown);
+                _endGameCountdown = null;
+            }
             Debug.Log("End Game");
-            _btnBlock.gameObject.SetActive(true);
+            if (_btnBlock != null) _btnBlock.gameObject.SetActive(true);
             Luna.Unity.LifeCycle.GameEnded();
             Luna.Unity.Playable.InstallFullGame();
         }
 
         public void CountEvent()
         {
-            if (_ignoreCountEvent) return;
+            if (HasEnded) return;
             _quantityEvent++;
             if (_quantityEvent >= _totalEvent)
             {
@@ -68,12 +75,14 @@ namespace Playable
 
         public void CountdownEndGame()
         {
-            StartCoroutine(IECountdownEndGame());
+            if (HasEnded || _endGameCountdown != null) return;
+            _endGameCountdown = StartCoroutine(IECountdownEndGame());
         }
 
         private IEnumerator IECountdownEndGame()
         {
-            yield return new WaitForSeconds(_endTime);
+            yield return new WaitForSeconds(Mathf.Max(0, _endTime));
+            _endGameCountdown = null;
             EndGame();
         }
 

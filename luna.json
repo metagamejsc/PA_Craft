@@ -2,7 +2,7 @@
     "version": "7.2.0",
     "projectId": "e0c7d7b99f381904ba55b26de53e9500",
     "applicationID": 39768,
-    "creativeName": "CBBW2_V25_YenTTH_HuyNQ",
+    "creativeName": "CBBW2_V26_YenTTH_HuyNQ",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -81,7 +81,7 @@
             "externalJSLibraries": [],
             "scriptingDefines": [],
             "msbuildVersion": "18.9",
-            "monoVersion": "9.0.18",
+            "monoVersion": "9.0.3",
             "dotnetVersion": ""
         },
         "assets": {
@@ -3096,10 +3096,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.AnimationState",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.AnimatorClipInfo",
                 "excluded": true
             },
@@ -3801,10 +3797,6 @@
             },
             {
                 "name": "Luna.Unity.DTO.UnityEngine.Components.TrailRenderer",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.Animation",
                 "excluded": true
             },
             {
@@ -5001,7 +4993,7 @@
             },
             {
                 "name": "UnityEngine.AnimationState.FadeType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.AnimatorCullingMode",
@@ -7560,10 +7552,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.BaseMeshEffect",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.CoroutineTween.FloatTween",
                 "excluded": true
             },
@@ -7580,19 +7568,11 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.Shadow",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.EventSystems.Physics2DRaycaster",
                 "excluded": true
             },
             {
                 "name": "UnityEngine.UI.Dropdown",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.UI.Outline",
                 "excluded": true
             },
             {
@@ -7621,7 +7601,7 @@
             },
             {
                 "name": "UnityEngine.UI.IMeshModifier",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.ContentSizeFitter.FitMode",
@@ -8344,27 +8324,23 @@
                 "excluded": false
             },
             {
-                "name": "Playable.GameController.ActiveMonster",
-                "excluded": true
-            },
-            {
-                "name": "Playable.GameController.MonsterKind",
-                "excluded": true
-            },
-            {
-                "name": "Playable.GameController.Phase",
-                "excluded": true
-            },
-            {
                 "name": "Playable.IMonsterSelector",
                 "excluded": false
             },
             {
-                "name": "Playable.MapController.TutorialStep",
+                "name": "Playable.GameController.Pet",
                 "excluded": false
             },
             {
-                "name": "Playable.Phase",
+                "name": "Playable.GameController.PicnicPhase",
+                "excluded": false
+            },
+            {
+                "name": "Playable.GameController.PlayerPoseClip",
+                "excluded": false
+            },
+            {
+                "name": "Playable.GameController.PlayerPoseTrack",
                 "excluded": false
             }
         ],
@@ -21983,7 +21959,7 @@
                     },
                     {
                         "name": "bounds#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isTrigger#get",
@@ -37824,10 +37800,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "IECountdownEndGame",
-                        "excluded": false
-                    },
-                    {
                         "name": "CreateSprite",
                         "excluded": true
                     },
@@ -37840,7 +37812,19 @@
                         "excluded": false
                     },
                     {
+                        "name": "TotalEvents#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EventCount#get",
+                        "excluded": true
+                    },
+                    {
                         "name": "CountdownEndGame",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IECountdownEndGame",
                         "excluded": false
                     }
                 ]
@@ -37854,10 +37838,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
                         "name": "Start",
                         "excluded": false
                     },
@@ -37866,168 +37846,88 @@
                         "excluded": false
                     },
                     {
-                        "name": "IsPointerOverUI",
+                        "name": "CachePetPose",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RestorePetPose",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsBusy#get",
                         "excluded": true
                     },
                     {
-                        "name": "TryGetTapPosition",
-                        "excluded": true
+                        "name": "UiCamera#get",
+                        "excluded": false
                     },
                     {
-                        "name": "HandleTap",
-                        "excluded": true
+                        "name": "Introduction",
+                        "excluded": false
                     },
                     {
-                        "name": "SpawnAtPoint",
-                        "excluded": true
+                        "name": "SetPhase",
+                        "excluded": false
                     },
                     {
-                        "name": "SpawnMonster",
-                        "excluded": true
+                        "name": "LateUpdate",
+                        "excluded": false
                     },
                     {
-                        "name": "TrimMonsters",
-                        "excluded": true
+                        "name": "ReadPointer",
+                        "excluded": false
                     },
                     {
-                        "name": "ResolveWorldPosition",
-                        "excluded": true
+                        "name": "BeginPointer",
+                        "excluded": false
                     },
                     {
-                        "name": "TryScreenToGround",
-                        "excluded": true
+                        "name": "MovePointer",
+                        "excluded": false
                     },
                     {
-                        "name": "ContainsScreenPoint",
-                        "excluded": true
+                        "name": "EndPointer",
+                        "excluded": false
                     },
                     {
-                        "name": "GetZoneScreenPosition",
-                        "excluded": true
+                        "name": "SlotAt",
+                        "excluded": false
                     },
                     {
-                        "name": "PlaySpawnVfx",
-                        "excluded": true
+                        "name": "SelectItem",
+                        "excluded": false
                     },
                     {
-                        "name": "GetSpawnPoint",
-                        "excluded": true
+                        "name": "TryGiveItem",
+                        "excluded": false
                     },
                     {
-                        "name": "CreateMonster",
-                        "excluded": true
+                        "name": "React",
+                        "excluded": false
                     },
                     {
-                        "name": "GetMonsterFromPool",
-                        "excluded": true
+                        "name": "UpdateTutorial",
+                        "excluded": false
                     },
                     {
-                        "name": "ReleaseMonster",
-                        "excluded": true
+                        "name": "PlayInteractionAudio",
+                        "excluded": false
                     },
                     {
-                        "name": "GetVfxFromPool",
-                        "excluded": true
+                        "name": "ApplyPlayerPose",
+                        "excluded": false
                     },
                     {
-                        "name": "UpdateActiveVfx",
-                        "excluded": true
+                        "name": "PrepareIntroCamera",
+                        "excluded": false
                     },
                     {
-                        "name": "IsGuided#get",
-                        "excluded": true
+                        "name": "FrameIntroCamera",
+                        "excluded": false
                     },
                     {
-                        "name": "PrewarmPool",
-                        "excluded": true
-                    },
-                    {
-                        "name": "TrySelectKindFromHotbar",
-                        "excluded": true
-                    },
-                    {
-                        "name": "SelectKind",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ResolveHotbarIndicators",
-                        "excluded": true
-                    },
-                    {
-                        "name": "RefreshHotbarIndicators",
-                        "excluded": true
-                    },
-                    {
-                        "name": "GetKind",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ClampKindIndex",
-                        "excluded": true
-                    },
-                    {
-                        "name": "UpdateHintDelay",
-                        "excluded": true
-                    },
-                    {
-                        "name": "MoveTargetToCurrentPoint",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ShowTarget",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ShowHand",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HandleGuidedTap",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HandleFreeTap",
-                        "excluded": true
-                    },
-                    {
-                        "name": "EnterFreeTapPhase",
-                        "excluded": true
-                    },
-                    {
-                        "name": "Complete",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CacheSpawnPoints",
-                        "excluded": true
-                    },
-                    {
-                        "name": "PlayParticles",
-                        "excluded": true
-                    },
-                    {
-                        "name": "EnsureGuideVfxStarted",
-                        "excluded": true
-                    },
-                    {
-                        "name": "ShowGuideVfx",
-                        "excluded": true
-                    },
-                    {
-                        "name": "RefreshGuideVfxPosition",
-                        "excluded": true
-                    },
-                    {
-                        "name": "CacheGuideVfxSource",
-                        "excluded": true
-                    },
-                    {
-                        "name": "HideGuideVfx",
-                        "excluded": true
-                    },
-                    {
-                        "name": "UpdateGuideVfx",
-                        "excluded": true
+                        "name": "UpdateFirstPersonCamera",
+                        "excluded": false
                     }
                 ]
             },
@@ -38322,16 +38222,6 @@
                     {
                         "name": "SyncTargetRotation",
                         "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "Playable.GameController.MonsterSpawnPoint",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": true
                     }
                 ]
             },
@@ -38856,32 +38746,6 @@
                 ]
             },
             {
-                "className": "Playable.GameController.ActiveVfx",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "getDefaultValue",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ctor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "getHashCode",
-                        "excluded": true
-                    },
-                    {
-                        "name": "equals",
-                        "excluded": true
-                    },
-                    {
-                        "name": "$clone",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
                 "className": "Playable.HotbarItem",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -38965,200 +38829,6 @@
                     },
                     {
                         "name": "ShowDrag",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "Playable.MapController",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Start",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SelectMonster",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TrySpawnMonster",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryGetTapPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsPointerOverUI",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryGetGroundPoint",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleTap",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CurrentPhase#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    },
-                    {
-                        "name": "IsSpawnWaitStep",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GoToTransformStep",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandlePlayerTransformed",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetTransformButtonHighlighted",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GoToHotbarStep",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GoToSpawnStep",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AdvanceAfterSpawnFailure",
-                        "excluded": true
-                    },
-                    {
-                        "name": "FinishTutorial",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowHandAt",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HandleTutorialTap",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsTapOnTarget",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EnterGameplay",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RefreshTutorialPointPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CacheCameraState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowVfx",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideVfx",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ResolveUiCamera",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetSpawnPoint",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryGetGroundPoint$1",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowHintText",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowSpawnHintText",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideHintText",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RefreshHandPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "IsBlockedUiHandler",
-                        "excluded": false
-                    },
-                    {
-                        "name": "BeginPointerTracking",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateSwipeState",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EndPointerTracking",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "StopFeedingHintPulse",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryInteractWithPet",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateMovementTutorial",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowGameplaySpawnGuide",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryGetSpawnGuidePoint",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RefreshGameplaySpawnGuide",
                         "excluded": false
                     }
                 ]
@@ -39312,40 +38982,6 @@
                 ]
             },
             {
-                "className": "Playable.FeedingTutorial",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": true
-                    },
-                    {
-                        "name": "OnFed",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Hide",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "Playable.PetNeeds",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -39472,6 +39108,252 @@
                     {
                         "name": "LateUpdate",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.AnimationState",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "length#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "name#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "name#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "normalizedTime#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "normalizedTime#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddTime",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Rewind",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Stoped",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Fade",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.Animation",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "clip#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "clip#set",
+                        "excluded": false
+                    },
+                    {
+                        "name": "clips#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "clips#set",
+                        "excluded": false
+                    },
+                    {
+                        "name": "wrapMode#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "wrapMode#set",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getItem",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsPlaying",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetEnumerator",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AddClip",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Play",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Play$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "UpdateClipWrapMode",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Stop",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Stop$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Rewind",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddTime",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TriggerEvents",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Sample",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CrossFade",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.BaseMeshEffect",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "graphic#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDidApplyAnimationProperties",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ModifyMesh",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.Shadow",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "effectColor#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "effectColor#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "effectDistance#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "effectDistance#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "useGraphicAlpha#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "useGraphicAlpha#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyShadowZeroAlloc",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyShadow",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ModifyMesh$1",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.Outline",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ModifyMesh$1",
+                        "excluded": true
                     }
                 ]
             }
